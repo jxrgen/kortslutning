@@ -776,8 +776,12 @@ input:focus,select:focus{border-color:var(--cu)}
 .optoast{position:fixed;top:64px;left:50%;transform:translateX(-50%);z-index:38;display:flex;gap:10px;align-items:center;
   background:#0a140e;border:1px solid var(--line);border-radius:14px;padding:8px 12px;animation:ind .2s}
 .logpanel{position:fixed;left:8px;bottom:130px;z-index:36;width:min(320px,86vw);max-height:44dvh;overflow-y:auto;
-  background:rgba(8,14,10,.96);border:1px solid var(--line);border-radius:12px;padding:10px;
+  background:rgba(8,14,10,.96);border:1px solid var(--line);border-radius:12px;padding:0;
   font-family:var(--mono);font-size:11.5px;line-height:1.5;color:var(--dim)}
+.logpanel .lhoved{position:sticky;top:0;display:flex;align-items:center;justify-content:space-between;
+  background:rgba(8,14,10,.98);border-bottom:1px solid var(--line);padding:8px 10px;font-weight:700;color:var(--cu2)}
+.logpanel .lluk{font-size:16px;line-height:1;padding:2px 6px;color:var(--dim)}
+.logpanel .lkrop{padding:8px 10px}
 .logknap{position:fixed;left:10px;bottom:calc(126px + env(safe-area-inset-bottom));z-index:36;width:38px;height:38px;border-radius:50%;
   background:var(--bg1);border:1px solid var(--line);font-size:16px}
 .turban{position:fixed;top:38%;left:0;right:0;z-index:30;text-align:center;font-family:var(--disp);
@@ -1006,8 +1010,16 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete})
             onClick={()=>{ if(tmode){setT(null);return;} setSel({kind:"hand",id:c.id,uid:c.uid}); }}/>)}
       </div>
 
-      <button className="logknap" onClick={()=>setVisLog(v=>!v)}>📜</button>
-      {visLog && <div className="logpanel">{g.log.slice().reverse().map((l,i)=><div key={i}>{l}</div>)}</div>}
+      <button className="logknap" onClick={()=>setVisLog(v=>!v)}>{visLog?"✕":"📜"}</button>
+      {visLog && (
+        <div className="logpanel">
+          <div className="lhoved">
+            <span>📜 Kamplog</span>
+            <button className="lluk" onClick={()=>setVisLog(false)}>✕</button>
+          </div>
+          <div className="lkrop">{g.log.slice().reverse().map((l,i)=><div key={i}>{l}</div>)}</div>
+        </div>
+      )}
 
       {ptoast && <div className="optoast"><MiniCard id={ptoast.id}/><span style={{fontFamily:"var(--mono)",fontSize:12,color:"var(--dim)"}}>{op.name}<br/>spiller…</span></div>}
 
