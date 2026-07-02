@@ -7,11 +7,15 @@
   "scripts": {
     "test": "node test/test.mjs",
     "test:ui": "node test/testui.mjs",
+    "build:assets": "node tools/gen-assets.mjs",
     "build:web": "esbuild web/main.jsx --bundle --minify --jsx=automatic --loader:.jsx=jsx --outfile=docs/app.js"
   },
   "devDependencies": {
     "esbuild": "^0.28.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
+  },
+  "dependencies": {
+    "sharp": "^0.35.3"
   }
 }

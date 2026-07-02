@@ -1,0 +1,2047 @@
+{
+ "game": "KORTSLUTNING",
+ "version": "1.0",
+ "cardSize": {
+  "w": 750,
+  "h": 1050
+ },
+ "cardBack": {
+  "svg": "svg/_bagside.svg",
+  "png": "png/_bagside.png"
+ },
+ "atlas": "atlas/kort-atlas.json",
+ "cards": [
+  {
+   "id": "s_stod",
+   "name": "Statisk Stød",
+   "cost": 0,
+   "type": "program",
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Giv 1 skade.",
+   "files": {
+    "svg": "svg/s_stod.svg",
+    "png": "png/s_stod.png"
+   }
+  },
+  {
+   "id": "s_nodstrom",
+   "name": "Nødstrøm",
+   "cost": 0,
+   "type": "program",
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Få 2 energi denne tur. Overophedning (2).",
+   "files": {
+    "svg": "svg/s_nodstrom.svg",
+    "png": "png/s_nodstrom.png"
+   }
+  },
+  {
+   "id": "s_kortslut",
+   "name": "Kortslutning",
+   "cost": 1,
+   "type": "program",
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Giv 2 skade.",
+   "files": {
+    "svg": "svg/s_kortslut.svg",
+    "png": "png/s_kortslut.png"
+   }
+  },
+  {
+   "id": "s_loddetin",
+   "name": "Loddetin",
+   "cost": 1,
+   "type": "program",
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Giv en venlig enhed +0/+3.",
+   "files": {
+    "svg": "svg/s_loddetin.svg",
+    "png": "png/s_loddetin.png"
+   }
+  },
+  {
+   "id": "s_overclock",
+   "name": "Overclock",
+   "cost": 1,
+   "type": "program",
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Giv en venlig enhed +2/+0, og den kan angribe med det samme.",
+   "files": {
+    "svg": "svg/s_overclock.svg",
+    "png": "png/s_overclock.png"
+   }
+  },
+  {
+   "id": "s_stoj",
+   "name": "Signalstøj",
+   "cost": 1,
+   "type": "program",
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Giv en fjendtlig enhed -2 angreb.",
+   "files": {
+    "svg": "svg/s_stoj.svg",
+    "png": "png/s_stoj.png"
+   }
+  },
+  {
+   "id": "s_datalak",
+   "name": "Datalæk",
+   "cost": 1,
+   "type": "program",
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Træk et kort. Kæde: Træk 2 i stedet.",
+   "files": {
+    "svg": "svg/s_datalak.svg",
+    "png": "png/s_datalak.png"
+   }
+  },
+  {
+   "id": "s_lynafleder",
+   "name": "Lynafleder",
+   "cost": 2,
+   "type": "program",
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Giv en venlig enhed Jordet og +0/+2.",
+   "files": {
+    "svg": "svg/s_lynafleder.svg",
+    "png": "png/s_lynafleder.png"
+   }
+  },
+  {
+   "id": "s_genstart",
+   "name": "Genstart",
+   "cost": 2,
+   "type": "program",
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Returnér en enhed til ejerens hånd.",
+   "files": {
+    "svg": "svg/s_genstart.svg",
+    "png": "png/s_genstart.png"
+   }
+  },
+  {
+   "id": "s_diag",
+   "name": "Diagnostik",
+   "cost": 2,
+   "type": "program",
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Træk 2 kort.",
+   "files": {
+    "svg": "svg/s_diag.svg",
+    "png": "png/s_diag.png"
+   }
+  },
+  {
+   "id": "s_nulstil",
+   "name": "Nulstil",
+   "cost": 2,
+   "type": "program",
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Nulstil en enhed (fjerner al tekst og alle buffs).",
+   "files": {
+    "svg": "svg/s_nulstil.svg",
+    "png": "png/s_nulstil.png"
+   }
+  },
+  {
+   "id": "s_lysbue",
+   "name": "Lysbue",
+   "cost": 2,
+   "type": "program",
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Giv 2 skade til en fjendtlig enhed og 1 til dens naboer.",
+   "files": {
+    "svg": "svg/s_lysbue.svg",
+    "png": "png/s_lysbue.png"
+   }
+  },
+  {
+   "id": "s_spids",
+   "name": "Spændingsspids",
+   "cost": 2,
+   "type": "program",
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Giv 3 skade. Overophedning (1).",
+   "files": {
+    "svg": "svg/s_spids.svg",
+    "png": "png/s_spids.png"
+   }
+  },
+  {
+   "id": "s_kabels",
+   "name": "Kabelsalat",
+   "cost": 2,
+   "type": "program",
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Byt en enheds angreb og liv.",
+   "files": {
+    "svg": "svg/s_kabels.svg",
+    "png": "png/s_kabels.png"
+   }
+  },
+  {
+   "id": "s_reserve",
+   "name": "Reservedele",
+   "cost": 2,
+   "type": "program",
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Tilføj 2 tilfældige Komponenter til din hånd.",
+   "files": {
+    "svg": "svg/s_reserve.svg",
+    "png": "png/s_reserve.png"
+   }
+  },
+  {
+   "id": "s_firmware",
+   "name": "Firmwareopdatering",
+   "cost": 3,
+   "type": "program",
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Giv alle dine enheder +1/+1.",
+   "files": {
+    "svg": "svg/s_firmware.svg",
+    "png": "png/s_firmware.png"
+   }
+  },
+  {
+   "id": "s_genoplad",
+   "name": "Genopladning",
+   "cost": 3,
+   "type": "program",
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Reparér din helt og alle venlige enheder 3.",
+   "files": {
+    "svg": "svg/s_genoplad.svg",
+    "png": "png/s_genoplad.png"
+   }
+  },
+  {
+   "id": "s_hack",
+   "name": "Hackerangreb",
+   "cost": 3,
+   "type": "program",
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Overtag en fjendtlig enhed med højst 2 angreb.",
+   "files": {
+    "svg": "svg/s_hack.svg",
+    "png": "png/s_hack.png"
+   }
+  },
+  {
+   "id": "s_induk",
+   "name": "Induktion",
+   "cost": 3,
+   "type": "program",
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Få 1 energi denne tur. Træk et kort.",
+   "files": {
+    "svg": "svg/s_induk.svg",
+    "png": "png/s_induk.png"
+   }
+  },
+  {
+   "id": "s_backup",
+   "name": "Backup",
+   "cost": 3,
+   "type": "program",
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Tilføj en kopi af en venlig enhed til din hånd.",
+   "files": {
+    "svg": "svg/s_backup.svg",
+    "png": "png/s_backup.png"
+   }
+  },
+  {
+   "id": "s_kompil",
+   "name": "Kompilér",
+   "cost": 3,
+   "type": "program",
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Træk et tilfældigt Program fra din kortbunke.",
+   "files": {
+    "svg": "svg/s_kompil.svg",
+    "png": "png/s_kompil.png"
+   }
+  },
+  {
+   "id": "s_kadelyn",
+   "name": "Kædelyn",
+   "cost": 4,
+   "type": "program",
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Giv 3 skade til en fjendtlig enhed og 2 til dens naboer.",
+   "files": {
+    "svg": "svg/s_kadelyn.svg",
+    "png": "png/s_kadelyn.png"
+   }
+  },
+  {
+   "id": "s_magnet",
+   "name": "Magnetfelt",
+   "cost": 4,
+   "type": "program",
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Giv 2 skade til alle fjendtlige enheder.",
+   "files": {
+    "svg": "svg/s_magnet.svg",
+    "png": "png/s_magnet.png"
+   }
+  },
+  {
+   "id": "s_forstark",
+   "name": "Effektforstærker",
+   "cost": 4,
+   "type": "program",
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Fordobl en venlig enheds angreb.",
+   "files": {
+    "svg": "svg/s_forstark.svg",
+    "png": "png/s_forstark.png"
+   }
+  },
+  {
+   "id": "s_gendan",
+   "name": "Systemgendannelse",
+   "cost": 4,
+   "type": "program",
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Reparér din helt 8.",
+   "files": {
+    "svg": "svg/s_gendan.svg",
+    "png": "png/s_gendan.png"
+   }
+  },
+  {
+   "id": "s_overbel",
+   "name": "Overbelastning",
+   "cost": 4,
+   "type": "program",
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Giv 5 skade. Overophedning (2).",
+   "files": {
+    "svg": "svg/s_overbel.svg",
+    "png": "png/s_overbel.png"
+   }
+  },
+  {
+   "id": "s_ransom",
+   "name": "Ransomware",
+   "cost": 5,
+   "type": "program",
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Ødelæg en fjendtlig enhed. Modstanderen trækker et kort.",
+   "files": {
+    "svg": "svg/s_ransom.svg",
+    "png": "png/s_ransom.png"
+   }
+  },
+  {
+   "id": "s_printer",
+   "name": "3D-Printer",
+   "cost": 5,
+   "type": "program",
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Tilkald en kopi af en venlig enhed (grundudgaven).",
+   "files": {
+    "svg": "svg/s_printer.svg",
+    "png": "png/s_printer.png"
+   }
+  },
+  {
+   "id": "s_uvejr",
+   "name": "Uvejr i Serverrummet",
+   "cost": 5,
+   "type": "program",
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Giv 2 skade til en tilfældig fjende, 4 gange.",
+   "files": {
+    "svg": "svg/s_uvejr.svg",
+    "png": "png/s_uvejr.png"
+   }
+  },
+  {
+   "id": "s_oversp",
+   "name": "Overspænding",
+   "cost": 6,
+   "type": "program",
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Giv 4 skade til alle fjendtlige enheder.",
+   "files": {
+    "svg": "svg/s_oversp.svg",
+    "png": "png/s_oversp.png"
+   }
+  },
+  {
+   "id": "s_massep",
+   "name": "Masseproduktion",
+   "cost": 6,
+   "type": "program",
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Fyld dit bræt med 1/1 Mikrobotter.",
+   "files": {
+    "svg": "svg/s_massep.svg",
+    "png": "png/s_massep.png"
+   }
+  },
+  {
+   "id": "s_emp",
+   "name": "EMP",
+   "cost": 7,
+   "type": "program",
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Ødelæg alle enheder.",
+   "files": {
+    "svg": "svg/s_emp.svg",
+    "png": "png/s_emp.png"
+   }
+  },
+  {
+   "id": "s_nedsmelt",
+   "name": "Total Nedsmeltning",
+   "cost": 8,
+   "type": "program",
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Giv 4 skade til alle helte og enheder.",
+   "files": {
+    "svg": "svg/s_nedsmelt.svg",
+    "png": "png/s_nedsmelt.png"
+   }
+  },
+  {
+   "id": "u_modstand",
+   "name": "Modstand",
+   "cost": 1,
+   "type": "enhed",
+   "tribe": "Komponent",
+   "rarity": null,
+   "attack": 0,
+   "health": 3,
+   "keywords": [
+    "jord"
+   ],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Jordet.",
+   "files": {
+    "svg": "svg/u_modstand.svg",
+    "png": "png/u_modstand.png"
+   }
+  },
+  {
+   "id": "u_led",
+   "name": "LED",
+   "cost": 1,
+   "type": "enhed",
+   "tribe": "Komponent",
+   "rarity": null,
+   "attack": 1,
+   "health": 1,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Nedbrud: Giv en tilfældig venlig enhed +1/+0.",
+   "files": {
+    "svg": "svg/u_led.svg",
+    "png": "png/u_led.png"
+   }
+  },
+  {
+   "id": "u_kontakt",
+   "name": "Kontakt",
+   "cost": 1,
+   "type": "enhed",
+   "tribe": "Komponent",
+   "rarity": null,
+   "attack": 1,
+   "health": 2,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Installation — Kæde: Træk et kort.",
+   "files": {
+    "svg": "svg/u_kontakt.svg",
+    "png": "png/u_kontakt.png"
+   }
+  },
+  {
+   "id": "u_sikring",
+   "name": "Sikring",
+   "cost": 1,
+   "type": "enhed",
+   "tribe": "Komponent",
+   "rarity": null,
+   "attack": 0,
+   "health": 2,
+   "keywords": [
+    "jord"
+   ],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Jordet. Nedbrud: Reparér din helt 2.",
+   "files": {
+    "svg": "svg/u_sikring.svg",
+    "png": "png/u_sikring.png"
+   }
+  },
+  {
+   "id": "u_piezo",
+   "name": "Piezo-bipper",
+   "cost": 1,
+   "type": "enhed",
+   "tribe": "Komponent",
+   "rarity": null,
+   "attack": 1,
+   "health": 1,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Nedbrud: Giv 1 skade til en tilfældig fjendtlig enhed.",
+   "files": {
+    "svg": "svg/u_piezo.svg",
+    "png": "png/u_piezo.png"
+   }
+  },
+  {
+   "id": "u_transistor",
+   "name": "Transistor",
+   "cost": 2,
+   "type": "enhed",
+   "tribe": "Komponent",
+   "rarity": null,
+   "attack": 2,
+   "health": 2,
+   "keywords": [],
+   "spellDamage": 1,
+   "token": false,
+   "collectible": true,
+   "text": "Signalstyrke +1 (dine Programmer giver +1 skade).",
+   "files": {
+    "svg": "svg/u_transistor.svg",
+    "png": "png/u_transistor.png"
+   }
+  },
+  {
+   "id": "u_diode",
+   "name": "Diode",
+   "cost": 2,
+   "type": "enhed",
+   "tribe": "Komponent",
+   "rarity": null,
+   "attack": 3,
+   "health": 2,
+   "keywords": [
+    "noHero"
+   ],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Kan ikke angribe helte.",
+   "files": {
+    "svg": "svg/u_diode.svg",
+    "png": "png/u_diode.png"
+   }
+  },
+  {
+   "id": "u_kondens",
+   "name": "Kondensator",
+   "cost": 2,
+   "type": "enhed",
+   "tribe": "Komponent",
+   "rarity": null,
+   "attack": 1,
+   "health": 3,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Nedbrud: Gem 1 energi i kondensatorbanken.",
+   "files": {
+    "svg": "svg/u_kondens.svg",
+    "png": "png/u_kondens.png"
+   }
+  },
+  {
+   "id": "u_koleleg",
+   "name": "Kølelegeme",
+   "cost": 2,
+   "type": "enhed",
+   "tribe": "Komponent",
+   "rarity": null,
+   "attack": 0,
+   "health": 5,
+   "keywords": [
+    "jord"
+   ],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Jordet.",
+   "files": {
+    "svg": "svg/u_koleleg.svg",
+    "png": "png/u_koleleg.png"
+   }
+  },
+  {
+   "id": "u_spole",
+   "name": "Spole",
+   "cost": 2,
+   "type": "enhed",
+   "tribe": "Komponent",
+   "rarity": null,
+   "attack": 2,
+   "health": 3,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "„Brummer lidt, men den holder.“",
+   "files": {
+    "svg": "svg/u_spole.svg",
+    "png": "png/u_spole.png"
+   }
+  },
+  {
+   "id": "u_potmeter",
+   "name": "Potentiometer",
+   "cost": 2,
+   "type": "enhed",
+   "tribe": "Komponent",
+   "rarity": null,
+   "attack": 1,
+   "health": 1,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Installation: Giv en anden venlig enhed +1/+1.",
+   "files": {
+    "svg": "svg/u_potmeter.svg",
+    "png": "png/u_potmeter.png"
+   }
+  },
+  {
+   "id": "u_krystal",
+   "name": "Krystaloscillator",
+   "cost": 3,
+   "type": "enhed",
+   "tribe": "Komponent",
+   "rarity": null,
+   "attack": 2,
+   "health": 2,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Ved din turs start: +1 angreb.",
+   "files": {
+    "svg": "svg/u_krystal.svg",
+    "png": "png/u_krystal.png"
+   }
+  },
+  {
+   "id": "u_printplade",
+   "name": "Printplade",
+   "cost": 3,
+   "type": "enhed",
+   "tribe": "Komponent",
+   "rarity": null,
+   "attack": 0,
+   "health": 4,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Dine andre Komponenter har +1/+1.",
+   "files": {
+    "svg": "svg/u_printplade.svg",
+    "png": "png/u_printplade.png"
+   }
+  },
+  {
+   "id": "u_transform",
+   "name": "Transformator",
+   "cost": 3,
+   "type": "enhed",
+   "tribe": "Komponent",
+   "rarity": null,
+   "attack": 2,
+   "health": 4,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Installation: Giv en anden venlig enhed +2/+0.",
+   "files": {
+    "svg": "svg/u_transform.svg",
+    "png": "png/u_transform.png"
+   }
+  },
+  {
+   "id": "u_relae",
+   "name": "Relæ",
+   "cost": 3,
+   "type": "enhed",
+   "tribe": "Komponent",
+   "rarity": null,
+   "attack": 2,
+   "health": 3,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Installation: En anden venlig enhed kan angribe med det samme.",
+   "files": {
+    "svg": "svg/u_relae.svg",
+    "png": "png/u_relae.png"
+   }
+  },
+  {
+   "id": "u_solpanel",
+   "name": "Solpanel",
+   "cost": 4,
+   "type": "enhed",
+   "tribe": "Komponent",
+   "rarity": null,
+   "attack": 1,
+   "health": 5,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Ved din turs start: Få 1 energi denne tur.",
+   "files": {
+    "svg": "svg/u_solpanel.svg",
+    "png": "png/u_solpanel.png"
+   }
+  },
+  {
+   "id": "u_psu",
+   "name": "Strømforsyning",
+   "cost": 4,
+   "type": "enhed",
+   "tribe": "Komponent",
+   "rarity": null,
+   "attack": 2,
+   "health": 5,
+   "keywords": [
+    "jord"
+   ],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Jordet. Nedbrud: Gem 1 energi.",
+   "files": {
+    "svg": "svg/u_psu.svg",
+    "png": "png/u_psu.png"
+   }
+  },
+  {
+   "id": "u_superkond",
+   "name": "Superkondensator",
+   "cost": 5,
+   "type": "enhed",
+   "tribe": "Komponent",
+   "rarity": null,
+   "attack": 3,
+   "health": 5,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Installation: Gem 2 energi i kondensatorbanken.",
+   "files": {
+    "svg": "svg/u_superkond.svg",
+    "png": "png/u_superkond.png"
+   }
+  },
+  {
+   "id": "u_skruebot",
+   "name": "Skruebot",
+   "cost": 1,
+   "type": "enhed",
+   "tribe": "Robot",
+   "rarity": null,
+   "attack": 1,
+   "health": 1,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Installation: Giv en anden venlig Robot +1/+1.",
+   "files": {
+    "svg": "svg/u_skruebot.svg",
+    "png": "png/u_skruebot.png"
+   }
+  },
+  {
+   "id": "u_loddebot",
+   "name": "Loddebot",
+   "cost": 2,
+   "type": "enhed",
+   "tribe": "Robot",
+   "rarity": null,
+   "attack": 2,
+   "health": 1,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Installation: Giv 1 skade.",
+   "files": {
+    "svg": "svg/u_loddebot.svg",
+    "png": "png/u_loddebot.png"
+   }
+  },
+  {
+   "id": "u_skraldebot",
+   "name": "Skraldebot",
+   "cost": 2,
+   "type": "enhed",
+   "tribe": "Robot",
+   "rarity": null,
+   "attack": 2,
+   "health": 3,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Nedbrud: Tilføj en tilfældig Komponent til din hånd.",
+   "files": {
+    "svg": "svg/u_skraldebot.svg",
+    "png": "png/u_skraldebot.png"
+   }
+  },
+  {
+   "id": "u_vagtbot",
+   "name": "Vagtbot",
+   "cost": 3,
+   "type": "enhed",
+   "tribe": "Robot",
+   "rarity": null,
+   "attack": 2,
+   "health": 4,
+   "keywords": [
+    "jord"
+   ],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Jordet.",
+   "files": {
+    "svg": "svg/u_vagtbot.svg",
+    "png": "png/u_vagtbot.png"
+   }
+  },
+  {
+   "id": "u_byggebot",
+   "name": "Byggebot",
+   "cost": 3,
+   "type": "enhed",
+   "tribe": "Robot",
+   "rarity": null,
+   "attack": 2,
+   "health": 2,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Installation: Tilkald en 1/1 Mikrobot.",
+   "files": {
+    "svg": "svg/u_byggebot.svg",
+    "png": "png/u_byggebot.png"
+   }
+  },
+  {
+   "id": "u_speederbot",
+   "name": "Speederbot",
+   "cost": 3,
+   "type": "enhed",
+   "tribe": "Robot",
+   "rarity": null,
+   "attack": 3,
+   "health": 2,
+   "keywords": [
+    "turbo"
+   ],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Turbo.",
+   "files": {
+    "svg": "svg/u_speederbot.svg",
+    "png": "png/u_speederbot.png"
+   }
+  },
+  {
+   "id": "u_sumobot",
+   "name": "Sumobot",
+   "cost": 4,
+   "type": "enhed",
+   "tribe": "Robot",
+   "rarity": null,
+   "attack": 3,
+   "health": 5,
+   "keywords": [
+    "jord"
+   ],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Jordet.",
+   "files": {
+    "svg": "svg/u_sumobot.svg",
+    "png": "png/u_sumobot.png"
+   }
+  },
+  {
+   "id": "u_svejsebot",
+   "name": "Svejsebot",
+   "cost": 4,
+   "type": "enhed",
+   "tribe": "Robot",
+   "rarity": null,
+   "attack": 3,
+   "health": 4,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Installation: Giv 2 skade. Kæde: Giv 4 skade i stedet.",
+   "files": {
+    "svg": "svg/u_svejsebot.svg",
+    "png": "png/u_svejsebot.png"
+   }
+  },
+  {
+   "id": "u_sergent",
+   "name": "Robo-sergent",
+   "cost": 4,
+   "type": "enhed",
+   "tribe": "Robot",
+   "rarity": null,
+   "attack": 3,
+   "health": 3,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Dine andre Robotter har +1 angreb.",
+   "files": {
+    "svg": "svg/u_sergent.svg",
+    "png": "png/u_sergent.png"
+   }
+  },
+  {
+   "id": "u_repbot",
+   "name": "Reparationsbot",
+   "cost": 4,
+   "type": "enhed",
+   "tribe": "Robot",
+   "rarity": null,
+   "attack": 2,
+   "health": 5,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Ved din turs slutning: Reparér en tilfældig skadet venlig enhed 2.",
+   "files": {
+    "svg": "svg/u_repbot.svg",
+    "png": "png/u_repbot.png"
+   }
+  },
+  {
+   "id": "u_boksebot",
+   "name": "Boksebot",
+   "cost": 5,
+   "type": "enhed",
+   "tribe": "Robot",
+   "rarity": null,
+   "attack": 3,
+   "health": 5,
+   "keywords": [
+    "dob"
+   ],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Dobbeltkerne.",
+   "files": {
+    "svg": "svg/u_boksebot.svg",
+    "png": "png/u_boksebot.png"
+   }
+  },
+  {
+   "id": "u_fabrik",
+   "name": "Robotfabrik",
+   "cost": 5,
+   "type": "enhed",
+   "tribe": "Robot",
+   "rarity": null,
+   "attack": 0,
+   "health": 6,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Ved din turs slutning: Tilkald en 1/1 Mikrobot.",
+   "files": {
+    "svg": "svg/u_fabrik.svg",
+    "png": "png/u_fabrik.png"
+   }
+  },
+  {
+   "id": "u_kranbot",
+   "name": "Kranbot",
+   "cost": 5,
+   "type": "enhed",
+   "tribe": "Robot",
+   "rarity": null,
+   "attack": 4,
+   "health": 5,
+   "keywords": [
+    "jord"
+   ],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Jordet.",
+   "files": {
+    "svg": "svg/u_kranbot.svg",
+    "png": "png/u_kranbot.png"
+   }
+  },
+  {
+   "id": "u_nedriver",
+   "name": "Nedrivningsbot",
+   "cost": 6,
+   "type": "enhed",
+   "tribe": "Robot",
+   "rarity": null,
+   "attack": 5,
+   "health": 5,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Installation: Giv 2 skade til alle andre enheder.",
+   "files": {
+    "svg": "svg/u_nedriver.svg",
+    "png": "png/u_nedriver.png"
+   }
+  },
+  {
+   "id": "u_panserbot",
+   "name": "Panserbot",
+   "cost": 6,
+   "type": "enhed",
+   "tribe": "Robot",
+   "rarity": null,
+   "attack": 4,
+   "health": 6,
+   "keywords": [
+    "jord",
+    "iso"
+   ],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Jordet. Isoleret.",
+   "files": {
+    "svg": "svg/u_panserbot.svg",
+    "png": "png/u_panserbot.png"
+   }
+  },
+  {
+   "id": "u_kolos",
+   "name": "Mek-kolos",
+   "cost": 7,
+   "type": "enhed",
+   "tribe": "Robot",
+   "rarity": null,
+   "attack": 7,
+   "health": 7,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Overophedning (1).",
+   "files": {
+    "svg": "svg/u_kolos.svg",
+    "png": "png/u_kolos.png"
+   }
+  },
+  {
+   "id": "u_nano",
+   "name": "Nanodrone",
+   "cost": 1,
+   "type": "enhed",
+   "tribe": "Drone",
+   "rarity": null,
+   "attack": 1,
+   "health": 1,
+   "keywords": [
+    "turbo"
+   ],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Turbo.",
+   "files": {
+    "svg": "svg/u_nano.svg",
+    "png": "png/u_nano.png"
+   }
+  },
+  {
+   "id": "u_spejder",
+   "name": "Spejderdrone",
+   "cost": 1,
+   "type": "enhed",
+   "tribe": "Drone",
+   "rarity": null,
+   "attack": 1,
+   "health": 2,
+   "keywords": [
+    "skjul"
+   ],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Skjult.",
+   "files": {
+    "svg": "svg/u_spejder.svg",
+    "png": "png/u_spejder.png"
+   }
+  },
+  {
+   "id": "u_kampdrone",
+   "name": "Kampdrone",
+   "cost": 2,
+   "type": "enhed",
+   "tribe": "Drone",
+   "rarity": null,
+   "attack": 2,
+   "health": 1,
+   "keywords": [
+    "turbo"
+   ],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Turbo.",
+   "files": {
+    "svg": "svg/u_kampdrone.svg",
+    "png": "png/u_kampdrone.png"
+   }
+  },
+  {
+   "id": "u_svarm",
+   "name": "Sværmdrone",
+   "cost": 2,
+   "type": "enhed",
+   "tribe": "Drone",
+   "rarity": null,
+   "attack": 1,
+   "health": 1,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Installation: Tilkald en 1/1 Nanodrone med Turbo.",
+   "files": {
+    "svg": "svg/u_svarm.svg",
+    "png": "png/u_svarm.png"
+   }
+  },
+  {
+   "id": "u_kamikaze",
+   "name": "Kamikazedrone",
+   "cost": 2,
+   "type": "enhed",
+   "tribe": "Drone",
+   "rarity": null,
+   "attack": 2,
+   "health": 1,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Nedbrud: Giv 2 skade til en tilfældig fjendtlig enhed.",
+   "files": {
+    "svg": "svg/u_kamikaze.svg",
+    "png": "png/u_kamikaze.png"
+   }
+  },
+  {
+   "id": "u_levering",
+   "name": "Leveringsdrone",
+   "cost": 3,
+   "type": "enhed",
+   "tribe": "Drone",
+   "rarity": null,
+   "attack": 2,
+   "health": 2,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Installation: Træk et kort.",
+   "files": {
+    "svg": "svg/u_levering.svg",
+    "png": "png/u_levering.png"
+   }
+  },
+  {
+   "id": "u_forer",
+   "name": "Dronefører",
+   "cost": 3,
+   "type": "enhed",
+   "tribe": "Drone",
+   "rarity": null,
+   "attack": 2,
+   "health": 3,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Dine andre Droner har Turbo.",
+   "files": {
+    "svg": "svg/u_forer.svg",
+    "png": "png/u_forer.png"
+   }
+  },
+  {
+   "id": "u_jager",
+   "name": "Jagerdrone",
+   "cost": 4,
+   "type": "enhed",
+   "tribe": "Drone",
+   "rarity": null,
+   "attack": 4,
+   "health": 3,
+   "keywords": [
+    "turbo"
+   ],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Turbo.",
+   "files": {
+    "svg": "svg/u_jager.svg",
+    "png": "png/u_jager.png"
+   }
+  },
+  {
+   "id": "u_dronebase",
+   "name": "Dronebase",
+   "cost": 4,
+   "type": "enhed",
+   "tribe": "Drone",
+   "rarity": null,
+   "attack": 1,
+   "health": 5,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Dine andre Droner har +1 angreb.",
+   "files": {
+    "svg": "svg/u_dronebase.svg",
+    "png": "png/u_dronebase.png"
+   }
+  },
+  {
+   "id": "u_fragt",
+   "name": "Fragtdrone",
+   "cost": 5,
+   "type": "enhed",
+   "tribe": "Drone",
+   "rarity": null,
+   "attack": 3,
+   "health": 4,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Installation: Tilkald to 1/1 Nanodroner med Turbo.",
+   "files": {
+    "svg": "svg/u_fragt.svg",
+    "png": "png/u_fragt.png"
+   }
+  },
+  {
+   "id": "u_stealthdrone",
+   "name": "Stealthdrone",
+   "cost": 5,
+   "type": "enhed",
+   "tribe": "Drone",
+   "rarity": null,
+   "attack": 4,
+   "health": 4,
+   "keywords": [
+    "skjul"
+   ],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Skjult.",
+   "files": {
+    "svg": "svg/u_stealthdrone.svg",
+    "png": "png/u_stealthdrone.png"
+   }
+  },
+  {
+   "id": "u_hyper",
+   "name": "Hyperdrone",
+   "cost": 6,
+   "type": "enhed",
+   "tribe": "Drone",
+   "rarity": null,
+   "attack": 3,
+   "health": 4,
+   "keywords": [
+    "turbo",
+    "dob"
+   ],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Turbo. Dobbeltkerne.",
+   "files": {
+    "svg": "svg/u_hyper.svg",
+    "png": "png/u_hyper.png"
+   }
+  },
+  {
+   "id": "u_datamide",
+   "name": "Datamide",
+   "cost": 1,
+   "type": "enhed",
+   "tribe": "Virus",
+   "rarity": null,
+   "attack": 1,
+   "health": 1,
+   "keywords": [
+    "hoj"
+   ],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Højspænding.",
+   "files": {
+    "svg": "svg/u_datamide.svg",
+    "png": "png/u_datamide.png"
+   }
+  },
+  {
+   "id": "u_glitch",
+   "name": "Glitch",
+   "cost": 1,
+   "type": "enhed",
+   "tribe": "Virus",
+   "rarity": null,
+   "attack": 2,
+   "health": 1,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "„Har du prøvet at slukke og tænde den igen?“",
+   "files": {
+    "svg": "svg/u_glitch.svg",
+    "png": "png/u_glitch.png"
+   }
+  },
+  {
+   "id": "u_adware",
+   "name": "Adware",
+   "cost": 2,
+   "type": "enhed",
+   "tribe": "Virus",
+   "rarity": null,
+   "attack": 3,
+   "health": 2,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Nedbrud: Modstanderen trækker et kort.",
+   "files": {
+    "svg": "svg/u_adware.svg",
+    "png": "png/u_adware.png"
+   }
+  },
+  {
+   "id": "u_spion",
+   "name": "Spionprogram",
+   "cost": 2,
+   "type": "enhed",
+   "tribe": "Virus",
+   "rarity": null,
+   "attack": 1,
+   "health": 3,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Installation: Kopiér et tilfældigt kort fra modstanderens hånd til din hånd.",
+   "files": {
+    "svg": "svg/u_spion.svg",
+    "png": "png/u_spion.png"
+   }
+  },
+  {
+   "id": "u_snylter",
+   "name": "Datasnylter",
+   "cost": 3,
+   "type": "enhed",
+   "tribe": "Virus",
+   "rarity": null,
+   "attack": 3,
+   "health": 3,
+   "keywords": [
+    "host"
+   ],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Energihøst.",
+   "files": {
+    "svg": "svg/u_snylter.svg",
+    "png": "png/u_snylter.png"
+   }
+  },
+  {
+   "id": "u_logikbombe",
+   "name": "Logikbombe",
+   "cost": 3,
+   "type": "enhed",
+   "tribe": "Virus",
+   "rarity": null,
+   "attack": 0,
+   "health": 4,
+   "keywords": [
+    "jord"
+   ],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Jordet. Nedbrud: Giv 2 skade til alle fjendtlige enheder.",
+   "files": {
+    "svg": "svg/u_logikbombe.svg",
+    "png": "png/u_logikbombe.png"
+   }
+  },
+  {
+   "id": "u_trojan",
+   "name": "Trojansk Hest",
+   "cost": 4,
+   "type": "enhed",
+   "tribe": "Virus",
+   "rarity": null,
+   "attack": 4,
+   "health": 4,
+   "keywords": [
+    "skjul"
+   ],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Skjult.",
+   "files": {
+    "svg": "svg/u_trojan.svg",
+    "png": "png/u_trojan.png"
+   }
+  },
+  {
+   "id": "u_replikator",
+   "name": "Replikator",
+   "cost": 4,
+   "type": "enhed",
+   "tribe": "Virus",
+   "rarity": null,
+   "attack": 3,
+   "health": 3,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Nedbrud: Tilkald to 1/1 Bugs.",
+   "files": {
+    "svg": "svg/u_replikator.svg",
+    "png": "png/u_replikator.png"
+   }
+  },
+  {
+   "id": "u_ormen",
+   "name": "Ormen",
+   "cost": 5,
+   "type": "enhed",
+   "tribe": "Virus",
+   "rarity": null,
+   "attack": 4,
+   "health": 4,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Ved din turs slutning: +1/+1.",
+   "files": {
+    "svg": "svg/u_ormen.svg",
+    "png": "png/u_ormen.png"
+   }
+  },
+  {
+   "id": "u_rootkit",
+   "name": "Rootkit",
+   "cost": 5,
+   "type": "enhed",
+   "tribe": "Virus",
+   "rarity": null,
+   "attack": 4,
+   "health": 5,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Installation: Nulstil en fjendtlig enhed.",
+   "files": {
+    "svg": "svg/u_rootkit.svg",
+    "png": "png/u_rootkit.png"
+   }
+  },
+  {
+   "id": "u_botnet",
+   "name": "Botnet-hjernen",
+   "cost": 6,
+   "type": "enhed",
+   "tribe": "Virus",
+   "rarity": null,
+   "attack": 4,
+   "health": 6,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Ved din turs slutning: Tilkald en 1/1 Bug.",
+   "files": {
+    "svg": "svg/u_botnet.svg",
+    "png": "png/u_botnet.png"
+   }
+  },
+  {
+   "id": "l_praktikant",
+   "name": "Praktikanten",
+   "cost": 2,
+   "type": "enhed",
+   "tribe": null,
+   "rarity": "L",
+   "attack": 2,
+   "health": 3,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Installation: Giv 2 skade til et HELT tilfældigt mål (alt kan rammes).",
+   "files": {
+    "svg": "svg/l_praktikant.svg",
+    "png": "png/l_praktikant.png"
+   }
+  },
+  {
+   "id": "l_roomba",
+   "name": "ROOMBA PRIME",
+   "cost": 5,
+   "type": "enhed",
+   "tribe": "Robot",
+   "rarity": "L",
+   "attack": 3,
+   "health": 3,
+   "keywords": [
+    "turbo",
+    "hoj"
+   ],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Turbo. Højspænding. Støvsuger alt op.",
+   "files": {
+    "svg": "svg/l_roomba.svg",
+    "png": "png/l_roomba.png"
+   }
+  },
+  {
+   "id": "l_gdpr",
+   "name": "GDPR-botten",
+   "cost": 6,
+   "type": "enhed",
+   "tribe": "Robot",
+   "rarity": "L",
+   "attack": 4,
+   "health": 5,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Installation: Begge spillere sletter deres hånd og trækker lige så mange kort.",
+   "files": {
+    "svg": "svg/l_gdpr.svg",
+    "png": "png/l_gdpr.png"
+   }
+  },
+  {
+   "id": "l_moderkort",
+   "name": "MODERKORTET",
+   "cost": 6,
+   "type": "enhed",
+   "tribe": "Komponent",
+   "rarity": "L",
+   "attack": 0,
+   "health": 8,
+   "keywords": [
+    "jord"
+   ],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Jordet. Dine andre enheder har +1/+1.",
+   "files": {
+    "svg": "svg/l_moderkort.svg",
+    "png": "png/l_moderkort.png"
+   }
+  },
+  {
+   "id": "l_tesla",
+   "name": "TESLA-SPOLEN",
+   "cost": 7,
+   "type": "enhed",
+   "tribe": "Komponent",
+   "rarity": "L",
+   "attack": 4,
+   "health": 6,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Ved din turs slutning: Giv 3 skade til en tilfældig fjende.",
+   "files": {
+    "svg": "svg/l_tesla.svg",
+    "png": "png/l_tesla.png"
+   }
+  },
+  {
+   "id": "l_virusx",
+   "name": "VIRUS X",
+   "cost": 7,
+   "type": "enhed",
+   "tribe": "Virus",
+   "rarity": "L",
+   "attack": 5,
+   "health": 5,
+   "keywords": [
+    "hoj",
+    "host"
+   ],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Højspænding. Energihøst.",
+   "files": {
+    "svg": "svg/l_virusx.svg",
+    "png": "png/l_virusx.png"
+   }
+  },
+  {
+   "id": "l_alan",
+   "name": "A.L.A.N.",
+   "cost": 8,
+   "type": "enhed",
+   "tribe": "Robot",
+   "rarity": "L",
+   "attack": 6,
+   "health": 6,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Installation: Træk 3 kort. („Jeg er desværre nødt til at afvise, Dave.“)",
+   "files": {
+    "svg": "svg/l_alan.svg",
+    "png": "png/l_alan.png"
+   }
+  },
+  {
+   "id": "l_kvante",
+   "name": "KVANTEBOKSEN",
+   "cost": 8,
+   "type": "enhed",
+   "tribe": "Komponent",
+   "rarity": "L",
+   "attack": 5,
+   "health": 7,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Ved din turs slutning: Tilføj et tilfældigt Program til din hånd.",
+   "files": {
+    "svg": "svg/l_kvante.svg",
+    "png": "png/l_kvante.png"
+   }
+  },
+  {
+   "id": "l_titan",
+   "name": "TITAN-9000",
+   "cost": 9,
+   "type": "enhed",
+   "tribe": "Robot",
+   "rarity": "L",
+   "attack": 8,
+   "health": 8,
+   "keywords": [
+    "jord"
+   ],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Jordet. Installation: Ødelæg den fjendtlige enhed med højest angreb.",
+   "files": {
+    "svg": "svg/l_titan.svg",
+    "png": "png/l_titan.png"
+   }
+  },
+  {
+   "id": "l_overtek",
+   "name": "OVERTEKNIKEREN",
+   "cost": 9,
+   "type": "enhed",
+   "tribe": null,
+   "rarity": "L",
+   "attack": 6,
+   "health": 6,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Installation: Giv alle dine andre enheder +2/+2.",
+   "files": {
+    "svg": "svg/l_overtek.svg",
+    "png": "png/l_overtek.png"
+   }
+  },
+  {
+   "id": "t_mikrobot",
+   "name": "Mikrobot",
+   "cost": 1,
+   "type": "enhed",
+   "tribe": "Robot",
+   "rarity": null,
+   "attack": 1,
+   "health": 1,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": true,
+   "collectible": false,
+   "text": "",
+   "files": {
+    "svg": "svg/t_mikrobot.svg",
+    "png": "png/t_mikrobot.png"
+   }
+  },
+  {
+   "id": "t_bug",
+   "name": "Bug",
+   "cost": 1,
+   "type": "enhed",
+   "tribe": "Virus",
+   "rarity": null,
+   "attack": 1,
+   "health": 1,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": true,
+   "collectible": false,
+   "text": "",
+   "files": {
+    "svg": "svg/t_bug.svg",
+    "png": "png/t_bug.png"
+   }
+  },
+  {
+   "id": "t_server",
+   "name": "Server",
+   "cost": 3,
+   "type": "enhed",
+   "tribe": "Komponent",
+   "rarity": null,
+   "attack": 3,
+   "health": 3,
+   "keywords": [
+    "jord"
+   ],
+   "spellDamage": 0,
+   "token": true,
+   "collectible": false,
+   "text": "Jordet.",
+   "files": {
+    "svg": "svg/t_server.svg",
+    "png": "png/t_server.png"
+   }
+  },
+  {
+   "id": "t_powerbank",
+   "name": "Powerbank",
+   "cost": 0,
+   "type": "program",
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": true,
+   "collectible": false,
+   "text": "Få 1 energi denne tur.",
+   "files": {
+    "svg": "svg/t_powerbank.svg",
+    "png": "png/t_powerbank.png"
+   }
+  }
+ ]
+}
