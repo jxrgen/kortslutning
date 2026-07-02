@@ -1,6 +1,6 @@
 # ⚡ KORTSLUTNING
 
-Dansk 2-spiller deckbuilder-kortspil (Hearthstone-stil) med elektroniktema. Én klasse — **Teknikeren** — og præcis **100 forskellige kort**. Bygget som ét selvstændigt React-artefakt til [Claude](https://claude.ai).
+Dansk 2-spiller deckbuilder-kortspil (Hearthstone-stil) med elektroniktema. Én klasse — **Teknikeren** — og præcis **100 forskellige kort**. Bygget som ét selvstændigt React-artefakt til [Claude](https://claude.ai). 
 
 ## Spillet kort fortalt
 
