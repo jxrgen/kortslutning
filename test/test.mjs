@@ -6,7 +6,7 @@ if (end < 0) throw new Error("mangler ENGINE_END-markør");
 let code = src.slice(0, end).split("\n").filter(l => !l.startsWith("import ")).join("\n");
 code += `
 ;return { CARDS, COLL, mkState, playCard, unitAttack, heroPower, endTurn,
-  targetsForCard, attackTargets, heroTargets, canPlay, validateDeck, autoDeck, clone };
+  targetsForCard, attackTargets, heroTargets, canPlay, validateDeck, autoDeck, clone, botAction };
 `;
 const E = new Function(code)();
 
@@ -109,4 +109,53 @@ for (let game = 0; game < 300; game++) {
   maxT = Math.max(maxT, g.turn);
 }
 console.log("Simulerede spil færdige:", fin, "/300 · længste spil:", maxT, "ture");
+// --- 5) bot vs tilfældig spiller ---
+let botW=0;
+for (let game = 0; game < 100; game++) {
+  const g = fresh();
+  let safety = 0;
+  while (g.status === "igang" && safety++ < 400) {
+    const s = g.active;
+    if (s === 1) {
+      let steps = 0;
+      while (g.status === "igang" && steps++ < 40 && E.botAction(g, 1)) {}
+      if (g.status === "igang") E.endTurn(g, 1);
+    } else {
+      const p = g.players[0];
+      for (let k = 0; k < 3 && g.status === "igang"; k++) {
+        const playable = p.hand.filter(c => E.canPlay(g, 0, c.id));
+        if (!playable.length) break;
+        const c = pick(playable);
+        const t = E.targetsForCard(g, 0, c.id, null);
+        E.playCard(g, 0, c.uid, t.need && t.list.length ? pick(t.list) : null);
+      }
+      if (g.status === "igang") for (const uid of p.board.map(u => u.uid)) {
+        if (g.status !== "igang") break;
+        const ts = E.attackTargets(g, 0, uid);
+        if (ts.length) E.unitAttack(g, 0, uid, pick(ts));
+      }
+      if (g.status === "igang") E.endTurn(g, 0);
+    }
+  }
+  if (g.winner === 1) botW++;
+}
+console.log("Bot vs tilfældig:", botW, "/100 sejre");
+if (botW < 65) throw new Error("Botten er for svag: " + botW + "/100");
+
+// --- 6) bot vs bot terminerer ---
+let bb = 0;
+for (let game = 0; game < 30; game++) {
+  const g = fresh();
+  let safety = 0;
+  while (g.status === "igang" && safety++ < 400) {
+    const s = g.active;
+    let steps = 0;
+    while (g.status === "igang" && steps++ < 40 && E.botAction(g, s)) {}
+    if (g.status === "igang") E.endTurn(g, s);
+  }
+  if (g.status === "slut") bb++;
+}
+console.log("Bot vs bot: alle", bb, "/30 spil afsluttet");
+if (bb < 30) throw new Error("Bot-vs-bot-spil hang");
+
 console.log("ALT OK ✓");

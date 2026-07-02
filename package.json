@@ -6,7 +6,8 @@
   "description": "Dansk 2-spiller deckbuilder-kortspil med elektroniktema — bygget som React-artefakt til Claude",
   "scripts": {
     "test": "node test/test.mjs",
-    "test:ui": "node test/testui.mjs"
+    "test:ui": "node test/testui.mjs",
+    "build:web": "esbuild web/main.jsx --bundle --minify --jsx=automatic --loader:.jsx=jsx --outfile=docs/app.js"
   },
   "devDependencies": {
     "esbuild": "^0.28.1",

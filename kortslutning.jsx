@@ -593,6 +593,60 @@ function autoDeck(){
   }
   return list;
 }
+// ---------- BOT (solo-modstander) ----------
+function kwVal(g,s,u){
+  let v=0; const K=kws(g,s,u);
+  if(K.includes("jord")) v+=1;   if(K.includes("iso"))  v+=1.5;
+  if(K.includes("hoj"))  v+=2;   if(K.includes("dob"))  v+=1.5;
+  if(K.includes("host")) v+=1;   if(K.includes("skjul"))v+=0.5;
+  if(!u.sil&&CARDS[u.id].sig) v+=1.5;
+  return v;
+}
+function sideVal(g,s){
+  let v=0;
+  for(const u of g.players[s].board) v+=effAtk(g,s,u)+effHp(g,s,u)*0.9+kwVal(g,s,u);
+  return v;
+}
+function botScore(g,s){
+  if(g.status==="slut") return g.winner===s?10000:(g.winner===2?0:-10000);
+  const me=g.players[s], op=g.players[1-s];
+  return (me.hp-op.hp)*0.6 + sideVal(g,s)-sideVal(g,1-s)
+    + me.hand.length*0.4 + (me.cur+me.stored)*0.15;
+}
+function botMoves(g,s){
+  const p=g.players[s], mv=[];
+  for(const c of p.hand){
+    if(!canPlay(g,s,c.id)) continue;
+    const {need,list}=targetsForCard(g,s,c.id,null);
+    if(need&&list.length) for(const t of list) mv.push({k:"kort",uid:c.uid,t});
+    else if(!need||CARDS[c.id].t==="enhed") mv.push({k:"kort",uid:c.uid,t:null});
+  }
+  for(const u of p.board)
+    for(const t of attackTargets(g,s,u.uid)) mv.push({k:"atk",uid:u.uid,t});
+  if(!p.heroUsed&&p.cur>=2)
+    for(const t of heroTargets(g,s)) mv.push({k:"hp",t});
+  return mv;
+}
+function botApply(g,s,m){
+  if(m.k==="kort") return playCard(g,s,m.uid,m.t);
+  if(m.k==="atk")  return unitAttack(g,s,m.uid,m.t);
+  return heroPower(g,s,m.t);
+}
+function botAction(g,s){
+  const mv=botMoves(g,s);
+  if(!mv.length) return false;
+  const base=botScore(g,s);
+  let best=null, bd=0.05;
+  for(const m of mv){
+    const sim=clone(g);
+    if(botApply(sim,s,m)) continue;
+    const d=botScore(sim,s)-base;
+    if(d>bd){ bd=d; best=m; }
+  }
+  if(!best) return false;
+  botApply(g,s,best);
+  return true;
+}
 /* __ENGINE_END__ */
 
 /* ============================================================
@@ -1302,14 +1356,32 @@ export default function App(){
       x.status="slut"; x.winner=1-seatNu; log(x,"🏳 "+x.players[seatNu].name+" trækker stikket."); return null; });
   };
   const revanche=()=>{
-    if(mode==="lokal"){
-      const ng=mkState({mode:"lokal",names:["Spiller 1","Spiller 2"],cids:["p1","p2"],
-        decks:[g.players[0].list,g.players[1].list]});
-      setG(ng); setHandoff(true);
-    } else {
-      act(x=>{ x.rematch[seat]=true; return null; });
-    }
+    if(mode==="online"){ act(x=>{ x.rematch[seat]=true; return null; }); return; }
+    const ng=mkState({mode,names:[g.players[0].name,g.players[1].name],
+      cids:[g.players[0].cid,g.players[1].cid],
+      decks:[g.players[0].list,g.players[1].list]});
+    setG(ng); if(mode==="lokal") setHandoff(true);
   };
+  const startSolo=()=>{
+    const d1=findDeck(deckValg), d2=findDeck(deckValg2);
+    let err=validateDeck(d1)||validateDeck(d2); if(err) return flash(err);
+    const ng=mkState({mode:"solo",names:[(navn||"Tekniker").trim()||"Tekniker","🤖 Botten"],
+      cids:[cid.current||"p1","bot"],decks:[d1,d2]});
+    kode.current=null; setMode("solo"); setSeat(0); setHandoff(false); setG(ng); setSkaerm("spil");
+  };
+  const botSteps=useRef(0);
+  useEffect(()=>{
+    if(mode!=="solo"||!g||g.status!=="igang") return;
+    if(g.active!==1){ botSteps.current=0; return; }
+    const t=setTimeout(()=>{
+      doAct(x=>{
+        if(x.status!=="igang"||x.active!==1) return null;
+        if(botSteps.current++>40 || !botAction(x,1)) return endTurn(x,1);
+        return null;
+      });
+    }, botSteps.current===0?900:650);
+    return ()=>clearTimeout(t);
+  },[g,mode]);
   const sletSpil=async()=>{ if(kode.current) await stDel("spil:"+kode.current,true); tilMenu(); };
 
   const deckMuligheder=(v,setV)=>(
@@ -1334,16 +1406,24 @@ export default function App(){
         <input value={navn} maxLength={16} onChange={e=>gemNavn(e.target.value)}/>
         <div className="etiket">Dit deck</div>
         {deckMuligheder(deckValg,setDeckValg)}
-        <div className="etiket">Online</div>
-        <button className="knap cu" onClick={opretOnline}>🌐 Opret onlinespil<small>Få en kode, du kan dele med din modstander</small></button>
-        <div className="raek" style={{marginTop:10}}>
-          <input placeholder="KODE" value={joinKode} maxLength={4}
-            style={{textTransform:"uppercase",fontFamily:"var(--mono)",letterSpacing:3,width:110,flex:"none"}}
-            onChange={e=>setJoinKode(e.target.value)}/>
-          <button className="knap" style={{marginTop:0}} onClick={deltagOnline}>➜ Deltag / genoptag</button>
-        </div>
+        <div className="etiket">Modstanderens deck (bot / spiller 2)</div>
+        {deckMuligheder(deckValg2,setDeckValg2)}
+        <div className="etiket">Solo</div>
+        <button className="knap cu" onClick={startSolo}>🤖 Spil mod botten<small>Indbygget modstander — god til at lære kortene</small></button>
+        {store ? <>
+          <div className="etiket">Online</div>
+          <button className="knap" onClick={opretOnline}>🌐 Opret onlinespil<small>Få en kode, du kan dele med din modstander</small></button>
+          <div className="raek" style={{marginTop:10}}>
+            <input placeholder="KODE" value={joinKode} maxLength={4}
+              style={{textTransform:"uppercase",fontFamily:"var(--mono)",letterSpacing:3,width:110,flex:"none"}}
+              onChange={e=>setJoinKode(e.target.value)}/>
+            <button className="knap" style={{marginTop:0}} onClick={deltagOnline}>➜ Deltag / genoptag</button>
+          </div>
+        </> : <>
+          <div className="etiket">Online</div>
+          <p className="rt" style={{color:"var(--dim)"}}>Onlinespil kræver Claude-artefakt-udgaven med delt lager — her kan du spille solo og lokalt. Gemte decks holder kun til siden genindlæses.</p>
+        </>}
         <div className="etiket">Lokalt</div>
-        <div className="raek"><span style={{color:"var(--dim)",fontSize:13,flex:"none"}}>Spiller 2:</span>{deckMuligheder(deckValg2,setDeckValg2)}</div>
         <button className="knap" onClick={startLokal}>🎮 Lokalt 2-spillerspil<small>Skiftes om samme enhed</small></button>
         <div className="etiket">Andet</div>
         <button className="knap" onClick={()=>setSkaerm("deck")}>🃏 Kortbibliotek & deckbygger</button>
