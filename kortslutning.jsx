@@ -101,7 +101,10 @@ s_massep:{ n:"Mass Production", e:"🏭", c:6, t:"spell", txt:"Fill your board w
 s_emp:{ n:"EMP", e:"☢️", c:7, t:"spell", txt:"Destroy all units.",
   fx(g){ for(const p of g.players) for(const u of p.board) u.dmg=999; sweep(g); } },
 s_nedsmelt:{ n:"Total Meltdown", e:"💀", c:8, t:"spell", txt:"Deal 4 damage to all heroes and units.",
-  fx(g,s){ const b=sig(g,s); dmg(g,{s:0,u:null},4+b,null); if(g.status==="igang") dmg(g,{s:1,u:null},4+b,null); aoe(g,0,4+b); aoe(g,1,4+b); } },
+  fx(g,s){ const n=4+sig(g,s);
+    g.players[0].hp-=n; fxPush(g,{t:"dmg",s:0,u:null,n});
+    g.players[1].hp-=n; fxPush(g,{t:"dmg",s:1,u:null,n});
+    aoe(g,0,n); aoe(g,1,n); checkWin(g); } },
 
 // ===== KOMPONENTER (18) =====
 u_modstand:{ n:"Resistor", e:"🎚️", c:1, t:"unit", tr:"Component", a:0, h:3, kw:["jord"], txt:"Grounded." },
