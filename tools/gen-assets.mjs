@@ -20,8 +20,8 @@ const P = {
   cu:"#c9814a", cu2:"#e8a96a", fos:"#5fe0a0", amber:"#f0b23e",
   rod:"#ff6d5a", guld:"#ffd166", txt:"#dbe7de", dim:"#87a693", mork:"#1c1405",
 };
-const ACCENT = { Komponent:P.cu2, Robot:"#9fc0e8", Drone:P.fos, Virus:"#c76bd9", program:"#e8e05f", none:P.guld };
-const accentFor = d => d.t==="program" ? ACCENT.program : (ACCENT[d.tr] || ACCENT.none);
+const ACCENT = { Component:P.cu2, Robot:"#9fc0e8", Drone:P.fos, Virus:"#c76bd9", program:"#e8e05f", none:P.guld };
+const accentFor = d => d.t==="spell" ? ACCENT.program : (ACCENT[d.tr] || ACCENT.none);
 
 // ---------- seedet PRNG pr. kort ----------
 function seedOf(str){ let h=2166136261; for(const c of str){ h^=c.charCodeAt(0); h=Math.imul(h,16777619); } return h>>>0; }
@@ -64,14 +64,14 @@ function motif(d, ac, rnd){
   const sc=(0.92+rnd()*0.16).toFixed(3);
   const wrap=inner=>`<g transform="translate(375 345) scale(${sc}) translate(-375 -345)">${inner}</g>`;
   const sw=10;
-  if(d.t==="program"){
+  if(d.t==="spell"){
     const hex=[...Array(6)].map((_,i)=>{const a=Math.PI/3*i-Math.PI/6;
       return `${375+158*Math.cos(a)},${345+158*Math.sin(a)}`;}).join(" ");
     return wrap(`<polygon points="${hex}" fill="none" stroke="${ac}" stroke-width="${sw}" stroke-linejoin="round"/>
       <polygon points="${hex}" fill="${ac}" opacity="0.07"/>
       <path d="M 402 232 L 322 372 L 372 372 L 344 462 L 434 318 L 380 318 Z" fill="${ac}" stroke="${P.bg0}" stroke-width="5" stroke-linejoin="round"/>`);
   }
-  if(d.tr==="Komponent"){
+  if(d.tr==="Component"){
     let ben="";
     for(let i=0;i<6;i++){ const y=268+i*32;
       ben+=`<rect x="228" y="${y}" width="30" height="14" rx="4" fill="${ac}"/>
@@ -140,13 +140,13 @@ function cardSVG(id){
   let nameSize=46; if(d.n.length>13) nameSize=38; if(d.n.length>18) nameSize=32;
 
   // korttekst
-  const quote=d.txt.startsWith("\u201E");
+  const quote=d.txt.startsWith("\u201C")||d.txt.startsWith("\u201E");
   let tSize=30, maxC=40; const lhF=1.38;
   let lines=wrapText(d.txt||"", maxC);
   if(lines.length>6){ tSize=26; maxC=46; lines=wrapText(d.txt, maxC); }
   if(lines.length>8){ tSize=23; maxC=52; lines=wrapText(d.txt, maxC); }
   const lh=tSize*lhF;
-  const areaTop=646, areaBot = d.t==="enhed" ? 862 : 972;
+  const areaTop=646, areaBot = d.t==="unit" ? 862 : 972;
   const blockH=lines.length*lh;
   const tY0=areaTop + Math.max(0,(areaBot-areaTop-blockH))/2 + tSize;
   const textSvg=lines.map((l,i)=>
@@ -154,7 +154,7 @@ function cardSVG(id){
       ${quote?'font-style="italic"':""} fill="${quote?P.dim:P.txt}">${esc(l)}</text>`).join("\n");
 
   // typelinje
-  const typeTxt = (leg?"\u2605 LEGENDARISK \u00B7 ":"") + (d.t==="program"?"PROGRAM":"ENHED"+(d.tr?" \u00B7 "+d.tr.toUpperCase():"")) + (d.tok?" \u00B7 TOKEN":"");
+  const typeTxt = (leg?"\u2605 LEGENDARY \u00B7 ":"") + (d.t==="spell"?"SPELL":"UNIT"+(d.tr?" \u00B7 "+d.tr.toUpperCase():"")) + (d.tok?" \u00B7 TOKEN":"");
 
   // gold fingers
   let fingers="";
@@ -162,7 +162,7 @@ function cardSVG(id){
     fingers+=`<rect x="${x}" y="${H-46}" width="22" height="30" fill="url(#guldgrad)"/>`;
 
   // stats
-  const stats = d.t==="enhed" ? `
+  const stats = d.t==="unit" ? `
     <circle cx="95" cy="${H-115}" r="56" fill="${P.bg0}" stroke="${P.amber}" stroke-width="7"/>
     <text x="95" y="${H-96}" text-anchor="middle" font-family="DejaVu Sans" font-weight="bold" font-size="56" fill="${P.amber}">${d.a}</text>
     <circle cx="${W-95}" cy="${H-115}" r="56" fill="${P.bg0}" stroke="${P.fos}" stroke-width="7"/>
@@ -225,7 +225,7 @@ ${circuitPattern(mulberry(seedOf("ryg2")), 40, 60, W-40, H-70, P.fos, 5, 0.10)}
 <polygon points="${hex}" fill="${P.bg0}" stroke="${P.cu2}" stroke-width="9"/>
 <path d="M 408 350 L 318 545 L 372 545 L 340 660 L 448 470 L 386 470 Z" fill="${P.amber}" stroke="${P.bg0}" stroke-width="6"/>
 <text x="375" y="810" text-anchor="middle" font-family="DejaVu Sans Condensed" font-weight="bold" font-size="72" letter-spacing="8" fill="${P.cu2}">KORTSLUTNING</text>
-<text x="375" y="860" text-anchor="middle" font-family="DejaVu Sans Mono" font-size="26" letter-spacing="6" fill="${P.dim}">// TEKNIKEREN</text>
+<text x="375" y="860" text-anchor="middle" font-family="DejaVu Sans Mono" font-size="26" letter-spacing="6" fill="${P.dim}">// THE TECHNICIAN</text>
 ${fingers}
 </svg>`;
 }

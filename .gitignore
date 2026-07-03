@@ -3,3 +3,6 @@ _entry.jsx
 _entry.mjs
 dist/
 desktop/app/
+
+# fjern naar token faar workflow-scope
+.github/workflows/build.yml

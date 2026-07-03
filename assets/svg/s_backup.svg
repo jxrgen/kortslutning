@@ -25,12 +25,12 @@
 <polygon points="95,28 152,61 152,127 95,160 38,127 38,61" fill="#f0b23e" stroke="#1c1405" stroke-width="4"/>
 <text x="95" y="118" text-anchor="middle" font-family="DejaVu Sans" font-weight="bold" font-size="74" fill="#1c1405">3</text>
 <text x="375" y="608" text-anchor="middle" font-family="DejaVu Sans Mono" font-size="26" letter-spacing="3"
-  fill="#87a693">PROGRAM</text>
+  fill="#87a693">SPELL</text>
 <line x1="80" y1="626" x2="670" y2="626" stroke="#274a35" stroke-width="2"/>
 <text x="375" y="797.6" text-anchor="middle" font-family="DejaVu Sans" font-size="30"
-       fill="#dbe7de">Tilføj en kopi af en venlig enhed til</text>
+       fill="#dbe7de">Add a copy of a friendly unit to your</text>
 <text x="375" y="839.0" text-anchor="middle" font-family="DejaVu Sans" font-size="30"
-       fill="#dbe7de">din hånd.</text>
+       fill="#dbe7de">hand.</text>
 
 <rect x="70" y="1004" width="22" height="30" fill="url(#guldgrad)"/><rect x="104" y="1004" width="22" height="30" fill="url(#guldgrad)"/><rect x="138" y="1004" width="22" height="30" fill="url(#guldgrad)"/><rect x="172" y="1004" width="22" height="30" fill="url(#guldgrad)"/><rect x="206" y="1004" width="22" height="30" fill="url(#guldgrad)"/><rect x="240" y="1004" width="22" height="30" fill="url(#guldgrad)"/><rect x="274" y="1004" width="22" height="30" fill="url(#guldgrad)"/><rect x="308" y="1004" width="22" height="30" fill="url(#guldgrad)"/><rect x="342" y="1004" width="22" height="30" fill="url(#guldgrad)"/><rect x="376" y="1004" width="22" height="30" fill="url(#guldgrad)"/><rect x="410" y="1004" width="22" height="30" fill="url(#guldgrad)"/><rect x="444" y="1004" width="22" height="30" fill="url(#guldgrad)"/><rect x="478" y="1004" width="22" height="30" fill="url(#guldgrad)"/><rect x="512" y="1004" width="22" height="30" fill="url(#guldgrad)"/><rect x="546" y="1004" width="22" height="30" fill="url(#guldgrad)"/><rect x="580" y="1004" width="22" height="30" fill="url(#guldgrad)"/><rect x="614" y="1004" width="22" height="30" fill="url(#guldgrad)"/><rect x="648" y="1004" width="22" height="30" fill="url(#guldgrad)"/>
 <rect x="60" y="1000" width="630" height="4" fill="#c9814a" opacity="0.5"/>

@@ -33,7 +33,7 @@ for (let t = 0; t < 6; t++) {
   const s = g.active, p = g.players[s];
   p.cur = 10;
   for (const c of p.hand.slice()) {
-    if (M.CARDS[c.id].t !== "enhed" || M.CARDS[c.id].c > 10) continue;
+    if (M.CARDS[c.id].t !== "unit" || M.CARDS[c.id].c > 10) continue;
     if (p.board.length >= 6) break;
     const e = M.playCard(g, s, c.uid, null);
     if (e) break;
@@ -51,7 +51,7 @@ for (let t = 0; t < 6; t++) {
 const kwCards = {};
 for (const id of M.COLL) {
   const d = M.CARDS[id];
-  if (d.t !== "enhed" || !d.kw) continue;
+  if (d.t !== "unit" || !d.kw) continue;
   for (const k of d.kw) if (!kwCards[k]) kwCards[k] = id;
 }
 let n = 0;

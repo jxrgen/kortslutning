@@ -1,41 +1,28 @@
 # ⚡ KORTSLUTNING
 
-Dansk 2-spiller deckbuilder-kortspil (Hearthstone-stil) med elektroniktema. Én klasse — **Teknikeren** — og præcis **100 forskellige kort**. Bygget som ét selvstændigt React-artefakt til [Claude](https://claude.ai). 
+A 2-player deckbuilder card game (Hearthstone-style) with an electronics theme. One class — **The Technician** — and exactly **100 different cards**. Built as a single self-contained React artifact for [Claude](https://claude.ai), playable on web and desktop.
 
-## Spillet kort fortalt
+## The game in short
 
-- Begge teknikere har 30 liv. Brænd modstanderens kredsløb af først.
-- **Energi ⚡**: +1 pr. tur (maks 10). Twist: ubrugt energi gemmes i **kondensatorbanken 🔋** (op til 3) og lægges oveni næste tur.
-- **Overophedning**: kraftige kort låser en del af din energi i den efterfølgende tur.
-- Heltekraft **Loddekolben 🔧** (2⚡): 1 skade til fjender eller reparér 2 på egne.
-- Nøgleord: Jordet (taunt), Turbo (rush), Isoleret (skjold), Højspænding (giftig), Dobbeltkerne (2 angreb), Energihøst (lifesteal), Skjult (stealth) — plus Signalstyrke, Installation, Nedbrud og Kæde.
-- Deck: præcis 25 kort, maks 2 af hvert, 1 af hvert legendariske (★).
+- Both technicians have 30 HP. Burn out your opponent's circuit first.
+- **Energy ⚡**: +1 per turn (max 10). The twist: unspent energy is stored in the **capacitor bank 🔋** (up to 3) and added next turn.
+- **Overheat**: powerful cards lock part of your energy on the following turn.
+- Hero power **Soldering Iron 🔧** (2⚡): 1 damage to enemies or repair 2 on friendlies.
+- Keywords: Grounded (taunt), Turbo (rush), Insulated (shield), High Voltage (poisonous), Dual Core (2 attacks), Energy Harvest (lifesteal), Cloaked (stealth) — plus Signal Strength, Install, Breakdown and Chain.
+- Deck: exactly 25 cards, max 2 of each, 1 of each legendary.
 
-## Sådan spiller du
+## Play
 
-Filen `kortslutning.jsx` er et komplet Claude-artefakt: indsæt indholdet i et artefakt (eller bed Claude om at oprette det), og spillet kører direkte i chatten.
+`kortslutning.jsx` is a complete Claude artifact. There is also a static web build in `docs/` (solo vs. built-in bot + local hotseat) and an Electron desktop app in `desktop/` — build both with `node tools/build-web.mjs`. Online multiplayer requires the Claude artifact edition (shared storage).
 
-**Online (2 enheder):** Begge spillere skal have *det samme publicerede artefakt-link* åbent. Den ene opretter et spil og får en 4-tegns kode, den anden taster den ind. Synkronisering sker via artefaktets delte lager med ~2 sekunders polling; et afbrudt spil kan genoptages med koden.
-
-**Lokalt (samme enhed):** Hotseat-tilstand med skjul-skærmen-overlay mellem turene.
-
-Derudover indeholder appen en deckbygger med filtre og gemte decks samt en regelskærm med hele nøgleordsglossaret.
-
-## Kør tests
+## Development
 
 ```bash
 npm install
-npm test        # motortest: alle 100 kort spilles + 300 simulerede hele spil
-npm run test:ui # SSR-røgtest af alle skærme med ægte spilstate
+npm test              # engine: all 100 cards + 300 simulated games + bot checks
+npm run test:ui       # SSR smoke test of every screen
+npm run build:assets  # regenerate all card art from the card database
+npm run build:web     # bundle docs/ (GitHub Pages) and desktop/app/
 ```
 
-## Arkitektur
-
-Alt ligger i én fil, `kortslutning.jsx`:
-
-1. **Motor** (ren JS, ingen JSX — mellem `__ENGINE_START__`/`__ENGINE_END__`-markørerne): kortdatabase, regler, targeting, kamp, auraer, triggere. Testene evaluerer denne del headless uden React.
-2. **UI** (React): menu, deckbygger, lobby, spilskærm, regler. Styling via injiceret `<style>`-tag med PCB-inspireret tema (kobber, fosforgrøn, guldfinger-kanter).
-
-**Multiplayer-synk:** last-write-wins over `window.storage` (Claudes artefakt-API) med `seq`-numre mod forældede skrivninger; som udgangspunkt skriver kun den aktive spiller. Bemærk: `window.storage` findes kun i Claude-artefakter — spillet kører ikke standalone i en browser uden en shim, og en anden backend (fx Firebase) ville være næste skridt for en fritstående version.
-
-**Ærlige forbehold:** Spildata i det delte lager kan i princippet læses af andre brugere af samme artefakt, og anti-snyd er tillidsbaseret — modstanderens hånd findes i den synkroniserede state. Balancen er røgtestet, ikke turneringstunet.
+Architecture: pure-JS engine between `__ENGINE_START__`/`__ENGINE_END__` markers (headless-testable), React UI below, PCB-themed CSS injected via a style tag. Multiplayer sync is last-write-wins over the artifact's shared storage with sequence numbers. Adding a new class = one entry in the `CLASSES` table + cards with a `cls` field.

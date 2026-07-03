@@ -26,18 +26,16 @@
 </g>
 <rect x="52" y="150" width="646" height="410" rx="14" fill="none" stroke="#ffd166" stroke-width="3"/>
 <text x="200" y="102" font-family="DejaVu Sans Condensed" font-weight="bold" font-size="46"
-  letter-spacing="2" fill="#ffd166">GDPR-BOTTEN</text>
+  letter-spacing="2" fill="#ffd166">GDPR BOT</text>
 <polygon points="95,28 152,61 152,127 95,160 38,127 38,61" fill="#f0b23e" stroke="#1c1405" stroke-width="4"/>
 <text x="95" y="118" text-anchor="middle" font-family="DejaVu Sans" font-weight="bold" font-size="74" fill="#1c1405">6</text>
 <text x="375" y="608" text-anchor="middle" font-family="DejaVu Sans Mono" font-size="26" letter-spacing="3"
-  fill="#ffd166">★ LEGENDARISK · ENHED · ROBOT</text>
+  fill="#ffd166">★ LEGENDARY · UNIT · ROBOT</text>
 <line x1="80" y1="626" x2="670" y2="626" stroke="#274a35" stroke-width="2"/>
-<text x="375" y="721.9" text-anchor="middle" font-family="DejaVu Sans" font-size="30"
-       fill="#dbe7de">Installation: Begge spillere sletter</text>
-<text x="375" y="763.3" text-anchor="middle" font-family="DejaVu Sans" font-size="30"
-       fill="#dbe7de">deres hånd og trækker lige så mange</text>
-<text x="375" y="804.7" text-anchor="middle" font-family="DejaVu Sans" font-size="30"
-       fill="#dbe7de">kort.</text>
+<text x="375" y="742.6" text-anchor="middle" font-family="DejaVu Sans" font-size="30"
+       fill="#dbe7de">Install: Both players delete their hands</text>
+<text x="375" y="784.0" text-anchor="middle" font-family="DejaVu Sans" font-size="30"
+       fill="#dbe7de">and draw that many cards.</text>
 
     <circle cx="95" cy="935" r="56" fill="#0c1811" stroke="#f0b23e" stroke-width="7"/>
     <text x="95" y="954" text-anchor="middle" font-family="DejaVu Sans" font-weight="bold" font-size="56" fill="#f0b23e">4</text>

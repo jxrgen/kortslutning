@@ -50,7 +50,7 @@ for (const id of E.COLL) {
   const t = E.targetsForCard(g, 0, id, null);
   const tref = t.need && t.list.length ? t.list[0] : null;
   const e = E.playCard(g, 0, "hx", tref);
-  if (e && !(E.CARDS[id].t === "program" && t.need && !t.list.length)) {
+  if (e && !(E.CARDS[id].t === "spell" && t.need && !t.list.length)) {
     throw new Error("Kort fejlede: " + id + " → " + e);
   }
   // kør en tur-cyklus for end/start-triggers

@@ -1,4 +1,4 @@
-# KORTSLUTNING — grafiske assets
+# KORTSLUTNING — card art assets
 
 104 kort + kortbagside, genereret fra spillets kortdatabase. Alle motiver er rene vektorer (ingen emoji/fonte-afhængighed i rasteriseringen ud over DejaVu, som er indlejret som kurver ved behov), og hvert korts kredsløbsmønster er deterministisk seedet fra kort-id'et — samme id giver altid samme grafik.
 

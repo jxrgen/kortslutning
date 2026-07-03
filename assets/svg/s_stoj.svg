@@ -21,14 +21,14 @@
 </g>
 <rect x="52" y="150" width="646" height="410" rx="14" fill="none" stroke="#274a35" stroke-width="3"/>
 <text x="200" y="102" font-family="DejaVu Sans Condensed" font-weight="bold" font-size="46"
-  letter-spacing="2" fill="#dbe7de">SIGNALSTØJ</text>
+  letter-spacing="2" fill="#dbe7de">SIGNAL NOISE</text>
 <polygon points="95,28 152,61 152,127 95,160 38,127 38,61" fill="#f0b23e" stroke="#1c1405" stroke-width="4"/>
 <text x="95" y="118" text-anchor="middle" font-family="DejaVu Sans" font-weight="bold" font-size="74" fill="#1c1405">1</text>
 <text x="375" y="608" text-anchor="middle" font-family="DejaVu Sans Mono" font-size="26" letter-spacing="3"
-  fill="#87a693">PROGRAM</text>
+  fill="#87a693">SPELL</text>
 <line x1="80" y1="626" x2="670" y2="626" stroke="#274a35" stroke-width="2"/>
 <text x="375" y="818.3" text-anchor="middle" font-family="DejaVu Sans" font-size="30"
-       fill="#dbe7de">Giv en fjendtlig enhed -2 angreb.</text>
+       fill="#dbe7de">Give an enemy unit -2 Attack.</text>
 
 <rect x="70" y="1004" width="22" height="30" fill="url(#guldgrad)"/><rect x="104" y="1004" width="22" height="30" fill="url(#guldgrad)"/><rect x="138" y="1004" width="22" height="30" fill="url(#guldgrad)"/><rect x="172" y="1004" width="22" height="30" fill="url(#guldgrad)"/><rect x="206" y="1004" width="22" height="30" fill="url(#guldgrad)"/><rect x="240" y="1004" width="22" height="30" fill="url(#guldgrad)"/><rect x="274" y="1004" width="22" height="30" fill="url(#guldgrad)"/><rect x="308" y="1004" width="22" height="30" fill="url(#guldgrad)"/><rect x="342" y="1004" width="22" height="30" fill="url(#guldgrad)"/><rect x="376" y="1004" width="22" height="30" fill="url(#guldgrad)"/><rect x="410" y="1004" width="22" height="30" fill="url(#guldgrad)"/><rect x="444" y="1004" width="22" height="30" fill="url(#guldgrad)"/><rect x="478" y="1004" width="22" height="30" fill="url(#guldgrad)"/><rect x="512" y="1004" width="22" height="30" fill="url(#guldgrad)"/><rect x="546" y="1004" width="22" height="30" fill="url(#guldgrad)"/><rect x="580" y="1004" width="22" height="30" fill="url(#guldgrad)"/><rect x="614" y="1004" width="22" height="30" fill="url(#guldgrad)"/><rect x="648" y="1004" width="22" height="30" fill="url(#guldgrad)"/>
 <rect x="60" y="1000" width="630" height="4" fill="#c9814a" opacity="0.5"/>

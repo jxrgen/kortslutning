@@ -16,14 +16,14 @@ function clone(o){ return JSON.parse(JSON.stringify(o)); }
 const MAXBOARD = 6, MAXHAND = 9, DECKSIZE = 25, MAXSTORED = 3;
 
 const KWINFO = {
-  jord:   { n:"Jordet",       ico:"⏚",  d:"Fjender skal angribe jordede enheder først." },
-  turbo:  { n:"Turbo",        ico:"»",  d:"Kan angribe enheder samme tur, den sættes ind." },
-  iso:    { n:"Isoleret",     ico:"◈",  d:"Ignorerer den første skade, den tager." },
-  hoj:    { n:"Højspænding",  ico:"☠",  d:"Ødelægger enhver enhed, den skader." },
-  dob:    { n:"Dobbeltkerne", ico:"×2", d:"Kan angribe to gange pr. tur." },
-  host:   { n:"Energihøst",   ico:"♥+", d:"Skade fra denne enhed reparerer din helt tilsvarende." },
-  skjul:  { n:"Skjult",       ico:"▒",  d:"Kan ikke vælges som mål, før den selv angriber." },
-  noHero: { n:"Kun enheder",  ico:"⊘",  d:"Kan ikke angribe helte." },
+  jord:   { n:"Grounded",      ico:"⏚",  d:"Enemies must attack Grounded units first." },
+  turbo:  { n:"Turbo",         ico:"»",  d:"Can attack units the turn it is played." },
+  iso:    { n:"Insulated",     ico:"◈",  d:"Ignores the first damage it takes." },
+  hoj:    { n:"High Voltage",  ico:"☠",  d:"Destroys any unit it damages." },
+  dob:    { n:"Dual Core",     ico:"×2", d:"Can attack twice per turn." },
+  host:   { n:"Energy Harvest",ico:"♥+", d:"Damage dealt by this unit repairs your hero for the same amount." },
+  skjul:  { n:"Cloaked",       ico:"▒",  d:"Can\u2019t be targeted until it attacks." },
+  noHero: { n:"Units only",    ico:"⊘",  d:"Can\u2019t attack heroes." },
 };
 
 // ---------- KORTDATABASE ----------
@@ -34,209 +34,209 @@ const KWINFO = {
 const CARDS = {
 
 // ===== PROGRAMMER (33) =====
-s_stod:{ n:"Statisk Stød", e:"🖐️", c:0, t:"program", txt:"Giv 1 skade.", tgt:"any",
+s_stod:{ n:"Static Shock", e:"🖐️", c:0, t:"spell", txt:"Deal 1 damage.", tgt:"any",
   fx(g,s,t){ dmg(g,t,1+sig(g,s),null); } },
-s_nodstrom:{ n:"Nødstrøm", e:"🔌", c:0, t:"program", txt:"Få 2 energi denne tur. Overophedning (2).",
+s_nodstrom:{ n:"Emergency Power", e:"🔌", c:0, t:"spell", txt:"Gain 2 energy this turn. Overheat (2).",
   fx(g,s){ g.players[s].cur+=2; g.players[s].ovlNext+=2; } },
-s_kortslut:{ n:"Kortslutning", e:"⚡", c:1, t:"program", txt:"Giv 2 skade.", tgt:"any",
+s_kortslut:{ n:"Short Circuit", e:"⚡", c:1, t:"spell", txt:"Deal 2 damage.", tgt:"any",
   fx(g,s,t){ dmg(g,t,2+sig(g,s),null); } },
-s_loddetin:{ n:"Loddetin", e:"🔗", c:1, t:"program", txt:"Giv en venlig enhed +0/+3.", tgt:"funit",
+s_loddetin:{ n:"Solder", e:"🔗", c:1, t:"spell", txt:"Give a friendly unit +0/+3.", tgt:"funit",
   fx(g,s,t){ buff(g,t,0,3); } },
-s_overclock:{ n:"Overclock", e:"🚀", c:1, t:"program", txt:"Giv en venlig enhed +2/+0, og den kan angribe med det samme.", tgt:"funit",
+s_overclock:{ n:"Overclock", e:"🚀", c:1, t:"spell", txt:"Give a friendly unit +2/+0. It can attack immediately.", tgt:"funit",
   fx(g,s,t){ buff(g,t,2,0); const u=refUnit(g,t); if(u){ u.jp=false; u.atk=Math.max(u.atk,1); } } },
-s_stoj:{ n:"Signalstøj", e:"📡", c:1, t:"program", txt:"Giv en fjendtlig enhed -2 angreb.", tgt:"eunit",
+s_stoj:{ n:"Signal Noise", e:"📡", c:1, t:"spell", txt:"Give an enemy unit -2 Attack.", tgt:"eunit",
   fx(g,s,t){ const u=refUnit(g,t); if(u) u.a=Math.max(0,u.a-2); } },
-s_datalak:{ n:"Datalæk", e:"💾", c:1, t:"program", txt:"Træk et kort. Kæde: Træk 2 i stedet.",
+s_datalak:{ n:"Data Leak", e:"💾", c:1, t:"spell", txt:"Draw a card. Chain: Draw 2 instead.",
   fx(g,s,t,combo){ draw(g,s,combo?2:1); } },
-s_lynafleder:{ n:"Lynafleder", e:"☂️", c:2, t:"program", txt:"Giv en venlig enhed Jordet og +0/+2.", tgt:"funit",
+s_lynafleder:{ n:"Lightning Rod", e:"☂️", c:2, t:"spell", txt:"Give a friendly unit Grounded and +0/+2.", tgt:"funit",
   fx(g,s,t){ buff(g,t,0,2); const u=refUnit(g,t); if(u&&!u.akw.includes("jord")) u.akw.push("jord"); } },
-s_genstart:{ n:"Genstart", e:"🔄", c:2, t:"program", txt:"Returnér en enhed til ejerens hånd.", tgt:"unit",
+s_genstart:{ n:"Reboot", e:"🔄", c:2, t:"spell", txt:"Return a unit to its owner’s hand.", tgt:"unit",
   fx(g,s,t){ bounce(g,t); } },
-s_diag:{ n:"Diagnostik", e:"🩺", c:2, t:"program", txt:"Træk 2 kort.",
+s_diag:{ n:"Diagnostics", e:"🩺", c:2, t:"spell", txt:"Draw 2 cards.",
   fx(g,s){ draw(g,s,2); } },
-s_nulstil:{ n:"Nulstil", e:"🧽", c:2, t:"program", txt:"Nulstil en enhed (fjerner al tekst og alle buffs).", tgt:"unit",
+s_nulstil:{ n:"Reset", e:"🧽", c:2, t:"spell", txt:"Reset a unit (removes all text and buffs).", tgt:"unit",
   fx(g,s,t){ const u=refUnit(g,t); if(u) silence(g,u); } },
-s_lysbue:{ n:"Lysbue", e:"🔆", c:2, t:"program", txt:"Giv 2 skade til en fjendtlig enhed og 1 til dens naboer.", tgt:"eunit",
+s_lysbue:{ n:"Arc Flash", e:"🔆", c:2, t:"spell", txt:"Deal 2 damage to an enemy unit and 1 to its neighbors.", tgt:"eunit",
   fx(g,s,t){ const b=sig(g,s); const adj=neighbors(g,t); dmg(g,t,2+b,null); for(const r of adj) dmg(g,r,1+b,null); } },
-s_spids:{ n:"Spændingsspids", e:"📈", c:2, t:"program", txt:"Giv 3 skade. Overophedning (1).", tgt:"any",
+s_spids:{ n:"Voltage Spike", e:"📈", c:2, t:"spell", txt:"Deal 3 damage. Overheat (1).", tgt:"any",
   fx(g,s,t){ dmg(g,t,3+sig(g,s),null); g.players[s].ovlNext+=1; } },
-s_kabels:{ n:"Kabelsalat", e:"🍝", c:2, t:"program", txt:"Byt en enheds angreb og liv.", tgt:"unit",
+s_kabels:{ n:"Cable Spaghetti", e:"🍝", c:2, t:"spell", txt:"Swap a unit’s Attack and Health.", tgt:"unit",
   fx(g,s,t){ const u=refUnit(g,t); if(!u) return; const hpNow=Math.max(0,u.hM-u.dmg); const oldA=u.a;
     u.a=hpNow; u.hM=oldA; u.dmg=0; if(u.hM<=0){ u.dmg=999; } } },
-s_reserve:{ n:"Reservedele", e:"📦", c:2, t:"program", txt:"Tilføj 2 tilfældige Komponenter til din hånd.",
+s_reserve:{ n:"Spare Parts", e:"📦", c:2, t:"spell", txt:"Add 2 random Components to your hand.",
   fx(g,s){ for(let i=0;i<2;i++){ const id=pick(POOL_KOMP); if(id) addHand(g,s,id); } } },
-s_firmware:{ n:"Firmwareopdatering", e:"⬆️", c:3, t:"program", txt:"Giv alle dine enheder +1/+1.",
+s_firmware:{ n:"Firmware Update", e:"⬆️", c:3, t:"spell", txt:"Give all your units +1/+1.",
   fx(g,s){ for(const u of g.players[s].board){ u.a+=1; u.hM+=1; } } },
-s_genoplad:{ n:"Genopladning", e:"🔋", c:3, t:"program", txt:"Reparér din helt og alle venlige enheder 3.",
+s_genoplad:{ n:"Recharge", e:"🔋", c:3, t:"spell", txt:"Repair your hero and all friendly units for 3.",
   fx(g,s){ healHero(g,s,3); for(const u of g.players[s].board) u.dmg=Math.max(0,u.dmg-3); } },
-s_hack:{ n:"Hackerangreb", e:"🥷", c:3, t:"program", txt:"Overtag en fjendtlig enhed med højst 2 angreb.",
+s_hack:{ n:"Hack", e:"🥷", c:3, t:"spell", txt:"Take control of an enemy unit with 2 or less Attack.",
   tgt:"eunit", f:(g,s,r,u)=>effAtk(g,r.s,u)<=2 && g.players[s].board.length<MAXBOARD,
   fx(g,s,t){ takeControl(g,s,t); } },
-s_induk:{ n:"Induktion", e:"🧲", c:3, t:"program", txt:"Få 1 energi denne tur. Træk et kort.",
+s_induk:{ n:"Induction", e:"🧲", c:3, t:"spell", txt:"Gain 1 energy this turn. Draw a card.",
   fx(g,s){ g.players[s].cur+=1; draw(g,s,1); } },
-s_backup:{ n:"Backup", e:"🗄️", c:3, t:"program", txt:"Tilføj en kopi af en venlig enhed til din hånd.", tgt:"funit",
+s_backup:{ n:"Backup", e:"🗄️", c:3, t:"spell", txt:"Add a copy of a friendly unit to your hand.", tgt:"funit",
   fx(g,s,t){ const u=refUnit(g,t); if(u) addHand(g,s,u.id); } },
-s_kompil:{ n:"Kompilér", e:"⌨️", c:3, t:"program", txt:"Træk et tilfældigt Program fra din kortbunke.",
-  fx(g,s){ tutor(g,s,id=>CARDS[id].t==="program"); } },
-s_kadelyn:{ n:"Kædelyn", e:"🌩️", c:4, t:"program", txt:"Giv 3 skade til en fjendtlig enhed og 2 til dens naboer.", tgt:"eunit",
+s_kompil:{ n:"Compile", e:"⌨️", c:3, t:"spell", txt:"Draw a random Spell from your deck.",
+  fx(g,s){ tutor(g,s,id=>CARDS[id].t==="spell"); } },
+s_kadelyn:{ n:"Chain Lightning", e:"🌩️", c:4, t:"spell", txt:"Deal 3 damage to an enemy unit and 2 to its neighbors.", tgt:"eunit",
   fx(g,s,t){ const b=sig(g,s); const adj=neighbors(g,t); dmg(g,t,3+b,null); for(const r of adj) dmg(g,r,2+b,null); } },
-s_magnet:{ n:"Magnetfelt", e:"🌀", c:4, t:"program", txt:"Giv 2 skade til alle fjendtlige enheder.",
+s_magnet:{ n:"Magnetic Field", e:"🌀", c:4, t:"spell", txt:"Deal 2 damage to all enemy units.",
   fx(g,s){ aoe(g,1-s,2+sig(g,s)); } },
-s_forstark:{ n:"Effektforstærker", e:"📢", c:4, t:"program", txt:"Fordobl en venlig enheds angreb.", tgt:"funit",
+s_forstark:{ n:"Power Amplifier", e:"📢", c:4, t:"spell", txt:"Double a friendly unit’s Attack.", tgt:"funit",
   fx(g,s,t){ const u=refUnit(g,t); if(u) u.a*=2; } },
-s_gendan:{ n:"Systemgendannelse", e:"💚", c:4, t:"program", txt:"Reparér din helt 8.",
+s_gendan:{ n:"System Restore", e:"💚", c:4, t:"spell", txt:"Repair your hero for 8.",
   fx(g,s){ healHero(g,s,8); } },
-s_overbel:{ n:"Overbelastning", e:"🔥", c:4, t:"program", txt:"Giv 5 skade. Overophedning (2).", tgt:"any",
+s_overbel:{ n:"Overload", e:"🔥", c:4, t:"spell", txt:"Deal 5 damage. Overheat (2).", tgt:"any",
   fx(g,s,t){ dmg(g,t,5+sig(g,s),null); g.players[s].ovlNext+=2; } },
-s_ransom:{ n:"Ransomware", e:"💰", c:5, t:"program", txt:"Ødelæg en fjendtlig enhed. Modstanderen trækker et kort.", tgt:"eunit",
+s_ransom:{ n:"Ransomware", e:"💰", c:5, t:"spell", txt:"Destroy an enemy unit. Your opponent draws a card.", tgt:"eunit",
   fx(g,s,t){ const u=refUnit(g,t); if(u){ u.dmg=999; sweep(g); draw(g,1-s,1); } } },
-s_printer:{ n:"3D-Printer", e:"🖨️", c:5, t:"program", txt:"Tilkald en kopi af en venlig enhed (grundudgaven).", tgt:"funit",
+s_printer:{ n:"3D Printer", e:"🖨️", c:5, t:"spell", txt:"Summon a copy of a friendly unit (base version).", tgt:"funit",
   fx(g,s,t){ const u=refUnit(g,t); if(u) summon(g,s,u.id); } },
-s_uvejr:{ n:"Uvejr i Serverrummet", e:"⛈️", c:5, t:"program", txt:"Giv 2 skade til en tilfældig fjende, 4 gange.",
+s_uvejr:{ n:"Server Room Storm", e:"⛈️", c:5, t:"spell", txt:"Deal 2 damage to a random enemy, 4 times.",
   fx(g,s){ const b=sig(g,s); for(let i=0;i<4;i++){ const r=randEnemyRef(g,s); if(!r) break; dmg(g,r,2+b,null); } } },
-s_oversp:{ n:"Overspænding", e:"🌊", c:6, t:"program", txt:"Giv 4 skade til alle fjendtlige enheder.",
+s_oversp:{ n:"Power Surge", e:"🌊", c:6, t:"spell", txt:"Deal 4 damage to all enemy units.",
   fx(g,s){ aoe(g,1-s,4+sig(g,s)); } },
-s_massep:{ n:"Masseproduktion", e:"🏭", c:6, t:"program", txt:"Fyld dit bræt med 1/1 Mikrobotter.",
+s_massep:{ n:"Mass Production", e:"🏭", c:6, t:"spell", txt:"Fill your board with 1/1 Microbots.",
   fx(g,s){ while(g.players[s].board.length<MAXBOARD){ if(!summon(g,s,"t_mikrobot")) break; } } },
-s_emp:{ n:"EMP", e:"☢️", c:7, t:"program", txt:"Ødelæg alle enheder.",
+s_emp:{ n:"EMP", e:"☢️", c:7, t:"spell", txt:"Destroy all units.",
   fx(g){ for(const p of g.players) for(const u of p.board) u.dmg=999; sweep(g); } },
-s_nedsmelt:{ n:"Total Nedsmeltning", e:"💀", c:8, t:"program", txt:"Giv 4 skade til alle helte og enheder.",
+s_nedsmelt:{ n:"Total Meltdown", e:"💀", c:8, t:"spell", txt:"Deal 4 damage to all heroes and units.",
   fx(g,s){ const b=sig(g,s); dmg(g,{s:0,u:null},4+b,null); if(g.status==="igang") dmg(g,{s:1,u:null},4+b,null); aoe(g,0,4+b); aoe(g,1,4+b); } },
 
 // ===== KOMPONENTER (18) =====
-u_modstand:{ n:"Modstand", e:"🎚️", c:1, t:"enhed", tr:"Komponent", a:0, h:3, kw:["jord"], txt:"Jordet." },
-u_led:{ n:"LED", e:"💡", c:1, t:"enhed", tr:"Komponent", a:1, h:1, txt:"Nedbrud: Giv en tilfældig venlig enhed +1/+0.",
+u_modstand:{ n:"Resistor", e:"🎚️", c:1, t:"unit", tr:"Component", a:0, h:3, kw:["jord"], txt:"Grounded." },
+u_led:{ n:"LED", e:"💡", c:1, t:"unit", tr:"Component", a:1, h:1, txt:"Breakdown: Give a random friendly unit +1/+0.",
   dr(g,s){ const u=pick(g.players[s].board); if(u) u.a+=1; } },
-u_kontakt:{ n:"Kontakt", e:"🔘", c:1, t:"enhed", tr:"Komponent", a:1, h:2, txt:"Installation — Kæde: Træk et kort.",
+u_kontakt:{ n:"Switch", e:"🔘", c:1, t:"unit", tr:"Component", a:1, h:2, txt:"Install — Chain: Draw a card.",
   bc(g,s,u,t,combo){ if(combo) draw(g,s,1); } },
-u_sikring:{ n:"Sikring", e:"🧯", c:1, t:"enhed", tr:"Komponent", a:0, h:2, kw:["jord"], txt:"Jordet. Nedbrud: Reparér din helt 2.",
+u_sikring:{ n:"Fuse", e:"🧯", c:1, t:"unit", tr:"Component", a:0, h:2, kw:["jord"], txt:"Grounded. Breakdown: Repair your hero for 2.",
   dr(g,s){ healHero(g,s,2); } },
-u_piezo:{ n:"Piezo-bipper", e:"🔔", c:1, t:"enhed", tr:"Komponent", a:1, h:1, txt:"Nedbrud: Giv 1 skade til en tilfældig fjendtlig enhed.",
+u_piezo:{ n:"Piezo Buzzer", e:"🔔", c:1, t:"unit", tr:"Component", a:1, h:1, txt:"Breakdown: Deal 1 damage to a random enemy unit.",
   dr(g,s){ const u=pick(g.players[1-s].board); if(u) dmg(g,{s:1-s,u:u.uid},1,null); } },
-u_transistor:{ n:"Transistor", e:"🔺", c:2, t:"enhed", tr:"Komponent", a:2, h:2, sig:1, txt:"Signalstyrke +1 (dine Programmer giver +1 skade)." },
-u_diode:{ n:"Diode", e:"➡️", c:2, t:"enhed", tr:"Komponent", a:3, h:2, kw:["noHero"], txt:"Kan ikke angribe helte." },
-u_kondens:{ n:"Kondensator", e:"🥫", c:2, t:"enhed", tr:"Komponent", a:1, h:3, txt:"Nedbrud: Gem 1 energi i kondensatorbanken.",
+u_transistor:{ n:"Transistor", e:"🔺", c:2, t:"unit", tr:"Component", a:2, h:2, sig:1, txt:"Signal Strength +1 (your Spells deal +1 damage)." },
+u_diode:{ n:"Diode", e:"➡️", c:2, t:"unit", tr:"Component", a:3, h:2, kw:["noHero"], txt:"Can’t attack heroes." },
+u_kondens:{ n:"Capacitor", e:"🥫", c:2, t:"unit", tr:"Component", a:1, h:3, txt:"Breakdown: Store 1 energy in the capacitor bank.",
   dr(g,s){ addStored(g,s,1); } },
-u_koleleg:{ n:"Kølelegeme", e:"🧊", c:2, t:"enhed", tr:"Komponent", a:0, h:5, kw:["jord"], txt:"Jordet." },
-u_spole:{ n:"Spole", e:"🌪️", c:2, t:"enhed", tr:"Komponent", a:2, h:3, txt:"„Brummer lidt, men den holder.“" },
-u_potmeter:{ n:"Potentiometer", e:"🎛️", c:2, t:"enhed", tr:"Komponent", a:1, h:1, txt:"Installation: Giv en anden venlig enhed +1/+1.",
+u_koleleg:{ n:"Heat Sink", e:"🧊", c:2, t:"unit", tr:"Component", a:0, h:5, kw:["jord"], txt:"Grounded." },
+u_spole:{ n:"Coil", e:"🌪️", c:2, t:"unit", tr:"Component", a:2, h:3, txt:"“Hums a bit, but it holds.”" },
+u_potmeter:{ n:"Potentiometer", e:"🎛️", c:2, t:"unit", tr:"Component", a:1, h:1, txt:"Install: Give another friendly unit +1/+1.",
   bcTgt:"funitO", bc(g,s,u,t){ if(t) buff(g,t,1,1); } },
-u_krystal:{ n:"Krystaloscillator", e:"💎", c:3, t:"enhed", tr:"Komponent", a:2, h:2, txt:"Ved din turs start: +1 angreb.",
+u_krystal:{ n:"Crystal Oscillator", e:"💎", c:3, t:"unit", tr:"Component", a:2, h:2, txt:"At the start of your turn: +1 Attack.",
   start(g,s,u){ u.a+=1; } },
-u_printplade:{ n:"Printplade", e:"🟩", c:3, t:"enhed", tr:"Komponent", a:0, h:4, txt:"Dine andre Komponenter har +1/+1.",
-  aura:{ others:true, tribe:"Komponent", a:1, h:1 } },
-u_transform:{ n:"Transformator", e:"🔀", c:3, t:"enhed", tr:"Komponent", a:2, h:4, txt:"Installation: Giv en anden venlig enhed +2/+0.",
+u_printplade:{ n:"Circuit Board", e:"🟩", c:3, t:"unit", tr:"Component", a:0, h:4, txt:"Your other Components have +1/+1.",
+  aura:{ others:true, tribe:"Component", a:1, h:1 } },
+u_transform:{ n:"Transformer", e:"🔀", c:3, t:"unit", tr:"Component", a:2, h:4, txt:"Install: Give another friendly unit +2/+0.",
   bcTgt:"funitO", bc(g,s,u,t){ if(t) buff(g,t,2,0); } },
-u_relae:{ n:"Relæ", e:"🎏", c:3, t:"enhed", tr:"Komponent", a:2, h:3, txt:"Installation: En anden venlig enhed kan angribe med det samme.",
+u_relae:{ n:"Relay", e:"🎏", c:3, t:"unit", tr:"Component", a:2, h:3, txt:"Install: Another friendly unit can attack immediately.",
   bcTgt:"funitO", bc(g,s,u,t){ const x=refUnit(g,t); if(x){ x.jp=false; x.atkLeft=Math.max(x.atkLeft,1); } } },
-u_solpanel:{ n:"Solpanel", e:"☀️", c:4, t:"enhed", tr:"Komponent", a:1, h:5, txt:"Ved din turs start: Få 1 energi denne tur.",
+u_solpanel:{ n:"Solar Panel", e:"☀️", c:4, t:"unit", tr:"Component", a:1, h:5, txt:"At the start of your turn: Gain 1 energy this turn.",
   start(g,s){ g.players[s].cur+=1; } },
-u_psu:{ n:"Strømforsyning", e:"🔌", c:4, t:"enhed", tr:"Komponent", a:2, h:5, kw:["jord"], txt:"Jordet. Nedbrud: Gem 1 energi.",
+u_psu:{ n:"Power Supply", e:"🔌", c:4, t:"unit", tr:"Component", a:2, h:5, kw:["jord"], txt:"Grounded. Breakdown: Store 1 energy.",
   dr(g,s){ addStored(g,s,1); } },
-u_superkond:{ n:"Superkondensator", e:"🛢️", c:5, t:"enhed", tr:"Komponent", a:3, h:5, txt:"Installation: Gem 2 energi i kondensatorbanken.",
+u_superkond:{ n:"Supercapacitor", e:"🛢️", c:5, t:"unit", tr:"Component", a:3, h:5, txt:"Install: Store 2 energy in the capacitor bank.",
   bc(g,s){ addStored(g,s,2); } },
 
 // ===== ROBOTTER (16) =====
-u_skruebot:{ n:"Skruebot", e:"🪛", c:1, t:"enhed", tr:"Robot", a:1, h:1, txt:"Installation: Giv en anden venlig Robot +1/+1.",
+u_skruebot:{ n:"Screwbot", e:"🪛", c:1, t:"unit", tr:"Robot", a:1, h:1, txt:"Install: Give another friendly Robot +1/+1.",
   bcTgt:"funitO", bcF:(g,s,r,u)=>CARDS[u.id].tr==="Robot", bc(g,s,u,t){ if(t) buff(g,t,1,1); } },
-u_loddebot:{ n:"Loddebot", e:"🦾", c:2, t:"enhed", tr:"Robot", a:2, h:1, txt:"Installation: Giv 1 skade.",
+u_loddebot:{ n:"Solderbot", e:"🦾", c:2, t:"unit", tr:"Robot", a:2, h:1, txt:"Install: Deal 1 damage.",
   bcTgt:"any", bc(g,s,u,t){ if(t) dmg(g,t,1,null); } },
-u_skraldebot:{ n:"Skraldebot", e:"🗑️", c:2, t:"enhed", tr:"Robot", a:2, h:3, txt:"Nedbrud: Tilføj en tilfældig Komponent til din hånd.",
+u_skraldebot:{ n:"Garbagebot", e:"🗑️", c:2, t:"unit", tr:"Robot", a:2, h:3, txt:"Breakdown: Add a random Component to your hand.",
   dr(g,s){ const id=pick(POOL_KOMP); if(id) addHand(g,s,id); } },
-u_vagtbot:{ n:"Vagtbot", e:"👮", c:3, t:"enhed", tr:"Robot", a:2, h:4, kw:["jord"], txt:"Jordet." },
-u_byggebot:{ n:"Byggebot", e:"👷", c:3, t:"enhed", tr:"Robot", a:2, h:2, txt:"Installation: Tilkald en 1/1 Mikrobot.",
+u_vagtbot:{ n:"Guardbot", e:"👮", c:3, t:"unit", tr:"Robot", a:2, h:4, kw:["jord"], txt:"Grounded." },
+u_byggebot:{ n:"Builderbot", e:"👷", c:3, t:"unit", tr:"Robot", a:2, h:2, txt:"Install: Summon a 1/1 Microbot.",
   bc(g,s){ summon(g,s,"t_mikrobot"); } },
-u_speederbot:{ n:"Speederbot", e:"🛵", c:3, t:"enhed", tr:"Robot", a:3, h:2, kw:["turbo"], txt:"Turbo." },
-u_sumobot:{ n:"Sumobot", e:"🥋", c:4, t:"enhed", tr:"Robot", a:3, h:5, kw:["jord"], txt:"Jordet." },
-u_svejsebot:{ n:"Svejsebot", e:"🔧", c:4, t:"enhed", tr:"Robot", a:3, h:4, txt:"Installation: Giv 2 skade. Kæde: Giv 4 skade i stedet.",
+u_speederbot:{ n:"Speedbot", e:"🛵", c:3, t:"unit", tr:"Robot", a:3, h:2, kw:["turbo"], txt:"Turbo." },
+u_sumobot:{ n:"Sumobot", e:"🥋", c:4, t:"unit", tr:"Robot", a:3, h:5, kw:["jord"], txt:"Grounded." },
+u_svejsebot:{ n:"Weldbot", e:"🔧", c:4, t:"unit", tr:"Robot", a:3, h:4, txt:"Install: Deal 2 damage. Chain: Deal 4 instead.",
   bcTgt:"any", bc(g,s,u,t,combo){ if(t) dmg(g,t,combo?4:2,null); } },
-u_sergent:{ n:"Robo-sergent", e:"🎖️", c:4, t:"enhed", tr:"Robot", a:3, h:3, txt:"Dine andre Robotter har +1 angreb.",
+u_sergent:{ n:"Robo-Sergeant", e:"🎖️", c:4, t:"unit", tr:"Robot", a:3, h:3, txt:"Your other Robots have +1 Attack.",
   aura:{ others:true, tribe:"Robot", a:1 } },
-u_repbot:{ n:"Reparationsbot", e:"🚑", c:4, t:"enhed", tr:"Robot", a:2, h:5, txt:"Ved din turs slutning: Reparér en tilfældig skadet venlig enhed 2.",
+u_repbot:{ n:"Repairbot", e:"🚑", c:4, t:"unit", tr:"Robot", a:2, h:5, txt:"At the end of your turn: Repair a random damaged friendly unit for 2.",
   end(g,s){ const c=g.players[s].board.filter(x=>x.dmg>0); const u=pick(c); if(u) u.dmg=Math.max(0,u.dmg-2); } },
-u_boksebot:{ n:"Boksebot", e:"🥊", c:5, t:"enhed", tr:"Robot", a:3, h:5, kw:["dob"], txt:"Dobbeltkerne." },
-u_fabrik:{ n:"Robotfabrik", e:"🏗️", c:5, t:"enhed", tr:"Robot", a:0, h:6, txt:"Ved din turs slutning: Tilkald en 1/1 Mikrobot.",
+u_boksebot:{ n:"Boxerbot", e:"🥊", c:5, t:"unit", tr:"Robot", a:3, h:5, kw:["dob"], txt:"Dual Core." },
+u_fabrik:{ n:"Robot Factory", e:"🏗️", c:5, t:"unit", tr:"Robot", a:0, h:6, txt:"At the end of your turn: Summon a 1/1 Microbot.",
   end(g,s){ summon(g,s,"t_mikrobot"); } },
-u_kranbot:{ n:"Kranbot", e:"🏗", c:5, t:"enhed", tr:"Robot", a:4, h:5, kw:["jord"], txt:"Jordet." },
-u_nedriver:{ n:"Nedrivningsbot", e:"🧨", c:6, t:"enhed", tr:"Robot", a:5, h:5, txt:"Installation: Giv 2 skade til alle andre enheder.",
+u_kranbot:{ n:"Cranebot", e:"🏗", c:5, t:"unit", tr:"Robot", a:4, h:5, kw:["jord"], txt:"Grounded." },
+u_nedriver:{ n:"Demolition Bot", e:"🧨", c:6, t:"unit", tr:"Robot", a:5, h:5, txt:"Install: Deal 2 damage to all other units.",
   bc(g,s,u){ for(const p of [0,1]) for(const x of g.players[p].board.map(v=>v.uid)){ if(x!==u.uid) dmg(g,{s:p,u:x},2,null); } } },
-u_panserbot:{ n:"Panserbot", e:"🛡️", c:6, t:"enhed", tr:"Robot", a:4, h:6, kw:["jord","iso"], txt:"Jordet. Isoleret." },
-u_kolos:{ n:"Mek-kolos", e:"🦿", c:7, t:"enhed", tr:"Robot", a:7, h:7, txt:"Overophedning (1).",
+u_panserbot:{ n:"Armorbot", e:"🛡️", c:6, t:"unit", tr:"Robot", a:4, h:6, kw:["jord","iso"], txt:"Grounded. Insulated." },
+u_kolos:{ n:"Mech Colossus", e:"🦿", c:7, t:"unit", tr:"Robot", a:7, h:7, txt:"Overheat (1).",
   bc(g,s){ g.players[s].ovlNext+=1; } },
 
 // ===== DRONER (12) =====
-u_nano:{ n:"Nanodrone", e:"🐝", c:1, t:"enhed", tr:"Drone", a:1, h:1, kw:["turbo"], txt:"Turbo." },
-u_spejder:{ n:"Spejderdrone", e:"🔭", c:1, t:"enhed", tr:"Drone", a:1, h:2, kw:["skjul"], txt:"Skjult." },
-u_kampdrone:{ n:"Kampdrone", e:"🛸", c:2, t:"enhed", tr:"Drone", a:2, h:1, kw:["turbo"], txt:"Turbo." },
-u_svarm:{ n:"Sværmdrone", e:"🐜", c:2, t:"enhed", tr:"Drone", a:1, h:1, txt:"Installation: Tilkald en 1/1 Nanodrone med Turbo.",
+u_nano:{ n:"Nanodrone", e:"🐝", c:1, t:"unit", tr:"Drone", a:1, h:1, kw:["turbo"], txt:"Turbo." },
+u_spejder:{ n:"Scout Drone", e:"🔭", c:1, t:"unit", tr:"Drone", a:1, h:2, kw:["skjul"], txt:"Cloaked." },
+u_kampdrone:{ n:"Combat Drone", e:"🛸", c:2, t:"unit", tr:"Drone", a:2, h:1, kw:["turbo"], txt:"Turbo." },
+u_svarm:{ n:"Swarm Drone", e:"🐜", c:2, t:"unit", tr:"Drone", a:1, h:1, txt:"Install: Summon a 1/1 Nanodrone with Turbo.",
   bc(g,s){ summon(g,s,"u_nano"); } },
-u_kamikaze:{ n:"Kamikazedrone", e:"💣", c:2, t:"enhed", tr:"Drone", a:2, h:1, txt:"Nedbrud: Giv 2 skade til en tilfældig fjendtlig enhed.",
+u_kamikaze:{ n:"Kamikaze Drone", e:"💣", c:2, t:"unit", tr:"Drone", a:2, h:1, txt:"Breakdown: Deal 2 damage to a random enemy unit.",
   dr(g,s){ const u=pick(g.players[1-s].board); if(u) dmg(g,{s:1-s,u:u.uid},2,null); } },
-u_levering:{ n:"Leveringsdrone", e:"📬", c:3, t:"enhed", tr:"Drone", a:2, h:2, txt:"Installation: Træk et kort.",
+u_levering:{ n:"Delivery Drone", e:"📬", c:3, t:"unit", tr:"Drone", a:2, h:2, txt:"Install: Draw a card.",
   bc(g,s){ draw(g,s,1); } },
-u_forer:{ n:"Dronefører", e:"🕹️", c:3, t:"enhed", tr:"Drone", a:2, h:3, txt:"Dine andre Droner har Turbo.",
+u_forer:{ n:"Drone Pilot", e:"🕹️", c:3, t:"unit", tr:"Drone", a:2, h:3, txt:"Your other Drones have Turbo.",
   aura:{ others:true, tribe:"Drone", kw:["turbo"] } },
-u_jager:{ n:"Jagerdrone", e:"✈️", c:4, t:"enhed", tr:"Drone", a:4, h:3, kw:["turbo"], txt:"Turbo." },
-u_dronebase:{ n:"Dronebase", e:"📡", c:4, t:"enhed", tr:"Drone", a:1, h:5, txt:"Dine andre Droner har +1 angreb.",
+u_jager:{ n:"Fighter Drone", e:"✈️", c:4, t:"unit", tr:"Drone", a:4, h:3, kw:["turbo"], txt:"Turbo." },
+u_dronebase:{ n:"Drone Base", e:"📡", c:4, t:"unit", tr:"Drone", a:1, h:5, txt:"Your other Drones have +1 Attack.",
   aura:{ others:true, tribe:"Drone", a:1 } },
-u_fragt:{ n:"Fragtdrone", e:"📦", c:5, t:"enhed", tr:"Drone", a:3, h:4, txt:"Installation: Tilkald to 1/1 Nanodroner med Turbo.",
+u_fragt:{ n:"Cargo Drone", e:"📦", c:5, t:"unit", tr:"Drone", a:3, h:4, txt:"Install: Summon two 1/1 Nanodrones with Turbo.",
   bc(g,s){ summon(g,s,"u_nano"); summon(g,s,"u_nano"); } },
-u_stealthdrone:{ n:"Stealthdrone", e:"🌑", c:5, t:"enhed", tr:"Drone", a:4, h:4, kw:["skjul"], txt:"Skjult." },
-u_hyper:{ n:"Hyperdrone", e:"🚁", c:6, t:"enhed", tr:"Drone", a:3, h:4, kw:["turbo","dob"], txt:"Turbo. Dobbeltkerne." },
+u_stealthdrone:{ n:"Stealth Drone", e:"🌑", c:5, t:"unit", tr:"Drone", a:4, h:4, kw:["skjul"], txt:"Cloaked." },
+u_hyper:{ n:"Hyperdrone", e:"🚁", c:6, t:"unit", tr:"Drone", a:3, h:4, kw:["turbo","dob"], txt:"Turbo. Dual Core." },
 
 // ===== VIRUS (11) =====
-u_datamide:{ n:"Datamide", e:"🦠", c:1, t:"enhed", tr:"Virus", a:1, h:1, kw:["hoj"], txt:"Højspænding." },
-u_glitch:{ n:"Glitch", e:"👾", c:1, t:"enhed", tr:"Virus", a:2, h:1, txt:"„Har du prøvet at slukke og tænde den igen?“" },
-u_adware:{ n:"Adware", e:"🪧", c:2, t:"enhed", tr:"Virus", a:3, h:2, txt:"Nedbrud: Modstanderen trækker et kort.",
+u_datamide:{ n:"Data Mite", e:"🦠", c:1, t:"unit", tr:"Virus", a:1, h:1, kw:["hoj"], txt:"High Voltage." },
+u_glitch:{ n:"Glitch", e:"👾", c:1, t:"unit", tr:"Virus", a:2, h:1, txt:"“Have you tried turning it off and on again?”" },
+u_adware:{ n:"Adware", e:"🪧", c:2, t:"unit", tr:"Virus", a:3, h:2, txt:"Breakdown: Your opponent draws a card.",
   dr(g,s){ draw(g,1-s,1); } },
-u_spion:{ n:"Spionprogram", e:"🕵️", c:2, t:"enhed", tr:"Virus", a:1, h:3, txt:"Installation: Kopiér et tilfældigt kort fra modstanderens hånd til din hånd.",
+u_spion:{ n:"Spyware", e:"🕵️", c:2, t:"unit", tr:"Virus", a:1, h:3, txt:"Install: Copy a random card from your opponent’s hand to yours.",
   bc(g,s){ const h=g.players[1-s].hand; const c=pick(h); if(c) addHand(g,s,c.id); } },
-u_snylter:{ n:"Datasnylter", e:"🧛", c:3, t:"enhed", tr:"Virus", a:3, h:3, kw:["host"], txt:"Energihøst." },
-u_logikbombe:{ n:"Logikbombe", e:"🧮", c:3, t:"enhed", tr:"Virus", a:0, h:4, kw:["jord"], txt:"Jordet. Nedbrud: Giv 2 skade til alle fjendtlige enheder.",
+u_snylter:{ n:"Data Leech", e:"🧛", c:3, t:"unit", tr:"Virus", a:3, h:3, kw:["host"], txt:"Energy Harvest." },
+u_logikbombe:{ n:"Logic Bomb", e:"🧮", c:3, t:"unit", tr:"Virus", a:0, h:4, kw:["jord"], txt:"Grounded. Breakdown: Deal 2 damage to all enemy units.",
   dr(g,s){ aoe(g,1-s,2); } },
-u_trojan:{ n:"Trojansk Hest", e:"🐴", c:4, t:"enhed", tr:"Virus", a:4, h:4, kw:["skjul"], txt:"Skjult." },
-u_replikator:{ n:"Replikator", e:"🧬", c:4, t:"enhed", tr:"Virus", a:3, h:3, txt:"Nedbrud: Tilkald to 1/1 Bugs.",
+u_trojan:{ n:"Trojan Horse", e:"🐴", c:4, t:"unit", tr:"Virus", a:4, h:4, kw:["skjul"], txt:"Cloaked." },
+u_replikator:{ n:"Replicator", e:"🧬", c:4, t:"unit", tr:"Virus", a:3, h:3, txt:"Breakdown: Summon two 1/1 Bugs.",
   dr(g,s){ summon(g,s,"t_bug"); summon(g,s,"t_bug"); } },
-u_ormen:{ n:"Ormen", e:"🪱", c:5, t:"enhed", tr:"Virus", a:4, h:4, txt:"Ved din turs slutning: +1/+1.",
+u_ormen:{ n:"The Worm", e:"🪱", c:5, t:"unit", tr:"Virus", a:4, h:4, txt:"At the end of your turn: +1/+1.",
   end(g,s,u){ u.a+=1; u.hM+=1; } },
-u_rootkit:{ n:"Rootkit", e:"🗝️", c:5, t:"enhed", tr:"Virus", a:4, h:5, txt:"Installation: Nulstil en fjendtlig enhed.",
+u_rootkit:{ n:"Rootkit", e:"🗝️", c:5, t:"unit", tr:"Virus", a:4, h:5, txt:"Install: Reset an enemy unit.",
   bcTgt:"eunit", bc(g,s,u,t){ const x=refUnit(g,t); if(x) silence(g,x); } },
-u_botnet:{ n:"Botnet-hjernen", e:"🧠", c:6, t:"enhed", tr:"Virus", a:4, h:6, txt:"Ved din turs slutning: Tilkald en 1/1 Bug.",
+u_botnet:{ n:"Botnet Brain", e:"🧠", c:6, t:"unit", tr:"Virus", a:4, h:6, txt:"At the end of your turn: Summon a 1/1 Bug.",
   end(g,s){ summon(g,s,"t_bug"); } },
 
 // ===== LEGENDARISKE (10) =====
-l_praktikant:{ n:"Praktikanten", e:"🧑‍🎓", c:2, t:"enhed", tr:null, r:"L", a:2, h:3, txt:"Installation: Giv 2 skade til et HELT tilfældigt mål (alt kan rammes).",
+l_praktikant:{ n:"The Intern", e:"🧑‍🎓", c:2, t:"unit", tr:null, r:"L", a:2, h:3, txt:"Install: Deal 2 damage to a COMPLETELY random target (anything can be hit).",
   bc(g,s,u){ const pool=[]; for(const p of [0,1]){ pool.push({s:p,u:null}); for(const x of g.players[p].board) if(x.uid!==u.uid) pool.push({s:p,u:x.uid}); }
     const t=pick(pool); if(t) dmg(g,t,2,null); } },
-l_roomba:{ n:"ROOMBA PRIME", e:"🧹", c:5, t:"enhed", tr:"Robot", r:"L", a:3, h:3, kw:["turbo","hoj"], txt:"Turbo. Højspænding. Støvsuger alt op." },
-l_gdpr:{ n:"GDPR-botten", e:"⚖️", c:6, t:"enhed", tr:"Robot", r:"L", a:4, h:5, txt:"Installation: Begge spillere sletter deres hånd og trækker lige så mange kort.",
+l_roomba:{ n:"ROOMBA PRIME", e:"🧹", c:5, t:"unit", tr:"Robot", r:"L", a:3, h:3, kw:["turbo","hoj"], txt:"Turbo. High Voltage. Vacuums up everything." },
+l_gdpr:{ n:"GDPR Bot", e:"⚖️", c:6, t:"unit", tr:"Robot", r:"L", a:4, h:5, txt:"Install: Both players delete their hands and draw that many cards.",
   bc(g){ for(const p of [0,1]){ const n=g.players[p].hand.length; g.players[p].hand=[]; draw(g,p,n); } } },
-l_moderkort:{ n:"MODERKORTET", e:"🖥️", c:6, t:"enhed", tr:"Komponent", r:"L", a:0, h:8, kw:["jord"], txt:"Jordet. Dine andre enheder har +1/+1.",
+l_moderkort:{ n:"THE MOTHERBOARD", e:"🖥️", c:6, t:"unit", tr:"Component", r:"L", a:0, h:8, kw:["jord"], txt:"Grounded. Your other units have +1/+1.",
   aura:{ others:true, a:1, h:1 } },
-l_tesla:{ n:"TESLA-SPOLEN", e:"🗼", c:7, t:"enhed", tr:"Komponent", r:"L", a:4, h:6, txt:"Ved din turs slutning: Giv 3 skade til en tilfældig fjende.",
+l_tesla:{ n:"TESLA COIL", e:"🗼", c:7, t:"unit", tr:"Component", r:"L", a:4, h:6, txt:"At the end of your turn: Deal 3 damage to a random enemy.",
   end(g,s){ const r=randEnemyRef(g,s); if(r) dmg(g,r,3,null); } },
-l_virusx:{ n:"VIRUS X", e:"☣️", c:7, t:"enhed", tr:"Virus", r:"L", a:5, h:5, kw:["hoj","host"], txt:"Højspænding. Energihøst." },
-l_alan:{ n:"A.L.A.N.", e:"🤖", c:8, t:"enhed", tr:"Robot", r:"L", a:6, h:6, txt:"Installation: Træk 3 kort. („Jeg er desværre nødt til at afvise, Dave.“)",
+l_virusx:{ n:"VIRUS X", e:"☣️", c:7, t:"unit", tr:"Virus", r:"L", a:5, h:5, kw:["hoj","host"], txt:"High Voltage. Energy Harvest." },
+l_alan:{ n:"A.L.A.N.", e:"🤖", c:8, t:"unit", tr:"Robot", r:"L", a:6, h:6, txt:"Install: Draw 3 cards. (“I’m afraid I can’t do that, Dave.”)",
   bc(g,s){ draw(g,s,3); } },
-l_kvante:{ n:"KVANTEBOKSEN", e:"📦", c:8, t:"enhed", tr:"Komponent", r:"L", a:5, h:7, txt:"Ved din turs slutning: Tilføj et tilfældigt Program til din hånd.",
+l_kvante:{ n:"THE QUANTUM BOX", e:"📦", c:8, t:"unit", tr:"Component", r:"L", a:5, h:7, txt:"At the end of your turn: Add a random Spell to your hand.",
   end(g,s){ const id=pick(POOL_PROG); if(id) addHand(g,s,id); } },
-l_titan:{ n:"TITAN-9000", e:"🗿", c:9, t:"enhed", tr:"Robot", r:"L", a:8, h:8, kw:["jord"], txt:"Jordet. Installation: Ødelæg den fjendtlige enhed med højest angreb.",
+l_titan:{ n:"TITAN-9000", e:"🗿", c:9, t:"unit", tr:"Robot", r:"L", a:8, h:8, kw:["jord"], txt:"Grounded. Install: Destroy the enemy unit with the highest Attack.",
   bc(g,s){ const b=g.players[1-s].board; if(!b.length) return; let m=b[0]; for(const x of b) if(effAtk(g,1-s,x)>effAtk(g,1-s,m)) m=x; m.dmg=999; sweep(g); } },
-l_overtek:{ n:"OVERTEKNIKEREN", e:"🧙", c:9, t:"enhed", tr:null, r:"L", a:6, h:6, txt:"Installation: Giv alle dine andre enheder +2/+2.",
+l_overtek:{ n:"THE OVERTECHNICIAN", e:"🧙", c:9, t:"unit", tr:null, r:"L", a:6, h:6, txt:"Install: Give all your other units +2/+2.",
   bc(g,s,u){ for(const x of g.players[s].board) if(x.uid!==u.uid){ x.a+=2; x.hM+=2; } } },
 
 // ===== TOKENS (ikke i samlingen) =====
-t_mikrobot:{ n:"Mikrobot", e:"🤖", c:1, t:"enhed", tr:"Robot", a:1, h:1, tok:true, txt:"" },
-t_bug:{ n:"Bug", e:"🐛", c:1, t:"enhed", tr:"Virus", a:1, h:1, tok:true, txt:"" },
-t_server:{ n:"Server", e:"🗃️", c:3, t:"enhed", tr:"Komponent", a:3, h:3, kw:["jord"], tok:true, txt:"Jordet." },
-t_powerbank:{ n:"Powerbank", e:"🔋", c:0, t:"program", tok:true, txt:"Få 1 energi denne tur.",
+t_mikrobot:{ n:"Microbot", e:"🤖", c:1, t:"unit", tr:"Robot", a:1, h:1, tok:true, txt:"" },
+t_bug:{ n:"Bug", e:"🐛", c:1, t:"unit", tr:"Virus", a:1, h:1, tok:true, txt:"" },
+t_server:{ n:"Server", e:"🗃️", c:3, t:"unit", tr:"Component", a:3, h:3, kw:["jord"], tok:true, txt:"Grounded." },
+t_powerbank:{ n:"Powerbank", e:"🔋", c:0, t:"spell", tok:true, txt:"Gain 1 energy this turn.",
   fx(g,s){ g.players[s].cur+=1; } },
 };
 
 const COLL = Object.keys(CARDS).filter(id=>!CARDS[id].tok)
-  .sort((a,b)=>CARDS[a].c-CARDS[b].c || CARDS[a].n.localeCompare(CARDS[b].n,"da"));
-const POOL_KOMP = COLL.filter(id=>CARDS[id].t==="enhed" && CARDS[id].tr==="Komponent");
-const POOL_PROG = COLL.filter(id=>CARDS[id].t==="program");
+  .sort((a,b)=>CARDS[a].c-CARDS[b].c || CARDS[a].n.localeCompare(CARDS[b].n,"en"));
+const POOL_KOMP = COLL.filter(id=>CARDS[id].t==="unit" && CARDS[id].tr==="Component");
+const POOL_PROG = COLL.filter(id=>CARDS[id].t==="spell");
 
 // ---------- afledte værdier / auraer ----------
 function auraOn(g,s,u){
@@ -267,9 +267,9 @@ function refUnit(g,r){ if(!r||r.u==null) return null; return g.players[r.s].boar
 function checkWin(g){
   if(g.status!=="igang") return;
   const d0=g.players[0].hp<=0, d1=g.players[1].hp<=0;
-  if(d0&&d1){ g.status="slut"; g.winner=2; log(g,"⚡ Dobbelt nedsmeltning — uafgjort!"); }
-  else if(d0){ g.status="slut"; g.winner=1; log(g,"🏆 "+g.players[1].name+" vinder!"); }
-  else if(d1){ g.status="slut"; g.winner=0; log(g,"🏆 "+g.players[0].name+" vinder!"); }
+  if(d0&&d1){ g.status="slut"; g.winner=2; log(g,"⚡ Double meltdown — it\u2019s a draw!"); }
+  else if(d0){ g.status="slut"; g.winner=1; log(g,"🏆 "+g.players[1].name+" wins!"); }
+  else if(d1){ g.status="slut"; g.winner=0; log(g,"🏆 "+g.players[0].name+" wins!"); }
 }
 function fxPush(g,ev){ ev.k=(g.fxk=(g.fxk||0)+1); (g.fx=g.fx||[]).push(ev); if(g.fx.length>40) g.fx.shift(); }
 function dmg(g,ref,n,src){
@@ -282,7 +282,7 @@ function dmg(g,ref,n,src){
   }
   const u=refUnit(g,ref); if(!u) return;
   if(u.sh){ u.sh=false; fxPush(g,{t:"skjold",s:ref.s,u:u.uid});
-    log(g,"◈ "+CARDS[u.id].n+"s isolering absorberer skaden."); return; }
+    log(g,"◈ "+CARDS[u.id].n+"\u2019s insulation absorbs the damage."); return; }
   u.dmg+=n;
   fxPush(g,{t:"dmg",s:ref.s,u:u.uid,n});
   if(src&&src.host) healHero(g,src.hs,n);
@@ -303,7 +303,7 @@ function sweep(g){
     const b=g.players[ds].board; b.splice(b.indexOf(dead),1);
     g.players[ds].grave++;
     fxPush(g,{t:"boom",s:ds,u:dead.uid});
-    log(g,"✕ "+CARDS[dead.id].n+" bryder ned.");
+    log(g,"✕ "+CARDS[dead.id].n+" breaks down.");
     const def=CARDS[dead.id];
     if(!dead.sil && def.dr) def.dr(g,ds,dead);
   }
@@ -315,23 +315,23 @@ function draw(g,s,n){
     if(g.status!=="igang") return;
     if(!p.deck.length){
       p.fat++; p.hp-=p.fat;
-      log(g,"🕳️ "+p.name+" løber tør for kort og tager "+p.fat+" i udmattelse.");
+      log(g,"🕳️ "+p.name+" is out of cards and takes "+p.fat+" fatigue damage.");
       checkWin(g); continue;
     }
     const id=p.deck.pop();
-    if(p.hand.length>=MAXHAND){ log(g,"🔥 "+p.name+"s hånd er fuld — "+CARDS[id].n+" brænder af."); }
+    if(p.hand.length>=MAXHAND){ log(g,"🔥 "+p.name+"\u2019s hand is full — "+CARDS[id].n+" burns up."); }
     else p.hand.push({uid:nuid(g),id});
   }
 }
 function addHand(g,s,id){
   const p=g.players[s];
-  if(p.hand.length>=MAXHAND){ log(g,"🔥 "+p.name+"s hånd er fuld — "+CARDS[id].n+" brænder af."); return; }
+  if(p.hand.length>=MAXHAND){ log(g,"🔥 "+p.name+"\u2019s hand is full — "+CARDS[id].n+" burns up."); return; }
   p.hand.push({uid:nuid(g),id});
 }
 function tutor(g,s,pred){
   const p=g.players[s];
   const idx=p.deck.map((id,i)=>pred(id)?i:-1).filter(i=>i>=0);
-  if(!idx.length){ log(g,"…kortbunken indeholder ikke noget brugbart."); return; }
+  if(!idx.length){ log(g,"…the deck contains nothing usable."); return; }
   const i=pick(idx); const id=p.deck.splice(i,1)[0]; addHand(g,s,id);
 }
 function mkUnit(g,id){
@@ -357,7 +357,7 @@ function bounce(g,ref){
   const u=refUnit(g,ref); if(!u) return;
   const b=g.players[ref.s].board; b.splice(b.indexOf(u),1);
   const p=g.players[ref.s];
-  if(p.hand.length>=MAXHAND) log(g,"🔥 "+CARDS[u.id].n+" brænder af — hånden var fuld.");
+  if(p.hand.length>=MAXHAND) log(g,"🔥 "+CARDS[u.id].n+" burns up — the hand was full.");
   else p.hand.push({uid:nuid(g),id:u.id});
 }
 function takeControl(g,s,ref){
@@ -365,7 +365,7 @@ function takeControl(g,s,ref){
   if(g.players[s].board.length>=MAXBOARD) return;
   const b=g.players[ref.s].board; b.splice(b.indexOf(u),1);
   u.jp=true; g.players[s].board.push(u);
-  log(g,"🥷 "+g.players[s].name+" overtager "+CARDS[u.id].n+"!");
+  log(g,"🥷 "+g.players[s].name+" takes control of "+CARDS[u.id].n+"!");
 }
 function addStored(g,s,n){ const p=g.players[s]; p.stored=Math.min(MAXSTORED,p.stored+n); }
 function aoe(g,side,n){
@@ -408,7 +408,7 @@ function specTargets(g,s,spec,f,selfUid){
 }
 function targetsForCard(g,s,cardId,selfUid){
   const d=CARDS[cardId];
-  const spec=d.t==="program"?d.tgt:d.bcTgt;
+  const spec=d.t==="spell"?d.tgt:d.bcTgt;
   if(!spec) return {need:false,list:[]};
   const list=specTargets(g,s,spec,d.f||d.bcF,spec==="funitO"?selfUid:null);
   return {need:true,list};
@@ -416,33 +416,33 @@ function targetsForCard(g,s,cardId,selfUid){
 function canPlay(g,s,cardId){
   const p=g.players[s], d=CARDS[cardId];
   if(d.c>p.cur) return false;
-  if(d.t==="enhed" && p.board.length>=MAXBOARD) return false;
-  if(d.t==="program" && d.tgt){
+  if(d.t==="unit" && p.board.length>=MAXBOARD) return false;
+  if(d.t==="spell" && d.tgt){
     if(!specTargets(g,s,d.tgt,d.f,null).length) return false;
   }
   return true;
 }
 function playCard(g,s,handUid,tref){
-  if(g.status!=="igang"||g.active!==s) return "Ikke din tur.";
+  if(g.status!=="igang"||g.active!==s) return "Not your turn.";
   const p=g.players[s];
   const hi=p.hand.findIndex(c=>c.uid===handUid);
-  if(hi<0) return "Kortet er ikke på hånden.";
+  if(hi<0) return "That card is not in your hand.";
   const id=p.hand[hi].id, d=CARDS[id];
-  if(!canPlay(g,s,id)) return "Kan ikke spilles lige nu.";
-  const spec=d.t==="program"?d.tgt:d.bcTgt;
+  if(!canPlay(g,s,id)) return "Can\u2019t be played right now.";
+  const spec=d.t==="spell"?d.tgt:d.bcTgt;
   if(spec){
     const list=specTargets(g,s,spec,d.f||d.bcF,null);
-    if(d.t==="program" && list.length && !tref) return "Vælg et mål.";
-    if(tref && !list.some(r=>r.s===tref.s&&r.u===tref.u)) return "Ugyldigt mål.";
+    if(d.t==="spell" && list.length && !tref) return "Choose a target.";
+    if(tref && !list.some(r=>r.s===tref.s&&r.u===tref.u)) return "Invalid target.";
   }
   const combo=p.played>0;
   p.played++; p.cur-=d.c; p.hand.splice(hi,1);
   g.lc=(g.lc||0)+1; g.last={s,id,k:g.lc};
   fxPush(g,{t:"spil",s,hu:handUid,id,ts:tref?tref.s:null,tu:tref?tref.u:null});
-  if(d.t==="program"&&tref) fxPush(g,{t:"zap",fs:s,fu:null,ts:tref.s,tu:tref.u,art:"spell"});
-  else if(d.t==="program") fxPush(g,{t:"cast",s});
-  log(g,"▶ "+p.name+" spiller "+d.n+".");
-  if(d.t==="enhed"){
+  if(d.t==="spell"&&tref) fxPush(g,{t:"zap",fs:s,fu:null,ts:tref.s,tu:tref.u,art:"spell"});
+  else if(d.t==="spell") fxPush(g,{t:"cast",s});
+  log(g,"▶ "+p.name+" plays "+d.n+".");
+  if(d.t==="unit"){
     const u=mkUnit(g,id); p.board.push(u);
     if(d.bcTgt){
       const list=specTargets(g,s,d.bcTgt,d.bcF,u.uid);
@@ -472,23 +472,23 @@ function attackTargets(g,s,uid){
   return list;
 }
 function unitAttack(g,s,uid,tref){
-  if(g.status!=="igang"||g.active!==s) return "Ikke din tur.";
+  if(g.status!=="igang"||g.active!==s) return "Not your turn.";
   const u=g.players[s].board.find(x=>x.uid===uid);
-  if(!u) return "Enheden findes ikke.";
+  if(!u) return "That unit doesn\u2019t exist.";
   const list=attackTargets(g,s,uid);
-  if(!list.some(r=>r.s===tref.s&&r.u===tref.u)) return "Ugyldigt mål.";
+  if(!list.some(r=>r.s===tref.s&&r.u===tref.u)) return "Invalid target.";
   u.atkLeft--; u.st=false;
   fxPush(g,{t:"zap",fs:s,fu:uid,ts:tref.s,tu:tref.u,art:"melee"});
   const aA=effAtk(g,s,u);
   const srcA={hoj:hasKw(g,s,u,"hoj"),host:hasKw(g,s,u,"host"),hs:s};
   if(tref.u==null){
-    log(g,"⚔ "+CARDS[u.id].n+" angriber "+g.players[tref.s].name+" ("+aA+").");
+    log(g,"⚔ "+CARDS[u.id].n+" attacks "+g.players[tref.s].name+" ("+aA+").");
     dmg(g,tref,aA,srcA);
   } else {
-    const d=refUnit(g,tref); if(!d) return "Målet findes ikke.";
+    const d=refUnit(g,tref); if(!d) return "The target doesn\u2019t exist.";
     const aD=effAtk(g,tref.s,d);
     const srcD={hoj:hasKw(g,tref.s,d,"hoj"),host:hasKw(g,tref.s,d,"host"),hs:tref.s};
-    log(g,"⚔ "+CARDS[u.id].n+" ("+aA+") kæmper mod "+CARDS[d.id].n+" ("+aD+").");
+    log(g,"⚔ "+CARDS[u.id].n+" ("+aA+") trades with "+CARDS[d.id].n+" ("+aD+").");
     dmg(g,tref,aA,srcA);
     if(aD>0) dmg(g,{s,u:uid},aD,srcD);
   }
@@ -501,8 +501,8 @@ function unitAttack(g,s,uid,tref){
    deckbygger, validering og UI slår selv op. Kort uden cls er neutrale. */
 const CLASSES={
   tek:{
-    n:"Teknikeren", ico:"🧑‍🔧",
-    power:{ n:"Loddekolben", ico:"🔧", c:2, txt:"Fjende: 1 skade · Venlig: reparér 2." },
+    n:"The Technician", ico:"🧑‍🔧",
+    power:{ n:"Soldering Iron", ico:"🔧", c:2, txt:"Enemy: 1 damage · Friendly: repair 2." },
     powerTargets(g,s){
       const out=[{s:0,u:null},{s:1,u:null}];
       for(const ps of [0,1]) for(const u of g.players[ps].board){
@@ -515,10 +515,10 @@ const CLASSES={
       if(tref.s===s){
         if(tref.u==null) healHero(g,s,2);
         else { const u=refUnit(g,tref); if(u){ u.dmg=Math.max(0,u.dmg-2); fxPush(g,{t:"heal",s:tref.s,u:tref.u,n:2}); } }
-        log(g,"🔧 "+p.name+" reparerer 2 med loddekolben.");
+        log(g,"🔧 "+p.name+" repairs 2 with the soldering iron.");
       } else {
         fxPush(g,{t:"zap",fs:s,fu:null,ts:tref.s,tu:tref.u,art:"power"});
-        log(g,"🔧 "+p.name+" brænder fjenden med loddekolben (1).");
+        log(g,"🔧 "+p.name+" burns the enemy with the soldering iron (1).");
         dmg(g,tref,1,null);
       }
     },
@@ -527,11 +527,11 @@ const CLASSES={
 function clsOf(g,s){ return CLASSES[g.players[s].cls]||CLASSES.tek; }
 function heroTargets(g,s){ return clsOf(g,s).powerTargets(g,s); }
 function heroPower(g,s,tref){
-  if(g.status!=="igang"||g.active!==s) return "Ikke din tur.";
+  if(g.status!=="igang"||g.active!==s) return "Not your turn.";
   const p=g.players[s], K=clsOf(g,s);
-  if(p.heroUsed) return K.power.n+" er allerede brugt.";
-  if(p.cur<K.power.c) return "Ikke nok energi.";
-  if(!heroTargets(g,s).some(r=>r.s===tref.s&&r.u===tref.u)) return "Ugyldigt mål.";
+  if(p.heroUsed) return K.power.n+" has already been used.";
+  if(p.cur<K.power.c) return "Not enough energy.";
+  if(!heroTargets(g,s).some(r=>r.s===tref.s&&r.u===tref.u)) return "Invalid target.";
   p.heroUsed=true; p.cur-=K.power.c;
   K.powerFx(g,s,tref);
   sweep(g); checkWin(g);
@@ -547,7 +547,7 @@ function startTurn(g){
   p.cur=Math.max(0,p.maxE-p.ovlShown)+p.stored;
   p.stored=0; p.played=0; p.heroUsed=false;
   for(const u of p.board){ u.jp=false; u.atkLeft=hasKw(g,s,u,"dob")?2:1; }
-  log(g,"— Tur "+g.turn+": "+p.name+" ("+p.cur+"⚡"+(p.ovlShown?", "+p.ovlShown+" låst af overophedning":"")+") —");
+  log(g,"— Turn "+g.turn+": "+p.name+" ("+p.cur+"⚡"+(p.ovlShown?", "+p.ovlShown+" locked by overheat":"")+") —");
   draw(g,s,1);
   for(const uid of p.board.map(u=>u.uid)){
     const u=p.board.find(x=>x.uid===uid); if(!u||u.sil) continue;
@@ -556,7 +556,7 @@ function startTurn(g){
   sweep(g); checkWin(g);
 }
 function endTurn(g,s){
-  if(g.status!=="igang"||g.active!==s) return "Ikke din tur.";
+  if(g.status!=="igang"||g.active!==s) return "Not your turn.";
   const p=g.players[s];
   for(const uid of p.board.map(u=>u.uid)){
     const u=p.board.find(x=>x.uid===uid); if(!u||u.sil) continue;
@@ -565,7 +565,7 @@ function endTurn(g,s){
   }
   if(g.status!=="igang") return null;
   const gem=Math.min(MAXSTORED,p.stored+p.cur)-p.stored;
-  if(gem>0){ p.stored+=gem; log(g,"🔋 "+p.name+" gemmer "+gem+" energi i kondensatorbanken."); }
+  if(gem>0){ p.stored+=gem; log(g,"🔋 "+p.name+" stores "+gem+" energy in the capacitor bank."); }
   p.cur=0;
   g.active=1-s;
   startTurn(g);
@@ -584,8 +584,8 @@ function mkState(cfg){
     turn:0, active:starter, n:1, last:null, log:[], fx:[], fxk:0, rematch:[false,false],
     players:[ mkPlayer(cfg.names[0],cfg.cids[0],cfg.decks[0],cfg.classes&&cfg.classes[0]),
               mkPlayer(cfg.names[1],cfg.cids[1],cfg.decks[1],cfg.classes&&cfg.classes[1]) ] };
-  log(g,"⚡ KORTSLUTNING — "+g.players[0].name+" mod "+g.players[1].name+".");
-  log(g,"🎲 "+g.players[starter].name+" starter.");
+  log(g,"⚡ KORTSLUTNING — "+g.players[0].name+" vs "+g.players[1].name+".");
+  log(g,"🎲 "+g.players[starter].name+" goes first.");
   for(let i=0;i<3;i++){ draw(g,starter,1); }
   for(let i=0;i<4;i++){ draw(g,1-starter,1); }
   addHand(g,1-starter,"t_powerbank");
@@ -594,14 +594,14 @@ function mkState(cfg){
 }
 function validateDeck(list,cls){
   cls=cls||"tek";
-  if(!Array.isArray(list)||list.length!==DECKSIZE) return "Et deck skal have præcis "+DECKSIZE+" kort.";
+  if(!Array.isArray(list)||list.length!==DECKSIZE) return "A deck must contain exactly "+DECKSIZE+" cards.";
   const cnt={};
   for(const id of list){
-    if(!CARDS[id]||CARDS[id].tok) return "Ukendt kort i decket.";
-    if(CARDS[id].cls&&CARDS[id].cls!==cls) return CARDS[id].n+" tilhører en anden klasse.";
+    if(!CARDS[id]||CARDS[id].tok) return "Unknown card in the deck.";
+    if(CARDS[id].cls&&CARDS[id].cls!==cls) return CARDS[id].n+" belongs to another class.";
     cnt[id]=(cnt[id]||0)+1;
     const max=CARDS[id].r==="L"?1:2;
-    if(cnt[id]>max) return "For mange kopier af "+CARDS[id].n+" (maks "+max+").";
+    if(cnt[id]>max) return "Too many copies of "+CARDS[id].n+" (max "+max+").";
   }
   return null;
 }
@@ -649,7 +649,7 @@ function botMoves(g,s){
     if(!canPlay(g,s,c.id)) continue;
     const {need,list}=targetsForCard(g,s,c.id,null);
     if(need&&list.length) for(const t of list) mv.push({k:"kort",uid:c.uid,t});
-    else if(!need||CARDS[c.id].t==="enhed") mv.push({k:"kort",uid:c.uid,t:null});
+    else if(!need||CARDS[c.id].t==="unit") mv.push({k:"kort",uid:c.uid,t:null});
   }
   for(const u of p.board)
     for(const t of attackTargets(g,s,u.uid)) mv.push({k:"atk",uid:u.uid,t});
@@ -920,7 +920,7 @@ function MiniCard({id,onClick,glow,count,style,dfx}){
       {count!=null && <span className="antal">{count}×</span>}
       <span className="em">{d.e}</span>
       <span className="nv">{d.n}</span>
-      {d.t==="enhed" && <><span className="stat a">{d.a}</span><span className="stat h">{d.h}</span></>}
+      {d.t==="unit" && <><span className="stat a">{d.a}</span><span className="stat h">{d.h}</span></>}
     </button>
   );
 }
@@ -935,11 +935,11 @@ function StorKort({id,unitInfo,g}){
         <span className="em">{d.e}</span>
         <div>
           <h3>{d.n}</h3>
-          <div className="meta">{d.c}⚡ · {d.t==="enhed"?"Enhed":"Program"}{d.tr?" · "+d.tr:""}{d.r==="L"?" · ★ Legendarisk":""}</div>
+          <div className="meta">{d.c}⚡ · {d.t==="unit"?"Unit":"Spell"}{d.tr?" · "+d.tr:""}{d.r==="L"?" · ★ Legendary":""}</div>
         </div>
       </div>
-      <div className="txt">{live&&live.sil?<i>Nulstillet — al tekst er fjernet.</i>:(d.txt||"—")}</div>
-      {d.t==="enhed" && (
+      <div className="txt">{live&&live.sil?<i>Reset — all text removed.</i>:(d.txt||"—")}</div>
+      {d.t==="unit" && (
         <div className="statraek">
           <span style={{color:"var(--amber)"}}>⚔ {live?live.a:d.a}</span>
           <span style={{color:live&&live.h<live.m?"var(--rod)":"var(--fos)"}}>♥ {live?live.h+"/"+live.m:d.h}</span>
@@ -1089,7 +1089,7 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
     if(tmode){ if(isTgt(ref)) fire(ref); else setT(null); return; }
     if(rs===seat&&myTurn){
       const ts=attackTargets(g,seat,u.uid);
-      if(ts.length){ setT({list:ts,label:"⚔ "+CARDS[u.id].n+" — vælg mål",run:r=>act(x=>unitAttack(x,seat,u.uid,r))}); return; }
+      if(ts.length){ setT({list:ts,label:"⚔ "+CARDS[u.id].n+" — choose a target",run:r=>act(x=>unitAttack(x,seat,u.uid,r))}); return; }
     }
     setSel({kind:"info",id:u.id,unit:{s:rs,uid:u.uid}});
   };
@@ -1102,7 +1102,7 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
     const {need,list}=targetsForCard(g,seat,c.id,null);
     if(need&&list.length){
       setSel(null);
-      setT({list,label:"▶ "+CARDS[c.id].n+" — vælg mål",run:r=>act(x=>playCard(x,seat,c.uid,r))});
+      setT({list,label:"▶ "+CARDS[c.id].n+" — choose a target",run:r=>act(x=>playCard(x,seat,c.uid,r))});
     } else { setSel(null); act(x=>playCard(x,seat,c.uid,null)); }
   };
   const kraft=()=>{
@@ -1116,8 +1116,8 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
 
   return (
     <div className="spilflade">
-      {tmode && <button className="banner" onClick={()=>setT(null)}>{tmode.label} · tryk her for at annullere</button>}
-      {turban>0 && myTurn && !slut && <div key={turban} className="turban">DIN TUR</div>}
+      {tmode && <button className="banner" onClick={()=>setT(null)}>{tmode.label} · tap here to cancel</button>}
+      {turban>0 && myTurn && !slut && <div key={turban} className="turban">YOUR TURN</div>}
 
       {/* modstander */}
       <div className="bar">
@@ -1129,20 +1129,20 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
         </span>
       </div>
       <div className="braet op">
-        {op.board.length===0&&<span style={{color:"var(--dim)",fontFamily:"var(--mono)",fontSize:11}}>— tomt bræt —</span>}
+        {op.board.length===0&&<span style={{color:"var(--dim)",fontFamily:"var(--mono)",fontSize:11}}>— empty board —</span>}
         {op.board.map(u=>
           <UnitTile key={u.uid} g={g} s={1-seat} u={u} mine={false} shake={shake.has(u.uid)}
             hilite={isTgt({s:1-seat,u:u.uid})} onClick={()=>klikEnhed(1-seat,u)}/>)}
       </div>
 
       <div className="midt">
-        <span>Runde {Math.max(1,Math.ceil(g.turn/2))}</span>
-        <span style={{color:myTurn?"var(--fos)":"var(--dim)"}}>{slut?"Spillet er slut":(myTurn?"⚡ Din tur":"Venter på "+op.name+"…")}</span>
-        <button className="slutknap" disabled={!myTurn||slut} onClick={()=>act(x=>endTurn(x,seat))}>AFSLUT TUR</button>
+        <span>Round {Math.max(1,Math.ceil(g.turn/2))}</span>
+        <span style={{color:myTurn?"var(--fos)":"var(--dim)"}}>{slut?"Game over":(myTurn?"⚡ Your turn":"Waiting for "+op.name+"…")}</span>
+        <button className="slutknap" disabled={!myTurn||slut} onClick={()=>act(x=>endTurn(x,seat))}>END TURN</button>
       </div>
 
       <div className="braet">
-        {me.board.length===0&&<span style={{color:"var(--dim)",fontFamily:"var(--mono)",fontSize:11}}>— tomt bræt —</span>}
+        {me.board.length===0&&<span style={{color:"var(--dim)",fontFamily:"var(--mono)",fontSize:11}}>— empty board —</span>}
         {me.board.map(u=>
           <UnitTile key={u.uid} g={g} s={seat} u={u} mine={true} shake={shake.has(u.uid)}
             ready={myTurn&&attackTargets(g,seat,u.uid).length>0}
@@ -1158,7 +1158,7 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
         <button style={{color:"var(--dim)",fontSize:16,padding:"0 4px"}} onClick={()=>setBekraeft(true)}>🏳</button>
       </div>
       <div className="haand">
-        {me.hand.length===0&&<span style={{color:"var(--dim)",fontFamily:"var(--mono)",fontSize:11,alignSelf:"center"}}>hånden er tom</span>}
+        {me.hand.length===0&&<span style={{color:"var(--dim)",fontFamily:"var(--mono)",fontSize:11,alignSelf:"center"}}>hand is empty</span>}
         {me.hand.map((c,i)=>{
           const o=i-(me.hand.length-1)/2;
           return <MiniCard key={c.uid} id={c.id} dfx={c.uid} glow={myTurn&&canPlay(g,seat,c.id)}
@@ -1194,14 +1194,14 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
       {visLog && (
         <div className="logpanel">
           <div className="lhoved">
-            <span>📜 Kamplog</span>
+            <span>📜 Combat log</span>
             <button className="lluk" onClick={()=>setVisLog(false)}>✕</button>
           </div>
           <div className="lkrop">{g.log.slice().reverse().map((l,i)=><div key={i}>{l}</div>)}</div>
         </div>
       )}
 
-      {ptoast && <div className="optoast"><MiniCard id={ptoast.id}/><span style={{fontFamily:"var(--mono)",fontSize:12,color:"var(--dim)"}}>{op.name}<br/>spiller…</span></div>}
+      {ptoast && <div className="optoast"><MiniCard id={ptoast.id}/><span style={{fontFamily:"var(--mono)",fontSize:12,color:"var(--dim)"}}>{op.name}<br/>plays…</span></div>}
 
       {sel && (
         <div className="slor" onClick={()=>setSel(null)}>
@@ -1209,9 +1209,9 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
             <StorKort id={sel.id} unitInfo={sel.unit} g={g}/>
             {sel.kind==="hand" && (
               <button className="knap cu" disabled={!myTurn||!canPlay(g,seat,sel.id)} onClick={spilFraArk}>
-                ⚡ Spil ({CARDS[sel.id].c} energi)
+                ⚡ Play ({CARDS[sel.id].c} energy)
               </button>)}
-            <button className="knap" onClick={()=>setSel(null)}>Luk</button>
+            <button className="knap" onClick={()=>setSel(null)}>Close</button>
           </div>
         </div>
       )}
@@ -1219,9 +1219,9 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
       {bekraeft && (
         <div className="slor" onClick={()=>setBekraeft(false)}>
           <div className="ark" onClick={e=>e.stopPropagation()}>
-            <p className="rt">Vil du opgive spillet?</p>
-            <button className="knap cu" onClick={()=>{setBekraeft(false);onConcede();}}>🏳 Ja, jeg opgiver</button>
-            <button className="knap" onClick={()=>setBekraeft(false)}>Nej, spil videre</button>
+            <p className="rt">Do you want to concede?</p>
+            <button className="knap cu" onClick={()=>{setBekraeft(false);onConcede();}}>🏳 Yes, concede</button>
+            <button className="knap" onClick={()=>setBekraeft(false)}>No, keep playing</button>
           </div>
         </div>
       )}
@@ -1230,20 +1230,20 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
         <div className="slor">
           <div className="ark" style={{textAlign:"center"}}>
             <div className="logo" style={{fontSize:34}}>
-              {g.winner===2?"UAFGJORT":(g.winner===seat?"SEJR ⚡":"NEDBRUD")}
+              {g.winner===2?"DRAW":(g.winner===seat?"VICTORY ⚡":"BREAKDOWN")}
             </div>
             <p className="rt" style={{color:"var(--dim)"}}>
-              {g.winner===2?"Begge kredsløb brændte af.":(g.winner===seat?"Modstanderens kredsløb er brændt af.":"Dit kredsløb er brændt af.")}
+              {g.winner===2?"Both circuits burned out.":(g.winner===seat?"Your opponent\u2019s circuit burned out.":"Your circuit burned out.")}
             </p>
             {mode==="online" ? (
               <button className="knap cu" disabled={g.rematch[seat]} onClick={onRematch}>
-                {g.rematch[seat]?"Venter på modstanderen…":(g.rematch[1-seat]?"🔁 Revanche (modstanderen er klar!)":"🔁 Revanche")}
+                {g.rematch[seat]?"Waiting for opponent…":(g.rematch[1-seat]?"🔁 Rematch (opponent is ready!)":"🔁 Rematch")}
               </button>
             ) : (
-              <button className="knap cu" onClick={onRematch}>🔁 Revanche</button>
+              <button className="knap cu" onClick={onRematch}>🔁 Rematch</button>
             )}
-            <button className="knap" onClick={onLeave}>Til menuen</button>
-            {mode==="online" && <button className="knap" onClick={onDelete}>Slet spillet & forlad</button>}
+            <button className="knap" onClick={onLeave}>Back to menu</button>
+            {mode==="online" && <button className="knap" onClick={onDelete}>Delete game & leave</button>}
           </div>
         </div>
       )}
@@ -1254,7 +1254,7 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
 // ---------- deckbygger ----------
 function DeckBuilder({decks,gemDecks,onBack,flash}){
   const [cards,setCards]=useState([]);
-  const [navn,setNavn]=useState("Mit deck");
+  const [navn,setNavn]=useState("My deck");
   const [tab,setTab]=useState("bib");
   const [fC,setFC]=useState(null);
   const [fT,setFT]=useState(null);
@@ -1270,37 +1270,37 @@ function DeckBuilder({decks,gemDecks,onBack,flash}){
   });
   const add=id=>{
     const max=CARDS[id].r==="L"?1:2;
-    if((cnt[id]||0)>=max) return flash("Maks "+max+"× "+CARDS[id].n+".");
-    if(cards.length>=DECKSIZE) return flash("Decket er fuldt ("+DECKSIZE+").");
+    if((cnt[id]||0)>=max) return flash("Max "+max+"× "+CARDS[id].n+".");
+    if(cards.length>=DECKSIZE) return flash("The deck is full ("+DECKSIZE+").");
     setCards(c=>[...c,id]);
   };
   const rem=id=>setCards(c=>{ const i=c.indexOf(id); if(i<0) return c; const n=c.slice(); n.splice(i,1); return n; });
   const gem=()=>{
     const err=validateDeck(cards); if(err) return flash(err);
-    const n=navn.trim()||"Mit deck";
+    const n=navn.trim()||"My deck";
     const nx=decks.filter(d=>d.name!==n).concat([{name:n,cls:"tek",cards:cards.slice()}]);
-    gemDecks(nx); flash("💾 „"+n+"“ er gemt.");
+    gemDecks(nx); flash("💾 \u201C"+n+"\u201D saved.");
   };
-  const unik=Object.keys(cnt).sort((a,b)=>CARDS[a].c-CARDS[b].c||CARDS[a].n.localeCompare(CARDS[b].n,"da"));
+  const unik=Object.keys(cnt).sort((a,b)=>CARDS[a].c-CARDS[b].c||CARDS[a].n.localeCompare(CARDS[b].n,"en"));
   const kurve=[0,1,2,3,4,5,6,7].map(c=>cards.filter(id=>c===7?CARDS[id].c>=7:CARDS[id].c===c).length);
   const kMax=Math.max(1,...kurve);
   return (
     <div className="pane">
-      <button className="tilbage" onClick={onBack}>← Tilbage</button>
-      <div className="logo" style={{fontSize:26}}>KORTBIBLIOTEK</div>
-      <div className="ulinie">{COLL.length} kort · deck: {cards.length}/{DECKSIZE}</div>
+      <button className="tilbage" onClick={onBack}>← Back</button>
+      <div className="logo" style={{fontSize:26}}>CARD LIBRARY</div>
+      <div className="ulinie">{COLL.length} cards · deck: {cards.length}/{DECKSIZE}</div>
       <div className="faner">
-        <button className={"fane"+(tab==="bib"?" aktiv":"")} onClick={()=>setTab("bib")}>Bibliotek</button>
-        <button className={"fane"+(tab==="deck"?" aktiv":"")} onClick={()=>setTab("deck")}>Dit deck ({cards.length}/{DECKSIZE})</button>
+        <button className={"fane"+(tab==="bib"?" aktiv":"")} onClick={()=>setTab("bib")}>Library</button>
+        <button className={"fane"+(tab==="deck"?" aktiv":"")} onClick={()=>setTab("deck")}>Your deck ({cards.length}/{DECKSIZE})</button>
       </div>
 
       {tab==="bib" && <>
-        <input placeholder="Søg kort…" value={q} onChange={e=>setQ(e.target.value)}/>
+        <input placeholder="Search cards…" value={q} onChange={e=>setQ(e.target.value)}/>
         <div className="filterraek">
           {[0,1,2,3,4,5,6,7].map(c=>
             <button key={c} className={"fknap"+(fC===c?" aktiv":"")} onClick={()=>setFC(fC===c?null:c)}>{c===7?"7+":c}⚡</button>)}
-          <button className={"fknap"+(fT==="enhed"?" aktiv":"")} onClick={()=>setFT(fT==="enhed"?null:"enhed")}>Enheder</button>
-          <button className={"fknap"+(fT==="program"?" aktiv":"")} onClick={()=>setFT(fT==="program"?null:"program")}>Programmer</button>
+          <button className={"fknap"+(fT==="unit"?" aktiv":"")} onClick={()=>setFT(fT==="unit"?null:"unit")}>Units</button>
+          <button className={"fknap"+(fT==="spell"?" aktiv":"")} onClick={()=>setFT(fT==="spell"?null:"spell")}>Spells</button>
         </div>
         <div className="gitter">
           {filt.map(id=><MiniCard key={id} id={id} count={cnt[id]||null} onClick={()=>setSel(id)}/>)}
@@ -1313,7 +1313,7 @@ function DeckBuilder({decks,gemDecks,onBack,flash}){
             <div key={i} className="soejle" style={{height:(v/kMax*100)+"%"}}><i>{v||""}</i><b>{i===7?"7+":i}</b></div>)}
         </div>
         <div style={{height:16}}/>
-        {unik.length===0 && <p className="rt" style={{color:"var(--dim)"}}>Decket er tomt. Tilføj kort fra biblioteket, eller tryk Auto-fyld.</p>}
+        {unik.length===0 && <p className="rt" style={{color:"var(--dim)"}}>The deck is empty. Add cards from the library, or tap Auto-fill.</p>}
         {unik.map(id=>
           <div key={id} className="dlinje">
             <span className="c">{CARDS[id].c}</span>
@@ -1329,21 +1329,21 @@ function DeckBuilder({decks,gemDecks,onBack,flash}){
               if((t[id]||0)>=max) continue; t[id]=(t[id]||0)+1; c.push(id);
             }
             setCards(c);
-          }}>🎲 Auto-fyld</button>
-          <button className="knap" style={{marginTop:0}} onClick={()=>setCards([])}>Ryd</button>
+          }}>🎲 Auto-fill</button>
+          <button className="knap" style={{marginTop:0}} onClick={()=>setCards([])}>Clear</button>
         </div>
-        <div className="etiket">Gem deck</div>
+        <div className="etiket">Save deck</div>
         <div className="raek">
-          <input value={navn} onChange={e=>setNavn(e.target.value)} placeholder="Deck-navn"/>
-          <button className="knap cu" style={{marginTop:0,width:"auto",flex:"none"}} onClick={gem}>💾 Gem</button>
+          <input value={navn} onChange={e=>setNavn(e.target.value)} placeholder="Deck name"/>
+          <button className="knap cu" style={{marginTop:0,width:"auto",flex:"none"}} onClick={gem}>💾 Save</button>
         </div>
         {decks.length>0 && <>
-          <div className="etiket">Gemte decks</div>
+          <div className="etiket">Saved decks</div>
           {decks.map((d,i)=>
             <div key={i} className="dlinje">
               <span>🗂 {d.name}</span>
-              <button className="x" style={{color:"var(--fos)"}} onClick={()=>{setCards(d.cards.slice());setNavn(d.name);flash("Indlæste „"+d.name+"“.");}}>Indlæs</button>
-              <button className="x" onClick={()=>gemDecks(decks.filter((_,j)=>j!==i))}>Slet</button>
+              <button className="x" style={{color:"var(--fos)"}} onClick={()=>{setCards(d.cards.slice());setNavn(d.name);flash("Loaded \u201C"+d.name+"\u201D.");}}>Load</button>
+              <button className="x" onClick={()=>gemDecks(decks.filter((_,j)=>j!==i))}>Delete</button>
             </div>)}
         </>}
       </>}
@@ -1352,9 +1352,9 @@ function DeckBuilder({decks,gemDecks,onBack,flash}){
         <div className="slor" onClick={()=>setSel(null)}>
           <div className="ark" onClick={e=>e.stopPropagation()}>
             <StorKort id={sel}/>
-            <button className="knap cu" onClick={()=>add(sel)}>＋ Tilføj til deck ({cnt[sel]||0}/{CARDS[sel].r==="L"?1:2})</button>
-            {(cnt[sel]||0)>0 && <button className="knap" onClick={()=>rem(sel)}>− Fjern én</button>}
-            <button className="knap" onClick={()=>setSel(null)}>Luk</button>
+            <button className="knap cu" onClick={()=>add(sel)}>＋ Add to deck ({cnt[sel]||0}/{CARDS[sel].r==="L"?1:2})</button>
+            {(cnt[sel]||0)>0 && <button className="knap" onClick={()=>rem(sel)}>− Remove one</button>}
+            <button className="knap" onClick={()=>setSel(null)}>Close</button>
           </div>
         </div>
       )}
@@ -1366,29 +1366,29 @@ function DeckBuilder({decks,gemDecks,onBack,flash}){
 function Regler({onBack}){
   return (
     <div className="pane">
-      <button className="tilbage" onClick={onBack}>← Tilbage</button>
-      <div className="logo" style={{fontSize:26}}>REGLER</div>
-      <h2 className="ov">Målet</h2>
-      <p className="rt">Begge teknikere starter med 30 liv. Brænd modstanderens kredsløb af (bring dem til 0), før de gør det samme ved dig.</p>
-      <h2 className="ov">Energi ⚡</h2>
-      <p className="rt">Du starter med 1 energi og får +1 pr. tur (maks 10). Kort koster energi at spille. Loddekolben (🔧, din heltekraft) koster 2⚡ og giver 1 skade til en fjende eller reparerer 2 på noget venligt — én gang pr. tur.</p>
-      <p className="rt"><b>Kondensatorbanken 🔋:</b> Ubrugt energi ved turens slutning gemmes (op til 3) og lægges oven i din energi næste tur. Nogle kort fylder banken direkte.</p>
-      <p className="rt"><b>Overophedning:</b> Kraftige kort låser en del af din energi i den efterfølgende tur. Billig effekt nu, regningen kommer senere.</p>
-      <h2 className="ov">Kamp</h2>
-      <p className="rt">Enheder kan ikke angribe den tur, de sættes ind (medmindre de har Turbo). Når en enhed angriber en anden, skader de hinanden samtidig. Maks 6 enheder på brættet og 9 kort på hånden. Løber din kortbunke tør, tager du stigende udmattelsesskade.</p>
-      <h2 className="ov">Nøgleord</h2>
+      <button className="tilbage" onClick={onBack}>← Back</button>
+      <div className="logo" style={{fontSize:26}}>RULES</div>
+      <h2 className="ov">The goal</h2>
+      <p className="rt">Both technicians start with 30 health. Burn out your opponent’s circuit (bring them to 0) before they do the same to you.</p>
+      <h2 className="ov">Energy ⚡</h2>
+      <p className="rt">You start with 1 energy and gain +1 per turn (max 10). Cards cost energy to play. The Soldering Iron (🔧, your hero power) costs 2⚡ and deals 1 damage to an enemy or repairs 2 on something friendly — once per turn.</p>
+      <p className="rt"><b>The capacitor bank 🔋:</b> Unspent energy at the end of your turn is stored (up to 3) and added to your energy next turn. Some cards fill the bank directly.</p>
+      <p className="rt"><b>Overheat:</b> Powerful cards lock part of your energy on the following turn. Cheap effect now, the bill arrives later.</p>
+      <h2 className="ov">Combat</h2>
+      <p className="rt">Units can’t attack the turn they are played (unless they have Turbo). When a unit attacks another, they damage each other simultaneously. Max 6 units on the board and 9 cards in hand. If your deck runs out, you take escalating fatigue damage.</p>
+      <h2 className="ov">Keywords</h2>
       <table className="kwtab"><tbody>
         {Object.values(KWINFO).map(k=><tr key={k.n}><td>{k.ico} {k.n}</td><td>{k.d}</td></tr>)}
-        <tr><td>📶 Signalstyrke +X</td><td>Dine Programmer giver X ekstra skade.</td></tr>
-        <tr><td>Installation</td><td>Effekt der udløses, når kortet spilles fra hånden.</td></tr>
-        <tr><td>Nedbrud</td><td>Effekt der udløses, når enheden ødelægges.</td></tr>
-        <tr><td>Kæde</td><td>Bonus, hvis du allerede har spillet et andet kort denne tur.</td></tr>
-        <tr><td>Nulstil</td><td>Fjerner al korttekst og alle buffs fra en enhed.</td></tr>
+        <tr><td>📶 Signal Strength +X</td><td>Your Spells deal X extra damage.</td></tr>
+        <tr><td>Install</td><td>Effect that triggers when the card is played from your hand.</td></tr>
+        <tr><td>Breakdown</td><td>Effect that triggers when the unit is destroyed.</td></tr>
+        <tr><td>Chain</td><td>Bonus if you have already played another card this turn.</td></tr>
+        <tr><td>Reset</td><td>Removes all card text and all buffs from a unit.</td></tr>
       </tbody></table>
       <h2 className="ov">Deck</h2>
-      <p className="rt">Præcis {DECKSIZE} kort. Maks 2 af hvert kort, maks 1 af hvert legendarisk (★). Spiller nr. 2 starter med et ekstra kort og en Powerbank (0⚡: +1 energi).</p>
+      <p className="rt">Exactly {DECKSIZE} cards. Max 2 of each card, max 1 of each legendary (★). The second player starts with an extra card and a Powerbank (0⚡: gain 1 energy).</p>
       <h2 className="ov">Online</h2>
-      <p className="rt">Opret et spil og del den 4-tegns kode med din modstander — I skal begge have <b>det samme artefakt-link</b> åbent. Spillet synkroniserer automatisk med et par sekunders forsinkelse. Bemærk: spildata gemmes i artefaktets delte lager og kan i princippet ses af andre, der bruger artefaktet.</p>
+      <p className="rt">Create a game and share the 4-character code with your opponent — you both need <b>the same artifact link</b> open. The game syncs automatically with a couple of seconds’ delay. Note: game data is kept in the artifact’s shared storage and can in principle be seen by other users of the artifact.</p>
     </div>
   );
 }
@@ -1396,7 +1396,7 @@ function Regler({onBack}){
 // ---------- hovedapp ----------
 export default function App(){
   const [skaerm,setSkaerm]=useState("indlaeser");
-  const [navn,setNavn]=useState("Tekniker");
+  const [navn,setNavn]=useState("Technician");
   const [decks,setDecks]=useState([]);
   const [g,setG]=useState(null);
   const [mode,setMode]=useState(null);
@@ -1464,7 +1464,7 @@ export default function App(){
       const v=await stGet("spil:"+c,true);
       if(stop) return;
       if(!v){
-        if(gRef.current||lobby){ flash("Spillet blev lukket."); tilMenu(); }
+        if(gRef.current||lobby){ flash("The game was closed."); tilMenu(); }
         return;
       }
       if(v.status==="venter"){ setLobby(v); return; }
@@ -1503,22 +1503,22 @@ export default function App(){
   };
 
   const opretOnline=async()=>{
-    if(!onlineOK) return flash("Onlinespil er ikke tilgængeligt i denne udgave.");
+    if(!onlineOK) return flash("Online play is not available in this edition.");
     const deckIds=findDeck(deckValg);
     const err=validateDeck(deckIds); if(err) return flash(err);
     const c=codeGen(); kode.current=c;
     const lob={v:1,status:"venter",code:c,seq:1,host:{name:navn,cid:cid.current,deck:deckIds}};
     const ok=await stSet("spil:"+c,lob,true);
-    if(!ok) return flash("Kunne ikke oprette spillet.");
+    if(!ok) return flash("Couldn\u2019t create the game.");
     stSet("seat:"+c,0,false);
     setMode("online"); setSeat(0); setLobby(lob); setG(null); setSkaerm("spil");
   };
   const deltagOnline=async()=>{
-    if(!onlineOK) return flash("Onlinespil er ikke tilgængeligt i denne udgave.");
+    if(!onlineOK) return flash("Online play is not available in this edition.");
     const c=joinKode.trim().toUpperCase();
-    if(c.length!==4) return flash("Koden er 4 tegn.");
+    if(c.length!==4) return flash("The code is 4 characters.");
     const v=await stGet("spil:"+c,true);
-    if(!v) return flash("Fandt intet spil med koden "+c+".");
+    if(!v) return flash("No game found with code "+c+".");
     if(v.status==="venter"){
       if(v.host.cid===cid.current){
         kode.current=c; setMode("online"); setSeat(0); setLobby(v); setG(null); setSkaerm("spil"); return;
@@ -1534,14 +1534,14 @@ export default function App(){
     } else {
       let s=v.players.findIndex(p=>p.cid===cid.current);
       if(s<0){ const st=await stGet("seat:"+c,false); if(st===0||st===1) s=st; }
-      if(s<0) return flash("Det spil er allerede i gang mellem to andre.");
+      if(s<0) return flash("That game is already in progress between two other players.");
       kode.current=c; setMode("online"); setSeat(s); setLobby(null); setG(v); setSkaerm("spil");
     }
   };
   const startLokal=()=>{
     const d1=findDeck(deckValg), d2=findDeck(deckValg2);
     let err=validateDeck(d1)||validateDeck(d2); if(err) return flash(err);
-    const ng=mkState({mode:"lokal",names:["Spiller 1","Spiller 2"],cids:["p1","p2"],decks:[d1,d2]});
+    const ng=mkState({mode:"lokal",names:["Player 1","Player 2"],cids:["p1","p2"],decks:[d1,d2]});
     kode.current=null; setMode("lokal"); setG(ng); setHandoff(true); setSkaerm("spil");
   };
   const tilMenu=()=>{ setG(null); setLobby(null); setMode(null); kode.current=null; setHandoff(false); setSkaerm("menu"); };
@@ -1554,8 +1554,8 @@ export default function App(){
     if(g2&&mode==="lokal"&&g2.status==="igang"&&g2.active!==seatNu) setHandoff(true);
   };
   const opgiv=()=>{
-    act(x=>{ if(x.status!=="igang") return "Spillet er allerede slut.";
-      x.status="slut"; x.winner=1-seatNu; log(x,"🏳 "+x.players[seatNu].name+" trækker stikket."); return null; });
+    act(x=>{ if(x.status!=="igang") return "The game is already over.";
+      x.status="slut"; x.winner=1-seatNu; log(x,"🏳 "+x.players[seatNu].name+" pulls the plug."); return null; });
   };
   const revanche=()=>{
     if(mode==="online"){ act(x=>{ x.rematch[seat]=true; return null; }); return; }
@@ -1567,7 +1567,7 @@ export default function App(){
   const startSolo=()=>{
     const d1=findDeck(deckValg), d2=findDeck(deckValg2);
     let err=validateDeck(d1)||validateDeck(d2); if(err) return flash(err);
-    const ng=mkState({mode:"solo",names:[(navn||"Tekniker").trim()||"Tekniker","🤖 Botten"],
+    const ng=mkState({mode:"solo",names:[(navn||"Technician").trim()||"Technician","🤖 The Bot"],
       cids:[cid.current||"p1","bot"],decks:[d1,d2]});
     kode.current=null; setMode("solo"); setSeat(0); setHandoff(false); setG(ng); setSkaerm("spil");
   };
@@ -1588,48 +1588,48 @@ export default function App(){
 
   const deckMuligheder=(v,setV)=>(
     <select value={v} onChange={e=>setV(e.target.value)}>
-      <option value="auto">🎲 Auto-deck (tilfældigt)</option>
+      <option value="auto">🎲 Auto deck (random)</option>
       {decks.map(d=><option key={d.name} value={d.name}>🗂 {d.name}</option>)}
     </select>
   );
 
   let indhold=null;
   if(skaerm==="indlaeser"){
-    indhold=<div className="centrer"><div className="logo">KORT<b>SLUTNING</b></div><div className="ulinie">starter op…</div></div>;
+    indhold=<div className="centrer"><div className="logo">KORT<b>SLUTNING</b></div><div className="ulinie">booting…</div></div>;
   }
   else if(skaerm==="menu"){
     indhold=(
       <div className="pane">
         <div style={{textAlign:"center",marginTop:14}}>
           <div className="logo">KORT<b>SLUTNING</b></div>
-          <div className="ulinie">// 2-spiller elektronik-kortspil · 100 kort · klasse: Teknikeren</div>
+          <div className="ulinie">// 2-player electronics card game · 100 cards · class: The Technician</div>
         </div>
-        <div className="etiket">Dit navn</div>
+        <div className="etiket">Your name</div>
         <input value={navn} maxLength={16} onChange={e=>gemNavn(e.target.value)}/>
-        <div className="etiket">Dit deck</div>
+        <div className="etiket">Your deck</div>
         {deckMuligheder(deckValg,setDeckValg)}
-        <div className="etiket">Modstanderens deck (bot / spiller 2)</div>
+        <div className="etiket">Opponent\u2019s deck (bot / player 2)</div>
         {deckMuligheder(deckValg2,setDeckValg2)}
         <div className="etiket">Solo</div>
-        <button className="knap cu" onClick={startSolo}>🤖 Spil mod botten<small>Indbygget modstander — god til at lære kortene</small></button>
+        <button className="knap cu" onClick={startSolo}>🤖 Play vs the bot<small>Built-in opponent — great for learning the cards</small></button>
         {onlineOK ? <>
           <div className="etiket">Online</div>
-          <button className="knap" onClick={opretOnline}>🌐 Opret onlinespil<small>Få en kode, du kan dele med din modstander</small></button>
+          <button className="knap" onClick={opretOnline}>🌐 Create online game<small>Get a code to share with your opponent</small></button>
           <div className="raek" style={{marginTop:10}}>
-            <input placeholder="KODE" value={joinKode} maxLength={4}
+            <input placeholder="CODE" value={joinKode} maxLength={4}
               style={{textTransform:"uppercase",fontFamily:"var(--mono)",letterSpacing:3,width:110,flex:"none"}}
               onChange={e=>setJoinKode(e.target.value)}/>
-            <button className="knap" style={{marginTop:0}} onClick={deltagOnline}>➜ Deltag / genoptag</button>
+            <button className="knap" style={{marginTop:0}} onClick={deltagOnline}>➜ Join / resume</button>
           </div>
         </> : <>
           <div className="etiket">Online</div>
-          <p className="rt" style={{color:"var(--dim)"}}>Onlinespil kræver Claude-artefakt-udgaven med delt lager — her kan du spille solo og lokalt.</p>
+          <p className="rt" style={{color:"var(--dim)"}}>Online play requires the Claude artifact edition with shared storage — solo and local play work here.</p>
         </>}
-        <div className="etiket">Lokalt</div>
-        <button className="knap" onClick={startLokal}>🎮 Lokalt 2-spillerspil<small>Skiftes om samme enhed</small></button>
-        <div className="etiket">Andet</div>
-        <button className="knap" onClick={()=>setSkaerm("deck")}>🃏 Kortbibliotek & deckbygger</button>
-        <button className="knap" onClick={()=>setSkaerm("regler")}>📖 Regler</button>
+        <div className="etiket">Local</div>
+        <button className="knap" onClick={startLokal}>🎮 Local 2-player game<small>Take turns on the same device</small></button>
+        <div className="etiket">Other</div>
+        <button className="knap" onClick={()=>setSkaerm("deck")}>🃏 Card library & deck builder</button>
+        <button className="knap" onClick={()=>setSkaerm("regler")}>📖 Rules</button>
       </div>
     );
   }
@@ -1643,11 +1643,11 @@ export default function App(){
     if(lobby&&!g){
       indhold=(
         <div className="centrer">
-          <div className="logo" style={{fontSize:28}}>SPILLET ER KLAR</div>
-          <p className="rt" style={{color:"var(--dim)"}}>Del koden med din modstander.<br/>I skal begge bruge det samme artefakt-link.</p>
+          <div className="logo" style={{fontSize:28}}>GAME READY</div>
+          <p className="rt" style={{color:"var(--dim)"}}>Share the code with your opponent.<br/>You both need the same artifact link.</p>
           <div className="kodevis">{lobby.code}</div>
-          <div className="ulinie">venter på modstander…</div>
-          <button className="knap" style={{maxWidth:260}} onClick={async()=>{await stDel("spil:"+kode.current,true);tilMenu();}}>Annullér spillet</button>
+          <div className="ulinie">waiting for opponent…</div>
+          <button className="knap" style={{maxWidth:260}} onClick={async()=>{await stDel("spil:"+kode.current,true);tilMenu();}}>Cancel game</button>
         </div>
       );
     } else if(g){
@@ -1659,15 +1659,15 @@ export default function App(){
             <div className="slor">
               <div className="ark" style={{textAlign:"center"}}>
                 <div className="logo" style={{fontSize:26}}>{g.players[g.active].name.toUpperCase()}</div>
-                <p className="rt" style={{color:"var(--dim)"}}>Giv enheden videre — modstanderen må ikke kigge!</p>
-                <button className="knap cu" onClick={()=>setHandoff(false)}>⚡ Start min tur</button>
+                <p className="rt" style={{color:"var(--dim)"}}>Hand over the device — no peeking!</p>
+                <button className="knap cu" onClick={()=>setHandoff(false)}>⚡ Start my turn</button>
               </div>
             </div>
           )}
         </>
       );
     } else {
-      indhold=<div className="centrer"><div className="ulinie">forbinder…</div></div>;
+      indhold=<div className="centrer"><div className="ulinie">connecting…</div></div>;
     }
   }
 
