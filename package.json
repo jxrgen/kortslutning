@@ -8,7 +8,7 @@
     "test": "node test/test.mjs",
     "test:ui": "node test/testui.mjs",
     "build:assets": "node tools/gen-assets.mjs",
-    "build:web": "esbuild web/main.jsx --bundle --minify --jsx=automatic --loader:.jsx=jsx --outfile=docs/app.js"
+    "build:web": "node tools/build-web.mjs"
   },
   "devDependencies": {
     "esbuild": "^0.28.1",

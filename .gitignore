@@ -1,3 +1,5 @@
 node_modules/
 _entry.jsx
 _entry.mjs
+dist/
+desktop/app/

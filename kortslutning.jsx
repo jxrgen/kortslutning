@@ -271,21 +271,26 @@ function checkWin(g){
   else if(d0){ g.status="slut"; g.winner=1; log(g,"🏆 "+g.players[1].name+" vinder!"); }
   else if(d1){ g.status="slut"; g.winner=0; log(g,"🏆 "+g.players[0].name+" vinder!"); }
 }
+function fxPush(g,ev){ ev.k=(g.fxk=(g.fxk||0)+1); (g.fx=g.fx||[]).push(ev); if(g.fx.length>40) g.fx.shift(); }
 function dmg(g,ref,n,src){
   if(n<=0||g.status!=="igang") return;
   if(ref.u==null){
     g.players[ref.s].hp-=n;
+    fxPush(g,{t:"dmg",s:ref.s,u:null,n});
     if(src&&src.host) healHero(g,src.hs,n);
     checkWin(g); return;
   }
   const u=refUnit(g,ref); if(!u) return;
-  if(u.sh){ u.sh=false; log(g,"◈ "+CARDS[u.id].n+"s isolering absorberer skaden."); return; }
+  if(u.sh){ u.sh=false; fxPush(g,{t:"skjold",s:ref.s,u:u.uid});
+    log(g,"◈ "+CARDS[u.id].n+"s isolering absorberer skaden."); return; }
   u.dmg+=n;
+  fxPush(g,{t:"dmg",s:ref.s,u:u.uid,n});
   if(src&&src.host) healHero(g,src.hs,n);
   if(src&&src.hoj) u.dmg=999;
   sweep(g);
 }
-function healHero(g,s,n){ const p=g.players[s]; p.hp=Math.min(30,p.hp+n); }
+function healHero(g,s,n){ const p=g.players[s]; const r=Math.min(30-p.hp,n);
+  if(r>0){ p.hp+=r; fxPush(g,{t:"heal",s,u:null,n:r}); } }
 function sweep(g){
   if(g._sw) return; g._sw=true;
   for(let i=0;i<30;i++){
@@ -297,6 +302,7 @@ function sweep(g){
     if(!dead) break;
     const b=g.players[ds].board; b.splice(b.indexOf(dead),1);
     g.players[ds].grave++;
+    fxPush(g,{t:"boom",s:ds,u:dead.uid});
     log(g,"✕ "+CARDS[dead.id].n+" bryder ned.");
     const def=CARDS[dead.id];
     if(!dead.sil && def.dr) def.dr(g,ds,dead);
@@ -337,6 +343,7 @@ function mkUnit(g,id){
 function summon(g,s,id){
   if(g.players[s].board.length>=MAXBOARD) return null;
   const u=mkUnit(g,id); g.players[s].board.push(u);
+  fxPush(g,{t:"pop",s,u:u.uid});
   return u;
 }
 function buff(g,ref,a,h){ const u=refUnit(g,ref); if(u){ u.a+=a; u.hM+=h; } }
@@ -431,6 +438,9 @@ function playCard(g,s,handUid,tref){
   const combo=p.played>0;
   p.played++; p.cur-=d.c; p.hand.splice(hi,1);
   g.lc=(g.lc||0)+1; g.last={s,id,k:g.lc};
+  fxPush(g,{t:"spil",s,hu:handUid,id,ts:tref?tref.s:null,tu:tref?tref.u:null});
+  if(d.t==="program"&&tref) fxPush(g,{t:"zap",fs:s,fu:null,ts:tref.s,tu:tref.u,art:"spell"});
+  else if(d.t==="program") fxPush(g,{t:"cast",s});
   log(g,"▶ "+p.name+" spiller "+d.n+".");
   if(d.t==="enhed"){
     const u=mkUnit(g,id); p.board.push(u);
@@ -468,6 +478,7 @@ function unitAttack(g,s,uid,tref){
   const list=attackTargets(g,s,uid);
   if(!list.some(r=>r.s===tref.s&&r.u===tref.u)) return "Ugyldigt mål.";
   u.atkLeft--; u.st=false;
+  fxPush(g,{t:"zap",fs:s,fu:uid,ts:tref.s,tu:tref.u,art:"melee"});
   const aA=effAtk(g,s,u);
   const srcA={hoj:hasKw(g,s,u,"hoj"),host:hasKw(g,s,u,"host"),hs:s};
   if(tref.u==null){
@@ -484,28 +495,45 @@ function unitAttack(g,s,uid,tref){
   sweep(g); checkWin(g);
   return null;
 }
-function heroTargets(g,s){
-  const out=[{s:0,u:null},{s:1,u:null}];
-  for(const ps of [0,1]) for(const u of g.players[ps].board){
-    if(targetable(g,s,ps,u)) out.push({s:ps,u:u.uid});
-  }
-  return out;
-}
+/* ---------- klasser ----------
+   Ny klasse tilføjes ved (1) en post her med power{n,ico,c,txt}, powerTargets og
+   powerFx, (2) evt. klassekort i CARDS med feltet cls:"kode", (3) intet andet —
+   deckbygger, validering og UI slår selv op. Kort uden cls er neutrale. */
+const CLASSES={
+  tek:{
+    n:"Teknikeren", ico:"🧑‍🔧",
+    power:{ n:"Loddekolben", ico:"🔧", c:2, txt:"Fjende: 1 skade · Venlig: reparér 2." },
+    powerTargets(g,s){
+      const out=[{s:0,u:null},{s:1,u:null}];
+      for(const ps of [0,1]) for(const u of g.players[ps].board){
+        if(targetable(g,s,ps,u)) out.push({s:ps,u:u.uid});
+      }
+      return out;
+    },
+    powerFx(g,s,tref){
+      const p=g.players[s];
+      if(tref.s===s){
+        if(tref.u==null) healHero(g,s,2);
+        else { const u=refUnit(g,tref); if(u){ u.dmg=Math.max(0,u.dmg-2); fxPush(g,{t:"heal",s:tref.s,u:tref.u,n:2}); } }
+        log(g,"🔧 "+p.name+" reparerer 2 med loddekolben.");
+      } else {
+        fxPush(g,{t:"zap",fs:s,fu:null,ts:tref.s,tu:tref.u,art:"power"});
+        log(g,"🔧 "+p.name+" brænder fjenden med loddekolben (1).");
+        dmg(g,tref,1,null);
+      }
+    },
+  },
+};
+function clsOf(g,s){ return CLASSES[g.players[s].cls]||CLASSES.tek; }
+function heroTargets(g,s){ return clsOf(g,s).powerTargets(g,s); }
 function heroPower(g,s,tref){
   if(g.status!=="igang"||g.active!==s) return "Ikke din tur.";
-  const p=g.players[s];
-  if(p.heroUsed) return "Loddekolben er allerede brugt.";
-  if(p.cur<2) return "Ikke nok energi.";
+  const p=g.players[s], K=clsOf(g,s);
+  if(p.heroUsed) return K.power.n+" er allerede brugt.";
+  if(p.cur<K.power.c) return "Ikke nok energi.";
   if(!heroTargets(g,s).some(r=>r.s===tref.s&&r.u===tref.u)) return "Ugyldigt mål.";
-  p.heroUsed=true; p.cur-=2;
-  if(tref.s===s){
-    if(tref.u==null) healHero(g,s,2);
-    else { const u=refUnit(g,tref); if(u) u.dmg=Math.max(0,u.dmg-2); }
-    log(g,"🔧 "+p.name+" reparerer 2 med loddekolben.");
-  } else {
-    log(g,"🔧 "+p.name+" brænder fjenden med loddekolben (1).");
-    dmg(g,tref,1,null);
-  }
+  p.heroUsed=true; p.cur-=K.power.c;
+  K.powerFx(g,s,tref);
   sweep(g); checkWin(g);
   return null;
 }
@@ -545,17 +573,17 @@ function endTurn(g,s){
 }
 
 // ---------- opsætning ----------
-function mkPlayer(name,cid,deckIds){
-  return { name, cid, hp:30, maxE:0, cur:0, stored:0, ovlNext:0, ovlShown:0,
+function mkPlayer(name,cid,deckIds,cls){
+  return { name, cid, cls:cls||"tek", hp:30, maxE:0, cur:0, stored:0, ovlNext:0, ovlShown:0,
     heroUsed:false, played:0, fat:0, grave:0, list:deckIds.slice(),
     deck:shuffle(deckIds), hand:[], board:[] };
 }
 function mkState(cfg){
   const starter=cfg.starter!=null?cfg.starter:rnd(2);
   const g={ v:1, seq:1, mode:cfg.mode, code:cfg.code||null, status:"igang", winner:null,
-    turn:0, active:starter, n:1, last:null, log:[], rematch:[false,false],
-    players:[ mkPlayer(cfg.names[0],cfg.cids[0],cfg.decks[0]),
-              mkPlayer(cfg.names[1],cfg.cids[1],cfg.decks[1]) ] };
+    turn:0, active:starter, n:1, last:null, log:[], fx:[], fxk:0, rematch:[false,false],
+    players:[ mkPlayer(cfg.names[0],cfg.cids[0],cfg.decks[0],cfg.classes&&cfg.classes[0]),
+              mkPlayer(cfg.names[1],cfg.cids[1],cfg.decks[1],cfg.classes&&cfg.classes[1]) ] };
   log(g,"⚡ KORTSLUTNING — "+g.players[0].name+" mod "+g.players[1].name+".");
   log(g,"🎲 "+g.players[starter].name+" starter.");
   for(let i=0;i<3;i++){ draw(g,starter,1); }
@@ -564,11 +592,13 @@ function mkState(cfg){
   startTurn(g);
   return g;
 }
-function validateDeck(list){
+function validateDeck(list,cls){
+  cls=cls||"tek";
   if(!Array.isArray(list)||list.length!==DECKSIZE) return "Et deck skal have præcis "+DECKSIZE+" kort.";
   const cnt={};
   for(const id of list){
     if(!CARDS[id]||CARDS[id].tok) return "Ukendt kort i decket.";
+    if(CARDS[id].cls&&CARDS[id].cls!==cls) return CARDS[id].n+" tilhører en anden klasse.";
     cnt[id]=(cnt[id]||0)+1;
     const max=CARDS[id].r==="L"?1:2;
     if(cnt[id]>max) return "For mange kopier af "+CARDS[id].n+" (maks "+max+").";
@@ -813,9 +843,65 @@ input:focus,select:focus{border-color:var(--cu)}
 h2.ov{font-family:var(--disp);letter-spacing:2px;font-size:22px;color:var(--cu2);margin:18px 0 6px}
 p.rt{font-size:14px;line-height:1.55;color:var(--txt);margin:6px 0}
 .centrer{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;text-align:center;padding:20px}
+/* ---- dybde & liv ---- */
+.mkort{box-shadow:0 4px 10px rgba(0,0,0,.45)}
+.enh{box-shadow:0 3px 8px rgba(0,0,0,.4)}
+.ark{box-shadow:0 18px 50px rgba(0,0,0,.6)}
+.knap{transition:transform .12s,border-color .15s,box-shadow .15s}
+.knap:hover{border-color:var(--cu);box-shadow:0 4px 14px rgba(0,0,0,.35)}
+button:active{transform:scale(.97)}
+.mkort.spil{animation:spilpuls 1.6s ease-in-out infinite}
+@keyframes spilpuls{50%{box-shadow:0 0 18px rgba(95,224,160,.55),0 4px 10px rgba(0,0,0,.45)}}
+.enh.klar{animation:klarpuls 2s ease-in-out infinite}
+@keyframes klarpuls{50%{box-shadow:0 0 13px rgba(95,224,160,.45)}}
+.enh{animation:enhind .38s cubic-bezier(.2,1.5,.4,1)}
+@keyframes enhind{from{transform:scale(.3);opacity:0;filter:brightness(2.2)}}
+.ryst{animation:ryst .32s ease-in-out !important}
+@keyframes ryst{20%{transform:translateX(-4px)}40%{transform:translateX(4px)}60%{transform:translateX(-3px)}80%{transform:translateX(2px)}}
+/* ---- FX-lag ---- */
+.fxlag{position:fixed;inset:0;pointer-events:none;z-index:60;overflow:hidden}
+.fxtal{position:fixed;transform:translate(-50%,-50%);font-family:var(--mono);font-weight:700;font-size:30px;
+  text-shadow:0 0 12px currentColor;animation:fxtal .95s ease-out forwards;opacity:0}
+@keyframes fxtal{0%{opacity:0;transform:translate(-50%,-28%) scale(.6)}14%{opacity:1;transform:translate(-50%,-50%) scale(1.18)}
+  100%{opacity:0;transform:translate(-50%,-170%) scale(1)}}
+.fxburst{position:fixed}
+.fxburst i{position:absolute;width:7px;height:7px;border-radius:2px;background:currentColor;
+  box-shadow:0 0 9px currentColor;animation:gnist .65s ease-out forwards}
+@keyframes gnist{to{transform:translate(var(--dx),var(--dy)) rotate(220deg) scale(.15);opacity:0}}
+.fxring{position:fixed;width:26px;height:26px;margin:-13px 0 0 -13px;border:3px solid;border-radius:50%;
+  animation:fxring .6s ease-out forwards;box-shadow:0 0 12px currentColor}
+@keyframes fxring{to{transform:scale(3.6);opacity:0}}
+.fxzap{position:fixed;inset:0;width:100vw;height:100vh;animation:zapfl .32s ease-out forwards;
+  filter:drop-shadow(0 0 7px rgba(240,178,62,.9))}
+.fxzap.spell{filter:drop-shadow(0 0 7px rgba(95,224,160,.9))}
+@keyframes zapfl{0%{opacity:1}45%{opacity:.3}60%{opacity:1}100%{opacity:0}}
+.fxflyv{position:fixed;font-size:42px;transform:translate(-50%,-50%);z-index:61;
+  text-shadow:0 0 16px rgba(95,224,160,.9);animation:flyv .55s cubic-bezier(.3,.1,.55,1) forwards}
+@keyframes flyv{55%{opacity:1}100%{transform:translate(calc(-50% + var(--tx)),calc(-50% + var(--ty))) scale(.35);opacity:0}}
+/* ---- store skærme / landscape ---- */
 @media (min-width:700px){
   .mkort{width:74px;height:104px}.mkort .em{font-size:30px}.mkort .nv{font-size:9.5px}
   .enh{width:68px;height:76px}.enh .em{font-size:30px}
+}
+@media (min-width:900px) and (orientation:landscape){
+  .spilflade{max-width:1500px;width:100%;margin:0 auto}
+  .mkort{width:92px;height:129px}.mkort .em{font-size:36px}.mkort .nv{font-size:11px;max-height:24px}
+  .mkort .stat{font-size:15px}.pris{font-size:15px;min-width:24px;height:24px}
+  .enh{width:88px;height:98px}.enh .em{font-size:40px}.enh .stat{font-size:16px}
+  .enh .ikoner{font-size:11px}
+  .braet{gap:12px;min-height:110px}
+  .bar{font-size:15px;padding:10px 24px}
+  .midt{padding:6px 24px;font-size:13px}
+  .haand{justify-content:center;overflow:visible;padding-top:26px;min-height:176px;gap:0}
+  .haand .mkort{margin:0 -7px;transform-origin:50% 135%;
+    transform:rotate(calc(var(--o,0)*3.5deg)) translateY(calc(var(--a,0)*7px))}
+  .haand .mkort.spil{transform:rotate(calc(var(--o,0)*3.5deg)) translateY(calc(var(--a,0)*7px - 8px))}
+  .haand .mkort:hover{transform:rotate(0deg) translateY(-34px) scale(1.14);z-index:6}
+  .kraft{width:54px;height:54px;font-size:24px}
+  .logpanel{bottom:190px}.logknap{bottom:190px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important}
 }
 `;
 
@@ -826,10 +912,10 @@ function kwIkoner(g,s,u){
   if(!u.sil && CARDS[u.id].sig) out.push("📶");
   return out;
 }
-function MiniCard({id,onClick,glow,count}){
+function MiniCard({id,onClick,glow,count,style,dfx}){
   const d=CARDS[id];
   return (
-    <button className={"mkort"+(d.r==="L"?" leg":"")+(glow?" spil":"")} onClick={onClick}>
+    <button className={"mkort"+(d.r==="L"?" leg":"")+(glow?" spil":"")} onClick={onClick} style={style} data-fx={dfx}>
       <span className="pris">{d.c}</span>
       {count!=null && <span className="antal">{count}×</span>}
       <span className="em">{d.e}</span>
@@ -877,14 +963,14 @@ function Pips({p}){
   for(let i=0;i<p.stored;i++) el.push(<span key={"g"+i} className="pip gemt"/>);
   return <span className="pips">{el}<span style={{marginLeft:5,color:"var(--amber)"}}>{p.cur}⚡</span></span>;
 }
-function UnitTile({g,s,u,mine,onClick,hilite,ready}){
+function UnitTile({g,s,u,mine,onClick,hilite,ready,shake}){
   const d=CARDS[u.id];
   const hp=effHp(g,s,u), mx=effMax(g,s,u);
   const ik=kwIkoner(g,s,u);
   const sover=mine&&u.jp&&!hasKw(g,s,u,"turbo");
   return (
-    <button className={"enh"+(d.r==="L"?" leg":"")+(hilite?" tgt":"")+(ready?" klar":"")+(u.sil?" sil":"")+(sover?" sover":"")}
-      onClick={onClick}>
+    <button className={"enh"+(d.r==="L"?" leg":"")+(hilite?" tgt":"")+(ready?" klar":"")+(u.sil?" sil":"")+(sover?" sover":"")+(shake?" ryst":"")}
+      onClick={onClick} data-fx={u.uid}>
       {ik.length>0 && <span className="ikoner">{ik.join("")}</span>}
       {u.sh && <span className="skjold"/>}
       <span className="em" style={u.st?{opacity:.45}:null}>{d.e}</span>
@@ -894,10 +980,10 @@ function UnitTile({g,s,u,mine,onClick,hilite,ready}){
     </button>
   );
 }
-function HeltPlade({g,s,me,onClick,hilite}){
+function HeltPlade({g,s,me,onClick,hilite,shake}){
   const p=g.players[s];
   return (
-    <button className={"helt"+(hilite?" tgt":"")} onClick={onClick} style={{borderRadius:10}}>
+    <button className={"helt"+(hilite?" tgt":"")+(shake?" ryst":"")} onClick={onClick} style={{borderRadius:10}} data-fx={"h"+s}>
       <span style={{fontSize:20}}>{me?"🧑‍🔧":"🧑‍💻"}</span>
       <span>
         <span className="nm">{p.name}</span><br/>
@@ -907,17 +993,85 @@ function HeltPlade({g,s,me,onClick,hilite}){
   );
 }
 
+function zigzag(a,b){
+  const N=9, pts=[];
+  const dx=b.y-a.y, dy=-(b.x-a.x), L=Math.hypot(dx,dy)||1;
+  for(let i=0;i<=N;i++){
+    const t=i/N;
+    let x=a.x+(b.x-a.x)*t, y=a.y+(b.y-a.y)*t;
+    if(i>0&&i<N){
+      const j=(Math.random()-0.5)*32*Math.sin(Math.PI*t)+(Math.random()-0.5)*8;
+      x+=dx/L*j; y+=dy/L*j;
+    }
+    pts.push(x.toFixed(1)+","+y.toFixed(1));
+  }
+  return pts.join(" ");
+}
+
 // ---------- spilskærm ----------
-function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete}){
+function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,pos}){
   const me=g.players[seat], op=g.players[1-seat];
+  const K=CLASSES[me.cls]||CLASSES.tek;
   const [sel,setSel]=useState(null);
   const [tmode,setT]=useState(null);
   const [visLog,setVisLog]=useState(false);
   const [bekraeft,setBekraeft]=useState(false);
   const [ptoast,setPt]=useState(null);
+  const [sparks,setSparks]=useState([]);
+  const [shake,setShake]=useState(new Set());
+  const fxDone=useRef(g.fxk||0);
   const lastK=useRef(g.last?g.last.k:0);
   const [turban,setTurban]=useState(0);
   const prevTurn=useRef(g.turn);
+
+  const posOf=(s2,u2)=>{
+    const key=u2!=null?u2:("h"+s2);
+    const el=document.querySelector('[data-fx="'+key+'"]');
+    if(el){ const r=el.getBoundingClientRect(); return {x:r.left+r.width/2,y:r.top+r.height/2}; }
+    const r=pos&&pos.current&&pos.current[key];
+    return r?{x:r.left+r.width/2,y:r.top+r.height/2}:null;
+  };
+
+  useEffect(()=>{
+    const fx=g.fx||[];
+    if((g.fxk||0)<fxDone.current) fxDone.current=0;
+    const nye=fx.filter(e=>e.k>fxDone.current);
+    if(fx.length) fxDone.current=fx[fx.length-1].k;
+    if(!nye.length) return;
+    const add=[], sh=[];
+    for(const e of nye){
+      const d=add.length*0.06, kk=e.k;
+      if(e.t==="dmg"){ const P=posOf(e.s,e.u!==undefined?e.u:null); if(!P) continue;
+        add.push({key:"t"+kk,type:"tal",x:P.x,y:P.y,txt:"−"+e.n,c:"var(--rod)",d});
+        add.push({key:"b"+kk,type:"burst",x:P.x,y:P.y,n:7,c:"var(--amber)",d});
+        sh.push(e.u!=null?e.u:"h"+e.s); }
+      else if(e.t==="heal"){ const P=posOf(e.s,e.u); if(!P) continue;
+        add.push({key:"t"+kk,type:"tal",x:P.x,y:P.y,txt:"+"+e.n,c:"var(--fos)",d});
+        add.push({key:"r"+kk,type:"ring",x:P.x,y:P.y,c:"var(--fos)",d}); }
+      else if(e.t==="boom"){ const P=posOf(e.s,e.u); if(!P) continue;
+        add.push({key:"b"+kk,type:"burst",x:P.x,y:P.y,n:14,c:"var(--cu2)",stor:true,d}); }
+      else if(e.t==="skjold"){ const P=posOf(e.s,e.u); if(!P) continue;
+        add.push({key:"r"+kk,type:"ring",x:P.x,y:P.y,c:"var(--guld)",d}); }
+      else if(e.t==="pop"){ const P=posOf(e.s,e.u); if(!P) continue;
+        add.push({key:"b"+kk,type:"burst",x:P.x,y:P.y,n:6,c:"var(--fos)",d}); }
+      else if(e.t==="cast"){ const P=posOf(e.s,null); if(!P) continue;
+        add.push({key:"r"+kk,type:"ring",x:P.x,y:P.y,c:"var(--amber)",d}); }
+      else if(e.t==="zap"){ const P1=posOf(e.fs,e.fu), P2=posOf(e.ts,e.tu); if(!P1||!P2) continue;
+        add.push({key:"z"+kk,type:"zap",p1:P1,p2:P2,art:e.art,d}); }
+      else if(e.t==="spil"){ const fra=posOf(e.s,e.hu)||posOf(e.s,null); if(!fra) continue;
+        const til=e.ts!=null?posOf(e.ts,e.tu):null;
+        const cx=(typeof window!=="undefined"?window.innerWidth/2:400);
+        const cy=(typeof window!=="undefined"?window.innerHeight/2:400);
+        add.push({key:"f"+kk,type:"flyv",x:fra.x,y:fra.y,
+          tx:(til?til.x:cx)-fra.x,ty:(til?til.y:cy)-fra.y,id:e.id,d}); }
+    }
+    if(add.length){
+      setSparks(x=>[...x,...add]);
+      const keys=add.map(a=>a.key);
+      setTimeout(()=>setSparks(x=>x.filter(f=>!keys.includes(f.key))),1400);
+    }
+    if(sh.length){ setShake(new Set(sh)); setTimeout(()=>setShake(new Set()),380); }
+  },[g]);
 
   useEffect(()=>{ const L=g.last;
     if(L&&L.k!==lastK.current){ lastK.current=L.k;
@@ -953,12 +1107,12 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete})
   };
   const kraft=()=>{
     if(tmode){ setT(null); return; }
-    setT({list:heroTargets(g,seat),label:"🔧 Loddekolben — fjende: 1 skade · venlig: reparér 2",
+    setT({list:heroTargets(g,seat),label:K.power.ico+" "+K.power.n+" — "+K.power.txt,
       run:r=>act(x=>heroPower(x,seat,r))});
   };
 
   const slut=g.status==="slut";
-  const kanKraft=myTurn&&!me.heroUsed&&me.cur>=2;
+  const kanKraft=myTurn&&!me.heroUsed&&me.cur>=K.power.c;
 
   return (
     <div className="spilflade">
@@ -967,7 +1121,7 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete})
 
       {/* modstander */}
       <div className="bar">
-        <HeltPlade g={g} s={1-seat} me={false} hilite={isTgt({s:1-seat,u:null})} onClick={()=>klikHelt(1-seat)}/>
+        <HeltPlade g={g} s={1-seat} me={false} hilite={isTgt({s:1-seat,u:null})} shake={shake.has("h"+(1-seat))} onClick={()=>klikHelt(1-seat)}/>
         <Pips p={op}/>
         <span style={{marginLeft:"auto",display:"flex",alignItems:"center"}}>
           {Array.from({length:Math.min(op.hand.length,9)}).map((_,i)=><span key={i} className="ryg"/>)}
@@ -977,7 +1131,7 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete})
       <div className="braet op">
         {op.board.length===0&&<span style={{color:"var(--dim)",fontFamily:"var(--mono)",fontSize:11}}>— tomt bræt —</span>}
         {op.board.map(u=>
-          <UnitTile key={u.uid} g={g} s={1-seat} u={u} mine={false}
+          <UnitTile key={u.uid} g={g} s={1-seat} u={u} mine={false} shake={shake.has(u.uid)}
             hilite={isTgt({s:1-seat,u:u.uid})} onClick={()=>klikEnhed(1-seat,u)}/>)}
       </div>
 
@@ -990,26 +1144,52 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete})
       <div className="braet">
         {me.board.length===0&&<span style={{color:"var(--dim)",fontFamily:"var(--mono)",fontSize:11}}>— tomt bræt —</span>}
         {me.board.map(u=>
-          <UnitTile key={u.uid} g={g} s={seat} u={u} mine={true}
+          <UnitTile key={u.uid} g={g} s={seat} u={u} mine={true} shake={shake.has(u.uid)}
             ready={myTurn&&attackTargets(g,seat,u.uid).length>0}
             hilite={isTgt({s:seat,u:u.uid})} onClick={()=>klikEnhed(seat,u)}/>)}
       </div>
 
       {/* mig */}
       <div className="bar min">
-        <HeltPlade g={g} s={seat} me={true} hilite={isTgt({s:seat,u:null})} onClick={()=>klikHelt(seat)}/>
+        <HeltPlade g={g} s={seat} me={true} hilite={isTgt({s:seat,u:null})} shake={shake.has("h"+seat)} onClick={()=>klikHelt(seat)}/>
         <Pips p={me}/>
-        <button className="kraft" disabled={!kanKraft} onClick={kraft} title="Loddekolben (2⚡)">🔧</button>
+        <button className="kraft" disabled={!kanKraft} onClick={kraft} title={K.power.n+" ("+K.power.c+"⚡)"}>{K.power.ico}</button>
         <span style={{marginLeft:"auto",color:"var(--dim)"}}>🂠{me.deck.length}</span>
         <button style={{color:"var(--dim)",fontSize:16,padding:"0 4px"}} onClick={()=>setBekraeft(true)}>🏳</button>
       </div>
       <div className="haand">
         {me.hand.length===0&&<span style={{color:"var(--dim)",fontFamily:"var(--mono)",fontSize:11,alignSelf:"center"}}>hånden er tom</span>}
-        {me.hand.map(c=>
-          <MiniCard key={c.uid} id={c.id} glow={myTurn&&canPlay(g,seat,c.id)}
-            onClick={()=>{ if(tmode){setT(null);return;} setSel({kind:"hand",id:c.id,uid:c.uid}); }}/>)}
+        {me.hand.map((c,i)=>{
+          const o=i-(me.hand.length-1)/2;
+          return <MiniCard key={c.uid} id={c.id} dfx={c.uid} glow={myTurn&&canPlay(g,seat,c.id)}
+            style={{"--o":o,"--a":Math.abs(o)}}
+            onClick={()=>{ if(tmode){setT(null);return;} setSel({kind:"hand",id:c.id,uid:c.uid}); }}/>;})}
       </div>
 
+      <div className="fxlag">
+        {sparks.map(f=>{
+          const ds={animationDelay:f.d+"s"};
+          if(f.type==="tal") return <div key={f.key} className="fxtal" style={{left:f.x,top:f.y,color:f.c,...ds}}>{f.txt}</div>;
+          if(f.type==="ring") return <div key={f.key} className="fxring" style={{left:f.x,top:f.y,borderColor:f.c,color:f.c,...ds}}/>;
+          if(f.type==="burst") return (
+            <div key={f.key} className="fxburst" style={{left:f.x,top:f.y}}>
+              {Array.from({length:f.n}).map((_,i)=>{
+                const a=Math.PI*2*i/f.n+(i%2?0.35:0), r=(f.stor?62:36)+(i%3)*11;
+                return <i key={i} style={{color:f.c,"--dx":(Math.cos(a)*r).toFixed(0)+"px","--dy":(Math.sin(a)*r).toFixed(0)+"px",...ds}}/>;
+              })}
+            </div>);
+          if(f.type==="flyv") return <div key={f.key} className="fxflyv" style={{left:f.x,top:f.y,"--tx":f.tx+"px","--ty":f.ty+"px"}}>{CARDS[f.id].e}</div>;
+          if(f.type==="zap"){
+            const pts=zigzag(f.p1,f.p2), c=f.art==="spell"?"var(--fos)":"var(--amber)";
+            return (
+              <svg key={f.key} className={"fxzap"+(f.art==="spell"?" spell":"")} style={ds}>
+                <polyline points={pts} fill="none" stroke={c} strokeWidth="3.5" strokeLinejoin="round"/>
+                <polyline points={pts} fill="none" stroke="#ffffff" strokeWidth="1.3" opacity="0.9" strokeLinejoin="round"/>
+              </svg>);
+          }
+          return null;
+        })}
+      </div>
       <button className="logknap" onClick={()=>setVisLog(v=>!v)}>{visLog?"✕":"📜"}</button>
       {visLog && (
         <div className="logpanel">
@@ -1098,7 +1278,7 @@ function DeckBuilder({decks,gemDecks,onBack,flash}){
   const gem=()=>{
     const err=validateDeck(cards); if(err) return flash(err);
     const n=navn.trim()||"Mit deck";
-    const nx=decks.filter(d=>d.name!==n).concat([{name:n,cards:cards.slice()}]);
+    const nx=decks.filter(d=>d.name!==n).concat([{name:n,cls:"tek",cards:cards.slice()}]);
     gemDecks(nx); flash("💾 „"+n+"“ er gemt.");
   };
   const unik=Object.keys(cnt).sort((a,b)=>CARDS[a].c-CARDS[b].c||CARDS[a].n.localeCompare(CARDS[b].n,"da"));
@@ -1235,7 +1415,17 @@ export default function App(){
   const saveQ=useRef(Promise.resolve());
   const toastT=useRef(null);
   const rematchGuard=useRef(-1);
+  const posRef=useRef({});
+  const applyG=g2=>{
+    try{
+      const m={};
+      document.querySelectorAll("[data-fx]").forEach(el=>{ m[el.dataset.fx]=el.getBoundingClientRect(); });
+      posRef.current=m;
+    }catch(e){}
+    setG(g2);
+  };
 
+  const onlineOK=!!store&&!store.isLocal;
   const flash=t=>{ setToast(t); clearTimeout(toastT.current); toastT.current=setTimeout(()=>setToast(null),2600); };
 
   useEffect(()=>{ (async()=>{
@@ -1260,7 +1450,7 @@ export default function App(){
     const err=fn(g2);
     if(err){ flash(err); return null; }
     g2.seq=(g2.seq||0)+1;
-    setG(g2);
+    applyG(g2);
     if(modeRef.current==="online") pushSave(g2);
     return g2;
   };
@@ -1284,7 +1474,7 @@ export default function App(){
            &&cur.rematch[seatRef.current]&&!v.rematch[seatRef.current]){
           v.rematch[seatRef.current]=true; v.seq=(v.seq||0)+1; pushSave(v);
         }
-        setLobby(null); setG(v);
+        setLobby(null); applyG(v);
       }
     };
     tick();
@@ -1302,7 +1492,7 @@ export default function App(){
         cids:[g.players[0].cid,g.players[1].cid],
         decks:[g.players[0].list,g.players[1].list]});
       ng.seq=(g.seq||0)+1;
-      setG(ng); pushSave(ng);
+      applyG(ng); pushSave(ng);
     }
   },[g,mode,seat]);
 
@@ -1313,7 +1503,7 @@ export default function App(){
   };
 
   const opretOnline=async()=>{
-    if(!store) return flash("Delt lager er ikke tilgængeligt her.");
+    if(!onlineOK) return flash("Onlinespil er ikke tilgængeligt i denne udgave.");
     const deckIds=findDeck(deckValg);
     const err=validateDeck(deckIds); if(err) return flash(err);
     const c=codeGen(); kode.current=c;
@@ -1324,7 +1514,7 @@ export default function App(){
     setMode("online"); setSeat(0); setLobby(lob); setG(null); setSkaerm("spil");
   };
   const deltagOnline=async()=>{
-    if(!store) return flash("Delt lager er ikke tilgængeligt her.");
+    if(!onlineOK) return flash("Onlinespil er ikke tilgængeligt i denne udgave.");
     const c=joinKode.trim().toUpperCase();
     if(c.length!==4) return flash("Koden er 4 tegn.");
     const v=await stGet("spil:"+c,true);
@@ -1422,7 +1612,7 @@ export default function App(){
         {deckMuligheder(deckValg2,setDeckValg2)}
         <div className="etiket">Solo</div>
         <button className="knap cu" onClick={startSolo}>🤖 Spil mod botten<small>Indbygget modstander — god til at lære kortene</small></button>
-        {store ? <>
+        {onlineOK ? <>
           <div className="etiket">Online</div>
           <button className="knap" onClick={opretOnline}>🌐 Opret onlinespil<small>Få en kode, du kan dele med din modstander</small></button>
           <div className="raek" style={{marginTop:10}}>
@@ -1433,7 +1623,7 @@ export default function App(){
           </div>
         </> : <>
           <div className="etiket">Online</div>
-          <p className="rt" style={{color:"var(--dim)"}}>Onlinespil kræver Claude-artefakt-udgaven med delt lager — her kan du spille solo og lokalt. Gemte decks holder kun til siden genindlæses.</p>
+          <p className="rt" style={{color:"var(--dim)"}}>Onlinespil kræver Claude-artefakt-udgaven med delt lager — her kan du spille solo og lokalt.</p>
         </>}
         <div className="etiket">Lokalt</div>
         <button className="knap" onClick={startLokal}>🎮 Lokalt 2-spillerspil<small>Skiftes om samme enhed</small></button>
@@ -1463,7 +1653,7 @@ export default function App(){
     } else if(g){
       indhold=(
         <>
-          <GameView g={g} seat={seatNu} myTurn={minTur} act={doAct} mode={mode}
+          <GameView g={g} seat={seatNu} myTurn={minTur} act={doAct} mode={mode} pos={posRef}
             onLeave={tilMenu} onConcede={opgiv} onRematch={revanche} onDelete={sletSpil}/>
           {mode==="lokal"&&handoff&&g.status==="igang"&&(
             <div className="slor">

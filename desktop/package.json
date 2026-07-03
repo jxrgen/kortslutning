@@ -1,0 +1,8 @@
+{
+  "name": "kortslutning",
+  "productName": "KORTSLUTNING",
+  "version": "1.0.0",
+  "private": true,
+  "main": "main.cjs",
+  "description": "Dansk 2-spiller deckbuilder-kortspil med elektroniktema"
+}
