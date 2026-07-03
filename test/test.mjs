@@ -5,14 +5,14 @@ const end = src.indexOf("/* __ENGINE_END__ */");
 if (end < 0) throw new Error("mangler ENGINE_END-markør");
 let code = src.slice(0, end).split("\n").filter(l => !l.startsWith("import ")).join("\n");
 code += `
-;return { CARDS, COLL, mkState, playCard, unitAttack, heroPower, endTurn,
+;return { CARDS, COLL, CLASSES, mkState, playCard, unitAttack, heroPower, endTurn,
   targetsForCard, attackTargets, heroTargets, canPlay, validateDeck, autoDeck, clone, botAction };
 `;
 const E = new Function(code)();
 
 // --- 1) antal kort ---
-console.log("Samlingskort:", E.COLL.length);
-if (E.COLL.length !== 100) throw new Error("Forventede 100 kort, fandt " + E.COLL.length);
+console.log("Samlingskort:", E.COLL.length, "· klasser:", Object.keys(E.CLASSES).length);
+if (E.COLL.length !== 134) throw new Error("Forventede 134 kort, fandt " + E.COLL.length);
 const leg = E.COLL.filter(id => E.CARDS[id].r === "L").length;
 console.log("Legendariske:", leg);
 
@@ -22,11 +22,15 @@ const err = E.validateDeck(d);
 if (err) throw new Error("autoDeck fejler validering: " + err);
 console.log("autoDeck OK");
 
+const rnd0 = n => Math.floor(Math.random() * n);
+const pick = a => a[rnd0(a.length)];
 // --- helper: frisk state ---
+const KL = ["tek", "hack", "over"];
 function fresh() {
+  const c0 = pick(KL), c1 = pick(KL);
   return E.mkState({
     mode: "lokal", names: ["P1", "P2"], cids: ["a", "b"],
-    decks: [E.autoDeck(), E.autoDeck()], starter: 0,
+    decks: [E.autoDeck(c0), E.autoDeck(c1)], classes: [c0, c1], starter: 0,
   });
 }
 
@@ -60,8 +64,7 @@ for (const id of E.COLL) {
 console.log("Alle", played, "kort spillet uden fejl");
 
 // --- 4) tilfældige hele spil ---
-const rnd = n => Math.floor(Math.random() * n);
-const pick = a => a[rnd(a.length)];
+const rnd = rnd0;
 let fin = 0, maxT = 0;
 for (let game = 0; game < 300; game++) {
   const g = fresh();
@@ -80,8 +83,11 @@ for (let game = 0; game < 300; game++) {
     }
     // heltekraft nogle gange
     if (g.status === "igang" && !p.heroUsed && p.cur >= 2 && Math.random() < 0.4) {
-      const e = E.heroPower(g, s, pick(E.heroTargets(g, s)));
-      if (e) throw new Error("heroPower-fejl: " + e);
+      const ht = E.heroTargets(g, s);
+      if (ht.length) {
+        const e = E.heroPower(g, s, pick(ht));
+        if (e) throw new Error("heroPower-fejl: " + e);
+      }
     }
     // angrib med alt der kan
     if (g.status === "igang") {

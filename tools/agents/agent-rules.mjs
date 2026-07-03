@@ -198,6 +198,45 @@ console.log("AGENT 1: regelverifikation");
     && g.players[1].hand.length === h1, g.players[0].hand.length + "/" + g.players[1].hand.length);
 }
 
+// 21. Hacker: Breach summoner en Bug, gated ved fuldt bræt
+{
+  const g = fresh(0, "hack", "tek");
+  g.players[0].cur = 5;
+  E.heroPower(g, 0, E.heroTargets(g, 0)[0]);
+  check("Breach: 1/1 Bug på brættet", g.players[0].board.length === 1 && g.players[0].board[0].id === "t_bug");
+  for (let i = 0; i < 5; i++) put(g, 0, "u_spole");
+  check("Breach: ingen mål ved fuldt bræt", E.heroTargets(g, 0).length === 0);
+}
+// 22. Overclocker: Charge gemmer 2, capper på MAXSTORED
+{
+  const g = fresh(0, "over", "tek");
+  g.players[0].cur = 9;
+  E.heroPower(g, 0, E.heroTargets(g, 0)[0]);
+  check("Charge: stored = 2", g.players[0].stored === 2, g.players[0].stored);
+  g.players[0].heroUsed = false;
+  E.heroPower(g, 0, E.heroTargets(g, 0)[0]);
+  check("Charge: capper på " + E.MAXSTORED, g.players[0].stored === E.MAXSTORED, g.players[0].stored);
+  g.players[0].heroUsed = false;
+  check("Charge: ingen mål ved fuld bank", E.heroTargets(g, 0).length === 0);
+}
+// 23. Coolant Flush refunderer låst energi
+{
+  const g = fresh(0, "over", "tek");
+  const p = g.players[0];
+  p.maxE = 6; p.ovlShown = 2; p.cur = 4; p.ovlNext = 1;
+  const uid = give(g, 0, "ov_coolant", p.cur);
+  E.playCard(g, 0, uid, null);
+  check("Coolant: +2 refunderet, alt lås ryddet", p.cur === 4 && p.ovlShown === 0 && p.ovlNext === 0,
+    JSON.stringify({ cur: p.cur, ovlS: p.ovlShown, ovlN: p.ovlNext }));
+}
+// 24. Klassevalidering: hack-kort afvises i tek-deck
+{
+  const d = E.autoDeck("tek");
+  d[0] = "hk_root";
+  const err = E.validateDeck(d, "tek");
+  check("validateDeck: klassekort afvises på tværs", !!err, err);
+}
+
 import("./engine.mjs").then(m => {
   console.log(m.fails ? "AGENT 1: " + m.fails + " FEJL FUNDET" : "AGENT 1: alle regler OK ✓");
   process.exit(m.fails ? 1 : 0);

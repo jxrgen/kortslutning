@@ -10,9 +10,10 @@ code += `
   MAXBOARD, MAXHAND, DECKSIZE, MAXSTORED };
 `;
 export const E = new Function(code)();
-export function fresh(starter = 0) {
+export const KL = ["tek", "hack", "over"];
+export function fresh(starter = 0, c0 = "tek", c1 = "tek") {
   return E.mkState({ mode: "local", names: ["P1", "P2"], cids: ["a", "b"],
-    decks: [E.autoDeck(), E.autoDeck()], starter });
+    decks: [E.autoDeck(c0), E.autoDeck(c1)], classes: [c0, c1], starter });
 }
 // tving et kort på hånden og giv energi
 export function give(g, s, id, energy = 20) {

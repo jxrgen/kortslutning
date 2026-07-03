@@ -22,8 +22,8 @@ const KWINFO = {
   hoj:    { n:"High Voltage",  ico:"☠",  d:"Destroys any unit it damages." },
   dob:    { n:"Dual Core",     ico:"×2", d:"Can attack twice per turn." },
   host:   { n:"Energy Harvest",ico:"♥+", d:"Damage dealt by this unit repairs your hero for the same amount." },
-  skjul:  { n:"Cloaked",       ico:"▒",  d:"Can\u2019t be targeted until it attacks." },
-  noHero: { n:"Units only",    ico:"⊘",  d:"Can\u2019t attack heroes." },
+  skjul:  { n:"Cloaked",       ico:"▒",  d:"Can’t be targeted until it attacks." },
+  noHero: { n:"Units only",    ico:"⊘",  d:"Can’t attack heroes." },
 };
 
 // ---------- KORTDATABASE ----------
@@ -40,7 +40,7 @@ s_nodstrom:{ n:"Emergency Power", e:"🔌", c:0, t:"spell", txt:"Gain 2 energy t
   fx(g,s){ g.players[s].cur+=2; g.players[s].ovlNext+=2; } },
 s_kortslut:{ n:"Short Circuit", e:"⚡", c:1, t:"spell", txt:"Deal 2 damage.", tgt:"any",
   fx(g,s,t){ dmg(g,t,2+sig(g,s),null); } },
-s_loddetin:{ n:"Solder", e:"🔗", c:1, t:"spell", txt:"Give a friendly unit +0/+3.", tgt:"funit",
+s_loddetin:{ cls:"tek", n:"Solder", e:"🔗", c:1, t:"spell", txt:"Give a friendly unit +0/+3.", tgt:"funit",
   fx(g,s,t){ buff(g,t,0,3); } },
 s_overclock:{ n:"Overclock", e:"🚀", c:1, t:"spell", txt:"Give a friendly unit +2/+0. It can attack immediately.", tgt:"funit",
   fx(g,s,t){ buff(g,t,2,0); const u=refUnit(g,t); if(u){ u.jp=false; u.atk=Math.max(u.atk,1); } } },
@@ -60,21 +60,21 @@ s_lysbue:{ n:"Arc Flash", e:"🔆", c:2, t:"spell", txt:"Deal 2 damage to an ene
   fx(g,s,t){ const b=sig(g,s); const adj=neighbors(g,t); dmg(g,t,2+b,null); for(const r of adj) dmg(g,r,1+b,null); } },
 s_spids:{ n:"Voltage Spike", e:"📈", c:2, t:"spell", txt:"Deal 3 damage. Overheat (1).", tgt:"any",
   fx(g,s,t){ dmg(g,t,3+sig(g,s),null); g.players[s].ovlNext+=1; } },
-s_kabels:{ n:"Cable Spaghetti", e:"🍝", c:2, t:"spell", txt:"Swap a unit’s Attack and Health.", tgt:"unit",
+s_kabels:{ cls:"tek", n:"Cable Spaghetti", e:"🍝", c:2, t:"spell", txt:"Swap a unit’s Attack and Health.", tgt:"unit",
   fx(g,s,t){ const u=refUnit(g,t); if(!u) return; const hpNow=Math.max(0,u.hM-u.dmg); const oldA=u.a;
     u.a=hpNow; u.hM=oldA; u.dmg=0; if(u.hM<=0){ u.dmg=999; } } },
-s_reserve:{ n:"Spare Parts", e:"📦", c:2, t:"spell", txt:"Add 2 random Components to your hand.",
+s_reserve:{ cls:"tek", n:"Spare Parts", e:"📦", c:2, t:"spell", txt:"Add 2 random Components to your hand.",
   fx(g,s){ for(let i=0;i<2;i++){ const id=pick(POOL_KOMP); if(id) addHand(g,s,id); } } },
-s_firmware:{ n:"Firmware Update", e:"⬆️", c:3, t:"spell", txt:"Give all your units +1/+1.",
+s_firmware:{ cls:"tek", n:"Firmware Update", e:"⬆️", c:3, t:"spell", txt:"Give all your units +1/+1.",
   fx(g,s){ for(const u of g.players[s].board){ u.a+=1; u.hM+=1; } } },
-s_genoplad:{ n:"Recharge", e:"🔋", c:3, t:"spell", txt:"Repair your hero and all friendly units for 3.",
+s_genoplad:{ cls:"tek", n:"Recharge", e:"🔋", c:3, t:"spell", txt:"Repair your hero and all friendly units for 3.",
   fx(g,s){ healHero(g,s,3); for(const u of g.players[s].board) u.dmg=Math.max(0,u.dmg-3); } },
 s_hack:{ n:"Hack", e:"🥷", c:3, t:"spell", txt:"Take control of an enemy unit with 2 or less Attack.",
   tgt:"eunit", f:(g,s,r,u)=>effAtk(g,r.s,u)<=2 && g.players[s].board.length<MAXBOARD,
   fx(g,s,t){ takeControl(g,s,t); } },
 s_induk:{ n:"Induction", e:"🧲", c:3, t:"spell", txt:"Gain 1 energy this turn. Draw a card.",
   fx(g,s){ g.players[s].cur+=1; draw(g,s,1); } },
-s_backup:{ n:"Backup", e:"🗄️", c:3, t:"spell", txt:"Add a copy of a friendly unit to your hand.", tgt:"funit",
+s_backup:{ cls:"tek", n:"Backup", e:"🗄️", c:3, t:"spell", txt:"Add a copy of a friendly unit to your hand.", tgt:"funit",
   fx(g,s,t){ const u=refUnit(g,t); if(u) addHand(g,s,u.id); } },
 s_kompil:{ n:"Compile", e:"⌨️", c:3, t:"spell", txt:"Draw a random Spell from your deck.",
   fx(g,s){ tutor(g,s,id=>CARDS[id].t==="spell"); } },
@@ -84,13 +84,13 @@ s_magnet:{ n:"Magnetic Field", e:"🌀", c:4, t:"spell", txt:"Deal 2 damage to a
   fx(g,s){ aoe(g,1-s,2+sig(g,s)); } },
 s_forstark:{ n:"Power Amplifier", e:"📢", c:4, t:"spell", txt:"Double a friendly unit’s Attack.", tgt:"funit",
   fx(g,s,t){ const u=refUnit(g,t); if(u) u.a*=2; } },
-s_gendan:{ n:"System Restore", e:"💚", c:4, t:"spell", txt:"Repair your hero for 8.",
+s_gendan:{ cls:"tek", n:"System Restore", e:"💚", c:4, t:"spell", txt:"Repair your hero for 8.",
   fx(g,s){ healHero(g,s,8); } },
 s_overbel:{ n:"Overload", e:"🔥", c:4, t:"spell", txt:"Deal 5 damage. Overheat (2).", tgt:"any",
   fx(g,s,t){ dmg(g,t,5+sig(g,s),null); g.players[s].ovlNext+=2; } },
 s_ransom:{ n:"Ransomware", e:"💰", c:5, t:"spell", txt:"Destroy an enemy unit. Your opponent draws a card.", tgt:"eunit",
   fx(g,s,t){ const u=refUnit(g,t); if(u){ u.dmg=999; sweep(g); draw(g,1-s,1); } } },
-s_printer:{ n:"3D Printer", e:"🖨️", c:5, t:"spell", txt:"Summon a copy of a friendly unit (base version).", tgt:"funit",
+s_printer:{ cls:"tek", n:"3D Printer", e:"🖨️", c:5, t:"spell", txt:"Summon a copy of a friendly unit (base version).", tgt:"funit",
   fx(g,s,t){ const u=refUnit(g,t); if(u) summon(g,s,u.id); } },
 s_uvejr:{ n:"Server Room Storm", e:"⛈️", c:5, t:"spell", txt:"Deal 2 damage to a random enemy, 4 times.",
   fx(g,s){ const b=sig(g,s); for(let i=0;i<4;i++){ const r=randEnemyRef(g,s); if(!r) break; dmg(g,r,2+b,null); } } },
@@ -130,7 +130,7 @@ u_printplade:{ n:"Circuit Board", e:"🟩", c:3, t:"unit", tr:"Component", a:0, 
   aura:{ others:true, tribe:"Component", a:1, h:1 } },
 u_transform:{ n:"Transformer", e:"🔀", c:3, t:"unit", tr:"Component", a:2, h:4, txt:"Install: Give another friendly unit +2/+0.",
   bcTgt:"funitO", bc(g,s,u,t){ if(t) buff(g,t,2,0); } },
-u_relae:{ n:"Relay", e:"🎏", c:3, t:"unit", tr:"Component", a:2, h:3, txt:"Install: Another friendly unit can attack immediately.",
+u_relae:{ cls:"tek", n:"Relay", e:"🎏", c:3, t:"unit", tr:"Component", a:2, h:3, txt:"Install: Another friendly unit can attack immediately.",
   bcTgt:"funitO", bc(g,s,u,t){ const x=refUnit(g,t); if(x){ x.jp=false; x.atkLeft=Math.max(x.atkLeft,1); } } },
 u_solpanel:{ n:"Solar Panel", e:"☀️", c:4, t:"unit", tr:"Component", a:1, h:5, txt:"At the start of your turn: Gain 1 energy this turn.",
   start(g,s){ g.players[s].cur+=1; } },
@@ -142,7 +142,7 @@ u_superkond:{ n:"Supercapacitor", e:"🛢️", c:5, t:"unit", tr:"Component", a:
 // ===== ROBOTTER (16) =====
 u_skruebot:{ n:"Screwbot", e:"🪛", c:1, t:"unit", tr:"Robot", a:1, h:1, txt:"Install: Give another friendly Robot +1/+1.",
   bcTgt:"funitO", bcF:(g,s,r,u)=>CARDS[u.id].tr==="Robot", bc(g,s,u,t){ if(t) buff(g,t,1,1); } },
-u_loddebot:{ n:"Solderbot", e:"🦾", c:2, t:"unit", tr:"Robot", a:2, h:1, txt:"Install: Deal 1 damage.",
+u_loddebot:{ cls:"tek", n:"Solderbot", e:"🦾", c:2, t:"unit", tr:"Robot", a:2, h:1, txt:"Install: Deal 1 damage.",
   bcTgt:"any", bc(g,s,u,t){ if(t) dmg(g,t,1,null); } },
 u_skraldebot:{ n:"Garbagebot", e:"🗑️", c:2, t:"unit", tr:"Robot", a:2, h:3, txt:"Breakdown: Add a random Component to your hand.",
   dr(g,s){ const id=pick(POOL_KOMP); if(id) addHand(g,s,id); } },
@@ -155,7 +155,7 @@ u_svejsebot:{ n:"Weldbot", e:"🔧", c:4, t:"unit", tr:"Robot", a:3, h:4, txt:"I
   bcTgt:"any", bc(g,s,u,t,combo){ if(t) dmg(g,t,combo?4:2,null); } },
 u_sergent:{ n:"Robo-Sergeant", e:"🎖️", c:4, t:"unit", tr:"Robot", a:3, h:3, txt:"Your other Robots have +1 Attack.",
   aura:{ others:true, tribe:"Robot", a:1 } },
-u_repbot:{ n:"Repairbot", e:"🚑", c:4, t:"unit", tr:"Robot", a:2, h:5, txt:"At the end of your turn: Repair a random damaged friendly unit for 2.",
+u_repbot:{ cls:"tek", n:"Repairbot", e:"🚑", c:4, t:"unit", tr:"Robot", a:2, h:5, txt:"At the end of your turn: Repair a random damaged friendly unit for 2.",
   end(g,s){ const c=g.players[s].board.filter(x=>x.dmg>0); const u=pick(c); if(u) u.dmg=Math.max(0,u.dmg-2); } },
 u_boksebot:{ n:"Boxerbot", e:"🥊", c:5, t:"unit", tr:"Robot", a:3, h:5, kw:["dob"], txt:"Dual Core." },
 u_fabrik:{ n:"Robot Factory", e:"🏗️", c:5, t:"unit", tr:"Robot", a:0, h:6, txt:"At the end of your turn: Summon a 1/1 Microbot.",
@@ -225,10 +225,93 @@ l_kvante:{ n:"THE QUANTUM BOX", e:"📦", c:8, t:"unit", tr:"Component", r:"L", 
   end(g,s){ const id=pick(POOL_PROG); if(id) addHand(g,s,id); } },
 l_titan:{ n:"TITAN-9000", e:"🗿", c:9, t:"unit", tr:"Robot", r:"L", a:8, h:8, kw:["jord"], txt:"Grounded. Install: Destroy the enemy unit with the highest Attack.",
   bc(g,s){ const b=g.players[1-s].board; if(!b.length) return; let m=b[0]; for(const x of b) if(effAtk(g,1-s,x)>effAtk(g,1-s,m)) m=x; m.dmg=999; sweep(g); } },
-l_overtek:{ n:"THE OVERTECHNICIAN", e:"🧙", c:9, t:"unit", tr:null, r:"L", a:6, h:6, txt:"Install: Give all your other units +2/+2.",
+l_overtek:{ cls:"tek", n:"THE OVERTECHNICIAN", e:"🧙", c:9, t:"unit", tr:null, r:"L", a:6, h:6, txt:"Install: Give all your other units +2/+2.",
   bc(g,s,u){ for(const x of g.players[s].board) if(x.uid!==u.uid){ x.a+=2; x.hM+=2; } } },
 
 // ===== TOKENS (ikke i samlingen) =====
+
+// ---------- The Hacker (klassekort) ----------
+hk_spoof:{ cls:"hack", n:"Spoof", e:"🎭", c:1, t:"spell", txt:"Give a friendly unit Cloaked.",
+  tgt:"funit", fx(g,s,t){ const u=refUnit(g,t); if(u){ u.akw.push("skjul"); u.st=true; } } },
+hk_phish:{ cls:"hack", n:"Phishing", e:"🎣", c:1, t:"spell", txt:"Copy a random card from your opponent’s hand to yours.",
+  fx(g,s){ const oh=g.players[1-s].hand; if(oh.length) addHand(g,s,pick(oh).id); } },
+hk_bugswarm:{ cls:"hack", n:"Bug Swarm", e:"🐛", c:2, t:"spell", txt:"Summon two 1/1 Bugs. Chain: Three instead.",
+  fx(g,s,t,combo){ for(let i=0;i<(combo?3:2);i++) summon(g,s,"t_bug"); } },
+hk_keylog:{ cls:"hack", n:"Keylogger", e:"⌨️", c:2, t:"unit", tr:"Virus", a:1, h:3, kw:["skjul"],
+  txt:"Cloaked. Breakdown: Draw a card.", dr(g,s){ draw(g,s,1); } },
+hk_ddos:{ cls:"hack", n:"DDoS", e:"🌊", c:3, t:"spell", txt:"Give all enemy units -2 Attack.",
+  fx(g,s){ for(const u of g.players[1-s].board) buff(g,{s:1-s,u:u.uid},-2,0); } },
+hk_crypto:{ cls:"hack", n:"Cryptojacker", e:"⛏️", c:3, t:"unit", tr:"Virus", a:2, h:3, kw:["host"],
+  txt:"Energy Harvest. Install: Store 1 energy.", bc(g,s){ addStored(g,s,1); } },
+hk_mitm:{ cls:"hack", n:"Man in the Middle", e:"🕵️", c:4, t:"unit", tr:"Virus", a:3, h:4,
+  txt:"Install: Return an enemy unit to its owner’s hand.",
+  bcTgt:"eunit", bc(g,s,u,t){ if(t) bounce(g,t); } },
+hk_glitchstorm:{ cls:"hack", n:"Glitch Storm", e:"🌩️", c:4, t:"spell", txt:"Deal 1 damage to all enemy units, twice.",
+  fx(g,s){ aoe(g,1-s,1); aoe(g,1-s,1); } },
+hk_payload:{ cls:"hack", n:"Payload", e:"📦", c:5, t:"unit", tr:"Virus", a:4, h:4,
+  txt:"Breakdown: Deal 3 damage to the enemy hero.", dr(g,s){ dmg(g,{s:1-s,u:null},3,null); } },
+hk_zeroday:{ cls:"hack", n:"Zero-Day", e:"💀", c:5, t:"spell", txt:"Destroy a damaged enemy unit.",
+  tgt:"eunit", f:(g,s,r,u)=>u.dmg>0, fx(g,s,t){ const u=refUnit(g,t); if(u){ u.dmg=999; sweep(g); } } },
+hk_root:{ cls:"hack", n:"Root Access", e:"🔓", c:6, t:"spell", txt:"Take control of an enemy unit.",
+  tgt:"eunit", f:(g,s,r,u)=>g.players[s].board.length<MAXBOARD, fx(g,s,t){ takeControl(g,s,t); } },
+hk_mirror:{ cls:"hack", n:"M1RR0R", e:"🪞", c:7, t:"unit", tr:"Virus", r:"L", a:5, h:5,
+  txt:"Install: Summon a base copy of an enemy unit.",
+  bcTgt:"eunit", bc(g,s,u,t){ const e=refUnit(g,t); if(e) summon(g,s,e.id); } },
+// ---------- The Overclocker (klassekort) ----------
+ov_jolt:{ cls:"over", n:"Jolt", e:"⚡", c:1, t:"spell", txt:"Deal 2 damage. Overheat (1).",
+  tgt:"any", fx(g,s,t){ dmg(g,t,2+sig(g,s),null); g.players[s].ovlNext+=1; } },
+ov_boost:{ cls:"over", n:"Turbo Boost", e:"🚀", c:2, t:"spell", txt:"Give a friendly unit Turbo and +1/+0.",
+  tgt:"funit", fx(g,s,t){ const u=refUnit(g,t); if(u){ u.akw.push("turbo"); buff(g,t,1,0); } } },
+ov_coolant:{ cls:"over", n:"Coolant Flush", e:"🧊", c:2, t:"spell", txt:"Unlock all your overheated energy (this turn and pending).",
+  fx(g,s){ const p=g.players[s]; p.cur+=p.ovlShown; p.ovlShown=0; p.ovlNext=0; } },
+ov_reactor:{ cls:"over", n:"Micro Reactor", e:"☢️", c:3, t:"unit", tr:"Component", a:0, h:6,
+  txt:"At the start of your turn: Store 1 energy.", start(g,s,u){ addStored(g,s,1); } },
+ov_amped:{ cls:"over", n:"Amped Up", e:"📈", c:3, t:"spell", txt:"Give a friendly unit +3/+3. Overheat (1).",
+  tgt:"funit", fx(g,s,t){ buff(g,t,3,3); g.players[s].ovlNext+=1; } },
+ov_press:{ cls:"over", n:"Hydraulic Press", e:"🗜️", c:4, t:"unit", tr:"Robot", a:5, h:2,
+  txt:"Overheat (1).", bc(g,s){ g.players[s].ovlNext+=1; } },
+ov_flux:{ cls:"over", n:"Flux Capacitor", e:"🔋", c:4, t:"unit", tr:"Component", a:1, h:5,
+  txt:"Install: Store 2 energy.", bc(g,s){ addStored(g,s,2); } },
+ov_heatwave:{ cls:"over", n:"Heat Wave", e:"🥵", c:5, t:"spell", txt:"Deal 3 damage to all enemy units. Overheat (2).",
+  fx(g,s){ aoe(g,1-s,3+sig(g,s)); g.players[s].ovlNext+=2; } },
+ov_dynamo:{ cls:"over", n:"Dynamo", e:"🌀", c:5, t:"unit", tr:"Component", a:4, h:5,
+  txt:"At the end of your turn: Deal 1 damage to the enemy hero for each stored energy.",
+  end(g,s,u){ const n=g.players[s].stored; if(n>0) dmg(g,{s:1-s,u:null},n,null); } },
+ov_golem:{ cls:"over", n:"Scrap Golem", e:"🗑️", c:6, t:"unit", tr:"Robot", a:7, h:7,
+  txt:"Overheat (2).", bc(g,s){ g.players[s].ovlNext+=2; } },
+ov_core:{ cls:"over", n:"Fission Core", e:"☢️", c:7, t:"unit", tr:"Component", a:6, h:6, kw:["jord"],
+  txt:"Grounded. Breakdown: Deal 3 damage to all other units and both heroes.",
+  dr(g,s){
+    g.players[0].hp-=3; fxPush(g,{t:"dmg",s:0,u:null,n:3});
+    g.players[1].hp-=3; fxPush(g,{t:"dmg",s:1,u:null,n:3});
+    aoe(g,0,3); aoe(g,1,3); checkWin(g);
+  } },
+ov_giga:{ cls:"over", n:"GIGAWATT", e:"🌩️", c:10, t:"unit", tr:"Robot", r:"L", a:10, h:10, kw:["turbo"],
+  txt:"Turbo. Overheat (3).", bc(g,s){ g.players[s].ovlNext+=3; } },
+// ---------- nye neutrale ----------
+n_jumper:{ n:"Jumper Wires", e:"🔗", c:0, t:"spell", txt:"Give a friendly unit +1/+1.",
+  tgt:"funit", fx(g,s,t){ buff(g,t,1,1); } },
+n_multimeter:{ n:"Multimeter", e:"🔍", c:1, t:"unit", tr:"Component", a:1, h:2,
+  txt:"Install: Draw a card. Overheat (1).", bc(g,s){ draw(g,s,1); g.players[s].ovlNext+=1; } },
+n_fan:{ n:"Cooling Fan", e:"🌀", c:2, t:"unit", tr:"Component", a:1, h:4,
+  txt:"Install: Unlock 1 overheated energy.",
+  bc(g,s){ const p=g.players[s]; if(p.ovlShown>0){ p.ovlShown--; p.cur++; } else if(p.ovlNext>0) p.ovlNext--; } },
+n_breadboard:{ n:"Breadboard", e:"🧩", c:2, t:"unit", tr:"Component", a:2, h:3,
+  txt:"Install: Give your other Components +0/+1.",
+  bc(g,s,u){ for(const q of g.players[s].board) if(q.uid!==u.uid&&CARDS[q.id].tr==="Component") buff(g,{s,u:q.uid},0,1); } },
+n_oscillo:{ n:"Oscilloscope", e:"📟", c:3, t:"unit", tr:"Component", a:2, h:4, sig:1,
+  txt:"Signal Strength +1 (your Spells deal +1 damage)." },
+n_surgeprot:{ n:"Surge Protector", e:"🔌", c:3, t:"unit", tr:"Component", a:2, h:5, kw:["jord","iso"],
+  txt:"Grounded. Insulated." },
+n_ball:{ n:"Ball Lightning", e:"🔮", c:4, t:"unit", a:4, h:3, kw:["turbo"],
+  txt:"Turbo. Overheat (1).", bc(g,s){ g.players[s].ovlNext+=1; } },
+n_scrapyard:{ n:"Scrapyard", e:"🏗️", c:4, t:"unit", a:0, h:8, kw:["jord"],
+  txt:"Grounded. Breakdown: Add a random Component to your hand.",
+  dr(g,s){ addHand(g,s,pick(POOL_KOMP)); } },
+n_datacenter:{ n:"Data Center", e:"🏢", c:5, t:"unit", a:3, h:7, kw:["jord"],
+  txt:"Grounded. Breakdown: Store 2 energy.", dr(g,s){ addStored(g,s,2); } },
+n_mainframe:{ n:"THE MAINFRAME", e:"🖥️", c:8, t:"unit", r:"L", a:6, h:8, kw:["jord"],
+  txt:"Grounded. At the end of your turn: Draw a card.", end(g,s,u){ draw(g,s,1); } },
 t_mikrobot:{ n:"Microbot", e:"🤖", c:1, t:"unit", tr:"Robot", a:1, h:1, tok:true, txt:"" },
 t_bug:{ n:"Bug", e:"🐛", c:1, t:"unit", tr:"Virus", a:1, h:1, tok:true, txt:"" },
 t_server:{ n:"Server", e:"🗃️", c:3, t:"unit", tr:"Component", a:3, h:3, kw:["jord"], tok:true, txt:"Grounded." },
@@ -270,7 +353,7 @@ function refUnit(g,r){ if(!r||r.u==null) return null; return g.players[r.s].boar
 function checkWin(g){
   if(g.status!=="igang") return;
   const d0=g.players[0].hp<=0, d1=g.players[1].hp<=0;
-  if(d0&&d1){ g.status="slut"; g.winner=2; log(g,"⚡ Double meltdown — it\u2019s a draw!"); }
+  if(d0&&d1){ g.status="slut"; g.winner=2; log(g,"⚡ Double meltdown — it’s a draw!"); }
   else if(d0){ g.status="slut"; g.winner=1; log(g,"🏆 "+g.players[1].name+" wins!"); }
   else if(d1){ g.status="slut"; g.winner=0; log(g,"🏆 "+g.players[0].name+" wins!"); }
 }
@@ -285,7 +368,7 @@ function dmg(g,ref,n,src){
   }
   const u=refUnit(g,ref); if(!u) return;
   if(u.sh){ u.sh=false; fxPush(g,{t:"skjold",s:ref.s,u:u.uid});
-    log(g,"◈ "+CARDS[u.id].n+"\u2019s insulation absorbs the damage."); return; }
+    log(g,"◈ "+CARDS[u.id].n+"’s insulation absorbs the damage."); return; }
   u.dmg+=n;
   fxPush(g,{t:"dmg",s:ref.s,u:u.uid,n});
   if(src&&src.host) healHero(g,src.hs,n);
@@ -322,13 +405,13 @@ function draw(g,s,n){
       checkWin(g); continue;
     }
     const id=p.deck.pop();
-    if(p.hand.length>=MAXHAND){ log(g,"🔥 "+p.name+"\u2019s hand is full — "+CARDS[id].n+" burns up."); }
+    if(p.hand.length>=MAXHAND){ log(g,"🔥 "+p.name+"’s hand is full — "+CARDS[id].n+" burns up."); }
     else p.hand.push({uid:nuid(g),id});
   }
 }
 function addHand(g,s,id){
   const p=g.players[s];
-  if(p.hand.length>=MAXHAND){ log(g,"🔥 "+p.name+"\u2019s hand is full — "+CARDS[id].n+" burns up."); return; }
+  if(p.hand.length>=MAXHAND){ log(g,"🔥 "+p.name+"’s hand is full — "+CARDS[id].n+" burns up."); return; }
   p.hand.push({uid:nuid(g),id});
 }
 function tutor(g,s,pred){
@@ -431,7 +514,7 @@ function playCard(g,s,handUid,tref){
   const hi=p.hand.findIndex(c=>c.uid===handUid);
   if(hi<0) return "That card is not in your hand.";
   const id=p.hand[hi].id, d=CARDS[id];
-  if(!canPlay(g,s,id)) return "Can\u2019t be played right now.";
+  if(!canPlay(g,s,id)) return "Can’t be played right now.";
   const spec=d.t==="spell"?d.tgt:d.bcTgt;
   if(spec){
     const list=specTargets(g,s,spec,d.f||d.bcF,null);
@@ -477,7 +560,7 @@ function attackTargets(g,s,uid){
 function unitAttack(g,s,uid,tref){
   if(g.status!=="igang"||g.active!==s) return "Not your turn.";
   const u=g.players[s].board.find(x=>x.uid===uid);
-  if(!u) return "That unit doesn\u2019t exist.";
+  if(!u) return "That unit doesn’t exist.";
   const list=attackTargets(g,s,uid);
   if(!list.some(r=>r.s===tref.s&&r.u===tref.u)) return "Invalid target.";
   u.atkLeft--; u.st=false;
@@ -488,7 +571,7 @@ function unitAttack(g,s,uid,tref){
     log(g,"⚔ "+CARDS[u.id].n+" attacks "+g.players[tref.s].name+" ("+aA+").");
     dmg(g,tref,aA,srcA);
   } else {
-    const d=refUnit(g,tref); if(!d) return "The target doesn\u2019t exist.";
+    const d=refUnit(g,tref); if(!d) return "The target doesn’t exist.";
     const aD=effAtk(g,tref.s,d);
     const srcD={hoj:hasKw(g,tref.s,d,"hoj"),host:hasKw(g,tref.s,d,"host"),hs:tref.s};
     log(g,"⚔ "+CARDS[u.id].n+" ("+aA+") trades with "+CARDS[d.id].n+" ("+aD+").");
@@ -504,7 +587,7 @@ function unitAttack(g,s,uid,tref){
    deckbygger, validering og UI slår selv op. Kort uden cls er neutrale. */
 const CLASSES={
   tek:{
-    n:"The Technician", ico:"🧑‍🔧",
+    n:"The Technician", ico:"🧑‍🔧", col:"#e8a96a",
     power:{ n:"Soldering Iron", ico:"🔧", c:2, txt:"Enemy: 1 damage · Friendly: repair 2." },
     powerTargets(g,s){
       const out=[{s:0,u:null},{s:1,u:null}];
@@ -524,6 +607,24 @@ const CLASSES={
         log(g,"🔧 "+p.name+" burns the enemy with the soldering iron (1).");
         dmg(g,tref,1,null);
       }
+    },
+  },
+  hack:{
+    n:"The Hacker", ico:"🧑‍💻", col:"#c76bd9",
+    power:{ n:"Breach", ico:"🐛", c:2, txt:"Summon a 1/1 Bug." },
+    powerTargets(g,s){ return g.players[s].board.length<MAXBOARD?[{s,u:null}]:[]; },
+    powerFx(g,s,tref){
+      summon(g,s,"t_bug");
+      log(g,"🐛 "+g.players[s].name+" breaches the firewall — a Bug crawls out.");
+    },
+  },
+  over:{
+    n:"The Overclocker", ico:"🧑‍🏭", col:"#ff8c5a",
+    power:{ n:"Charge", ico:"🔋", c:2, txt:"Store 2 energy in the capacitor bank." },
+    powerTargets(g,s){ return g.players[s].stored<MAXSTORED?[{s,u:null}]:[]; },
+    powerFx(g,s,tref){
+      addStored(g,s,2);
+      log(g,"🔋 "+g.players[s].name+" charges the capacitor bank.");
     },
   },
 };
@@ -608,11 +709,13 @@ function validateDeck(list,cls){
   }
   return null;
 }
-function autoDeck(){
+function autoDeck(cls){
+  cls=cls||"tek";
+  const pool=COLL.filter(id=>!CARDS[id].cls||CARDS[id].cls===cls);
   const list=[]; const cnt={};
   let guard=0;
   while(list.length<DECKSIZE && guard++<2000){
-    const id=pick(COLL);
+    const id=pick(pool);
     const d=CARDS[id];
     const max=d.r==="L"?1:2;
     if((cnt[id]||0)>=max) continue;
@@ -621,7 +724,7 @@ function autoDeck(){
     cnt[id]=(cnt[id]||0)+1; list.push(id);
   }
   while(list.length<DECKSIZE){
-    const id=pick(COLL); const max=CARDS[id].r==="L"?1:2;
+    const id=pick(pool); const max=CARDS[id].r==="L"?1:2;
     if((cnt[id]||0)<max){ cnt[id]=(cnt[id]||0)+1; list.push(id); }
   }
   return list;
@@ -848,6 +951,11 @@ input:focus,select:focus{border-color:var(--cu)}
 h2.ov{font-family:var(--disp);letter-spacing:2px;font-size:22px;color:var(--cu2);margin:18px 0 6px}
 p.rt{font-size:14px;line-height:1.55;color:var(--txt);margin:6px 0}
 .centrer{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;text-align:center;padding:20px}
+.clsdot{position:absolute;top:23px;right:4px;width:8px;height:8px;border-radius:50%;box-shadow:0 0 6px currentColor}
+.kvalg{display:flex;gap:8px}
+.kknap{flex:1;text-align:center;padding:9px 4px;border-radius:12px;border:1px solid var(--line);
+  background:var(--bg1);font-family:var(--mono);font-size:11.5px;color:var(--dim);line-height:1.5}
+.kinfo{font-size:12.5px;color:var(--dim);margin-top:7px;font-family:var(--mono)}
 /* ---- dybde & liv ---- */
 .mkort{box-shadow:0 4px 10px rgba(0,0,0,.45)}
 .enh{box-shadow:0 3px 8px rgba(0,0,0,.4)}
@@ -945,6 +1053,7 @@ function MiniCard({id,onClick,glow,count,style,dfx}){
     <button className={"mkort"+(d.r==="L"?" leg":"")+(glow?" spil":"")} onClick={onClick} style={style} data-fx={dfx}>
       <span className="pris">{d.c}</span>
       {count!=null && <span className="antal">{count}×</span>}
+      {d.cls&&CLASSES[d.cls]&&<span className="clsdot" style={{background:CLASSES[d.cls].col}}/>}
       <CardArt id={id}/>
       <span className="nv">{d.n}</span>
       {d.t==="unit" && <><span className="stat a">{d.a}</span><span className="stat h">{d.h}</span></>}
@@ -956,13 +1065,14 @@ function StorKort({id,unitInfo,g}){
   let live=null;
   if(unitInfo&&g){ const u=refUnit(g,{s:unitInfo.s,u:unitInfo.uid});
     if(u) live={a:effAtk(g,unitInfo.s,u),h:effHp(g,unitInfo.s,u),m:effMax(g,unitInfo.s,u),sil:u.sil,ik:kwIkoner(g,unitInfo.s,u)}; }
+  const kcol=d.cls&&CLASSES[d.cls]?CLASSES[d.cls].col:null;
   return (
-    <div className={"storkort"+(d.r==="L"?" leg":"")}>
+    <div className={"storkort"+(d.r==="L"?" leg":"")} style={kcol?{borderLeft:"4px solid "+kcol}:null}>
       <div className="top">
         <CardArt id={id} pattern={true} className="storart"/>
         <div>
           <h3>{d.n}</h3>
-          <div className="meta">{d.c}⚡ · {d.t==="unit"?"Unit":"Spell"}{d.tr?" · "+d.tr:""}{d.r==="L"?" · ★ Legendary":""}</div>
+          <div className="meta">{d.c}⚡ · {kcol?CLASSES[d.cls].n+" · ":""}{d.t==="unit"?"Unit":"Spell"}{d.tr?" · "+d.tr:""}{d.r==="L"?" · ★ Legendary":""}</div>
         </div>
       </div>
       <div className="txt">{live&&live.sil?<i>Reset — all text removed.</i>:(d.txt||"—")}</div>
@@ -1011,7 +1121,7 @@ function HeltPlade({g,s,me,onClick,hilite,shake}){
   const p=g.players[s];
   return (
     <button className={"helt"+(hilite?" tgt":"")+(shake?" ryst":"")} onClick={onClick} style={{borderRadius:10}} data-fx={"h"+s}>
-      <span style={{fontSize:20}}>{me?"🧑‍🔧":"🧑‍💻"}</span>
+      <span style={{fontSize:20}}>{(CLASSES[p.cls]||CLASSES.tek).ico}</span>
       <span>
         <span className="nm">{p.name}</span><br/>
         <span className={"hp"+(p.hp<=10?" lav":"")}>❤ {p.hp}</span>
@@ -1025,7 +1135,10 @@ const ARTC={bg:"#0c1811",bg2:"#173021",cu:"#c9814a"};
 function seedOf(str){ let h=2166136261; for(const c of str){ h^=c.charCodeAt(0); h=Math.imul(h,16777619); } return h>>>0; }
 function mulberry(a){ return function(){ a|=0; a=(a+0x6D2B79F5)|0; let t=Math.imul(a^(a>>>15),1|a);
   t=(t+Math.imul(t^(t>>>7),61|t))^t; return ((t^(t>>>14))>>>0)/4294967296; }; }
-function artAccent(d){ return d.t==="spell"?"#e8e05f":({Component:"#e8a96a",Robot:"#9fc0e8",Drone:"#5fe0a0",Virus:"#c76bd9"}[d.tr]||"#ffd166"); }
+function artAccent(d){
+  if(d.cls&&d.t==="spell"&&CLASSES[d.cls]) return CLASSES[d.cls].col;
+  return d.t==="spell"?"#e8e05f":({Component:"#e8a96a",Robot:"#9fc0e8",Drone:"#5fe0a0",Virus:"#c76bd9"}[d.tr]||"#ffd166");
+}
 function circuitArt(rnd,x0,y0,x1,y1,color,n,op){
   const G=25, snap=v=>Math.round(v/G)*G;
   let out="";
@@ -1115,6 +1228,27 @@ function CardArt({id,pattern,className}){
   },[id,pattern]);
   return <svg className={"art"+(className?" "+className:"")} viewBox="172 148 406 414"
     dangerouslySetInnerHTML={{__html:inner}}/>;
+}
+
+const CLS_LIST=["tek","hack","over"];
+function ClassPick({value,onChange}){
+  const K=CLASSES[value];
+  return (
+    <div>
+      <div className="kvalg">
+        {CLS_LIST.map(c=>{
+          const k=CLASSES[c], aktiv=c===value;
+          return (
+            <button key={c} className={"kknap"+(aktiv?" aktiv":"")}
+              style={aktiv?{borderColor:k.col,color:k.col}:null}
+              onClick={()=>onChange(c)}>
+              <span style={{fontSize:22}}>{k.ico}</span><br/>{k.n.replace("The ","")}
+            </button>);
+        })}
+      </div>
+      <div className="kinfo">{K.power.ico} <b>{K.power.n}</b> ({K.power.c}⚡): {K.power.txt}</div>
+    </div>
+  );
 }
 
 function zigzag(a,b){
@@ -1259,7 +1393,10 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
   };
   const kraft=()=>{
     if(tmode){ setT(null); return; }
-    setT({list:heroTargets(g,seat),label:K.power.ico+" "+K.power.n+" — "+K.power.txt,
+    const list=heroTargets(g,seat);
+    if(!list.length){ act(()=>"No valid target for "+K.power.n+"."); return; }
+    if(list.length===1){ act(x=>heroPower(x,seat,list[0])); return; }
+    setT({list,label:K.power.ico+" "+K.power.n+" — "+K.power.txt,
       run:r=>act(x=>heroPower(x,seat,r))});
   };
 
@@ -1388,7 +1525,7 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
               {g.winner===2?"DRAW":(g.winner===seat?"VICTORY ⚡":"BREAKDOWN")}
             </div>
             <p className="rt" style={{color:"var(--dim)"}}>
-              {g.winner===2?"Both circuits burned out.":(g.winner===seat?"Your opponent\u2019s circuit burned out.":"Your circuit burned out.")}
+              {g.winner===2?"Both circuits burned out.":(g.winner===seat?"Your opponent’s circuit burned out.":"Your circuit burned out.")}
             </p>
             {mode==="online" ? (
               <button className="knap cu" disabled={g.rematch[seat]} onClick={onRematch}>
@@ -1410,6 +1547,7 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
 function DeckBuilder({decks,gemDecks,onBack,flash}){
   const [cards,setCards]=useState([]);
   const [navn,setNavn]=useState("My deck");
+  const [dbCls,setDbCls]=useState("tek");
   const [tab,setTab]=useState("bib");
   const [fC,setFC]=useState(null);
   const [fT,setFT]=useState(null);
@@ -1418,6 +1556,7 @@ function DeckBuilder({decks,gemDecks,onBack,flash}){
   const cnt=useMemo(()=>{ const m={}; for(const id of cards) m[id]=(m[id]||0)+1; return m; },[cards]);
   const filt=COLL.filter(id=>{
     const d=CARDS[id];
+    if(d.cls&&d.cls!==dbCls) return false;
     if(fC!=null && (fC===7?d.c<7:d.c!==fC)) return false;
     if(fT && d.t!==fT) return false;
     if(q && !d.n.toLowerCase().includes(q.toLowerCase())) return false;
@@ -1431,10 +1570,10 @@ function DeckBuilder({decks,gemDecks,onBack,flash}){
   };
   const rem=id=>setCards(c=>{ const i=c.indexOf(id); if(i<0) return c; const n=c.slice(); n.splice(i,1); return n; });
   const gem=()=>{
-    const err=validateDeck(cards); if(err) return flash(err);
+    const err=validateDeck(cards,dbCls); if(err) return flash(err);
     const n=navn.trim()||"My deck";
-    const nx=decks.filter(d=>d.name!==n).concat([{name:n,cls:"tek",cards:cards.slice()}]);
-    gemDecks(nx); flash("💾 \u201C"+n+"\u201D saved.");
+    const nx=decks.filter(d=>d.name!==n).concat([{name:n,cls:dbCls,cards:cards.slice()}]);
+    gemDecks(nx); flash("💾 “"+n+"” saved.");
   };
   const unik=Object.keys(cnt).sort((a,b)=>CARDS[a].c-CARDS[b].c||CARDS[a].n.localeCompare(CARDS[b].n,"en"));
   const kurve=[0,1,2,3,4,5,6,7].map(c=>cards.filter(id=>c===7?CARDS[id].c>=7:CARDS[id].c===c).length);
@@ -1444,6 +1583,12 @@ function DeckBuilder({decks,gemDecks,onBack,flash}){
       <button className="tilbage" onClick={onBack}>← Back</button>
       <div className="logo" style={{fontSize:26}}>CARD LIBRARY</div>
       <div className="ulinie">{COLL.length} cards · deck: {cards.length}/{DECKSIZE}</div>
+      <ClassPick value={dbCls} onChange={c=>{
+        if(c===dbCls) return;
+        setDbCls(c);
+        const rest=cards.filter(id=>!CARDS[id].cls||CARDS[id].cls===c);
+        if(rest.length!==cards.length){ setCards(rest); flash("Removed cards from another class."); }
+      }}/>
       <div className="faner">
         <button className={"fane"+(tab==="bib"?" aktiv":"")} onClick={()=>setTab("bib")}>Library</button>
         <button className={"fane"+(tab==="deck"?" aktiv":"")} onClick={()=>setTab("deck")}>Your deck ({cards.length}/{DECKSIZE})</button>
@@ -1478,9 +1623,10 @@ function DeckBuilder({decks,gemDecks,onBack,flash}){
         <div className="raek" style={{marginTop:14}}>
           <button className="knap" style={{marginTop:0}} onClick={()=>{
             const c=cards.slice(); const t={...cnt};
+            const pool=COLL.filter(id=>!CARDS[id].cls||CARDS[id].cls===dbCls);
             let guard=0;
             while(c.length<DECKSIZE&&guard++<2000){
-              const id=pick(COLL); const max=CARDS[id].r==="L"?1:2;
+              const id=pick(pool); const max=CARDS[id].r==="L"?1:2;
               if((t[id]||0)>=max) continue; t[id]=(t[id]||0)+1; c.push(id);
             }
             setCards(c);
@@ -1496,8 +1642,8 @@ function DeckBuilder({decks,gemDecks,onBack,flash}){
           <div className="etiket">Saved decks</div>
           {decks.map((d,i)=>
             <div key={i} className="dlinje">
-              <span>🗂 {d.name}</span>
-              <button className="x" style={{color:"var(--fos)"}} onClick={()=>{setCards(d.cards.slice());setNavn(d.name);flash("Loaded \u201C"+d.name+"\u201D.");}}>Load</button>
+              <span>{(CLASSES[d.cls||"tek"]||CLASSES.tek).ico} {d.name}</span>
+              <button className="x" style={{color:"var(--fos)"}} onClick={()=>{setCards(d.cards.slice());setNavn(d.name);setDbCls(d.cls||"tek");flash("Loaded “"+d.name+"”.");}}>Load</button>
               <button className="x" onClick={()=>gemDecks(decks.filter((_,j)=>j!==i))}>Delete</button>
             </div>)}
         </>}
@@ -1531,6 +1677,10 @@ function Regler({onBack}){
       <p className="rt"><b>Overheat:</b> Powerful cards lock part of your energy on the following turn. Cheap effect now, the bill arrives later.</p>
       <h2 className="ov">Combat</h2>
       <p className="rt">Units can’t attack the turn they are played (unless they have Turbo). When a unit attacks another, they damage each other simultaneously. Max 6 units on the board and 9 cards in hand. If your deck runs out, you take escalating fatigue damage.</p>
+      <h2 className="ov">Classes</h2>
+      <p className="rt">Each player picks a class. Class cards (marked with a colored dot) can only go in that class’s decks; all other cards are neutral.</p>
+      {CLS_LIST.map(c=>{const k=CLASSES[c];return (
+        <p className="rt" key={c}><b style={{color:k.col}}>{k.ico} {k.n}</b> — {k.power.ico} {k.power.n} ({k.power.c}⚡): {k.power.txt}</p>);})}
       <h2 className="ov">Keywords</h2>
       <table className="kwtab"><tbody>
         {Object.values(KWINFO).map(k=><tr key={k.n}><td>{k.ico} {k.n}</td><td>{k.d}</td></tr>)}
@@ -1562,6 +1712,8 @@ export default function App(){
   const [joinKode,setJoinKode]=useState("");
   const [deckValg,setDeckValg]=useState("auto");
   const [deckValg2,setDeckValg2]=useState("auto");
+  const [cls,setClsS]=useState("tek");
+  const [cls2,setCls2]=useState("tek");
   const cid=useRef(null);
   const kode=useRef(null);
   const gRef=useRef(null); gRef.current=g;
@@ -1586,6 +1738,7 @@ export default function App(){
   useEffect(()=>{ (async()=>{
     const n=await stGet("ks-navn",false); if(n) setNavn(n);
     const d=await stGet("ks-decks",false); if(Array.isArray(d)) setDecks(d);
+    const k=await stGet("ks-cls",false); if(k&&CLASSES[k]) setClsS(k);
     let c=await stGet("ks-cid",false);
     if(!c){ c="c"+Math.random().toString(36).slice(2,10); await stSet("ks-cid",c,false); }
     cid.current=c;
@@ -1593,6 +1746,7 @@ export default function App(){
   })(); },[]);
 
   const gemNavn=v=>{ setNavn(v); stSet("ks-navn",v,false); };
+  const setCls=v=>{ setClsS(v); setDeckValg("auto"); stSet("ks-cls",v,false); };
   const gemDecks=v=>{ setDecks(v); stSet("ks-decks",v,false); };
 
   const pushSave=(state)=>{
@@ -1645,26 +1799,27 @@ export default function App(){
       const ng=mkState({mode:"online",code:kode.current,
         names:[g.players[0].name,g.players[1].name],
         cids:[g.players[0].cid,g.players[1].cid],
-        decks:[g.players[0].list,g.players[1].list]});
+        decks:[g.players[0].list,g.players[1].list],
+        classes:[g.players[0].cls,g.players[1].cls]});
       ng.seq=(g.seq||0)+1;
       applyG(ng); pushSave(ng);
     }
   },[g,mode,seat]);
 
-  const findDeck=valg=>{
-    if(valg==="auto") return autoDeck();
-    const d=decks.find(x=>x.name===valg);
-    return d?d.cards.slice():autoDeck();
+  const findDeck=(valg,k)=>{
+    if(valg==="auto") return autoDeck(k);
+    const d=decks.find(x=>x.name===valg&&(x.cls||"tek")===k);
+    return d?d.cards.slice():autoDeck(k);
   };
 
   const opretOnline=async()=>{
     if(!onlineOK) return flash("Online play is not available in this edition.");
-    const deckIds=findDeck(deckValg);
-    const err=validateDeck(deckIds); if(err) return flash(err);
+    const deckIds=findDeck(deckValg,cls);
+    const err=validateDeck(deckIds,cls); if(err) return flash(err);
     const c=codeGen(); kode.current=c;
-    const lob={v:1,status:"venter",code:c,seq:1,host:{name:navn,cid:cid.current,deck:deckIds}};
+    const lob={v:1,status:"venter",code:c,seq:1,host:{name:navn,cid:cid.current,deck:deckIds,cls}};
     const ok=await stSet("spil:"+c,lob,true);
-    if(!ok) return flash("Couldn\u2019t create the game.");
+    if(!ok) return flash("Couldn’t create the game.");
     stSet("seat:"+c,0,false);
     setMode("online"); setSeat(0); setLobby(lob); setG(null); setSkaerm("spil");
   };
@@ -1678,10 +1833,11 @@ export default function App(){
       if(v.host.cid===cid.current){
         kode.current=c; setMode("online"); setSeat(0); setLobby(v); setG(null); setSkaerm("spil"); return;
       }
-      const deckIds=findDeck(deckValg);
-      const err=validateDeck(deckIds); if(err) return flash(err);
+      const deckIds=findDeck(deckValg,cls);
+      const err=validateDeck(deckIds,cls); if(err) return flash(err);
       const ng=mkState({mode:"online",code:c,names:[v.host.name,navn],
-        cids:[v.host.cid,cid.current],decks:[v.host.deck,deckIds]});
+        cids:[v.host.cid,cid.current],decks:[v.host.deck,deckIds],
+        classes:[v.host.cls||"tek",cls]});
       ng.seq=(v.seq||1)+1;
       kode.current=c; setMode("online"); setSeat(1); setLobby(null); setG(ng); setSkaerm("spil");
       stSet("seat:"+c,1,false);
@@ -1694,9 +1850,10 @@ export default function App(){
     }
   };
   const startLokal=()=>{
-    const d1=findDeck(deckValg), d2=findDeck(deckValg2);
-    let err=validateDeck(d1)||validateDeck(d2); if(err) return flash(err);
-    const ng=mkState({mode:"lokal",names:["Player 1","Player 2"],cids:["p1","p2"],decks:[d1,d2]});
+    const d1=findDeck(deckValg,cls), d2=findDeck(deckValg2,cls2);
+    let err=validateDeck(d1,cls)||validateDeck(d2,cls2); if(err) return flash(err);
+    const ng=mkState({mode:"lokal",names:["Player 1","Player 2"],cids:["p1","p2"],
+      decks:[d1,d2],classes:[cls,cls2]});
     kode.current=null; setMode("lokal"); setG(ng); setHandoff(true); setSkaerm("spil");
   };
   const tilMenu=()=>{ setG(null); setLobby(null); setMode(null); kode.current=null; setHandoff(false); setSkaerm("menu"); };
@@ -1716,14 +1873,15 @@ export default function App(){
     if(mode==="online"){ act(x=>{ x.rematch[seat]=true; return null; }); return; }
     const ng=mkState({mode,names:[g.players[0].name,g.players[1].name],
       cids:[g.players[0].cid,g.players[1].cid],
-      decks:[g.players[0].list,g.players[1].list]});
+      decks:[g.players[0].list,g.players[1].list],
+      classes:[g.players[0].cls,g.players[1].cls]});
     setG(ng); if(mode==="lokal") setHandoff(true);
   };
   const startSolo=()=>{
-    const d1=findDeck(deckValg), d2=findDeck(deckValg2);
-    let err=validateDeck(d1)||validateDeck(d2); if(err) return flash(err);
+    const d1=findDeck(deckValg,cls), d2=findDeck(deckValg2,cls2);
+    let err=validateDeck(d1,cls)||validateDeck(d2,cls2); if(err) return flash(err);
     const ng=mkState({mode:"solo",names:[(navn||"Technician").trim()||"Technician","🤖 The Bot"],
-      cids:[cid.current||"p1","bot"],decks:[d1,d2]});
+      cids:[cid.current||"p1","bot"],decks:[d1,d2],classes:[cls,cls2]});
     kode.current=null; setMode("solo"); setSeat(0); setHandoff(false); setG(ng); setSkaerm("spil");
   };
   const botSteps=useRef(0);
@@ -1741,10 +1899,10 @@ export default function App(){
   },[g,mode]);
   const sletSpil=async()=>{ if(kode.current) await stDel("spil:"+kode.current,true); tilMenu(); };
 
-  const deckMuligheder=(v,setV)=>(
+  const deckMuligheder=(v,setV,k)=>(
     <select value={v} onChange={e=>setV(e.target.value)}>
       <option value="auto">🎲 Auto deck (random)</option>
-      {decks.map(d=><option key={d.name} value={d.name}>🗂 {d.name}</option>)}
+      {decks.filter(d=>(d.cls||"tek")===k).map(d=><option key={d.name} value={d.name}>🗂 {d.name}</option>)}
     </select>
   );
 
@@ -1761,10 +1919,14 @@ export default function App(){
         </div>
         <div className="etiket">Your name</div>
         <input value={navn} maxLength={16} onChange={e=>gemNavn(e.target.value)}/>
+        <div className="etiket">Your class</div>
+        <ClassPick value={cls} onChange={setCls}/>
         <div className="etiket">Your deck</div>
-        {deckMuligheder(deckValg,setDeckValg)}
-        <div className="etiket">Opponent\u2019s deck (bot / player 2)</div>
-        {deckMuligheder(deckValg2,setDeckValg2)}
+        {deckMuligheder(deckValg,setDeckValg,cls)}
+        <div className="etiket">Opponent (bot / player 2)</div>
+        <ClassPick value={cls2} onChange={v=>{setCls2(v);setDeckValg2("auto");}}/>
+        <div style={{height:8}}/>
+        {deckMuligheder(deckValg2,setDeckValg2,cls2)}
         <div className="etiket">Solo</div>
         <button className="knap cu" onClick={startSolo}>🤖 Play vs the bot<small>Built-in opponent — great for learning the cards</small></button>
         {onlineOK ? <>

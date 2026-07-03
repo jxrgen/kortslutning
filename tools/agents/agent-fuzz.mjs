@@ -1,5 +1,5 @@
 // AGENT 2 — fuzzer: 1000 tilfældige spil med dybe invarianter efter hver handling
-import { E, fresh } from "./engine.mjs";
+import { E, fresh, KL } from "./engine.mjs";
 const rnd = n => Math.floor(Math.random() * n);
 const pick = a => a[rnd(a.length)];
 
@@ -28,7 +28,7 @@ function invarianter(g, hvor) {
 console.log("AGENT 2: fuzzer — 1000 spil");
 let done = 0, maxT = 0;
 for (let game = 0; game < 1000; game++) {
-  const g = fresh(rnd(2));
+  const g = fresh(rnd(2), KL[rnd(3)], KL[rnd(3)]);
   let safety = 0;
   while (g.status === "igang" && safety++ < 400) {
     const s = g.active, p = g.players[s];
@@ -42,9 +42,12 @@ for (let game = 0; game < 1000; game++) {
       invarianter(g, "efter " + c.id);
     }
     if (g.status === "igang" && !p.heroUsed && p.cur >= 2 && Math.random() < 0.35) {
-      const e = E.heroPower(g, s, pick(E.heroTargets(g, s)));
-      if (e) fejl.push("heroPower: " + e);
-      invarianter(g, "efter heroPower");
+      const ht = E.heroTargets(g, s);
+      if (ht.length) {
+        const e = E.heroPower(g, s, pick(ht));
+        if (e) fejl.push("heroPower: " + e);
+        invarianter(g, "efter heroPower");
+      }
     }
     if (g.status === "igang") for (const uid of p.board.map(u => u.uid)) {
       if (g.status !== "igang") break;

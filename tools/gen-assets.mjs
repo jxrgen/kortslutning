@@ -10,8 +10,8 @@ import sharp from "sharp";
 const src = readFileSync("kortslutning.jsx", "utf8");
 const end = src.indexOf("/* __ENGINE_END__ */");
 let code = src.slice(0, end).split("\n").filter(l => !l.startsWith("import ")).join("\n");
-code += ";return {CARDS, COLL};";
-const { CARDS, COLL } = new Function(code)();
+code += ";return {CARDS, COLL, CLASSES};";
+const { CARDS, COLL, CLASSES } = new Function(code)();
 const ALL = Object.keys(CARDS);
 
 // ---------- palette ----------
@@ -21,7 +21,9 @@ const P = {
   rod:"#ff6d5a", guld:"#ffd166", txt:"#dbe7de", dim:"#87a693", mork:"#1c1405",
 };
 const ACCENT = { Component:P.cu2, Robot:"#9fc0e8", Drone:P.fos, Virus:"#c76bd9", program:"#e8e05f", none:P.guld };
-const accentFor = d => d.t==="spell" ? ACCENT.program : (ACCENT[d.tr] || ACCENT.none);
+const clsCol = d => d.cls&&CLASSES[d.cls] ? CLASSES[d.cls].col : null;
+const accentFor = d => (d.cls&&d.t==="spell"&&CLASSES[d.cls]) ? CLASSES[d.cls].col
+  : d.t==="spell" ? ACCENT.spell : (ACCENT[d.tr] || ACCENT.none);
 
 // ---------- seedet PRNG pr. kort ----------
 function seedOf(str){ let h=2166136261; for(const c of str){ h^=c.charCodeAt(0); h=Math.imul(h,16777619); } return h>>>0; }
@@ -154,7 +156,9 @@ function cardSVG(id){
       ${quote?'font-style="italic"':""} fill="${quote?P.dim:P.txt}">${esc(l)}</text>`).join("\n");
 
   // typelinje
-  const typeTxt = (leg?"\u2605 LEGENDARY \u00B7 ":"") + (d.t==="spell"?"SPELL":"UNIT"+(d.tr?" \u00B7 "+d.tr.toUpperCase():"")) + (d.tok?" \u00B7 TOKEN":"");
+  const kc=clsCol(d);
+  const typeTxt = (leg?"\u2605 LEGENDARY \u00B7 ":"") + (kc?CLASSES[d.cls].n.toUpperCase()+" \u00B7 ":"")
+    + (d.t==="spell"?"SPELL":"UNIT"+(d.tr?" \u00B7 "+d.tr.toUpperCase():"")) + (d.tok?" \u00B7 TOKEN":"");
 
   // gold fingers
   let fingers="";
@@ -179,7 +183,7 @@ function cardSVG(id){
   <clipPath id="artclip"><rect x="52" y="${artY0}" width="${W-104}" height="${artY1-artY0}" rx="14"/></clipPath>
 </defs>
 <rect x="6" y="6" width="${W-12}" height="${H-12}" rx="36" fill="url(#bggrad)" stroke="${ramme}" stroke-width="${leg?9:6}"/>
-<rect x="22" y="22" width="${W-44}" height="${H-44}" rx="26" fill="none" stroke="${P.cu}" stroke-width="2" opacity="0.55"/>
+<rect x="22" y="22" width="${W-44}" height="${H-44}" rx="26" fill="none" stroke="${kc||P.cu}" stroke-width="${kc?3:2}" opacity="${kc?0.8:0.55}"/>
 ${circuitPattern(mulberry(seedOf(id+"bg")), 40, 620, W-40, H-70, P.cu, 5, 0.10)}
 <g clip-path="url(#artclip)">
   <rect x="52" y="${artY0}" width="${W-104}" height="${artY1-artY0}" fill="${P.bg0}"/>
@@ -193,7 +197,7 @@ ${circuitPattern(mulberry(seedOf(id+"bg")), 40, 620, W-40, H-70, P.cu, 5, 0.10)}
 <polygon points="95,28 152,61 152,127 95,160 38,127 38,61" fill="${P.amber}" stroke="${P.mork}" stroke-width="4"/>
 <text x="95" y="118" text-anchor="middle" font-family="DejaVu Sans" font-weight="bold" font-size="74" fill="${P.mork}">${d.c}</text>
 <text x="375" y="608" text-anchor="middle" font-family="DejaVu Sans Mono" font-size="26" letter-spacing="3"
-  fill="${leg?P.guld:P.dim}">${esc(typeTxt)}</text>
+  fill="${kc?kc:(leg?P.guld:P.dim)}">${esc(typeTxt)}</text>
 <line x1="80" y1="626" x2="${W-80}" y2="626" stroke="${P.line}" stroke-width="2"/>
 ${textSvg}
 ${stats}
@@ -242,7 +246,7 @@ for(const id of ALL){
   writeFileSync(`assets/svg/${id}.svg`, svg);
   await sharp(Buffer.from(svg)).png().toFile(`assets/png/${id}.png`);
   const d=CARDS[id];
-  manifest.push({ id, name:d.n, cost:d.c, type:d.t, tribe:d.tr||null, rarity:d.r||null,
+  manifest.push({ id, name:d.n, cost:d.c, type:d.t, cls:d.cls||null, tribe:d.tr||null, rarity:d.r||null,
     attack:d.a??null, health:d.h??null, keywords:d.kw||[], spellDamage:d.sig||0,
     token:!!d.tok, collectible:COLL.includes(id), text:d.txt||"",
     files:{ svg:`svg/${id}.svg`, png:`png/${id}.png` } });
@@ -252,7 +256,7 @@ writeFileSync("assets/svg/_bagside.svg", back);
 await sharp(Buffer.from(back)).png().toFile("assets/png/_bagside.png");
 
 // ---------- atlas ----------
-const CW=250, CH=350, COLS=10;
+const CW=230, CH=322, COLS=12;
 const ids=[...ALL, "_bagside"];
 const ROWS=Math.ceil(ids.length/COLS);
 const frames={};

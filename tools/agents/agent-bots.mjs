@@ -1,9 +1,9 @@
 // AGENT 3 — botduel: 400 bot-vs-bot-spil, balance- og stabilitetsstatistik
-import { E, fresh } from "./engine.mjs";
+import { E, fresh, KL } from "./engine.mjs";
 console.log("AGENT 3: botduel — 400 spil");
 let w = [0, 0, 0], ture = [], crash = 0;
 for (let game = 0; game < 400; game++) {
-  const g = fresh(game % 2);
+  const g = fresh(game % 2, KL[game % 3], KL[(game + 1) % 3]);
   let safety = 0;
   try {
     while (g.status === "igang" && safety++ < 400) {
