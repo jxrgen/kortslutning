@@ -6,7 +6,7 @@ import { resolve } from "path";
 // 1) lav test-entry med ekstra exports af de interne komponenter
 const src = readFileSync("kortslutning.jsx", "utf8");
 writeFileSync("_entry.jsx", src + `
-export { GameView, DeckBuilder, Regler, StorKort, MiniCard, Pips, UnitTile,
+export { CardArt, GameView, DeckBuilder, Regler, StorKort, MiniCard, Pips, UnitTile,
   mkState, playCard, unitAttack, attackTargets, endTurn, autoDeck, CARDS, COLL, clone };
 `);
 execSync("npx esbuild _entry.jsx --loader:.jsx=jsx --jsx=automatic --format=esm --bundle --external:react --external:react/jsx-runtime --outfile=_entry.mjs", { stdio: "inherit" });

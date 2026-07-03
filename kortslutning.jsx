@@ -703,9 +703,11 @@ const CSS = `
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body,#root{height:100%}
 .app{height:100dvh;display:flex;flex-direction:column;background:
+  radial-gradient(140% 105% at 50% 38%, transparent 55%, rgba(0,0,0,.45) 100%),
   radial-gradient(1200px 500px at 50% -10%, #16301f 0%, transparent 60%),
-  repeating-linear-gradient(0deg, transparent 0 34px, rgba(201,129,74,.06) 34px 35px),
-  repeating-linear-gradient(90deg, transparent 0 34px, rgba(201,129,74,.06) 34px 35px),
+  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='340' height='340'%3E%3Cg fill='none' stroke='%23c9814a' stroke-opacity='.075' stroke-width='2.5' stroke-linecap='round'%3E%3Cpath d='M25 50h95l35 35v80'/%3E%3Cpath d='M310 25v70l-45 45h-60'/%3E%3Cpath d='M60 300h110l30-30v-45'/%3E%3Cpath d='M250 315v-55l35-35'/%3E%3Cpath d='M20 190h55l25 25'/%3E%3C/g%3E%3Cg fill='%23c9814a' fill-opacity='.1'%3E%3Ccircle cx='25' cy='50' r='4'/%3E%3Ccircle cx='155' cy='165' r='4'/%3E%3Ccircle cx='310' cy='25' r='4'/%3E%3Ccircle cx='205' cy='140' r='4'/%3E%3Ccircle cx='60' cy='300' r='4'/%3E%3Ccircle cx='285' cy='225' r='4'/%3E%3Ccircle cx='100' cy='215' r='4'/%3E%3C/g%3E%3C/svg%3E"),
+  repeating-linear-gradient(0deg, transparent 0 34px, rgba(201,129,74,.035) 34px 35px),
+  repeating-linear-gradient(90deg, transparent 0 34px, rgba(201,129,74,.035) 34px 35px),
   var(--bg0);
   color:var(--txt);font-family:system-ui,sans-serif;overflow:hidden;user-select:none}
 button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
@@ -734,7 +736,7 @@ input:focus,select:focus{border-color:var(--cu)}
   background:repeating-linear-gradient(90deg,var(--guld) 0 4px,#3a2f12 4px 7px);opacity:.85}
 .mkort.leg{border-color:var(--guld)}
 .mkort.spil{border-color:var(--fos);box-shadow:0 0 10px rgba(95,224,160,.35);transform:translateY(-4px)}
-.mkort .em{font-size:26px;line-height:1}
+.mkort .art{width:40px;height:40px}
 .mkort .nv{font-size:8.5px;line-height:1.05;text-align:center;color:var(--txt);padding:0 3px;max-height:19px;overflow:hidden}
 .pris{position:absolute;top:-1px;left:-1px;background:var(--amber);color:#1c1405;font-family:var(--mono);
   font-weight:700;font-size:12px;min-width:20px;height:20px;border-radius:0 0 8px 0;display:flex;align-items:center;justify-content:center}
@@ -755,10 +757,10 @@ input:focus,select:focus{border-color:var(--cu)}
 .braet.op{border-bottom:1px dashed var(--line)}
 .enh{position:relative;width:58px;height:66px;border-radius:10px;background:linear-gradient(180deg,var(--bg2),var(--bg1));
   border:1.5px solid var(--line);display:flex;align-items:center;justify-content:center;transition:border-color .12s,box-shadow .12s}
-.enh .em{font-size:26px}
+.enh .art{width:40px;height:40px}
 .enh.klar{border-color:var(--fos);box-shadow:0 0 8px rgba(95,224,160,.3)}
 .enh.leg{border-color:var(--guld)}
-.enh.sover .em{opacity:.55}
+.enh.sover .art{opacity:.55}
 .enh .zz{position:absolute;top:1px;right:4px;font-size:11px;color:var(--dim)}
 .enh .ikoner{position:absolute;top:-8px;left:50%;transform:translateX(-50%);display:flex;gap:1px;
   font-size:9px;background:#0a140e;border:1px solid var(--line);border-radius:6px;padding:0 4px;white-space:nowrap;font-family:var(--mono)}
@@ -795,7 +797,7 @@ input:focus,select:focus{border-color:var(--cu)}
 .storkort::after{content:"";position:absolute;left:14px;right:14px;bottom:0;height:8px;border-radius:3px 3px 0 0;
   background:repeating-linear-gradient(90deg,var(--guld) 0 6px,#3a2f12 6px 10px);opacity:.85}
 .storkort .top{display:flex;gap:10px;align-items:center}
-.storkort .em{font-size:44px}
+.storkort .art.storart{width:82px;height:82px;flex:none}
 .storkort h3{font-family:var(--disp);letter-spacing:1px;font-size:20px;color:var(--cu2)}
 .storkort .meta{font-family:var(--mono);font-size:11px;color:var(--dim);margin-top:2px}
 .storkort .txt{margin:12px 0 14px;font-size:14px;line-height:1.45;color:var(--txt)}
@@ -820,7 +822,7 @@ input:focus,select:focus{border-color:var(--cu)}
 .turban{position:fixed;top:38%;left:0;right:0;z-index:30;text-align:center;font-family:var(--disp);
   font-size:38px;letter-spacing:4px;color:var(--fos);text-shadow:0 0 24px rgba(95,224,160,.6);
   animation:tur 1.6s forwards;pointer-events:none}
-@keyframes tur{0%{opacity:0;transform:scale(.8)}18%{opacity:1;transform:scale(1)}78%{opacity:1}100%{opacity:0}}
+@keyframes tur{0%{opacity:0;transform:scale(.8)}10%{opacity:1;transform:scale(1)}14%{opacity:.35}18%{opacity:1}22%{opacity:.5}26%{opacity:1;text-shadow:0 0 34px rgba(95,224,160,.9)}78%{opacity:1}100%{opacity:0}}
 /* ---- deckbygger ---- */
 .faner{display:flex;gap:8px;margin:10px 0}
 .fane{flex:1;text-align:center;padding:9px;border-radius:10px;border:1px solid var(--line);background:var(--bg1);
@@ -881,16 +883,38 @@ button:active{transform:scale(.97)}
 .fxflyv{position:fixed;font-size:42px;transform:translate(-50%,-50%);z-index:61;
   text-shadow:0 0 16px rgba(95,224,160,.9);animation:flyv .55s cubic-bezier(.3,.1,.55,1) forwards}
 @keyframes flyv{55%{opacity:1}100%{transform:translate(calc(-50% + var(--tx)),calc(-50% + var(--ty))) scale(.35);opacity:0}}
+.art{display:block;pointer-events:none}
+.art.dimart{opacity:.45}
+/* glans-sweep + legendarisk shimmer */
+.mkort::before{content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(115deg,transparent 32%,rgba(255,224,150,.26) 50%,transparent 68%);
+  transform:translateX(-135%)}
+.mkort.leg::before{animation:skin 4.4s ease-in-out infinite}
+.mkort.leg{animation:legpuls 3.2s ease-in-out infinite}
+@keyframes skin{14%{transform:translateX(135%)}100%{transform:translateX(135%)}}
+@keyframes legpuls{50%{box-shadow:0 0 16px rgba(255,209,102,.5),0 4px 10px rgba(0,0,0,.45)}}
+.enh.leg{animation:legpuls 3.2s ease-in-out infinite}
+@media (hover:hover){ .mkort:hover::before{animation:skin .75s ease-out 1} }
+.pip.gemt{animation:gemtpuls 1.9s ease-in-out infinite}
+@keyframes gemtpuls{50%{box-shadow:0 0 8px rgba(95,224,160,.8)}}
+.fxflyv{width:64px;height:78px;border-radius:10px;background:linear-gradient(180deg,var(--bg2),var(--bg1));
+  border:1.5px solid var(--fos);box-shadow:0 0 18px rgba(95,224,160,.55);
+  display:flex;align-items:center;justify-content:center;font-size:0}
+.fxflyv .art{width:44px;height:44px}
+.fxflyv.kurve{left:0;top:0;transform:none;offset-rotate:0deg;offset-anchor:50% 50%;
+  animation:flyvk .62s cubic-bezier(.32,.08,.55,1) forwards}
+@keyframes flyvk{0%{offset-distance:0%;opacity:0}10%{opacity:1}
+  100%{offset-distance:100%;opacity:0;transform:scale(.42)}}
 /* ---- store skærme / landscape ---- */
 @media (min-width:700px){
-  .mkort{width:74px;height:104px}.mkort .em{font-size:30px}.mkort .nv{font-size:9.5px}
-  .enh{width:68px;height:76px}.enh .em{font-size:30px}
+  .mkort{width:74px;height:104px}.mkort .art{width:46px;height:46px}.mkort .nv{font-size:9.5px}
+  .enh{width:68px;height:76px}.enh .art{width:46px;height:46px}
 }
 @media (min-width:900px) and (orientation:landscape){
   .spilflade{max-width:1500px;width:100%;margin:0 auto}
-  .mkort{width:92px;height:129px}.mkort .em{font-size:36px}.mkort .nv{font-size:11px;max-height:24px}
+  .mkort{width:92px;height:129px}.mkort .art{width:58px;height:58px}.mkort .nv{font-size:11px;max-height:24px}
   .mkort .stat{font-size:15px}.pris{font-size:15px;min-width:24px;height:24px}
-  .enh{width:88px;height:98px}.enh .em{font-size:40px}.enh .stat{font-size:16px}
+  .enh{width:88px;height:98px}.enh .art{width:58px;height:58px}.enh .stat{font-size:16px}
   .enh .ikoner{font-size:11px}
   .braet{gap:12px;min-height:110px}
   .bar{font-size:15px;padding:10px 24px}
@@ -921,7 +945,7 @@ function MiniCard({id,onClick,glow,count,style,dfx}){
     <button className={"mkort"+(d.r==="L"?" leg":"")+(glow?" spil":"")} onClick={onClick} style={style} data-fx={dfx}>
       <span className="pris">{d.c}</span>
       {count!=null && <span className="antal">{count}×</span>}
-      <span className="em">{d.e}</span>
+      <CardArt id={id}/>
       <span className="nv">{d.n}</span>
       {d.t==="unit" && <><span className="stat a">{d.a}</span><span className="stat h">{d.h}</span></>}
     </button>
@@ -935,7 +959,7 @@ function StorKort({id,unitInfo,g}){
   return (
     <div className={"storkort"+(d.r==="L"?" leg":"")}>
       <div className="top">
-        <span className="em">{d.e}</span>
+        <CardArt id={id} pattern={true} className="storart"/>
         <div>
           <h3>{d.n}</h3>
           <div className="meta">{d.c}⚡ · {d.t==="unit"?"Unit":"Spell"}{d.tr?" · "+d.tr:""}{d.r==="L"?" · ★ Legendary":""}</div>
@@ -976,7 +1000,7 @@ function UnitTile({g,s,u,mine,onClick,hilite,ready,shake}){
       onClick={onClick} data-fx={u.uid}>
       {ik.length>0 && <span className="ikoner">{ik.join("")}</span>}
       {u.sh && <span className="skjold"/>}
-      <span className="em" style={u.st?{opacity:.45}:null}>{d.e}</span>
+      <CardArt id={u.id} className={u.st?"dimart":undefined}/>
       {sover && <span className="zz">z</span>}
       <span className="stat a">{effAtk(g,s,u)}</span>
       <span className={"stat h"+(hp<mx?" skadet":"")}>{hp}</span>
@@ -996,6 +1020,103 @@ function HeltPlade({g,s,me,onClick,hilite,shake}){
   );
 }
 
+// ---------- kort-art (vektor, deterministisk pr. id) ----------
+const ARTC={bg:"#0c1811",bg2:"#173021",cu:"#c9814a"};
+function seedOf(str){ let h=2166136261; for(const c of str){ h^=c.charCodeAt(0); h=Math.imul(h,16777619); } return h>>>0; }
+function mulberry(a){ return function(){ a|=0; a=(a+0x6D2B79F5)|0; let t=Math.imul(a^(a>>>15),1|a);
+  t=(t+Math.imul(t^(t>>>7),61|t))^t; return ((t^(t>>>14))>>>0)/4294967296; }; }
+function artAccent(d){ return d.t==="spell"?"#e8e05f":({Component:"#e8a96a",Robot:"#9fc0e8",Drone:"#5fe0a0",Virus:"#c76bd9"}[d.tr]||"#ffd166"); }
+function circuitArt(rnd,x0,y0,x1,y1,color,n,op){
+  const G=25, snap=v=>Math.round(v/G)*G;
+  let out="";
+  for(let i=0;i<n;i++){
+    let x=snap(x0+rnd()*(x1-x0)), y=snap(y0+rnd()*(y1-y0));
+    let dd="M "+x+" "+y;
+    out+='<circle cx="'+x+'" cy="'+y+'" r="7" fill="none" stroke="'+color+'" stroke-width="4" opacity="'+op+'"/>';
+    const segs=1+Math.floor(rnd()*3);
+    let dir=rnd()<0.5?0:1;
+    for(let sg=0;sg<segs;sg++){
+      const len=G*(2+Math.floor(rnd()*5)), sgn=rnd()<0.5?-1:1;
+      if(rnd()<0.35){ let nx=Math.max(x0,Math.min(x1,x+sgn*len)), ny=Math.max(y0,Math.min(y1,y+(rnd()<0.5?-1:1)*len));
+        dd+=" L "+nx+" "+ny; x=nx; y=ny; }
+      else if(dir===0){ let nx=Math.max(x0,Math.min(x1,x+sgn*len)); dd+=" L "+nx+" "+y; x=nx; dir=1; }
+      else { let ny=Math.max(y0,Math.min(y1,y+sgn*len)); dd+=" L "+x+" "+ny; y=ny; dir=0; }
+    }
+    out+='<path d="'+dd+'" fill="none" stroke="'+color+'" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="'+op+'"/>';
+    if(rnd()<0.6) out+='<circle cx="'+x+'" cy="'+y+'" r="9" fill="'+ARTC.bg+'" stroke="'+color+'" stroke-width="4" opacity="'+op+'"/>';
+    else out+='<rect x="'+(x-8)+'" y="'+(y-8)+'" width="16" height="16" fill="'+color+'" opacity="'+op+'"/>';
+  }
+  return out;
+}
+function motifArt(d,ac,rnd){
+  const sc=(0.92+rnd()*0.16).toFixed(3);
+  const wrap=inner=>'<g transform="translate(375 345) scale('+sc+') translate(-375 -345)">'+inner+"</g>";
+  const sw=10;
+  if(d.t==="spell"){
+    const hex=[...Array(6)].map((_,i)=>{const a=Math.PI/3*i-Math.PI/6;
+      return (375+158*Math.cos(a)).toFixed(1)+","+(345+158*Math.sin(a)).toFixed(1);}).join(" ");
+    return wrap('<polygon points="'+hex+'" fill="none" stroke="'+ac+'" stroke-width="'+sw+'" stroke-linejoin="round"/>'
+      +'<polygon points="'+hex+'" fill="'+ac+'" opacity="0.07"/>'
+      +'<path d="M 402 232 L 322 372 L 372 372 L 344 462 L 434 318 L 380 318 Z" fill="'+ac+'" stroke="'+ARTC.bg+'" stroke-width="5" stroke-linejoin="round"/>');
+  }
+  if(d.tr==="Component"){
+    let ben="";
+    for(let i=0;i<6;i++){ const y=268+i*32;
+      ben+='<rect x="228" y="'+y+'" width="30" height="14" rx="4" fill="'+ac+'"/>'
+          +'<rect x="492" y="'+y+'" width="30" height="14" rx="4" fill="'+ac+'"/>'; }
+    return wrap(ben+'<rect x="258" y="245" width="234" height="200" rx="16" fill="'+ARTC.bg2+'" stroke="'+ac+'" stroke-width="'+sw+'"/>'
+      +'<circle cx="298" cy="285" r="11" fill="'+ac+'"/>'
+      +'<rect x="288" y="330" width="174" height="8" rx="4" fill="'+ac+'" opacity="0.55"/>'
+      +'<rect x="288" y="356" width="130" height="8" rx="4" fill="'+ac+'" opacity="0.35"/>');
+  }
+  if(d.tr==="Robot"){
+    return wrap('<line x1="375" y1="252" x2="375" y2="208" stroke="'+ac+'" stroke-width="'+sw+'"/>'
+      +'<circle cx="375" cy="196" r="13" fill="'+ac+'"/>'
+      +'<rect x="262" y="252" width="226" height="188" rx="28" fill="'+ARTC.bg2+'" stroke="'+ac+'" stroke-width="'+sw+'"/>'
+      +'<rect x="236" y="310" width="26" height="64" rx="8" fill="'+ac+'" opacity="0.7"/>'
+      +'<rect x="488" y="310" width="26" height="64" rx="8" fill="'+ac+'" opacity="0.7"/>'
+      +'<rect x="300" y="308" width="52" height="30" rx="8" fill="'+ac+'"/>'
+      +'<rect x="398" y="308" width="52" height="30" rx="8" fill="'+ac+'"/>'
+      +'<rect x="318" y="384" width="114" height="12" rx="6" fill="'+ac+'" opacity="0.6"/>');
+  }
+  if(d.tr==="Drone"){
+    const arm=(x2,y2)=>'<line x1="375" y1="345" x2="'+x2+'" y2="'+y2+'" stroke="'+ac+'" stroke-width="12" stroke-linecap="round"/>';
+    const rot=(x,y)=>'<circle cx="'+x+'" cy="'+y+'" r="52" fill="none" stroke="'+ac+'" stroke-width="8" opacity="0.85"/>'
+      +'<circle cx="'+x+'" cy="'+y+'" r="10" fill="'+ac+'"/>';
+    return wrap(arm(263,233)+arm(487,233)+arm(263,457)+arm(487,457)
+      +rot(263,233)+rot(487,233)+rot(263,457)+rot(487,457)
+      +'<rect x="327" y="311" width="96" height="68" rx="16" fill="'+ARTC.bg2+'" stroke="'+ac+'" stroke-width="'+sw+'"/>'
+      +'<circle cx="375" cy="345" r="13" fill="'+ac+'"/>');
+  }
+  if(d.tr==="Virus"){
+    let sp="";
+    for(let i=0;i<8;i++){ const a=Math.PI/4*i+Math.PI/8;
+      const x1=(375+96*Math.cos(a)).toFixed(1), y1=(345+96*Math.sin(a)).toFixed(1);
+      const x2=(375+152*Math.cos(a)).toFixed(1), y2=(345+152*Math.sin(a)).toFixed(1);
+      sp+='<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="'+ac+'" stroke-width="13" stroke-linecap="round"/>'
+         +'<circle cx="'+x2+'" cy="'+y2+'" r="15" fill="'+ac+'"/>'; }
+    return wrap(sp+'<circle cx="375" cy="345" r="96" fill="'+ARTC.bg2+'" stroke="'+ac+'" stroke-width="'+sw+'"/>'
+      +'<circle cx="345" cy="322" r="14" fill="'+ac+'" opacity="0.85"/>'
+      +'<circle cx="404" cy="352" r="19" fill="'+ac+'" opacity="0.6"/>'
+      +'<circle cx="358" cy="386" r="10" fill="'+ac+'" opacity="0.75"/>');
+  }
+  return wrap('<circle cx="375" cy="345" r="120" fill="none" stroke="'+ac+'" stroke-width="8" opacity="0.9"/>'
+    +'<circle cx="375" cy="345" r="150" fill="none" stroke="'+ac+'" stroke-width="3" opacity="0.4"/>'
+    +'<path d="M 375 205 L 405 315 L 515 345 L 405 375 L 375 485 L 345 375 L 235 345 L 345 315 Z" fill="'+ac+'" stroke="'+ARTC.bg+'" stroke-width="5" stroke-linejoin="round"/>');
+}
+function CardArt({id,pattern,className}){
+  const inner=useMemo(()=>{
+    const d=CARDS[id], ac=artAccent(d), rnd=mulberry(seedOf(id));
+    let out="";
+    if(pattern) out+=circuitArt(mulberry(seedOf(id+"p")),190,165,560,535,ARTC.cu,7,0.3)
+                    +circuitArt(mulberry(seedOf(id+"q")),190,165,560,535,ac,3,0.2);
+    out+=motifArt(d,ac,rnd);
+    return out;
+  },[id,pattern]);
+  return <svg className={"art"+(className?" "+className:"")} viewBox="172 148 406 414"
+    dangerouslySetInnerHTML={{__html:inner}}/>;
+}
+
 function zigzag(a,b){
   const N=9, pts=[];
   const dx=b.y-a.y, dy=-(b.x-a.x), L=Math.hypot(dx,dy)||1;
@@ -1006,9 +1127,19 @@ function zigzag(a,b){
       const j=(Math.random()-0.5)*32*Math.sin(Math.PI*t)+(Math.random()-0.5)*8;
       x+=dx/L*j; y+=dy/L*j;
     }
-    pts.push(x.toFixed(1)+","+y.toFixed(1));
+    pts.push({x,y});
   }
-  return pts.join(" ");
+  const main=pts.map(p=>p.x.toFixed(1)+","+p.y.toFixed(1)).join(" ");
+  const br=[];
+  for(const idx of [3,6]){
+    const p=pts[idx]; if(!p) continue;
+    const ang=Math.random()*Math.PI*2, len=16+Math.random()*24;
+    const mx=p.x+Math.cos(ang)*len*0.55+(Math.random()-0.5)*8;
+    const my=p.y+Math.sin(ang)*len*0.55+(Math.random()-0.5)*8;
+    br.push(p.x.toFixed(1)+","+p.y.toFixed(1)+" "+mx.toFixed(1)+","+my.toFixed(1)+" "
+      +(p.x+Math.cos(ang)*len).toFixed(1)+","+(p.y+Math.sin(ang)*len).toFixed(1));
+  }
+  return {main,br};
 }
 
 // ---------- spilskærm ----------
@@ -1041,6 +1172,8 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
     const nye=fx.filter(e=>e.k>fxDone.current);
     if(fx.length) fxDone.current=fx[fx.length-1].k;
     if(!nye.length) return;
+    const redMo=typeof window!=="undefined"&&window.matchMedia
+      &&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const add=[], sh=[];
     for(const e of nye){
       const d=add.length*0.06, kk=e.k;
@@ -1052,21 +1185,37 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
         add.push({key:"t"+kk,type:"tal",x:P.x,y:P.y,txt:"+"+e.n,c:"var(--fos)",d});
         add.push({key:"r"+kk,type:"ring",x:P.x,y:P.y,c:"var(--fos)",d}); }
       else if(e.t==="boom"){ const P=posOf(e.s,e.u); if(!P) continue;
-        add.push({key:"b"+kk,type:"burst",x:P.x,y:P.y,n:14,c:"var(--cu2)",stor:true,d}); }
+        add.push({key:"b"+kk,type:"burst",x:P.x,y:P.y,n:14,c:"var(--cu2)",stor:true,d});
+        if(!redMo){ const fl=document.querySelector(".spilflade");
+          if(fl&&fl.animate) fl.animate(
+            [{transform:"translate(0,0)"},{transform:"translate(-5px,2px)"},{transform:"translate(4px,-2px)"},{transform:"translate(-2px,1px)"},{transform:"translate(0,0)"}],
+            {duration:260,delay:d*1000}); } }
       else if(e.t==="skjold"){ const P=posOf(e.s,e.u); if(!P) continue;
         add.push({key:"r"+kk,type:"ring",x:P.x,y:P.y,c:"var(--guld)",d}); }
       else if(e.t==="pop"){ const P=posOf(e.s,e.u); if(!P) continue;
         add.push({key:"b"+kk,type:"burst",x:P.x,y:P.y,n:6,c:"var(--fos)",d}); }
       else if(e.t==="cast"){ const P=posOf(e.s,null); if(!P) continue;
         add.push({key:"r"+kk,type:"ring",x:P.x,y:P.y,c:"var(--amber)",d}); }
+      else if(e.t==="zap"&&e.art==="melee"){
+        const P1=posOf(e.fs,e.fu), P2=posOf(e.ts,e.tu); if(!P1||!P2) continue;
+        if(!redMo){ const el=document.querySelector('[data-fx="'+e.fu+'"]');
+          if(el&&el.animate){ const lx=(P2.x-P1.x)*0.7, ly=(P2.y-P1.y)*0.7;
+            el.animate([{transform:"translate(0,0)"},
+              {transform:"translate("+lx+"px,"+ly+"px) scale(1.07)",offset:0.42},
+              {transform:"translate(0,0)"}],
+              {duration:330,easing:"cubic-bezier(.34,.65,.3,1)",delay:d*1000}); } }
+        add.push({key:"b"+kk,type:"burst",x:P2.x,y:P2.y,n:8,c:"var(--amber)",d:d+0.13}); }
       else if(e.t==="zap"){ const P1=posOf(e.fs,e.fu), P2=posOf(e.ts,e.tu); if(!P1||!P2) continue;
         add.push({key:"z"+kk,type:"zap",p1:P1,p2:P2,art:e.art,d}); }
       else if(e.t==="spil"){ const fra=posOf(e.s,e.hu)||posOf(e.s,null); if(!fra) continue;
         const til=e.ts!=null?posOf(e.ts,e.tu):null;
         const cx=(typeof window!=="undefined"?window.innerWidth/2:400);
         const cy=(typeof window!=="undefined"?window.innerHeight/2:400);
-        add.push({key:"f"+kk,type:"flyv",x:fra.x,y:fra.y,
-          tx:(til?til.x:cx)-fra.x,ty:(til?til.y:cy)-fra.y,id:e.id,d}); }
+        const mx=til?til.x:cx, my=til?til.y:cy;
+        const kurve=typeof CSS!=="undefined"&&CSS.supports&&CSS.supports("offset-path",'path("M0 0 L1 1")');
+        add.push({key:"f"+kk,type:"flyv",x:fra.x,y:fra.y,tx:mx-fra.x,ty:my-fra.y,id:e.id,d,
+          op:kurve?('path("M '+fra.x.toFixed(0)+' '+fra.y.toFixed(0)+' Q '+((fra.x+mx)/2).toFixed(0)+' '
+            +(Math.min(fra.y,my)-110).toFixed(0)+' '+mx.toFixed(0)+' '+my.toFixed(0)+'")'):null}); }
     }
     if(add.length){
       setSparks(x=>[...x,...add]);
@@ -1181,13 +1330,16 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
                 return <i key={i} style={{color:f.c,"--dx":(Math.cos(a)*r).toFixed(0)+"px","--dy":(Math.sin(a)*r).toFixed(0)+"px",...ds}}/>;
               })}
             </div>);
-          if(f.type==="flyv") return <div key={f.key} className="fxflyv" style={{left:f.x,top:f.y,"--tx":f.tx+"px","--ty":f.ty+"px"}}>{CARDS[f.id].e}</div>;
+          if(f.type==="flyv") return f.op
+            ? <div key={f.key} className="fxflyv kurve" style={{offsetPath:f.op}}><CardArt id={f.id}/></div>
+            : <div key={f.key} className="fxflyv" style={{left:f.x,top:f.y,"--tx":f.tx+"px","--ty":f.ty+"px"}}><CardArt id={f.id}/></div>;
           if(f.type==="zap"){
-            const pts=zigzag(f.p1,f.p2), c=f.art==="spell"?"var(--fos)":"var(--amber)";
+            const Z=zigzag(f.p1,f.p2), c=f.art==="spell"?"var(--fos)":"var(--amber)";
             return (
               <svg key={f.key} className={"fxzap"+(f.art==="spell"?" spell":"")} style={ds}>
-                <polyline points={pts} fill="none" stroke={c} strokeWidth="3.5" strokeLinejoin="round"/>
-                <polyline points={pts} fill="none" stroke="#ffffff" strokeWidth="1.3" opacity="0.9" strokeLinejoin="round"/>
+                <polyline points={Z.main} fill="none" stroke={c} strokeWidth="3.5" strokeLinejoin="round"/>
+                {Z.br.map((b,i)=><polyline key={i} points={b} fill="none" stroke={c} strokeWidth="2" opacity="0.7" strokeLinejoin="round"/>)}
+                <polyline points={Z.main} fill="none" stroke="#ffffff" strokeWidth="1.3" opacity="0.9" strokeLinejoin="round"/>
               </svg>);
           }
           return null;
