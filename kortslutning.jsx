@@ -688,7 +688,7 @@ function mkState(cfg){
     turn:0, active:starter, n:1, last:null, log:[], fx:[], fxk:0, rematch:[false,false],
     players:[ mkPlayer(cfg.names[0],cfg.cids[0],cfg.decks[0],cfg.classes&&cfg.classes[0]),
               mkPlayer(cfg.names[1],cfg.cids[1],cfg.decks[1],cfg.classes&&cfg.classes[1]) ] };
-  log(g,"⚡ KORTSLUTNING — "+g.players[0].name+" vs "+g.players[1].name+".");
+  log(g,"⚡ CARDWARE CRASH — "+g.players[0].name+" vs "+g.players[1].name+".");
   log(g,"🎲 "+g.players[starter].name+" goes first.");
   for(let i=0;i<3;i++){ draw(g,starter,1); }
   for(let i=0;i<4;i++){ draw(g,1-starter,1); }
@@ -2335,14 +2335,14 @@ export default function App(){
 
   let indhold=null;
   if(skaerm==="indlaeser"){
-    indhold=<div className="centrer"><div className="logo">KORT<b>SLUTNING</b></div><div className="ulinie">booting…</div></div>;
+    indhold=<div className="centrer"><div className="logo">CARD<b>WARE</b> CRASH</div><div className="ulinie">booting…</div></div>;
   }
   else if(skaerm==="menu"){
     indhold=(
       <div className="pane">
         <div style={{textAlign:"center",marginTop:14}}>
-          <div className="logo">KORT<b>SLUTNING</b></div>
-          <div className="ulinie">// 2-player electronics card game · 100 cards · class: The Technician</div>
+          <div className="logo">CARD<b>WARE</b> CRASH</div>
+          <div className="ulinie">// 2-player electronics card game · 134 cards · 3 classes</div>
         </div>
         <div className="etiket">Your name</div>
         <input value={navn} maxLength={16} onChange={e=>gemNavn(e.target.value)}/>

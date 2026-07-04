@@ -32,14 +32,14 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}">
 <rect width="${W}" height="${H}" fill="url(#g)"/>
 ${traces}
 ${cards}
-<rect x="0" y="0" width="${W}" height="230" fill="#0c1811" opacity="0.35"/>
-<text x="600" y="108" text-anchor="middle" font-family="DejaVu Sans Mono" font-weight="bold"
-  font-size="86" letter-spacing="6" fill="#5fe0a0">KORT<tspan fill="#f0b23e">SLUT</tspan>NING</text>
-<text x="600" y="158" text-anchor="middle" font-family="DejaVu Sans" font-size="27" fill="#dff0e4">
-  Build your deck. Manage the heat. Short-circuit your rival.</text>
-<text x="600" y="196" text-anchor="middle" font-family="DejaVu Sans Mono" font-size="19" fill="#7fa38c">
-  free in your browser \u00B7 134 cards \u00B7 3 classes</text>
-</svg>`;
+<rect x="0" y="0" width="${W}" height="240" fill="#0c1811" opacity="0.4"/>
+<text x="600" y="98" text-anchor="middle" font-family="DejaVu Sans Mono" font-weight="bold"
+  font-size="80" letter-spacing="5" fill="#5fe0a0">CARD<tspan fill="#f0b23e">WARE</tspan></text>
+<text x="600" y="178" text-anchor="middle" font-family="DejaVu Sans Mono" font-weight="bold"
+  font-size="90" letter-spacing="14" fill="#ff5a4d">CRASH</text>
+<text x="600" y="216" text-anchor="middle" font-family="DejaVu Sans" font-size="24" fill="#dff0e4">
+  Build your deck. Manage the heat. Crash your rival\u2019s system.</text>
+<g opacity="0.12">${[...Array(20)].map((_,i)=>`<rect x="0" y="${i*32}" width="${W}" height="2" fill="#000"/>`).join("")}</g></svg>`;
 
 await sharp(Buffer.from(svg)).png().toFile("web/og.png");
 console.log("og.png OK");
