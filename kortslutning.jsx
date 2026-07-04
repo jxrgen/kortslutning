@@ -1100,6 +1100,23 @@ button:active{transform:scale(.97)}
   animation:flyvk .62s cubic-bezier(.32,.08,.55,1) forwards}
 @keyframes flyvk{0%{offset-distance:0%;opacity:0}10%{opacity:1}
   100%{offset-distance:100%;opacity:0;transform:scale(.42)}}
+/* ---- hover-tooltip ---- */
+.ctip{position:absolute;bottom:calc(100% + 10px);left:50%;transform:translateX(-50%) translateY(6px);
+  width:210px;background:linear-gradient(180deg,#14251b,#0b160f);border:1.5px solid var(--ce,#5fe0a0);
+  border-radius:12px;padding:10px 12px;text-align:left;z-index:80;pointer-events:none;
+  opacity:0;transition:opacity .12s,transform .12s;box-shadow:0 12px 30px rgba(0,0,0,.6);
+  font-family:system-ui,-apple-system,"Segoe UI",sans-serif;white-space:normal}
+.mkort.hastip:hover .ctip{opacity:1;transform:translateX(-50%) translateY(0)}
+.ctip::after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);
+  border:7px solid transparent;border-top-color:var(--ce,#5fe0a0)}
+.ctip-h{display:flex;align-items:baseline;gap:7px;margin-bottom:3px}
+.ctip-c{font-family:var(--mono);font-weight:700;color:var(--amber);font-size:13px}
+.ctip-n{font-weight:700;color:#eaf6ee;font-size:14px;line-height:1.15}
+.ctip-t{font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:.03em;margin-bottom:5px}
+.ctip-s{font-family:var(--mono);font-size:13px;color:#eaf6ee;margin-bottom:5px}
+.ctip-k{font-family:var(--mono);font-size:11px;color:var(--fos);margin-bottom:5px;line-height:1.3}
+.ctip-x{font-size:12px;color:#cfe6d6;line-height:1.4}
+@media (hover:none){ .ctip{display:none} }
 /* ---- angreb/targeting ---- */
 .spilflade.targeting .enh:not(.tgt),.spilflade.targeting .helt:not(.tgt){opacity:.4;filter:saturate(.5)}
 .spilflade.targeting .mkort{opacity:.4}
@@ -1168,16 +1185,39 @@ function themeVars(d){
   const t=(d.cls&&CARDTHEME[d.cls])||(d.t==="spell"&&CARDTHEME.spell)||(d.tr&&CARDTHEME[d.tr])||CARDTHEME.none;
   return {"--ct":t[0],"--cb":t[1],"--ce":t[2]};
 }
-function MiniCard({id,onClick,glow,count,style,dfx,xcls}){
+function cardKws(d){
+  const out=[];
+  if(d.kw) for(const k of d.kw){ if(KWINFO[k]) out.push(KWINFO[k].n); }
+  if(d.sig) out.push("Signal Strength +"+d.sig);
+  return out;
+}
+function CardTip({id}){
+  const d=CARDS[id];
+  const kws=cardKws(d);
+  return (
+    <div className="ctip">
+      <div className="ctip-h">
+        <span className="ctip-c">{d.c}⚡</span>
+        <span className="ctip-n">{d.n}</span>
+      </div>
+      <div className="ctip-t">{d.t==="unit"?"Unit":"Spell"}{d.tr?" · "+d.tr:""}{d.cls&&CLASSES[d.cls]?" · "+CLASSES[d.cls].n:""}{d.r==="L"?" · ★ Legendary":""}</div>
+      {d.t==="unit" && <div className="ctip-s">⚔ {d.a} &nbsp; ❤ {d.h}</div>}
+      {kws.length>0 && <div className="ctip-k">{kws.join(" · ")}</div>}
+      {d.txt && <div className="ctip-x">{d.txt}</div>}
+    </div>
+  );
+}
+function MiniCard({id,onClick,glow,count,style,dfx,xcls,tip}){
   const d=CARDS[id];
   return (
-    <button className={"mkort tema"+(d.r==="L"?" leg":"")+(glow?" spil":"")+(xcls?" "+xcls:"")} onClick={onClick} style={{...themeVars(d),...style}} data-fx={dfx}>
+    <button className={"mkort tema"+(d.r==="L"?" leg":"")+(glow?" spil":"")+(xcls?" "+xcls:"")+(tip?" hastip":"")} onClick={onClick} style={{...themeVars(d),...style}} data-fx={dfx}>
       <span className="pris">{d.c}</span>
       {count!=null && <span className="antal">{count}×</span>}
       {d.cls&&CLASSES[d.cls]&&<span className="clsdot" style={{background:CLASSES[d.cls].col}}/>}
       <CardArt id={id}/>
       <span className="nv">{d.n}</span>
       {d.t==="unit" && <><span className="stat a">{d.a}</span><span className="stat h">{d.h}</span></>}
+      {tip && <CardTip id={id}/>}
     </button>
   );
 }
@@ -1729,7 +1769,10 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
       const ts=attackTargets(g,seat,u.uid);
       if(ts.length){
         if(!tOK("atk",u.id)){nope();return;}
-        setT({atk:true,list:ts,label:"⚔ "+CARDS[u.id].n+" angriber — tryk på et rødt mål",run:r=>act(x=>unitAttack(x,seat,u.uid,r))}); return; }
+        const label = ts.some(r=>r.u==null)
+          ? "⚔ "+CARDS[u.id].n+" attacking — tap a red target"
+          : "⚔ "+CARDS[u.id].n+" — Turbo can hit units only its first turn (hero next turn)";
+        setT({atk:true,list:ts,label,run:r=>act(x=>unitAttack(x,seat,u.uid,r))}); return; }
     }
     setSel({kind:"info",id:u.id,unit:{s:rs,uid:u.uid}});
   };
@@ -1741,9 +1784,11 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
     const c=sel; if(!c) return;
     if(!tOK("play",c.id)){ nope(); return; }
     const {need,list}=targetsForCard(g,seat,c.id,null);
-    if(need&&list.length){
+    if(need&&list.length>1){
       setSel(null);
       setT({list,label:"▶ "+CARDS[c.id].n+" — choose a target",run:r=>act(x=>playCard(x,seat,c.uid,r))});
+    } else if(need&&list.length===1){
+      setSel(null); act(x=>playCard(x,seat,c.uid,list[0]));
     } else { setSel(null); act(x=>playCard(x,seat,c.uid,null)); }
   };
   const kraft=()=>{
@@ -1762,7 +1807,7 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
 
   return (
     <div className={"spilflade"+(tmode?" targeting":"")+(tmode&&tmode.atk?" atkmode":"")}>
-      {tmode && <button className={"banner"+(tmode.atk?" atk":"")} onClick={()=>setT(null)}>{tmode.label}<span className="bx">· tryk her for at fortryde</span></button>}
+      {tmode && <button className={"banner"+(tmode.atk?" atk":"")} onClick={()=>setT(null)}>{tmode.label}<span className="bx">· tap here to cancel</span></button>}
       {turban>0 && myTurn && !slut && <div key={turban} className="turban">YOUR TURN</div>}
 
       {/* modstander */}
@@ -1789,7 +1834,7 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
       </div>
 
       {kanAngribe>0 && mode!=="tutorial" &&
-        <div className="atkhint">⚔ Tryk på en enhed med sværd-mærke, og dernæst på det du vil angribe</div>}
+        <div className="atkhint">⚔ Tap a unit with a sword badge, then tap what you want to attack</div>}
       <div className="braet">
         {me.board.length===0&&<span style={{color:"var(--dim)",fontFamily:"var(--mono)",fontSize:11}}>— empty board —</span>}
         {me.board.map(u=>
@@ -1810,7 +1855,7 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
         {me.hand.length===0&&<span style={{color:"var(--dim)",fontFamily:"var(--mono)",fontSize:11,alignSelf:"center"}}>hand is empty</span>}
         {me.hand.map((c,i)=>{
           const o=i-(me.hand.length-1)/2;
-          return <MiniCard key={c.uid} id={c.id} dfx={c.uid} xcls={hiB("hand:"+c.id)?"tuthi":""} glow={myTurn&&canPlay(g,seat,c.id)}
+          return <MiniCard key={c.uid} id={c.id} dfx={c.uid} tip={true} xcls={hiB("hand:"+c.id)?"tuthi":""} glow={myTurn&&canPlay(g,seat,c.id)}
             style={{"--o":o,"--a":Math.abs(o)}}
             onClick={()=>{ if(tmode){setT(null);return;} setSel({kind:"hand",id:c.id,uid:c.uid}); }}/>;})}
       </div>

@@ -7,7 +7,7 @@
   "scripts": {
     "test": "node test/test.mjs",
     "test:ui": "node test/testui.mjs",
-    "agents": "node tools/agents/agent-rules.mjs && node tools/agents/agent-fuzz.mjs && node tools/agents/agent-bots.mjs",
+    "agents": "node tools/agents/agent-rules.mjs && node tools/agents/agent-effects.mjs && node tools/agents/agent-fuzz.mjs && node tools/agents/agent-bots.mjs",
     "build:assets": "node tools/gen-assets.mjs",
     "build:web": "node tools/build-web.mjs"
   },
