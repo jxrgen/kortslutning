@@ -783,6 +783,77 @@ function botAction(g,s){
   botApply(g,s,best);
   return true;
 }
+
+// ---------- interaktiv tutorial ----------
+// Scripted forløb: fast hånd/deck, dum modstander (TUTOR-9000, 7 HP), trin med
+// instruktion (t), fremhævninger (hi), tilladte handlinger (allow) og done-prædikat.
+function tutPlay(g,id){
+  const p=g.players[1];
+  const uid="to"+(g.n++);
+  p.hand.push({uid,id}); p.cur=99;
+  playCard(g,1,uid,null);
+}
+const TUT={
+  mk(name){
+    const filler=Array(14).fill("u_modstand");
+    const g=mkState({mode:"tutorial",names:[(name||"Technician").trim()||"Technician","TUTOR-9000"],
+      cids:["p1","tut"],decks:[autoDeck("tek"),autoDeck("tek")],classes:["tek","tek"],starter:0});
+    const p0=g.players[0], p1=g.players[1];
+    p0.hand=[{uid:"tc1",id:"u_spole"},{uid:"tc2",id:"s_kortslut"}];
+    p0.deck=filler.concat(["u_led","u_kampdrone","s_spids"]);
+    p1.hand=[]; p1.deck=filler.slice();
+    p1.hp=7;
+    g.log=[]; log(g,"🎓 Tutorial started — TUTOR-9000 runs on a low battery (7 HP).");
+    return g;
+  },
+  opp:{
+    2(g){ tutPlay(g,"u_modstand"); },
+    4(g){ tutPlay(g,"u_led"); },
+    6(g){ tutPlay(g,"u_kampdrone");
+      const d=g.players[1].board.find(u=>u.id==="u_kampdrone");
+      const c=g.players[0].board.find(u=>u.id==="u_spole");
+      if(d&&c) unitAttack(g,1,d.uid,{s:0,u:c.uid}); },
+    8(g){ log(g,"🤖 TUTOR-9000 idles. It believes in you."); },
+  },
+  steps:[
+    { t:"Welcome, Technician! ⚡ You have 1 energy — Coil costs 2. End your turn: unspent energy is stored in your capacitor bank 🔋.",
+      hi:["end"], allow:{end:1}, done:g=>g.turn>1 },
+    { t:"TUTOR-9000 plays a Resistor. Note the ⏚ — Grounded units must be attacked first.",
+      hi:[], allow:{}, done:g=>g.turn===3 },
+    { t:"3⚡ this turn: 2 new + 1 from the bank. Play your Coil!",
+      hi:["hand:u_spole"], allow:{play:"u_spole"}, done:g=>g.players[0].board.some(u=>u.id==="u_spole") },
+    { t:"Units sleep the turn they arrive (unless they have Turbo »). End your turn.",
+      hi:["end"], allow:{end:1}, done:g=>g.turn===4 },
+    { t:"An LED lights up on the other side…",
+      hi:[], allow:{}, done:g=>g.turn===5 },
+    { t:"Attack! Tap your Coil, then the Resistor — the ⏚ Grounded unit blocks everything else.",
+      hi:["unit:u_spole","eunit:u_modstand"], allow:{atk:"u_spole"},
+      done:g=>g.players[1].board.some(u=>u.id==="u_modstand"&&u.dmg>0) },
+    { t:"It survived with 1 HP! Your hero power 🔧 Soldering Iron (2⚡) can finish it off.",
+      hi:["kraft","eunit:u_modstand"], allow:{power:1,tgtUnit:"u_modstand"},
+      done:g=>g.players[0].heroUsed&&!g.players[1].board.some(u=>u.id==="u_modstand") },
+    { t:"Spells can hit anything targetable. Short Circuit the enemy hero!",
+      hi:["hand:s_kortslut","h1"], allow:{play:"s_kortslut",tgtHero:1},
+      done:g=>g.players[1].hp<=5 },
+    { t:"Out of energy — end your turn.",
+      hi:["end"], allow:{end:1}, done:g=>g.turn===6 },
+    { t:"Turbo » units can attack units immediately — the Combat Drone rams your Coil and breaks down.",
+      hi:[], allow:{}, done:g=>g.turn===7 },
+    { t:"Voltage Spike deals 3 damage, but Overheat (1) locks 1⚡ next turn. Fire at the hero!",
+      hi:["hand:s_spids","h1"], allow:{play:"s_spids",tgtHero:1},
+      done:g=>g.players[1].hp<=2 },
+    { t:"Deploy your own Combat Drone. Turbo » works on units only — heroes must wait a turn.",
+      hi:["hand:u_kampdrone"], allow:{play:"u_kampdrone"},
+      done:g=>g.players[0].board.some(u=>u.id==="u_kampdrone") },
+    { t:"End your turn — and note the ⚠ Overheat warning on your energy bar.",
+      hi:["end"], allow:{end:1}, done:g=>g.turn===8 },
+    { t:"TUTOR-9000 idles…",
+      hi:[], allow:{}, done:g=>g.turn===9 },
+    { t:"See it? 1⚡ is locked by Overheat. Now finish it — attack the hero with your Drone!",
+      hi:["unit:u_kampdrone","h1"], allow:{any:1}, done:g=>g.status==="slut" },
+  ],
+};
+
 /* __ENGINE_END__ */
 
 /* ============================================================
@@ -1013,6 +1084,19 @@ button:active{transform:scale(.97)}
   animation:flyvk .62s cubic-bezier(.32,.08,.55,1) forwards}
 @keyframes flyvk{0%{offset-distance:0%;opacity:0}10%{opacity:1}
   100%{offset-distance:100%;opacity:0;transform:scale(.42)}}
+/* ---- tutorial ---- */
+.coach{position:fixed;left:50%;transform:translateX(-50%);bottom:178px;z-index:55;
+  display:flex;gap:10px;align-items:flex-start;max-width:470px;width:calc(100% - 26px);
+  background:linear-gradient(180deg,#12251a,#0e1d14);border:1.5px solid var(--fos);border-radius:14px;
+  padding:11px 12px;box-shadow:0 10px 34px rgba(0,0,0,.55),0 0 18px rgba(95,224,160,.18)}
+.coach .cava{font-size:24px;line-height:1.2}
+.coach .ctxt{font-size:13.5px;line-height:1.45}
+.coach .cnum{font-family:var(--mono);font-size:10.5px;color:var(--dim);margin-top:4px}
+.coach .cx{margin-left:auto;background:none;border:none;color:var(--dim);font-size:15px;padding:2px 4px}
+.coach.wob{animation:ryst .4s ease-in-out}
+.tuthi{outline:2.5px solid var(--fos);outline-offset:2px;animation:tutpuls 1.15s ease-in-out infinite;z-index:5}
+@keyframes tutpuls{50%{outline-color:rgba(95,224,160,.15);box-shadow:0 0 20px rgba(95,224,160,.65)}}
+@media (min-width:900px) and (orientation:landscape){ .coach{bottom:212px} }
 /* ---- store skærme / landscape ---- */
 @media (min-width:700px){
   .mkort{width:74px;height:104px}.mkort .art{width:46px;height:46px}.mkort .nv{font-size:9.5px}
@@ -1047,10 +1131,10 @@ function kwIkoner(g,s,u){
   if(!u.sil && CARDS[u.id].sig) out.push("📶");
   return out;
 }
-function MiniCard({id,onClick,glow,count,style,dfx}){
+function MiniCard({id,onClick,glow,count,style,dfx,xcls}){
   const d=CARDS[id];
   return (
-    <button className={"mkort"+(d.r==="L"?" leg":"")+(glow?" spil":"")} onClick={onClick} style={style} data-fx={dfx}>
+    <button className={"mkort"+(d.r==="L"?" leg":"")+(glow?" spil":"")+(xcls?" "+xcls:"")} onClick={onClick} style={style} data-fx={dfx}>
       <span className="pris">{d.c}</span>
       {count!=null && <span className="antal">{count}×</span>}
       {d.cls&&CLASSES[d.cls]&&<span className="clsdot" style={{background:CLASSES[d.cls].col}}/>}
@@ -1100,13 +1184,13 @@ function Pips({p}){
   for(let i=0;i<p.stored;i++) el.push(<span key={"g"+i} className="pip gemt"/>);
   return <span className="pips">{el}<span style={{marginLeft:5,color:"var(--amber)"}}>{p.cur}⚡</span></span>;
 }
-function UnitTile({g,s,u,mine,onClick,hilite,ready,shake}){
+function UnitTile({g,s,u,mine,onClick,hilite,ready,shake,tuthi}){
   const d=CARDS[u.id];
   const hp=effHp(g,s,u), mx=effMax(g,s,u);
   const ik=kwIkoner(g,s,u);
   const sover=mine&&u.jp&&!hasKw(g,s,u,"turbo");
   return (
-    <button className={"enh"+(d.r==="L"?" leg":"")+(hilite?" tgt":"")+(ready?" klar":"")+(u.sil?" sil":"")+(sover?" sover":"")+(shake?" ryst":"")}
+    <button className={"enh"+(d.r==="L"?" leg":"")+(hilite?" tgt":"")+(ready?" klar":"")+(u.sil?" sil":"")+(sover?" sover":"")+(shake?" ryst":"")+(tuthi?" tuthi":"")}
       onClick={onClick} data-fx={u.uid}>
       {ik.length>0 && <span className="ikoner">{ik.join("")}</span>}
       {u.sh && <span className="skjold"/>}
@@ -1117,10 +1201,10 @@ function UnitTile({g,s,u,mine,onClick,hilite,ready,shake}){
     </button>
   );
 }
-function HeltPlade({g,s,me,onClick,hilite,shake}){
+function HeltPlade({g,s,me,onClick,hilite,shake,tuthi}){
   const p=g.players[s];
   return (
-    <button className={"helt"+(hilite?" tgt":"")+(shake?" ryst":"")} onClick={onClick} style={{borderRadius:10}} data-fx={"h"+s}>
+    <button className={"helt"+(hilite?" tgt":"")+(shake?" ryst":"")+(tuthi?" tuthi":"")} onClick={onClick} style={{borderRadius:10}} data-fx={"h"+s}>
       <span style={{fontSize:20}}>{(CLASSES[p.cls]||CLASSES.tek).ico}</span>
       <span>
         <span className="nm">{p.name}</span><br/>
@@ -1277,9 +1361,34 @@ function zigzag(a,b){
 }
 
 // ---------- spilskærm ----------
-function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,pos}){
+function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,pos,tut,setTut}){
   const me=g.players[seat], op=g.players[1-seat];
   const K=CLASSES[me.cls]||CLASSES.tek;
+  const step=mode==="tutorial"?TUT.steps[tut]:null;
+  const [wob,setWob]=useState(false);
+  const nope=()=>{ setWob(true); setTimeout(()=>setWob(false),450); };
+  const hiB=k=>!!(step&&step.hi&&step.hi.includes(k));
+  const tOK=(k,v)=>{
+    if(!step) return true;
+    const a=step.allow||{};
+    if(a.any) return true;
+    if(k==="play") return a.play===v;
+    if(k==="atk") return a.atk===v;
+    if(k==="power") return !!a.power;
+    if(k==="end") return !!a.end;
+    if(k==="tgt"){
+      if(a.tgtHero) return v.u==null&&v.s===1-seat;
+      if(a.tgtUnit){ const u=v.u!=null?refUnit(g,v):null; return !!u&&u.id===a.tgtUnit; }
+      return true;
+    }
+    return false;
+  };
+  useEffect(()=>{
+    if(mode!=="tutorial") return;
+    let t=tut;
+    while(TUT.steps[t]&&TUT.steps[t].done(g)) t++;
+    if(t!==tut) setTut(t);
+  },[g,tut,mode]);
   const [sel,setSel]=useState(null);
   const [tmode,setT]=useState(null);
   const [visLog,setVisLog]=useState(false);
@@ -1372,19 +1481,22 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
 
   const klikEnhed=(rs,u)=>{
     const ref={s:rs,u:u.uid};
-    if(tmode){ if(isTgt(ref)) fire(ref); else setT(null); return; }
+    if(tmode){ if(isTgt(ref)){ if(!tOK("tgt",ref)){nope();return;} fire(ref); } else setT(null); return; }
     if(rs===seat&&myTurn){
       const ts=attackTargets(g,seat,u.uid);
-      if(ts.length){ setT({list:ts,label:"⚔ "+CARDS[u.id].n+" — choose a target",run:r=>act(x=>unitAttack(x,seat,u.uid,r))}); return; }
+      if(ts.length){
+        if(!tOK("atk",u.id)){nope();return;}
+        setT({list:ts,label:"⚔ "+CARDS[u.id].n+" — choose a target",run:r=>act(x=>unitAttack(x,seat,u.uid,r))}); return; }
     }
     setSel({kind:"info",id:u.id,unit:{s:rs,uid:u.uid}});
   };
   const klikHelt=(rs)=>{
     const ref={s:rs,u:null};
-    if(tmode){ if(isTgt(ref)) fire(ref); else setT(null); return; }
+    if(tmode){ if(isTgt(ref)){ if(!tOK("tgt",ref)){nope();return;} fire(ref); } else setT(null); return; }
   };
   const spilFraArk=()=>{
     const c=sel; if(!c) return;
+    if(!tOK("play",c.id)){ nope(); return; }
     const {need,list}=targetsForCard(g,seat,c.id,null);
     if(need&&list.length){
       setSel(null);
@@ -1393,6 +1505,7 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
   };
   const kraft=()=>{
     if(tmode){ setT(null); return; }
+    if(!tOK("power")){ nope(); return; }
     const list=heroTargets(g,seat);
     if(!list.length){ act(()=>"No valid target for "+K.power.n+"."); return; }
     if(list.length===1){ act(x=>heroPower(x,seat,list[0])); return; }
@@ -1410,7 +1523,7 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
 
       {/* modstander */}
       <div className="bar">
-        <HeltPlade g={g} s={1-seat} me={false} hilite={isTgt({s:1-seat,u:null})} shake={shake.has("h"+(1-seat))} onClick={()=>klikHelt(1-seat)}/>
+        <HeltPlade g={g} s={1-seat} me={false} tuthi={hiB("h1")} hilite={isTgt({s:1-seat,u:null})} shake={shake.has("h"+(1-seat))} onClick={()=>klikHelt(1-seat)}/>
         <Pips p={op}/>
         <span style={{marginLeft:"auto",display:"flex",alignItems:"center"}}>
           {Array.from({length:Math.min(op.hand.length,9)}).map((_,i)=><span key={i} className="ryg"/>)}
@@ -1420,20 +1533,21 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
       <div className="braet op">
         {op.board.length===0&&<span style={{color:"var(--dim)",fontFamily:"var(--mono)",fontSize:11}}>— empty board —</span>}
         {op.board.map(u=>
-          <UnitTile key={u.uid} g={g} s={1-seat} u={u} mine={false} shake={shake.has(u.uid)}
+          <UnitTile key={u.uid} g={g} s={1-seat} u={u} mine={false} tuthi={hiB("eunit:"+u.id)} shake={shake.has(u.uid)}
             hilite={isTgt({s:1-seat,u:u.uid})} onClick={()=>klikEnhed(1-seat,u)}/>)}
       </div>
 
       <div className="midt">
         <span>Round {Math.max(1,Math.ceil(g.turn/2))}</span>
         <span style={{color:myTurn?"var(--fos)":"var(--dim)"}}>{slut?"Game over":(myTurn?"⚡ Your turn":"Waiting for "+op.name+"…")}</span>
-        <button className="slutknap" disabled={!myTurn||slut} onClick={()=>act(x=>endTurn(x,seat))}>END TURN</button>
+        <button className={"slutknap"+(hiB("end")?" tuthi":"")} disabled={!myTurn||slut}
+          onClick={()=>{ if(!tOK("end")){nope();return;} act(x=>endTurn(x,seat)); }}>END TURN</button>
       </div>
 
       <div className="braet">
         {me.board.length===0&&<span style={{color:"var(--dim)",fontFamily:"var(--mono)",fontSize:11}}>— empty board —</span>}
         {me.board.map(u=>
-          <UnitTile key={u.uid} g={g} s={seat} u={u} mine={true} shake={shake.has(u.uid)}
+          <UnitTile key={u.uid} g={g} s={seat} u={u} mine={true} tuthi={hiB("unit:"+u.id)} shake={shake.has(u.uid)}
             ready={myTurn&&attackTargets(g,seat,u.uid).length>0}
             hilite={isTgt({s:seat,u:u.uid})} onClick={()=>klikEnhed(seat,u)}/>)}
       </div>
@@ -1442,7 +1556,7 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
       <div className="bar min">
         <HeltPlade g={g} s={seat} me={true} hilite={isTgt({s:seat,u:null})} shake={shake.has("h"+seat)} onClick={()=>klikHelt(seat)}/>
         <Pips p={me}/>
-        <button className="kraft" disabled={!kanKraft} onClick={kraft} title={K.power.n+" ("+K.power.c+"⚡)"}>{K.power.ico}</button>
+        <button className={"kraft"+(hiB("kraft")?" tuthi":"")} disabled={!kanKraft} onClick={kraft} title={K.power.n+" ("+K.power.c+"⚡)"}>{K.power.ico}</button>
         <span style={{marginLeft:"auto",color:"var(--dim)"}}>🂠{me.deck.length}</span>
         <button style={{color:"var(--dim)",fontSize:16,padding:"0 4px"}} onClick={()=>setBekraeft(true)}>🏳</button>
       </div>
@@ -1450,11 +1564,17 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
         {me.hand.length===0&&<span style={{color:"var(--dim)",fontFamily:"var(--mono)",fontSize:11,alignSelf:"center"}}>hand is empty</span>}
         {me.hand.map((c,i)=>{
           const o=i-(me.hand.length-1)/2;
-          return <MiniCard key={c.uid} id={c.id} dfx={c.uid} glow={myTurn&&canPlay(g,seat,c.id)}
+          return <MiniCard key={c.uid} id={c.id} dfx={c.uid} xcls={hiB("hand:"+c.id)?"tuthi":""} glow={myTurn&&canPlay(g,seat,c.id)}
             style={{"--o":o,"--a":Math.abs(o)}}
             onClick={()=>{ if(tmode){setT(null);return;} setSel({kind:"hand",id:c.id,uid:c.uid}); }}/>;})}
       </div>
 
+      {step&&(
+        <div className={"coach"+(wob?" wob":"")}>
+          <span className="cava">🤖</span>
+          <div className="ctxt">{step.t}<div className="cnum">{tut+1} / {TUT.steps.length}</div></div>
+          <button className="cx" onClick={onLeave} title="Skip tutorial">✕</button>
+        </div>)}
       <div className="fxlag">
         {sparks.map(f=>{
           const ds={animationDelay:f.d+"s"};
@@ -1525,14 +1645,14 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
               {g.winner===2?"DRAW":(g.winner===seat?"VICTORY ⚡":"BREAKDOWN")}
             </div>
             <p className="rt" style={{color:"var(--dim)"}}>
-              {g.winner===2?"Both circuits burned out.":(g.winner===seat?"Your opponent’s circuit burned out.":"Your circuit burned out.")}
+              {g.winner===2?mode==="tutorial"?"Tutorial complete — you know the basics! Try the bot next. ⚡":"Both circuits burned out.":(g.winner===seat?(mode==="tutorial"?"Tutorial complete — you know the basics! Try the bot next. ⚡":"Your opponent’s circuit burned out."):"Your circuit burned out.")}
             </p>
             {mode==="online" ? (
               <button className="knap cu" disabled={g.rematch[seat]} onClick={onRematch}>
                 {g.rematch[seat]?"Waiting for opponent…":(g.rematch[1-seat]?"🔁 Rematch (opponent is ready!)":"🔁 Rematch")}
               </button>
             ) : (
-              <button className="knap cu" onClick={onRematch}>🔁 Rematch</button>
+              mode==="tutorial"?null:<button className="knap cu" onClick={onRematch}>🔁 Rematch</button>
             )}
             <button className="knap" onClick={onLeave}>Back to menu</button>
             {mode==="online" && <button className="knap" onClick={onDelete}>Delete game & leave</button>}
@@ -1714,6 +1834,7 @@ export default function App(){
   const [deckValg2,setDeckValg2]=useState("auto");
   const [cls,setClsS]=useState("tek");
   const [cls2,setCls2]=useState("tek");
+  const [tut,setTut]=useState(0);
   const cid=useRef(null);
   const kode=useRef(null);
   const gRef=useRef(null); gRef.current=g;
@@ -1849,6 +1970,10 @@ export default function App(){
       kode.current=c; setMode("online"); setSeat(s); setLobby(null); setG(v); setSkaerm("spil");
     }
   };
+  const startTutorial=()=>{
+    kode.current=null; setMode("tutorial"); setTut(0);
+    applyG(TUT.mk(navn)); setSkaerm("spil");
+  };
   const startLokal=()=>{
     const d1=findDeck(deckValg,cls), d2=findDeck(deckValg2,cls2);
     let err=validateDeck(d1,cls)||validateDeck(d2,cls2); if(err) return flash(err);
@@ -1856,9 +1981,9 @@ export default function App(){
       decks:[d1,d2],classes:[cls,cls2]});
     kode.current=null; setMode("lokal"); setG(ng); setHandoff(true); setSkaerm("spil");
   };
-  const tilMenu=()=>{ setG(null); setLobby(null); setMode(null); kode.current=null; setHandoff(false); setSkaerm("menu"); };
+  const tilMenu=()=>{ setG(null); setLobby(null); setMode(null); kode.current=null; setHandoff(false); setTut(0); setSkaerm("menu"); };
 
-  const seatNu = mode==="lokal" ? (g?g.active:0) : seat;
+  const seatNu = mode==="lokal" ? (g?g.active:0) : (mode==="tutorial" ? 0 : seat);
   const minTur = !!g && g.status==="igang" && g.active===seatNu && (mode!=="lokal"||!handoff);
 
   const doAct=fn=>{
@@ -1897,6 +2022,17 @@ export default function App(){
     }, botSteps.current===0?900:650);
     return ()=>clearTimeout(t);
   },[g,mode]);
+  useEffect(()=>{
+    if(mode!=="tutorial"||!g||g.status!=="igang"||g.active!==1) return;
+    const t=setTimeout(()=>{
+      doAct(x=>{
+        if(x.status!=="igang"||x.active!==1) return null;
+        if(TUT.opp[x.turn]) TUT.opp[x.turn](x);
+        return endTurn(x,1);
+      });
+    },1100);
+    return ()=>clearTimeout(t);
+  },[g,mode]);
   const sletSpil=async()=>{ if(kode.current) await stDel("spil:"+kode.current,true); tilMenu(); };
 
   const deckMuligheder=(v,setV,k)=>(
@@ -1929,6 +2065,7 @@ export default function App(){
         {deckMuligheder(deckValg2,setDeckValg2,cls2)}
         <div className="etiket">Solo</div>
         <button className="knap cu" onClick={startSolo}>🤖 Play vs the bot<small>Built-in opponent — great for learning the cards</small></button>
+        <button className="knap" onClick={startTutorial}>🎓 Interactive tutorial<small>Learn the game in five guided turns</small></button>
         {onlineOK ? <>
           <div className="etiket">Online</div>
           <button className="knap" onClick={opretOnline}>🌐 Create online game<small>Get a code to share with your opponent</small></button>
@@ -1970,7 +2107,7 @@ export default function App(){
     } else if(g){
       indhold=(
         <>
-          <GameView g={g} seat={seatNu} myTurn={minTur} act={doAct} mode={mode} pos={posRef}
+          <GameView g={g} seat={seatNu} myTurn={minTur} act={doAct} mode={mode} pos={posRef} tut={tut} setTut={setTut}
             onLeave={tilMenu} onConcede={opgiv} onRematch={revanche} onDelete={sletSpil}/>
           {mode==="lokal"&&handoff&&g.status==="igang"&&(
             <div className="slor">

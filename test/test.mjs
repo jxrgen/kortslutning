@@ -5,7 +5,7 @@ const end = src.indexOf("/* __ENGINE_END__ */");
 if (end < 0) throw new Error("mangler ENGINE_END-markør");
 let code = src.slice(0, end).split("\n").filter(l => !l.startsWith("import ")).join("\n");
 code += `
-;return { CARDS, COLL, CLASSES, mkState, playCard, unitAttack, heroPower, endTurn,
+;return { CARDS, COLL, CLASSES, TUT, mkState, playCard, unitAttack, heroPower, endTurn,
   targetsForCard, attackTargets, heroTargets, canPlay, validateDeck, autoDeck, clone, botAction };
 `;
 const E = new Function(code)();
@@ -164,4 +164,23 @@ for (let game = 0; game < 30; game++) {
 console.log("Bot vs bot: alle", bb, "/30 spil afsluttet");
 if (bb < 30) throw new Error("Bot-vs-bot-spil hang");
 
+// --- 7: tutorial-drejebogen holder end-to-end ---
+{
+  const g = E.TUT.mk("T");
+  const oturn = () => { if (E.TUT.opp[g.turn]) E.TUT.opp[g.turn](g); E.endTurn(g, 1); };
+  const st = i => { if (!E.TUT.steps[i].done(g)) throw new Error("tutorial-trin " + i + " ikke opfyldt"); };
+  E.endTurn(g, 0); st(0); oturn(); st(1);
+  E.playCard(g, 0, "tc1", null); st(2); E.endTurn(g, 0); st(3); oturn(); st(4);
+  const coil = g.players[0].board.find(u => u.id === "u_spole");
+  const res = g.players[1].board.find(u => u.id === "u_modstand");
+  E.unitAttack(g, 0, coil.uid, { s: 1, u: res.uid }); st(5);
+  E.heroPower(g, 0, { s: 1, u: res.uid }); st(6);
+  E.playCard(g, 0, "tc2", { s: 1, u: null }); st(7); E.endTurn(g, 0); st(8); oturn(); st(9);
+  E.playCard(g, 0, g.players[0].hand.find(c => c.id === "s_spids").uid, { s: 1, u: null }); st(10);
+  E.playCard(g, 0, g.players[0].hand.find(c => c.id === "u_kampdrone").uid, null); st(11);
+  E.endTurn(g, 0); st(12); oturn(); st(13);
+  E.unitAttack(g, 0, g.players[0].board.find(u => u.id === "u_kampdrone").uid, { s: 1, u: null }); st(14);
+  if (g.winner !== 0) throw new Error("tutorial slutter ikke i sejr");
+  console.log("Tutorial-drejebog: alle 15 trin + sejr OK");
+}
 console.log("ALT OK ✓");

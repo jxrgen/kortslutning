@@ -6,7 +6,7 @@ import { resolve } from "path";
 // 1) lav test-entry med ekstra exports af de interne komponenter
 const src = readFileSync("kortslutning.jsx", "utf8");
 writeFileSync("_entry.jsx", src + `
-export { CardArt, GameView, DeckBuilder, Regler, StorKort, MiniCard, Pips, UnitTile,
+export { CardArt, GameView, DeckBuilder, TUT, Regler, StorKort, MiniCard, Pips, UnitTile,
   mkState, playCard, unitAttack, attackTargets, endTurn, autoDeck, CARDS, COLL, clone };
 `);
 execSync("npx esbuild _entry.jsx --loader:.jsx=jsx --jsx=automatic --format=esm --bundle --external:react --external:react/jsx-runtime --outfile=_entry.mjs", { stdio: "inherit" });
@@ -84,4 +84,13 @@ const u0 = g.players[0].board[0];
 if (u0) ok("StorKort (levende enhed)", h(M.StorKort, { id: u0.id, unitInfo: { s: 0, uid: u0.uid }, g }));
 ok("StorKort (legendarisk)", h(M.StorKort, { id: M.COLL.find(i => M.CARDS[i].r === "L") }));
 
+{
+  const g = M.TUT.mk("T");
+  const html = renderToString(React.createElement(M.GameView, {
+    g, seat: 0, myTurn: true, act: () => null, mode: "tutorial", tut: 0, setTut: () => {},
+    pos: { current: {} }, onLeave: () => {}, onConcede: () => {}, onRematch: () => {}, onDelete: () => {},
+  }));
+  if (!html.includes("coach") || !html.includes("capacitor bank")) throw new Error("tutorial-render mangler coach");
+  console.log("render OK: GameView (tutorial-coach, " + html.length + " tegn)"); // tutorial-render
+}
 console.log("UI-RØGTEST OK ✓");
