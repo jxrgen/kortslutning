@@ -1,0 +1,8 @@
+#!/bin/sh
+# Kører hele testpakken før hvert commit. Fejler committen hvis noget er galt,
+# så en regression aldrig når ind i repoet.
+echo "⚡ Cardware Crash — kører tests før commit…"
+npm run --silent test 2>&1 | tail -3 || { echo "✗ motortest fejlede — commit afbrudt"; exit 1; }
+npm run --silent agents 2>&1 | grep -E "✗|FEJL" && { echo "✗ en agent fandt fejl — commit afbrudt"; exit 1; }
+echo "✓ alt grønt"
+exit 0
