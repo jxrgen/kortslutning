@@ -1,18 +1,18 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="750" height="1050" viewBox="0 0 750 1050">
 <defs>
   <linearGradient id="bggrad" x1="0" y1="0" x2="0" y2="1">
-    <stop offset="0" stop-color="#2a2114"/><stop offset="0.5" stop-color="#1c1710"/><stop offset="1" stop-color="#0f0c08"/>
+    <stop offset="0" stop-color="#4a3410"/><stop offset="0.5" stop-color="#2c2109"/><stop offset="1" stop-color="#120d04"/>
   </linearGradient>
   <radialGradient id="artgrad" cx="0.5" cy="0.42" r="0.75">
-    <stop offset="0" stop-color="#332517"/><stop offset="1" stop-color="#161009"/>
+    <stop offset="0" stop-color="#402e0d"/><stop offset="1" stop-color="#211803"/>
   </radialGradient>
   <linearGradient id="guldgrad" x1="0" y1="0" x2="0" y2="1">
     <stop offset="0" stop-color="#ffd166"/><stop offset="1" stop-color="#9a7422"/>
   </linearGradient>
   <clipPath id="artclip"><rect x="52" y="150" width="646" height="410" rx="14"/></clipPath>
 </defs>
-<rect x="6" y="6" width="738" height="1038" rx="36" fill="url(#bggrad)" stroke="#e8a96a" stroke-width="6"/>
-<rect x="22" y="22" width="706" height="1006" rx="26" fill="none" stroke="#e8a96a" stroke-width="2" opacity="0.7"/>
+<rect x="6" y="6" width="738" height="1038" rx="36" fill="url(#bggrad)" stroke="#ffb347" stroke-width="6"/>
+<rect x="22" y="22" width="706" height="1006" rx="26" fill="none" stroke="#ffb347" stroke-width="2" opacity="0.7"/>
 <circle cx="300" cy="675" r="7" fill="none" stroke="#c9814a" stroke-width="4" opacity="0.1"/><path d="M 300 675 L 225 675 L 225 775" fill="none" stroke="#c9814a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.1"/><circle cx="225" cy="775" r="9" fill="#122419" stroke="#c9814a" stroke-width="4" opacity="0.1"/><circle cx="50" cy="825" r="7" fill="none" stroke="#c9814a" stroke-width="4" opacity="0.1"/><path d="M 50 825 L 50 700 L 40 700 L 40 620" fill="none" stroke="#c9814a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.1"/><rect x="32" y="612" width="16" height="16" fill="#c9814a" opacity="0.1"/><circle cx="525" cy="975" r="7" fill="none" stroke="#c9814a" stroke-width="4" opacity="0.1"/><path d="M 525 975 L 650 850" fill="none" stroke="#c9814a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.1"/><rect x="642" y="842" width="16" height="16" fill="#c9814a" opacity="0.1"/><circle cx="125" cy="750" r="7" fill="none" stroke="#c9814a" stroke-width="4" opacity="0.1"/><path d="M 125 750 L 40 620 L 90 620" fill="none" stroke="#c9814a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.1"/><circle cx="90" cy="620" r="9" fill="#122419" stroke="#c9814a" stroke-width="4" opacity="0.1"/><circle cx="325" cy="800" r="7" fill="none" stroke="#c9814a" stroke-width="4" opacity="0.1"/><path d="M 325 800 L 450 675 L 450 620" fill="none" stroke="#c9814a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.1"/><rect x="442" y="612" width="16" height="16" fill="#c9814a" opacity="0.1"/><rect x="300" y="875" width="14" height="20" fill="#c9814a" opacity="0.09000000000000001"/><rect x="322" y="875" width="14" height="20" fill="#c9814a" opacity="0.09000000000000001"/><rect x="344" y="875" width="14" height="20" fill="#c9814a" opacity="0.09000000000000001"/><rect x="366" y="875" width="14" height="20" fill="#c9814a" opacity="0.09000000000000001"/>
 <g clip-path="url(#artclip)">
   <rect x="52" y="150" width="646" height="410" fill="url(#artgrad)"/>
@@ -29,8 +29,8 @@
 <text x="95" y="118" text-anchor="middle" font-family="DejaVu Sans" font-weight="bold" font-size="74" fill="#1c1405">3</text>
 <text x="375" y="608" text-anchor="middle" font-family="DejaVu Sans Mono" font-size="26" letter-spacing="3"
   fill="#e8a96a">THE TECHNICIAN · SPELL</text>
-<line x1="80" y1="626" x2="670" y2="626" stroke="#e8a96a" stroke-width="2" opacity="0.5"/>
-<rect x="46" y="640" width="658" height="346" rx="16" fill="#241c11" opacity="0.55"/>
+<line x1="80" y1="626" x2="670" y2="626" stroke="#ffb347" stroke-width="2" opacity="0.5"/>
+<rect x="46" y="640" width="658" height="346" rx="16" fill="#3a2a0c" opacity="0.55"/>
 <text x="375" y="797.6" text-anchor="middle" font-family="DejaVu Sans" font-size="30"
        fill="#dbe7de">Add a copy of a friendly unit to your</text>
 <text x="375" y="839.0" text-anchor="middle" font-family="DejaVu Sans" font-size="30"

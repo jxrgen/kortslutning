@@ -1,18 +1,18 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="750" height="1050" viewBox="0 0 750 1050">
 <defs>
   <linearGradient id="bggrad" x1="0" y1="0" x2="0" y2="1">
-    <stop offset="0" stop-color="#2a1638"/><stop offset="0.5" stop-color="#1c1026"/><stop offset="1" stop-color="#0f0817"/>
+    <stop offset="0" stop-color="#3d1170"/><stop offset="0.5" stop-color="#260a45"/><stop offset="1" stop-color="#0f0420"/>
   </linearGradient>
   <radialGradient id="artgrad" cx="0.5" cy="0.42" r="0.75">
-    <stop offset="0" stop-color="#30193c"/><stop offset="1" stop-color="#170c22"/>
+    <stop offset="0" stop-color="#361854"/><stop offset="1" stop-color="#1f0838"/>
   </radialGradient>
   <linearGradient id="guldgrad" x1="0" y1="0" x2="0" y2="1">
     <stop offset="0" stop-color="#ffd166"/><stop offset="1" stop-color="#9a7422"/>
   </linearGradient>
   <clipPath id="artclip"><rect x="52" y="150" width="646" height="410" rx="14"/></clipPath>
 </defs>
-<rect x="6" y="6" width="738" height="1038" rx="36" fill="url(#bggrad)" stroke="#c76bd9" stroke-width="6"/>
-<rect x="22" y="22" width="706" height="1006" rx="26" fill="none" stroke="#c76bd9" stroke-width="2" opacity="0.7"/>
+<rect x="6" y="6" width="738" height="1038" rx="36" fill="url(#bggrad)" stroke="#c07bff" stroke-width="6"/>
+<rect x="22" y="22" width="706" height="1006" rx="26" fill="none" stroke="#c07bff" stroke-width="2" opacity="0.7"/>
 <circle cx="475" cy="800" r="7" fill="none" stroke="#c9814a" stroke-width="4" opacity="0.1"/><path d="M 475 800 L 325 650 L 250 725 L 325 725" fill="none" stroke="#c9814a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.1"/><rect x="317" y="717" width="16" height="16" fill="#c9814a" opacity="0.1"/><circle cx="600" cy="875" r="7" fill="none" stroke="#c9814a" stroke-width="4" opacity="0.1"/><path d="M 600 875 L 550 875 L 675 980" fill="none" stroke="#c9814a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.1"/><rect x="667" y="972" width="16" height="16" fill="#c9814a" opacity="0.1"/><circle cx="625" cy="750" r="7" fill="none" stroke="#c9814a" stroke-width="4" opacity="0.1"/><path d="M 625 750 L 525 850 L 525 750 L 600 750" fill="none" stroke="#c9814a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.1"/><circle cx="600" cy="750" r="9" fill="#122419" stroke="#c9814a" stroke-width="4" opacity="0.1"/><circle cx="525" cy="800" r="7" fill="none" stroke="#c9814a" stroke-width="4" opacity="0.1"/><path d="M 525 800 L 650 800 L 650 850" fill="none" stroke="#c9814a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.1"/><circle cx="650" cy="850" r="9" fill="#122419" stroke="#c9814a" stroke-width="4" opacity="0.1"/><circle cx="175" cy="650" r="7" fill="none" stroke="#c9814a" stroke-width="4" opacity="0.1"/><path d="M 175 650 L 325 800" fill="none" stroke="#c9814a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.1"/><circle cx="325" cy="800" r="9" fill="#122419" stroke="#c9814a" stroke-width="4" opacity="0.1"/><rect x="200" y="800" width="14" height="20" fill="#c9814a" opacity="0.09000000000000001"/><rect x="222" y="800" width="14" height="20" fill="#c9814a" opacity="0.09000000000000001"/><rect x="244" y="800" width="14" height="20" fill="#c9814a" opacity="0.09000000000000001"/><rect x="266" y="800" width="14" height="20" fill="#c9814a" opacity="0.09000000000000001"/>
 <g clip-path="url(#artclip)">
   <rect x="52" y="150" width="646" height="410" fill="url(#artgrad)"/>
@@ -38,8 +38,8 @@
 <text x="95" y="118" text-anchor="middle" font-family="DejaVu Sans" font-weight="bold" font-size="74" fill="#1c1405">2</text>
 <text x="375" y="608" text-anchor="middle" font-family="DejaVu Sans Mono" font-size="26" letter-spacing="3"
   fill="#c76bd9">THE HACKER · UNIT · VIRUS</text>
-<line x1="80" y1="626" x2="670" y2="626" stroke="#c76bd9" stroke-width="2" opacity="0.5"/>
-<rect x="46" y="640" width="658" height="236" rx="16" fill="#241238" opacity="0.55"/>
+<line x1="80" y1="626" x2="670" y2="626" stroke="#c07bff" stroke-width="2" opacity="0.5"/>
+<rect x="46" y="640" width="658" height="236" rx="16" fill="#340f5e" opacity="0.55"/>
 <text x="375" y="763.3" text-anchor="middle" font-family="DejaVu Sans" font-size="30"
        fill="#dbe7de">Cloaked. Breakdown: Draw a card.</text>
 

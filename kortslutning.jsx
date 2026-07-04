@@ -902,6 +902,7 @@ input:focus,select:focus{border-color:var(--cu)}
 .raek{display:flex;gap:8px;align-items:center}
 .tilbage{color:var(--dim);font-family:var(--mono);font-size:13px;padding:6px 0;margin-bottom:6px}
 /* ---- kort ---- */
+.haand .mkort:not(.spil){opacity:.62;filter:saturate(.7)}
 .mkort{position:relative;width:66px;height:92px;border-radius:9px;flex:none;
   background:linear-gradient(180deg,var(--bg2),var(--bg1));border:1px solid var(--line);
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
@@ -909,7 +910,8 @@ input:focus,select:focus{border-color:var(--cu)}
 .mkort::after{content:"";position:absolute;left:8px;right:8px;bottom:0;height:6px;border-radius:2px 2px 0 0;
   background:repeating-linear-gradient(90deg,var(--guld) 0 4px,#3a2f12 4px 7px);opacity:.85}
 .mkort.leg{border-color:var(--guld)}
-.mkort.spil{border-color:var(--fos);box-shadow:0 0 10px rgba(95,224,160,.35);transform:translateY(-4px)}
+.mkort.spil{border-color:var(--fos);border-width:2px;box-shadow:0 0 16px rgba(95,224,160,.6),0 6px 12px rgba(0,0,0,.5);transform:translateY(-9px) scale(1.04)}
+.mkort.spil::before{content:"";position:absolute;top:-8px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-bottom:8px solid var(--fos);filter:drop-shadow(0 0 4px var(--fos));z-index:3}
 .mkort .art{width:40px;height:40px}
 .mkort .nv{font-size:8.5px;line-height:1.05;text-align:center;color:var(--txt);padding:0 3px;max-height:19px;overflow:hidden}
 .pris{position:absolute;top:-1px;left:-1px;background:var(--amber);color:#1c1405;font-family:var(--mono);
@@ -932,9 +934,12 @@ input:focus,select:focus{border-color:var(--cu)}
 .enh{position:relative;width:58px;height:66px;border-radius:10px;background:linear-gradient(180deg,var(--bg2),var(--bg1));
   border:1.5px solid var(--line);display:flex;align-items:center;justify-content:center;transition:border-color .12s,box-shadow .12s}
 .enh .art{width:40px;height:40px}
-.enh.klar{border-color:var(--fos);box-shadow:0 0 8px rgba(95,224,160,.3)}
+.enh.klar{border-color:var(--fos)!important;border-width:2px;box-shadow:0 0 15px rgba(95,224,160,.55)}
+.enh.klar::after{content:"⚔";position:absolute;top:-9px;right:-6px;font-size:14px;background:var(--fos);color:#0c1811;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 8px rgba(95,224,160,.8);z-index:4}
 .enh.leg{border-color:var(--guld)}
-.enh.sover .art{opacity:.55}
+.enh.sover{opacity:.72}
+.enh.sover .art{opacity:.5}
+.enh.sover::before{content:"z";position:absolute;top:-6px;right:2px;font-size:13px;color:var(--dim);font-style:italic;z-index:3}
 .enh .zz{position:absolute;top:1px;right:4px;font-size:11px;color:var(--dim)}
 .enh .ikoner{position:absolute;top:-8px;left:50%;transform:translateX(-50%);display:flex;gap:1px;
   font-size:9px;background:#0a140e;border:1px solid var(--line);border-radius:6px;padding:0 4px;white-space:nowrap;font-family:var(--mono)}
@@ -1041,9 +1046,9 @@ p.rt{font-size:14px;line-height:1.55;color:var(--txt);margin:6px 0}
 .knap:hover{border-color:var(--cu);box-shadow:0 4px 14px rgba(0,0,0,.35)}
 button:active{transform:scale(.97)}
 .mkort.spil{animation:spilpuls 1.6s ease-in-out infinite}
-@keyframes spilpuls{50%{box-shadow:0 0 18px rgba(95,224,160,.55),0 4px 10px rgba(0,0,0,.45)}}
+@keyframes spilpuls{0%,100%{box-shadow:0 0 16px rgba(95,224,160,.55),0 6px 12px rgba(0,0,0,.5)}50%{box-shadow:0 0 26px rgba(95,224,160,.9),0 6px 12px rgba(0,0,0,.5)}}
 .enh.klar{animation:klarpuls 2s ease-in-out infinite}
-@keyframes klarpuls{50%{box-shadow:0 0 13px rgba(95,224,160,.45)}}
+@keyframes klarpuls{0%,100%{box-shadow:0 0 15px rgba(95,224,160,.5)}50%{box-shadow:0 0 24px rgba(95,224,160,.85)}}
 .enh{animation:enhind .38s cubic-bezier(.2,1.5,.4,1)}
 @keyframes enhind{from{transform:scale(.3);opacity:0;filter:brightness(2.2)}}
 .ryst{animation:ryst .32s ease-in-out !important}
@@ -1307,11 +1312,11 @@ function motifArt(d,ac,rnd){
     +'<path d="M 375 205 L 405 315 L 515 345 L 405 375 L 375 485 L 345 375 L 235 345 L 345 315 Z" fill="'+ac+'" stroke="'+ARTC.bg+'" stroke-width="5" stroke-linejoin="round"/>');
 }
 const CARDTHEME={
-  tek:  ["#2a2114","#0f0c08","#e8a96a"], hack:["#2a1638","#0f0817","#c76bd9"],
-  over: ["#331d12","#130a06","#ff8c5a"], Component:["#2b2114","#0d0b07","#e8a96a"],
-  Robot:["#14243a","#070d15","#9fc0e8"], Drone:["#0f3327","#05110d","#5fe0a0"],
-  Virus:["#2a1636","#0e0816","#c76bd9"], spell:["#2c2a12","#0e0d06","#e8e05f"],
-  none: ["#20301f","#0a120a","#8fbf7a"],
+  tek:  ["#4a3410","#120d04","#ffb347"], hack:["#3d1170","#0f0420","#c07bff"],
+  over: ["#5c1a08","#160502","#ff6a3d"], Component:["#5a3806","#130b02","#ffa726"],
+  Robot:["#0d3566","#030c18","#4db4ff"], Drone:["#0a4a2c","#02120a","#33e88a"],
+  Virus:["#4a0f52","#120414","#e85adf"], spell:["#4a4708","#131202","#f5ea3a"],
+  none: ["#1e3d1a","#070f06","#7dd960"],
 };
 function themeVars(d){
   const t=(d.cls&&CARDTHEME[d.cls])||(d.t==="spell"&&CARDTHEME.spell)||(d.tr&&CARDTHEME[d.tr])||CARDTHEME.none;

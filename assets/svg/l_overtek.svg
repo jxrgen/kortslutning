@@ -1,10 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="750" height="1050" viewBox="0 0 750 1050">
 <defs>
   <linearGradient id="bggrad" x1="0" y1="0" x2="0" y2="1">
-    <stop offset="0" stop-color="#2a2114"/><stop offset="0.5" stop-color="#1c1710"/><stop offset="1" stop-color="#0f0c08"/>
+    <stop offset="0" stop-color="#4a3410"/><stop offset="0.5" stop-color="#2c2109"/><stop offset="1" stop-color="#120d04"/>
   </linearGradient>
   <radialGradient id="artgrad" cx="0.5" cy="0.42" r="0.75">
-    <stop offset="0" stop-color="#332517"/><stop offset="1" stop-color="#161009"/>
+    <stop offset="0" stop-color="#402e0d"/><stop offset="1" stop-color="#211803"/>
   </radialGradient>
   <linearGradient id="guldgrad" x1="0" y1="0" x2="0" y2="1">
     <stop offset="0" stop-color="#ffd166"/><stop offset="1" stop-color="#9a7422"/>
@@ -12,7 +12,7 @@
   <clipPath id="artclip"><rect x="52" y="150" width="646" height="410" rx="14"/></clipPath>
 </defs>
 <rect x="6" y="6" width="738" height="1038" rx="36" fill="url(#bggrad)" stroke="#ffd166" stroke-width="9"/>
-<rect x="22" y="22" width="706" height="1006" rx="26" fill="none" stroke="#e8a96a" stroke-width="3" opacity="0.7"/>
+<rect x="22" y="22" width="706" height="1006" rx="26" fill="none" stroke="#ffb347" stroke-width="3" opacity="0.7"/>
 <circle cx="125" cy="725" r="7" fill="none" stroke="#c9814a" stroke-width="4" opacity="0.1"/><path d="M 125 725 L 50 725 L 50 775 L 40 875" fill="none" stroke="#c9814a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.1"/><circle cx="40" cy="875" r="9" fill="#122419" stroke="#c9814a" stroke-width="4" opacity="0.1"/><circle cx="575" cy="825" r="7" fill="none" stroke="#c9814a" stroke-width="4" opacity="0.1"/><path d="M 575 825 L 525 775" fill="none" stroke="#c9814a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.1"/><circle cx="525" cy="775" r="9" fill="#122419" stroke="#c9814a" stroke-width="4" opacity="0.1"/><circle cx="275" cy="625" r="7" fill="none" stroke="#c9814a" stroke-width="4" opacity="0.1"/><path d="M 275 625 L 150 625 L 75 700" fill="none" stroke="#c9814a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.1"/><circle cx="75" cy="700" r="9" fill="#122419" stroke="#c9814a" stroke-width="4" opacity="0.1"/><circle cx="75" cy="725" r="7" fill="none" stroke="#c9814a" stroke-width="4" opacity="0.1"/><path d="M 75 725 L 40 775 L 40 700" fill="none" stroke="#c9814a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.1"/><circle cx="40" cy="700" r="9" fill="#122419" stroke="#c9814a" stroke-width="4" opacity="0.1"/><circle cx="100" cy="850" r="7" fill="none" stroke="#c9814a" stroke-width="4" opacity="0.1"/><path d="M 100 850 L 100 700 L 40 700" fill="none" stroke="#c9814a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.1"/><circle cx="40" cy="700" r="9" fill="#122419" stroke="#c9814a" stroke-width="4" opacity="0.1"/><rect x="425" y="900" width="14" height="20" fill="#c9814a" opacity="0.09000000000000001"/><rect x="447" y="900" width="14" height="20" fill="#c9814a" opacity="0.09000000000000001"/><rect x="469" y="900" width="14" height="20" fill="#c9814a" opacity="0.09000000000000001"/><rect x="491" y="900" width="14" height="20" fill="#c9814a" opacity="0.09000000000000001"/>
 <g clip-path="url(#artclip)">
   <rect x="52" y="150" width="646" height="410" fill="url(#artgrad)"/>
@@ -30,8 +30,8 @@
 <text x="95" y="118" text-anchor="middle" font-family="DejaVu Sans" font-weight="bold" font-size="74" fill="#1c1405">9</text>
 <text x="375" y="608" text-anchor="middle" font-family="DejaVu Sans Mono" font-size="26" letter-spacing="3"
   fill="#e8a96a">★ LEGENDARY · THE TECHNICIAN · UNIT</text>
-<line x1="80" y1="626" x2="670" y2="626" stroke="#e8a96a" stroke-width="2" opacity="0.5"/>
-<rect x="46" y="640" width="658" height="236" rx="16" fill="#241c11" opacity="0.55"/>
+<line x1="80" y1="626" x2="670" y2="626" stroke="#ffb347" stroke-width="2" opacity="0.5"/>
+<rect x="46" y="640" width="658" height="236" rx="16" fill="#3a2a0c" opacity="0.55"/>
 <text x="375" y="742.6" text-anchor="middle" font-family="DejaVu Sans" font-size="30"
        fill="#dbe7de">Install: Give all your other units</text>
 <text x="375" y="784.0" text-anchor="middle" font-family="DejaVu Sans" font-size="30"

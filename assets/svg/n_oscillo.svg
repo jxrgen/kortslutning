@@ -1,18 +1,18 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="750" height="1050" viewBox="0 0 750 1050">
 <defs>
   <linearGradient id="bggrad" x1="0" y1="0" x2="0" y2="1">
-    <stop offset="0" stop-color="#2b2114"/><stop offset="0.5" stop-color="#1b1610"/><stop offset="1" stop-color="#0d0b07"/>
+    <stop offset="0" stop-color="#5a3806"/><stop offset="0.5" stop-color="#341f04"/><stop offset="1" stop-color="#130b02"/>
   </linearGradient>
   <radialGradient id="artgrad" cx="0.5" cy="0.42" r="0.75">
-    <stop offset="0" stop-color="#332617"/><stop offset="1" stop-color="#15110a"/>
+    <stop offset="0" stop-color="#432a08"/><stop offset="1" stop-color="#241603"/>
   </radialGradient>
   <linearGradient id="guldgrad" x1="0" y1="0" x2="0" y2="1">
     <stop offset="0" stop-color="#ffd166"/><stop offset="1" stop-color="#9a7422"/>
   </linearGradient>
   <clipPath id="artclip"><rect x="52" y="150" width="646" height="410" rx="14"/></clipPath>
 </defs>
-<rect x="6" y="6" width="738" height="1038" rx="36" fill="url(#bggrad)" stroke="#e8a96a" stroke-width="6"/>
-<rect x="22" y="22" width="706" height="1006" rx="26" fill="none" stroke="#e8a96a" stroke-width="2" opacity="0.7"/>
+<rect x="6" y="6" width="738" height="1038" rx="36" fill="url(#bggrad)" stroke="#ffa726" stroke-width="6"/>
+<rect x="22" y="22" width="706" height="1006" rx="26" fill="none" stroke="#ffa726" stroke-width="2" opacity="0.7"/>
 <circle cx="450" cy="900" r="7" fill="none" stroke="#c9814a" stroke-width="4" opacity="0.1"/><path d="M 450 900 L 550 800" fill="none" stroke="#c9814a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.1"/><rect x="542" y="792" width="16" height="16" fill="#c9814a" opacity="0.1"/><circle cx="375" cy="900" r="7" fill="none" stroke="#c9814a" stroke-width="4" opacity="0.1"/><path d="M 375 900 L 375 975" fill="none" stroke="#c9814a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.1"/><rect x="367" y="967" width="16" height="16" fill="#c9814a" opacity="0.1"/><circle cx="325" cy="725" r="7" fill="none" stroke="#c9814a" stroke-width="4" opacity="0.1"/><path d="M 325 725 L 450 725" fill="none" stroke="#c9814a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.1"/><rect x="442" y="717" width="16" height="16" fill="#c9814a" opacity="0.1"/><circle cx="300" cy="875" r="7" fill="none" stroke="#c9814a" stroke-width="4" opacity="0.1"/><path d="M 300 875 L 425 875 L 425 825 L 550 825" fill="none" stroke="#c9814a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.1"/><circle cx="550" cy="825" r="9" fill="#122419" stroke="#c9814a" stroke-width="4" opacity="0.1"/><circle cx="525" cy="700" r="7" fill="none" stroke="#c9814a" stroke-width="4" opacity="0.1"/><path d="M 525 700 L 650 620 L 710 720" fill="none" stroke="#c9814a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.1"/><circle cx="710" cy="720" r="9" fill="#122419" stroke="#c9814a" stroke-width="4" opacity="0.1"/><rect x="475" y="925" width="14" height="20" fill="#c9814a" opacity="0.09000000000000001"/><rect x="497" y="925" width="14" height="20" fill="#c9814a" opacity="0.09000000000000001"/><rect x="519" y="925" width="14" height="20" fill="#c9814a" opacity="0.09000000000000001"/><rect x="541" y="925" width="14" height="20" fill="#c9814a" opacity="0.09000000000000001"/>
 <g clip-path="url(#artclip)">
   <rect x="52" y="150" width="646" height="410" fill="url(#artgrad)"/>
@@ -36,8 +36,8 @@
 <text x="95" y="118" text-anchor="middle" font-family="DejaVu Sans" font-weight="bold" font-size="74" fill="#1c1405">3</text>
 <text x="375" y="608" text-anchor="middle" font-family="DejaVu Sans Mono" font-size="26" letter-spacing="3"
   fill="#87a693">UNIT · COMPONENT</text>
-<line x1="80" y1="626" x2="670" y2="626" stroke="#e8a96a" stroke-width="2" opacity="0.5"/>
-<rect x="46" y="640" width="658" height="236" rx="16" fill="#241c12" opacity="0.55"/>
+<line x1="80" y1="626" x2="670" y2="626" stroke="#ffa726" stroke-width="2" opacity="0.5"/>
+<rect x="46" y="640" width="658" height="236" rx="16" fill="#452c05" opacity="0.55"/>
 <text x="375" y="742.6" text-anchor="middle" font-family="DejaVu Sans" font-size="30"
        fill="#dbe7de">Signal Strength +1 (your Spells deal +1</text>
 <text x="375" y="784.0" text-anchor="middle" font-family="DejaVu Sans" font-size="30"

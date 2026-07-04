@@ -1,18 +1,18 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="750" height="1050" viewBox="0 0 750 1050">
 <defs>
   <linearGradient id="bggrad" x1="0" y1="0" x2="0" y2="1">
-    <stop offset="0" stop-color="#2c2a12"/><stop offset="0.5" stop-color="#1c1b0e"/><stop offset="1" stop-color="#0e0d06"/>
+    <stop offset="0" stop-color="#4a4708"/><stop offset="0.5" stop-color="#2b2905"/><stop offset="1" stop-color="#131202"/>
   </linearGradient>
   <radialGradient id="artgrad" cx="0.5" cy="0.42" r="0.75">
-    <stop offset="0" stop-color="#333115"/><stop offset="1" stop-color="#161509"/>
+    <stop offset="0" stop-color="#403d0b"/><stop offset="1" stop-color="#232103"/>
   </radialGradient>
   <linearGradient id="guldgrad" x1="0" y1="0" x2="0" y2="1">
     <stop offset="0" stop-color="#ffd166"/><stop offset="1" stop-color="#9a7422"/>
   </linearGradient>
   <clipPath id="artclip"><rect x="52" y="150" width="646" height="410" rx="14"/></clipPath>
 </defs>
-<rect x="6" y="6" width="738" height="1038" rx="36" fill="url(#bggrad)" stroke="#e8e05f" stroke-width="6"/>
-<rect x="22" y="22" width="706" height="1006" rx="26" fill="none" stroke="#e8e05f" stroke-width="2" opacity="0.7"/>
+<rect x="6" y="6" width="738" height="1038" rx="36" fill="url(#bggrad)" stroke="#f5ea3a" stroke-width="6"/>
+<rect x="22" y="22" width="706" height="1006" rx="26" fill="none" stroke="#f5ea3a" stroke-width="2" opacity="0.7"/>
 <circle cx="500" cy="700" r="7" fill="none" stroke="#c9814a" stroke-width="4" opacity="0.1"/><path d="M 500 700 L 350 850" fill="none" stroke="#c9814a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.1"/><circle cx="350" cy="850" r="9" fill="#122419" stroke="#c9814a" stroke-width="4" opacity="0.1"/><circle cx="125" cy="850" r="7" fill="none" stroke="#c9814a" stroke-width="4" opacity="0.1"/><path d="M 125 850 L 40 980 L 40 855" fill="none" stroke="#c9814a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.1"/><rect x="32" y="847" width="16" height="16" fill="#c9814a" opacity="0.1"/><circle cx="175" cy="750" r="7" fill="none" stroke="#c9814a" stroke-width="4" opacity="0.1"/><path d="M 175 750 L 175 700 L 50 825 L 125 825" fill="none" stroke="#c9814a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.1"/><circle cx="125" cy="825" r="9" fill="#122419" stroke="#c9814a" stroke-width="4" opacity="0.1"/><circle cx="600" cy="800" r="7" fill="none" stroke="#c9814a" stroke-width="4" opacity="0.1"/><path d="M 600 800 L 450 650 L 500 650 L 350 800" fill="none" stroke="#c9814a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.1"/><circle cx="350" cy="800" r="9" fill="#122419" stroke="#c9814a" stroke-width="4" opacity="0.1"/><circle cx="325" cy="650" r="7" fill="none" stroke="#c9814a" stroke-width="4" opacity="0.1"/><path d="M 325 650 L 325 700" fill="none" stroke="#c9814a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.1"/><rect x="317" y="692" width="16" height="16" fill="#c9814a" opacity="0.1"/><rect x="475" y="950" width="14" height="20" fill="#c9814a" opacity="0.09000000000000001"/><rect x="497" y="950" width="14" height="20" fill="#c9814a" opacity="0.09000000000000001"/><rect x="519" y="950" width="14" height="20" fill="#c9814a" opacity="0.09000000000000001"/><rect x="541" y="950" width="14" height="20" fill="#c9814a" opacity="0.09000000000000001"/>
 <g clip-path="url(#artclip)">
   <rect x="52" y="150" width="646" height="410" fill="url(#artgrad)"/>
@@ -29,8 +29,8 @@
 <text x="95" y="118" text-anchor="middle" font-family="DejaVu Sans" font-weight="bold" font-size="74" fill="#1c1405">1</text>
 <text x="375" y="608" text-anchor="middle" font-family="DejaVu Sans Mono" font-size="26" letter-spacing="3"
   fill="#87a693">SPELL</text>
-<line x1="80" y1="626" x2="670" y2="626" stroke="#e8e05f" stroke-width="2" opacity="0.5"/>
-<rect x="46" y="640" width="658" height="346" rx="16" fill="#26240f" opacity="0.55"/>
+<line x1="80" y1="626" x2="670" y2="626" stroke="#f5ea3a" stroke-width="2" opacity="0.5"/>
+<rect x="46" y="640" width="658" height="346" rx="16" fill="#3a3806" opacity="0.55"/>
 <text x="375" y="818.3" text-anchor="middle" font-family="DejaVu Sans" font-size="30"
        fill="#dbe7de">Deal 2 damage.</text>
 

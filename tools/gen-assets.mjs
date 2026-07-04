@@ -26,15 +26,17 @@ const accentFor = d => (d.cls&&d.t==="spell"&&CLASSES[d.cls]) ? CLASSES[d.cls].c
   : d.t==="spell" ? ACCENT.spell : (ACCENT[d.tr] || ACCENT.none);
 // ---------- kort-tema (bund/artzone/plade pr. klasse el. stamme) ----------
 const THEME = {
-  tek:   { top:"#2a2114", mid:"#1c1710", bot:"#0f0c08", art:"#161009", plate:"#241c11", edge:"#e8a96a" },
-  hack:  { top:"#2a1638", mid:"#1c1026", bot:"#0f0817", art:"#170c22", plate:"#241238", edge:"#c76bd9" },
-  over:  { top:"#331d12", mid:"#22130b", bot:"#130a06", art:"#1c0f08", plate:"#2a170d", edge:"#ff8c5a" },
-  Component:{ top:"#2b2114", mid:"#1b1610", bot:"#0d0b07", art:"#15110a", plate:"#241c12", edge:"#e8a96a" },
-  Robot:  { top:"#14243a", mid:"#0e1826", bot:"#070d15", art:"#0b1420", plate:"#122036", edge:"#9fc0e8" },
-  Drone:  { top:"#0f3327", mid:"#0a2019", bot:"#05110d", art:"#081c15", plate:"#0d2c22", edge:"#5fe0a0" },
-  Virus:  { top:"#2a1636", mid:"#1b0f24", bot:"#0e0816", art:"#160b21", plate:"#231338", edge:"#c76bd9" },
-  spell:  { top:"#2c2a12", mid:"#1c1b0e", bot:"#0e0d06", art:"#161509", plate:"#26240f", edge:"#e8e05f" },
-  none:   { top:"#20301f", mid:"#152015", bot:"#0a120a", art:"#101a10", plate:"#1a2a1a", edge:"#8fbf7a" },
+  // klasser — kraftige, tydeligt adskilte kulører
+  tek:   { top:"#4a3410", mid:"#2c2109", bot:"#120d04", art:"#211803", plate:"#3a2a0c", edge:"#ffb347" },
+  hack:  { top:"#3d1170", mid:"#260a45", bot:"#0f0420", art:"#1f0838", plate:"#340f5e", edge:"#c07bff" },
+  over:  { top:"#5c1a08", mid:"#380f04", bot:"#160502", art:"#2a0b03", plate:"#4a1506", edge:"#ff6a3d" },
+  // stammer (neutrale)
+  Component:{ top:"#5a3806", mid:"#341f04", bot:"#130b02", art:"#241603", plate:"#452c05", edge:"#ffa726" },
+  Robot:  { top:"#0d3566", mid:"#08213f", bot:"#030c18", art:"#061a33", plate:"#0b2c55", edge:"#4db4ff" },
+  Drone:  { top:"#0a4a2c", mid:"#062e1b", bot:"#02120a", art:"#04220f", plate:"#08492a", edge:"#33e88a" },
+  Virus:  { top:"#4a0f52", mid:"#2d0932", bot:"#120414", art:"#230827", plate:"#3d0d44", edge:"#e85adf" },
+  spell:  { top:"#4a4708", mid:"#2b2905", bot:"#131202", art:"#232103", plate:"#3a3806", edge:"#f5ea3a" },
+  none:   { top:"#1e3d1a", mid:"#12240f", bot:"#070f06", art:"#0d1c0b", plate:"#173015", edge:"#7dd960" },
 };
 function themeOf(d){
   if(d.cls && THEME[d.cls]) return THEME[d.cls];

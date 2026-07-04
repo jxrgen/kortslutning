@@ -1,10 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="750" height="1050" viewBox="0 0 750 1050">
 <defs>
   <linearGradient id="bggrad" x1="0" y1="0" x2="0" y2="1">
-    <stop offset="0" stop-color="#20301f"/><stop offset="0.5" stop-color="#152015"/><stop offset="1" stop-color="#0a120a"/>
+    <stop offset="0" stop-color="#1e3d1a"/><stop offset="0.5" stop-color="#12240f"/><stop offset="1" stop-color="#070f06"/>
   </linearGradient>
   <radialGradient id="artgrad" cx="0.5" cy="0.42" r="0.75">
-    <stop offset="0" stop-color="#22311f"/><stop offset="1" stop-color="#101a10"/>
+    <stop offset="0" stop-color="#1d3617"/><stop offset="1" stop-color="#0d1c0b"/>
   </radialGradient>
   <linearGradient id="guldgrad" x1="0" y1="0" x2="0" y2="1">
     <stop offset="0" stop-color="#ffd166"/><stop offset="1" stop-color="#9a7422"/>
@@ -12,7 +12,7 @@
   <clipPath id="artclip"><rect x="52" y="150" width="646" height="410" rx="14"/></clipPath>
 </defs>
 <rect x="6" y="6" width="738" height="1038" rx="36" fill="url(#bggrad)" stroke="#ffd166" stroke-width="9"/>
-<rect x="22" y="22" width="706" height="1006" rx="26" fill="none" stroke="#8fbf7a" stroke-width="3" opacity="0.7"/>
+<rect x="22" y="22" width="706" height="1006" rx="26" fill="none" stroke="#7dd960" stroke-width="3" opacity="0.7"/>
 <circle cx="600" cy="850" r="7" fill="none" stroke="#c9814a" stroke-width="4" opacity="0.1"/><path d="M 600 850 L 600 925" fill="none" stroke="#c9814a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.1"/><rect x="592" y="917" width="16" height="16" fill="#c9814a" opacity="0.1"/><circle cx="375" cy="850" r="7" fill="none" stroke="#c9814a" stroke-width="4" opacity="0.1"/><path d="M 375 850 L 425 850 L 425 950 L 275 980" fill="none" stroke="#c9814a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.1"/><rect x="267" y="972" width="16" height="16" fill="#c9814a" opacity="0.1"/><circle cx="100" cy="850" r="7" fill="none" stroke="#c9814a" stroke-width="4" opacity="0.1"/><path d="M 100 850 L 100 700" fill="none" stroke="#c9814a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.1"/><circle cx="100" cy="700" r="9" fill="#122419" stroke="#c9814a" stroke-width="4" opacity="0.1"/><circle cx="200" cy="775" r="7" fill="none" stroke="#c9814a" stroke-width="4" opacity="0.1"/><path d="M 200 775 L 250 725" fill="none" stroke="#c9814a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.1"/><rect x="242" y="717" width="16" height="16" fill="#c9814a" opacity="0.1"/><circle cx="550" cy="850" r="7" fill="none" stroke="#c9814a" stroke-width="4" opacity="0.1"/><path d="M 550 850 L 600 850" fill="none" stroke="#c9814a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.1"/><circle cx="600" cy="850" r="9" fill="#122419" stroke="#c9814a" stroke-width="4" opacity="0.1"/><rect x="575" y="825" width="14" height="20" fill="#c9814a" opacity="0.09000000000000001"/><rect x="597" y="825" width="14" height="20" fill="#c9814a" opacity="0.09000000000000001"/><rect x="619" y="825" width="14" height="20" fill="#c9814a" opacity="0.09000000000000001"/><rect x="641" y="825" width="14" height="20" fill="#c9814a" opacity="0.09000000000000001"/>
 <g clip-path="url(#artclip)">
   <rect x="52" y="150" width="646" height="410" fill="url(#artgrad)"/>
@@ -30,8 +30,8 @@
 <text x="95" y="118" text-anchor="middle" font-family="DejaVu Sans" font-weight="bold" font-size="74" fill="#1c1405">2</text>
 <text x="375" y="608" text-anchor="middle" font-family="DejaVu Sans Mono" font-size="26" letter-spacing="3"
   fill="#ffd166">★ LEGENDARY · UNIT</text>
-<line x1="80" y1="626" x2="670" y2="626" stroke="#8fbf7a" stroke-width="2" opacity="0.5"/>
-<rect x="46" y="640" width="658" height="236" rx="16" fill="#1a2a1a" opacity="0.55"/>
+<line x1="80" y1="626" x2="670" y2="626" stroke="#7dd960" stroke-width="2" opacity="0.5"/>
+<rect x="46" y="640" width="658" height="236" rx="16" fill="#173015" opacity="0.55"/>
 <text x="375" y="742.6" text-anchor="middle" font-family="DejaVu Sans" font-size="30"
        fill="#dbe7de">Install: Deal 2 damage to a COMPLETELY</text>
 <text x="375" y="784.0" text-anchor="middle" font-family="DejaVu Sans" font-size="30"
