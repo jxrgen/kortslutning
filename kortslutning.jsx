@@ -946,9 +946,14 @@ input:focus,select:focus{border-color:var(--cu)}
 .enh .stat{bottom:1px;font-size:13px}
 .enh.sil{filter:grayscale(.8)}
 .enh .skjold{position:absolute;inset:-4px;border-radius:12px;border:1.5px solid var(--guld);opacity:.8;pointer-events:none}
-.tgt{border-color:var(--rod) !important;box-shadow:0 0 0 2px rgba(255,109,90,.35),0 0 14px rgba(255,109,90,.5) !important;
-  animation:puls 1s infinite}
-@keyframes puls{50%{box-shadow:0 0 0 4px rgba(255,109,90,.2),0 0 18px rgba(255,109,90,.65)}}
+.tgt{border-color:var(--rod) !important;border-width:3px !important;
+  box-shadow:0 0 0 3px rgba(255,109,90,.5),0 0 22px rgba(255,109,90,.75) !important;
+  animation:puls .8s infinite;z-index:6}
+.tgt::after{content:"🎯";position:absolute;top:-13px;left:50%;transform:translateX(-50%);
+  font-size:18px;filter:drop-shadow(0 0 5px rgba(255,109,90,.9));z-index:7;
+  animation:tgtbob .8s ease-in-out infinite}
+@keyframes tgtbob{50%{transform:translateX(-50%) translateY(-3px)}}
+@keyframes puls{50%{box-shadow:0 0 0 6px rgba(255,109,90,.3),0 0 30px rgba(255,109,90,.9) !important}}
 .midt{display:flex;align-items:center;gap:10px;padding:4px 12px;font-family:var(--mono);font-size:12px;color:var(--dim)}
 .slutknap{margin-left:auto;background:linear-gradient(180deg,#274a35,#173021);border:1px solid var(--fos);
   color:var(--fos);border-radius:10px;padding:9px 16px;font-family:var(--mono);font-weight:700;letter-spacing:1px}
@@ -1095,6 +1100,16 @@ button:active{transform:scale(.97)}
   animation:flyvk .62s cubic-bezier(.32,.08,.55,1) forwards}
 @keyframes flyvk{0%{offset-distance:0%;opacity:0}10%{opacity:1}
   100%{offset-distance:100%;opacity:0;transform:scale(.42)}}
+/* ---- angreb/targeting ---- */
+.spilflade.targeting .enh:not(.tgt),.spilflade.targeting .helt:not(.tgt){opacity:.4;filter:saturate(.5)}
+.spilflade.targeting .mkort{opacity:.4}
+.spilflade.targeting .enh.tgt,.spilflade.targeting .helt.tgt{opacity:1 !important;filter:none !important}
+.atkhint{text-align:center;font-family:var(--mono);font-size:12px;color:var(--fos);
+  background:rgba(95,224,160,.1);border:1px solid rgba(95,224,160,.35);border-radius:10px;
+  padding:6px 12px;margin:2px auto 6px;max-width:440px;animation:atkhintpuls 2.4s ease-in-out infinite}
+@keyframes atkhintpuls{50%{background:rgba(95,224,160,.18);border-color:rgba(95,224,160,.6)}}
+.banner.atk{background:linear-gradient(180deg,#5a1a12,#3a0f0a);border-color:var(--rod);color:#ffd9d2}
+.banner .bx{opacity:.7;font-size:11px;margin-left:6px}
 /* ---- tutorial ---- */
 .coach{position:fixed;left:50%;transform:translateX(-50%);bottom:178px;z-index:55;
   display:flex;gap:10px;align-items:flex-start;max-width:470px;width:calc(100% - 26px);
@@ -1507,7 +1522,7 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
       const ts=attackTargets(g,seat,u.uid);
       if(ts.length){
         if(!tOK("atk",u.id)){nope();return;}
-        setT({list:ts,label:"⚔ "+CARDS[u.id].n+" — choose a target",run:r=>act(x=>unitAttack(x,seat,u.uid,r))}); return; }
+        setT({atk:true,list:ts,label:"⚔ "+CARDS[u.id].n+" angriber — tryk på et rødt mål",run:r=>act(x=>unitAttack(x,seat,u.uid,r))}); return; }
     }
     setSel({kind:"info",id:u.id,unit:{s:rs,uid:u.uid}});
   };
@@ -1536,10 +1551,11 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
 
   const slut=g.status==="slut";
   const kanKraft=myTurn&&!me.heroUsed&&me.cur>=K.power.c;
+  const kanAngribe=myTurn&&!slut&&!tmode&&me.board.filter(u=>attackTargets(g,seat,u.uid).length>0).length;
 
   return (
-    <div className="spilflade">
-      {tmode && <button className="banner" onClick={()=>setT(null)}>{tmode.label} · tap here to cancel</button>}
+    <div className={"spilflade"+(tmode?" targeting":"")+(tmode&&tmode.atk?" atkmode":"")}>
+      {tmode && <button className={"banner"+(tmode.atk?" atk":"")} onClick={()=>setT(null)}>{tmode.label}<span className="bx">· tryk her for at fortryde</span></button>}
       {turban>0 && myTurn && !slut && <div key={turban} className="turban">YOUR TURN</div>}
 
       {/* modstander */}
@@ -1565,6 +1581,8 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
           onClick={()=>{ if(!tOK("end")){nope();return;} act(x=>endTurn(x,seat)); }}>END TURN</button>
       </div>
 
+      {kanAngribe>0 && mode!=="tutorial" &&
+        <div className="atkhint">⚔ Tryk på en enhed med sværd-mærke, og dernæst på det du vil angribe</div>}
       <div className="braet">
         {me.board.length===0&&<span style={{color:"var(--dim)",fontFamily:"var(--mono)",fontSize:11}}>— empty board —</span>}
         {me.board.map(u=>
