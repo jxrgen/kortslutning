@@ -5,6 +5,7 @@
 //   assets/manifest.json  alle kortdata -> filer
 import { readFileSync, writeFileSync, mkdirSync } from "fs";
 import sharp from "sharp";
+import { iconFor } from "./icons.mjs";
 
 // ---------- kortdata fra motoren ----------
 const src = readFileSync("kortslutning.jsx", "utf8");
@@ -89,62 +90,10 @@ function circuitPattern(rnd, x0, y0, x1, y1, color, n, op){
 }
 
 // ---------- stamme-motiver (centreret om 375,345) ----------
-function motif(d, ac, rnd){
-  const sc=(0.92+rnd()*0.16).toFixed(3);
+function motif(d, ac, rnd, id){
+  const sc=(0.94+rnd()*0.12).toFixed(3);
   const wrap=inner=>`<g transform="translate(375 345) scale(${sc}) translate(-375 -345)">${inner}</g>`;
-  const sw=10;
-  if(d.t==="spell"){
-    const hex=[...Array(6)].map((_,i)=>{const a=Math.PI/3*i-Math.PI/6;
-      return `${375+158*Math.cos(a)},${345+158*Math.sin(a)}`;}).join(" ");
-    return wrap(`<polygon points="${hex}" fill="none" stroke="${ac}" stroke-width="${sw}" stroke-linejoin="round"/>
-      <polygon points="${hex}" fill="${ac}" opacity="0.07"/>
-      <path d="M 402 232 L 322 372 L 372 372 L 344 462 L 434 318 L 380 318 Z" fill="${ac}" stroke="${P.bg0}" stroke-width="5" stroke-linejoin="round"/>`);
-  }
-  if(d.tr==="Component"){
-    let ben="";
-    for(let i=0;i<6;i++){ const y=268+i*32;
-      ben+=`<rect x="228" y="${y}" width="30" height="14" rx="4" fill="${ac}"/>
-            <rect x="492" y="${y}" width="30" height="14" rx="4" fill="${ac}"/>`; }
-    return wrap(`${ben}<rect x="258" y="245" width="234" height="200" rx="16" fill="${P.bg2}" stroke="${ac}" stroke-width="${sw}"/>
-      <circle cx="298" cy="285" r="11" fill="${ac}"/>
-      <rect x="288" y="330" width="174" height="8" rx="4" fill="${ac}" opacity="0.55"/>
-      <rect x="288" y="356" width="130" height="8" rx="4" fill="${ac}" opacity="0.35"/>`);
-  }
-  if(d.tr==="Robot"){
-    return wrap(`<line x1="375" y1="252" x2="375" y2="208" stroke="${ac}" stroke-width="${sw}"/>
-      <circle cx="375" cy="196" r="13" fill="${ac}"/>
-      <rect x="262" y="252" width="226" height="188" rx="28" fill="${P.bg2}" stroke="${ac}" stroke-width="${sw}"/>
-      <rect x="236" y="310" width="26" height="64" rx="8" fill="${ac}" opacity="0.7"/>
-      <rect x="488" y="310" width="26" height="64" rx="8" fill="${ac}" opacity="0.7"/>
-      <rect x="300" y="308" width="52" height="30" rx="8" fill="${ac}"/>
-      <rect x="398" y="308" width="52" height="30" rx="8" fill="${ac}"/>
-      <rect x="318" y="384" width="114" height="12" rx="6" fill="${ac}" opacity="0.6"/>`);
-  }
-  if(d.tr==="Drone"){
-    const arm=(x2,y2)=>`<line x1="375" y1="345" x2="${x2}" y2="${y2}" stroke="${ac}" stroke-width="12" stroke-linecap="round"/>`;
-    const rot=(x,y)=>`<circle cx="${x}" cy="${y}" r="52" fill="none" stroke="${ac}" stroke-width="8" opacity="0.85"/>
-      <circle cx="${x}" cy="${y}" r="10" fill="${ac}"/>`;
-    return wrap(`${arm(263,233)}${arm(487,233)}${arm(263,457)}${arm(487,457)}
-      ${rot(263,233)}${rot(487,233)}${rot(263,457)}${rot(487,457)}
-      <rect x="327" y="311" width="96" height="68" rx="16" fill="${P.bg2}" stroke="${ac}" stroke-width="${sw}"/>
-      <circle cx="375" cy="345" r="13" fill="${ac}"/>`);
-  }
-  if(d.tr==="Virus"){
-    let sp="";
-    for(let i=0;i<8;i++){ const a=Math.PI/4*i+Math.PI/8;
-      const x1=375+96*Math.cos(a), y1=345+96*Math.sin(a), x2=375+152*Math.cos(a), y2=345+152*Math.sin(a);
-      sp+=`<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="${ac}" stroke-width="13" stroke-linecap="round"/>
-           <circle cx="${x2.toFixed(1)}" cy="${y2.toFixed(1)}" r="15" fill="${ac}"/>`; }
-    return wrap(`${sp}<circle cx="375" cy="345" r="96" fill="${P.bg2}" stroke="${ac}" stroke-width="${sw}"/>
-      <circle cx="345" cy="322" r="14" fill="${ac}" opacity="0.85"/>
-      <circle cx="404" cy="352" r="19" fill="${ac}" opacity="0.6"/>
-      <circle cx="358" cy="386" r="10" fill="${ac}" opacity="0.75"/>`);
-  }
-  // legendariske uden stamme: energikerne
-  return wrap(`<circle cx="375" cy="345" r="120" fill="none" stroke="${ac}" stroke-width="8" opacity="0.9"/>
-    <circle cx="375" cy="345" r="150" fill="none" stroke="${ac}" stroke-width="3" opacity="0.4"/>
-    <path d="M 375 205 L 405 315 L 515 345 L 405 375 L 375 485 L 345 375 L 235 345 L 345 315 Z"
-      fill="${ac}" stroke="${P.bg0}" stroke-width="5" stroke-linejoin="round"/>`);
+  return wrap(iconFor(id, d, ac, P.bg0, P.bg2, rnd));
 }
 
 // ---------- tekst-wrap ----------
@@ -220,7 +169,7 @@ ${circuitPattern(mulberry(seedOf(id+"bg")), 40, 620, W-40, H-70, P.cu, 5, 0.10)}
   <rect x="52" y="${artY0}" width="${W-104}" height="${artY1-artY0}" fill="url(#artgrad)"/>
   ${circuitPattern(rnd, 60, artY0+10, W-60, artY1-10, P.cu, 9, 0.30)}
   ${circuitPattern(rnd, 60, artY0+10, W-60, artY1-10, ac, 3, 0.22)}
-  ${motif(d, ac, rnd)}
+  ${motif(d, ac, rnd, id)}
 </g>
 <rect x="52" y="${artY0}" width="${W-104}" height="${artY1-artY0}" rx="14" fill="none" stroke="${leg?P.guld:P.line}" stroke-width="3"/>
 <text x="200" y="${102}" font-family="DejaVu Sans Condensed" font-weight="bold" font-size="${nameSize}"
