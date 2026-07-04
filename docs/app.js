@@ -278,28 +278,35 @@ button:active{transform:scale(.97)}
 .coach.wob{animation:ryst .4s ease-in-out}
 .tuthi{outline:2.5px solid var(--fos);outline-offset:2px;animation:tutpuls 1.15s ease-in-out infinite;z-index:5}
 @keyframes tutpuls{50%{outline-color:rgba(95,224,160,.15);box-shadow:0 0 20px rgba(95,224,160,.65)}}
-@media (min-width:900px) and (orientation:landscape){ .coach{bottom:212px} }
+@media (min-width:820px){ .coach{bottom:206px} }
 /* ---- store sk\xE6rme / landscape ---- */
 @media (min-width:700px){
   .mkort{width:74px;height:104px}.mkort .art{width:46px;height:46px}.mkort .nv{font-size:9.5px}
   .enh{width:68px;height:76px}.enh .art{width:46px;height:46px}
 }
-@media (min-width:900px) and (orientation:landscape){
-  .spilflade{max-width:1500px;width:100%;margin:0 auto}
-  .mkort{width:92px;height:129px}.mkort .art{width:58px;height:58px}.mkort .nv{font-size:11px;max-height:24px}
+@media (min-width:820px){
+  .spilflade{max-width:1400px;width:100%;margin:0 auto}
+  .mkort{width:88px;height:123px}.mkort .art{width:56px;height:56px}.mkort .nv{font-size:11px;max-height:24px}
   .mkort .stat{font-size:15px}.pris{font-size:15px;min-width:24px;height:24px}
-  .enh{width:88px;height:98px}.enh .art{width:58px;height:58px}.enh .stat{font-size:16px}
+  .enh{width:84px;height:94px}.enh .art{width:56px;height:56px}.enh .stat{font-size:16px}
   .enh .ikoner{font-size:11px}
-  .braet{gap:12px;min-height:110px}
+  .braet{gap:12px;min-height:108px}
   .bar{font-size:15px;padding:10px 24px}
   .midt{padding:6px 24px;font-size:13px}
-  .haand{justify-content:center;overflow:visible;padding-top:26px;min-height:176px;gap:0}
+  .haand{justify-content:center;overflow:visible;padding-top:26px;min-height:174px;gap:0}
   .haand .mkort{margin:0 -7px;transform-origin:50% 135%;
     transform:rotate(calc(var(--o,0)*3.5deg)) translateY(calc(var(--a,0)*7px))}
   .haand .mkort.spil{transform:rotate(calc(var(--o,0)*3.5deg)) translateY(calc(var(--a,0)*7px - 8px))}
   .haand .mkort:hover{transform:rotate(0deg) translateY(-34px) scale(1.14);z-index:6}
   .kraft{width:54px;height:54px;font-size:24px}
   .logpanel{bottom:190px}.logknap{bottom:190px}
+}
+@media (min-width:1200px){
+  .spilflade{max-width:1600px}
+  .mkort{width:100px;height:140px}.mkort .art{width:64px;height:64px}
+  .enh{width:96px;height:106px}.enh .art{width:64px;height:64px}
+  .braet{gap:16px;min-height:120px}
+  .haand .mkort{margin:0 -6px}
 }
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important}
