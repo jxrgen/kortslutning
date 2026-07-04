@@ -1027,6 +1027,12 @@ p.rt{font-size:14px;line-height:1.55;color:var(--txt);margin:6px 0}
 .kknap{flex:1;text-align:center;padding:9px 4px;border-radius:12px;border:1px solid var(--line);
   background:var(--bg1);font-family:var(--mono);font-size:11.5px;color:var(--dim);line-height:1.5}
 .kinfo{font-size:12.5px;color:var(--dim);margin-top:7px;font-family:var(--mono)}
+.mkort.tema{background:linear-gradient(180deg,var(--ct),var(--cb));border-color:color-mix(in srgb,var(--ce) 55%,transparent)}
+.mkort.tema::after{background:var(--ce)}
+.enh.tema{background:linear-gradient(180deg,var(--ct),var(--cb));border-color:color-mix(in srgb,var(--ce) 55%,transparent)}
+.storkort.tema{background:linear-gradient(180deg,var(--ct),var(--cb));border-color:color-mix(in srgb,var(--ce) 60%,transparent)}
+.storkort.tema .top{background:color-mix(in srgb,var(--ct) 60%,#0c1811);border-color:color-mix(in srgb,var(--ce) 40%,transparent)}
+.storkort.tema.leg{border-color:var(--guld)}
 /* ---- dybde & liv ---- */
 .mkort{box-shadow:0 4px 10px rgba(0,0,0,.45)}
 .enh{box-shadow:0 3px 8px rgba(0,0,0,.4)}
@@ -1134,7 +1140,7 @@ function kwIkoner(g,s,u){
 function MiniCard({id,onClick,glow,count,style,dfx,xcls}){
   const d=CARDS[id];
   return (
-    <button className={"mkort"+(d.r==="L"?" leg":"")+(glow?" spil":"")+(xcls?" "+xcls:"")} onClick={onClick} style={style} data-fx={dfx}>
+    <button className={"mkort tema"+(d.r==="L"?" leg":"")+(glow?" spil":"")+(xcls?" "+xcls:"")} onClick={onClick} style={{...themeVars(d),...style}} data-fx={dfx}>
       <span className="pris">{d.c}</span>
       {count!=null && <span className="antal">{count}×</span>}
       {d.cls&&CLASSES[d.cls]&&<span className="clsdot" style={{background:CLASSES[d.cls].col}}/>}
@@ -1149,14 +1155,13 @@ function StorKort({id,unitInfo,g}){
   let live=null;
   if(unitInfo&&g){ const u=refUnit(g,{s:unitInfo.s,u:unitInfo.uid});
     if(u) live={a:effAtk(g,unitInfo.s,u),h:effHp(g,unitInfo.s,u),m:effMax(g,unitInfo.s,u),sil:u.sil,ik:kwIkoner(g,unitInfo.s,u)}; }
-  const kcol=d.cls&&CLASSES[d.cls]?CLASSES[d.cls].col:null;
   return (
-    <div className={"storkort"+(d.r==="L"?" leg":"")} style={kcol?{borderLeft:"4px solid "+kcol}:null}>
+    <div className={"storkort tema"+(d.r==="L"?" leg":"")} style={themeVars(d)}>
       <div className="top">
         <CardArt id={id} pattern={true} className="storart"/>
         <div>
           <h3>{d.n}</h3>
-          <div className="meta">{d.c}⚡ · {kcol?CLASSES[d.cls].n+" · ":""}{d.t==="unit"?"Unit":"Spell"}{d.tr?" · "+d.tr:""}{d.r==="L"?" · ★ Legendary":""}</div>
+          <div className="meta">{d.c}⚡ · {d.cls&&CLASSES[d.cls]?CLASSES[d.cls].n+" · ":""}{d.t==="unit"?"Unit":"Spell"}{d.tr?" · "+d.tr:""}{d.r==="L"?" · ★ Legendary":""}</div>
         </div>
       </div>
       <div className="txt">{live&&live.sil?<i>Reset — all text removed.</i>:(d.txt||"—")}</div>
@@ -1190,8 +1195,8 @@ function UnitTile({g,s,u,mine,onClick,hilite,ready,shake,tuthi}){
   const ik=kwIkoner(g,s,u);
   const sover=mine&&u.jp&&!hasKw(g,s,u,"turbo");
   return (
-    <button className={"enh"+(d.r==="L"?" leg":"")+(hilite?" tgt":"")+(ready?" klar":"")+(u.sil?" sil":"")+(sover?" sover":"")+(shake?" ryst":"")+(tuthi?" tuthi":"")}
-      onClick={onClick} data-fx={u.uid}>
+    <button className={"enh tema"+(d.r==="L"?" leg":"")+(hilite?" tgt":"")+(ready?" klar":"")+(u.sil?" sil":"")+(sover?" sover":"")+(shake?" ryst":"")+(tuthi?" tuthi":"")}
+      onClick={onClick} data-fx={u.uid} style={themeVars(d)}>
       {ik.length>0 && <span className="ikoner">{ik.join("")}</span>}
       {u.sh && <span className="skjold"/>}
       <CardArt id={u.id} className={u.st?"dimart":undefined}/>
@@ -1300,6 +1305,17 @@ function motifArt(d,ac,rnd){
   return wrap('<circle cx="375" cy="345" r="120" fill="none" stroke="'+ac+'" stroke-width="8" opacity="0.9"/>'
     +'<circle cx="375" cy="345" r="150" fill="none" stroke="'+ac+'" stroke-width="3" opacity="0.4"/>'
     +'<path d="M 375 205 L 405 315 L 515 345 L 405 375 L 375 485 L 345 375 L 235 345 L 345 315 Z" fill="'+ac+'" stroke="'+ARTC.bg+'" stroke-width="5" stroke-linejoin="round"/>');
+}
+const CARDTHEME={
+  tek:  ["#2a2114","#0f0c08","#e8a96a"], hack:["#2a1638","#0f0817","#c76bd9"],
+  over: ["#331d12","#130a06","#ff8c5a"], Component:["#2b2114","#0d0b07","#e8a96a"],
+  Robot:["#14243a","#070d15","#9fc0e8"], Drone:["#0f3327","#05110d","#5fe0a0"],
+  Virus:["#2a1636","#0e0816","#c76bd9"], spell:["#2c2a12","#0e0d06","#e8e05f"],
+  none: ["#20301f","#0a120a","#8fbf7a"],
+};
+function themeVars(d){
+  const t=(d.cls&&CARDTHEME[d.cls])||(d.t==="spell"&&CARDTHEME.spell)||(d.tr&&CARDTHEME[d.tr])||CARDTHEME.none;
+  return {"--ct":t[0],"--cb":t[1],"--ce":t[2]};
 }
 function CardArt({id,pattern,className}){
   const inner=useMemo(()=>{

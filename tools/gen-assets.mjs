@@ -24,6 +24,25 @@ const ACCENT = { Component:P.cu2, Robot:"#9fc0e8", Drone:P.fos, Virus:"#c76bd9",
 const clsCol = d => d.cls&&CLASSES[d.cls] ? CLASSES[d.cls].col : null;
 const accentFor = d => (d.cls&&d.t==="spell"&&CLASSES[d.cls]) ? CLASSES[d.cls].col
   : d.t==="spell" ? ACCENT.spell : (ACCENT[d.tr] || ACCENT.none);
+// ---------- kort-tema (bund/artzone/plade pr. klasse el. stamme) ----------
+const THEME = {
+  tek:   { top:"#2a2114", mid:"#1c1710", bot:"#0f0c08", art:"#161009", plate:"#241c11", edge:"#e8a96a" },
+  hack:  { top:"#2a1638", mid:"#1c1026", bot:"#0f0817", art:"#170c22", plate:"#241238", edge:"#c76bd9" },
+  over:  { top:"#331d12", mid:"#22130b", bot:"#130a06", art:"#1c0f08", plate:"#2a170d", edge:"#ff8c5a" },
+  Component:{ top:"#2b2114", mid:"#1b1610", bot:"#0d0b07", art:"#15110a", plate:"#241c12", edge:"#e8a96a" },
+  Robot:  { top:"#14243a", mid:"#0e1826", bot:"#070d15", art:"#0b1420", plate:"#122036", edge:"#9fc0e8" },
+  Drone:  { top:"#0f3327", mid:"#0a2019", bot:"#05110d", art:"#081c15", plate:"#0d2c22", edge:"#5fe0a0" },
+  Virus:  { top:"#2a1636", mid:"#1b0f24", bot:"#0e0816", art:"#160b21", plate:"#231338", edge:"#c76bd9" },
+  spell:  { top:"#2c2a12", mid:"#1c1b0e", bot:"#0e0d06", art:"#161509", plate:"#26240f", edge:"#e8e05f" },
+  none:   { top:"#20301f", mid:"#152015", bot:"#0a120a", art:"#101a10", plate:"#1a2a1a", edge:"#8fbf7a" },
+};
+function themeOf(d){
+  if(d.cls && THEME[d.cls]) return THEME[d.cls];
+  if(d.t==="spell") return THEME.spell;
+  if(d.tr && THEME[d.tr]) return THEME[d.tr];
+  return THEME.none;
+}
+
 
 // ---------- seedet PRNG pr. kort ----------
 function seedOf(str){ let h=2166136261; for(const c of str){ h^=c.charCodeAt(0); h=Math.imul(h,16777619); } return h>>>0; }
@@ -31,6 +50,12 @@ function mulberry(a){ return function(){ a|=0; a=(a+0x6D2B79F5)|0; let t=Math.im
   t=(t+Math.imul(t^(t>>>7),61|t))^t; return ((t^(t>>>14))>>>0)/4294967296; }; }
 
 const esc = s => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+function mix(a,b,t){
+  const h=x=>[parseInt(x.slice(1,3),16),parseInt(x.slice(3,5),16),parseInt(x.slice(5,7),16)];
+  const [r1,g1,b1]=h(a),[r2,g2,b2]=h(b);
+  const c=v=>Math.round(v).toString(16).padStart(2,"0");
+  return "#"+c(r1+(r2-r1)*t)+c(g1+(g2-g1)*t)+c(b1+(b2-b1)*t);
+}
 
 // ---------- generativt kredsløbsmønster ----------
 function circuitPattern(rnd, x0, y0, x1, y1, color, n, op){
@@ -135,7 +160,8 @@ function wrapText(t, maxChars){
 const W=750, H=1050;
 function cardSVG(id){
   const d=CARDS[id], ac=accentFor(d), rnd=mulberry(seedOf(id));
-  const leg=d.r==="L", ramme=leg?P.guld:P.line;
+  const th=themeOf(d);
+  const leg=d.r==="L", ramme=leg?P.guld:th.edge;
   const artY0=150, artY1=560;
 
   // navn
@@ -175,18 +201,21 @@ function cardSVG(id){
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
 <defs>
   <linearGradient id="bggrad" x1="0" y1="0" x2="0" y2="1">
-    <stop offset="0" stop-color="${P.bg2}"/><stop offset="0.5" stop-color="${P.bg1}"/><stop offset="1" stop-color="${P.bg0}"/>
+    <stop offset="0" stop-color="${th.top}"/><stop offset="0.5" stop-color="${th.mid}"/><stop offset="1" stop-color="${th.bot}"/>
   </linearGradient>
+  <radialGradient id="artgrad" cx="0.5" cy="0.42" r="0.75">
+    <stop offset="0" stop-color="${mix(th.art,th.edge,0.14)}"/><stop offset="1" stop-color="${th.art}"/>
+  </radialGradient>
   <linearGradient id="guldgrad" x1="0" y1="0" x2="0" y2="1">
     <stop offset="0" stop-color="${P.guld}"/><stop offset="1" stop-color="#9a7422"/>
   </linearGradient>
   <clipPath id="artclip"><rect x="52" y="${artY0}" width="${W-104}" height="${artY1-artY0}" rx="14"/></clipPath>
 </defs>
 <rect x="6" y="6" width="${W-12}" height="${H-12}" rx="36" fill="url(#bggrad)" stroke="${ramme}" stroke-width="${leg?9:6}"/>
-<rect x="22" y="22" width="${W-44}" height="${H-44}" rx="26" fill="none" stroke="${kc||P.cu}" stroke-width="${kc?3:2}" opacity="${kc?0.8:0.55}"/>
+<rect x="22" y="22" width="${W-44}" height="${H-44}" rx="26" fill="none" stroke="${th.edge}" stroke-width="${leg?3:2}" opacity="0.7"/>
 ${circuitPattern(mulberry(seedOf(id+"bg")), 40, 620, W-40, H-70, P.cu, 5, 0.10)}
 <g clip-path="url(#artclip)">
-  <rect x="52" y="${artY0}" width="${W-104}" height="${artY1-artY0}" fill="${P.bg0}"/>
+  <rect x="52" y="${artY0}" width="${W-104}" height="${artY1-artY0}" fill="url(#artgrad)"/>
   ${circuitPattern(rnd, 60, artY0+10, W-60, artY1-10, P.cu, 9, 0.30)}
   ${circuitPattern(rnd, 60, artY0+10, W-60, artY1-10, ac, 3, 0.22)}
   ${motif(d, ac, rnd)}
@@ -198,7 +227,8 @@ ${circuitPattern(mulberry(seedOf(id+"bg")), 40, 620, W-40, H-70, P.cu, 5, 0.10)}
 <text x="95" y="118" text-anchor="middle" font-family="DejaVu Sans" font-weight="bold" font-size="74" fill="${P.mork}">${d.c}</text>
 <text x="375" y="608" text-anchor="middle" font-family="DejaVu Sans Mono" font-size="26" letter-spacing="3"
   fill="${kc?kc:(leg?P.guld:P.dim)}">${esc(typeTxt)}</text>
-<line x1="80" y1="626" x2="${W-80}" y2="626" stroke="${P.line}" stroke-width="2"/>
+<line x1="80" y1="626" x2="${W-80}" y2="626" stroke="${th.edge}" stroke-width="2" opacity="0.5"/>
+<rect x="46" y="640" width="${W-92}" height="${(d.t==="unit"?862:972)-640+14}" rx="16" fill="${th.plate}" opacity="0.55"/>
 ${textSvg}
 ${stats}
 ${fingers}
