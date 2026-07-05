@@ -1111,6 +1111,7 @@ button:active{transform:scale(.97)}
 .braet.op .enh .ctip::after{top:auto;bottom:100%;border-top-color:transparent;border-bottom-color:var(--ce,#5fe0a0)}
 /* ---- træk-og-slip ---- */
 .haand .mkort{touch-action:none}
+.braet .enh{touch-action:none}
 .dragkort{position:fixed;z-index:75;pointer-events:none;transform:translate(-50%,-50%) rotate(-4deg) scale(1.15);
   filter:drop-shadow(0 12px 24px rgba(0,0,0,.6));opacity:.95}
 .dragkort.over{transform:translate(-50%,-50%) rotate(0deg) scale(1.25);
@@ -1124,6 +1125,37 @@ button:active{transform:scale(.97)}
 .enh.dragtgt,.helt.dragtgt{outline:3px solid var(--rod);outline-offset:3px;
   box-shadow:0 0 22px rgba(255,109,90,.7);animation:dragtgtpuls .7s ease-in-out infinite;z-index:6}
 @keyframes dragtgtpuls{50%{outline-color:#ff9a8c;box-shadow:0 0 32px rgba(255,109,90,1)}}
+/* ---- sejrsanimation ---- */
+.slor.sejr{background:radial-gradient(120% 90% at 50% 30%,rgba(63,168,120,.18),rgba(6,12,9,.86) 70%)}
+.vfx{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:1}
+.vpart{position:absolute;top:-6%;opacity:0;animation:vfall linear infinite}
+.vpart.ci{border-radius:50%}
+.vpart.sq{border-radius:1px}
+@keyframes vfall{
+  0%{opacity:0;transform:translate(0,-20px) rotate(0deg)}
+  8%{opacity:1}
+  100%{opacity:0;transform:translate(var(--drift),108vh) rotate(var(--spin))}
+}
+.vbolt{position:absolute;top:-8%;opacity:0;filter:drop-shadow(0 0 6px rgba(240,178,62,.9));
+  animation:vboltfall linear infinite}
+@keyframes vboltfall{
+  0%{opacity:0;transform:translateY(-30px) scale(.8)}
+  10%{opacity:1}
+  60%{opacity:1}
+  100%{opacity:0;transform:translateY(114vh) scale(1.1)}
+}
+.slor.sejr .ark{position:relative;z-index:2;animation:vark .6s cubic-bezier(.2,1.4,.4,1) both}
+@keyframes vark{0%{transform:scale(.7);opacity:0}100%{transform:scale(1);opacity:1}}
+.vlogo{color:var(--fos);letter-spacing:2px;position:relative;
+  text-shadow:0 0 20px rgba(95,224,160,.7),0 0 44px rgba(95,224,160,.4);
+  animation:vpulse 1.6s ease-in-out infinite}
+@keyframes vpulse{50%{text-shadow:0 0 30px rgba(95,224,160,1),0 0 60px rgba(95,224,160,.6),0 0 90px rgba(240,178,62,.4)}}
+.vbadge{display:inline-block;margin-left:8px;animation:vspark .9s ease-in-out infinite}
+@keyframes vspark{0%,100%{transform:scale(1) rotate(0);filter:drop-shadow(0 0 4px #f0b23e)}50%{transform:scale(1.35) rotate(8deg);filter:drop-shadow(0 0 14px #f0b23e)}}
+@media (prefers-reduced-motion:reduce){
+  .vpart,.vbolt{display:none}
+  .vlogo,.vbadge,.slor.sejr .ark{animation:none}
+}
 /* ---- hover-tooltip ---- */
 .ctip{position:absolute;bottom:calc(100% + 10px);left:50%;transform:translateX(-50%) translateY(6px);
   width:210px;background:linear-gradient(180deg,#14251b,#0b160f);border:1.5px solid var(--ce,#5fe0a0);
@@ -1276,6 +1308,44 @@ function StorKort({id,unitInfo,g}){
           {live&&live.ik.length>0&&<span style={{color:"var(--dim)",fontFamily:"var(--mono)",fontSize:12}}>{live.ik.join(" ")}</span>}
         </div>
       )}
+    </div>
+  );
+}
+function VictoryFX(){
+  // genererer partikler (gnister/konfetti) + elektriske bolte i temaets farver
+  const parts=useMemo(()=>{
+    const cols=["#5fe0a0","#f0b23e","#ff5a4d","#4db4ff","#c07bff"];
+    return Array.from({length:80},(_,i)=>({
+      id:i,
+      left:Math.random()*100,
+      delay:Math.random()*2.2,
+      dur:2.4+Math.random()*2.2,
+      col:cols[(Math.random()*cols.length)|0],
+      size:3+Math.random()*5,
+      drift:(Math.random()*2-1)*140,
+      spin:(Math.random()*2-1)*720,
+      shape:Math.random()<0.5?"sq":"ci",
+    }));
+  },[]);
+  const bolts=useMemo(()=>Array.from({length:7},(_,i)=>({
+    id:i, left:8+Math.random()*84, delay:0.3+Math.random()*2.6, dur:0.5+Math.random()*0.4,
+  })),[]);
+  return (
+    <div className="vfx" aria-hidden="true">
+      {parts.map(p=>(
+        <span key={p.id} className={"vpart "+p.shape} style={{
+          left:p.left+"%", background:p.col, width:p.size, height:p.size,
+          animationDelay:p.delay+"s", animationDuration:p.dur+"s",
+          "--drift":p.drift+"px", "--spin":p.spin+"deg",
+          boxShadow:"0 0 8px "+p.col,
+        }}/>
+      ))}
+      {bolts.map(b=>(
+        <svg key={b.id} className="vbolt" style={{left:b.left+"%",animationDelay:b.delay+"s",animationDuration:b.dur+"s"}}
+          viewBox="0 0 40 120" width="26" height="80">
+          <path d="M24 4 L8 60 L20 60 L14 116 L34 48 L22 48 Z" fill="#f0b23e" stroke="#fff6d8" strokeWidth="1.5"/>
+        </svg>
+      ))}
     </div>
   );
 }
@@ -1857,12 +1927,34 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
     if(u) return {s:1-seat,u:u.uid};
     return null;
   };
+  // find ETHVERT mål under pointeren (egne+fjendtlige enheder + begge helte) — til spells
+  const anyTargetAt=(x,y)=>{
+    const el=document.elementFromPoint(x,y);
+    if(!el) return null;
+    const fxEl=el.closest("[data-fx]");
+    if(!fxEl) return null;
+    const key=fxEl.dataset.fx;
+    if(key==="h0") return {s:0,u:null};
+    if(key==="h1") return {s:1,u:null};
+    for(const ps of [0,1]){ const u=g.players[ps].board.find(z=>z.uid===key); if(u) return {s:ps,u:u.uid}; }
+    return null;
+  };
   const overBoard=(y)=>{
     const bel=braetRef.current;
     if(!bel) return false;
     const r=bel.getBoundingClientRect();
     // generøs zone: fra et stykke over brættet til lidt under det
     return y < r.bottom+40 && y > r.top-120;
+  };
+  // er ref et gyldigt mål for det igangværende drag? (angreb ELLER targeting-spell)
+  const isDragTgt=(ref)=>{
+    if(!drag) return false;
+    if(drag.kind==="atk") return attackTargets(g,seat,drag.uid).some(r=>r.s===ref.s&&r.u===ref.u);
+    if(drag.kind==="play"&&drag.need){
+      const {list}=targetsForCard(g,seat,drag.id,null);
+      return list.some(r=>r.s===ref.s&&r.u===ref.u);
+    }
+    return false;
   };
   useEffect(()=>{
     const move=(e)=>{
@@ -1871,7 +1963,17 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
       if(!d.moved && Math.hypot(dx,dy)<8) return; // lille bevægelse = stadig et klik
       d.moved=true;
       if(d.kind==="play"){
-        setDrag({kind:"play",uid:d.uid,id:d.id,x:e.clientX,y:e.clientY,over:overBoard(e.clientY)});
+        const dc=CARDS[d.id];
+        const {need}=targetsForCard(g,seat,d.id,null);
+        if(dc.t==="spell"&&need){
+          // targeting-spell: slippes direkte på et gyldigt mål
+          const tgt=anyTargetAt(e.clientX,e.clientY);
+          const valid=tgt && targetsForCard(g,seat,d.id,null).list.some(r=>r.s===tgt.s&&r.u===tgt.u);
+          setDrag({kind:"play",need:true,uid:d.uid,id:d.id,x:e.clientX,y:e.clientY,tgt:valid?tgt:null});
+        } else {
+          // enhed (evt. med Install-mål) eller mål-løst spell → til brættet
+          setDrag({kind:"play",uid:d.uid,id:d.id,x:e.clientX,y:e.clientY,over:overBoard(e.clientY)});
+        }
       } else {
         const tgt=targetAt(e.clientX,e.clientY);
         const valid=tgt && attackTargets(g,seat,d.uid).some(r=>r.s===tgt.s&&r.u===tgt.u);
@@ -1885,7 +1987,16 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
         justDragged.current=true;
         setDrag(null);
         if(d.kind==="play"){
-          if(overBoard(e.clientY)){ const c=me.hand.find(x=>x.uid===d.uid); if(c) spilKortNu(c); }
+          const c=me.hand.find(x=>x.uid===d.uid); if(!c){ return; }
+          const dc=CARDS[c.id];
+          const {need}=targetsForCard(g,seat,c.id,null);
+          if(dc.t==="spell"&&need){
+            const tgt=anyTargetAt(e.clientX,e.clientY);
+            const {list}=targetsForCard(g,seat,c.id,null);
+            if(tgt && list.some(r=>r.s===tgt.s&&r.u===tgt.u)){
+              act(x=>playCard(x,seat,c.uid,tgt)); // slip direkte på mål
+            } else { spilKortNu(c); } // sluppet uden gyldigt mål → åbn mål-vælger
+          } else if(overBoard(e.clientY)){ spilKortNu(c); }
         } else {
           const tgt=targetAt(e.clientX,e.clientY);
           if(tgt && attackTargets(g,seat,d.uid).some(r=>r.s===tgt.s&&r.u===tgt.u)){
@@ -1922,7 +2033,7 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
       {/* modstander */}
       <div className="bar">
         <HeltPlade g={g} s={1-seat} me={false} tuthi={hiB("h1")} hilite={isTgt({s:1-seat,u:null})} shake={shake.has("h"+(1-seat))}
-          dragtgt={drag&&drag.kind==="atk"&&attackTargets(g,seat,drag.uid).some(r=>r.u==null)}
+          dragtgt={isDragTgt({s:1-seat,u:null})}
           onClick={()=>klikHelt(1-seat)}/>
         <Pips p={op}/>
         <span style={{marginLeft:"auto",display:"flex",alignItems:"center"}}>
@@ -1934,7 +2045,7 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
         {op.board.length===0&&<span style={{color:"var(--dim)",fontFamily:"var(--mono)",fontSize:11}}>— empty board —</span>}
         {op.board.map(u=>
           <UnitTile key={u.uid} g={g} s={1-seat} u={u} mine={false} tuthi={hiB("eunit:"+u.id)} shake={shake.has(u.uid)}
-            dragtgt={drag&&drag.kind==="atk"&&attackTargets(g,seat,drag.uid).some(r=>r.u===u.uid)}
+            dragtgt={isDragTgt({s:1-seat,u:u.uid})}
             hilite={isTgt({s:1-seat,u:u.uid})} onClick={()=>klikEnhed(1-seat,u)}/>)}
       </div>
 
@@ -1953,12 +2064,13 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
           <UnitTile key={u.uid} g={g} s={seat} u={u} mine={true} tuthi={hiB("unit:"+u.id)} shake={shake.has(u.uid)}
             ready={myTurn&&attackTargets(g,seat,u.uid).length>0}
             onPointerDown={(e)=>startAttackDrag(u,e)}
+            dragtgt={isDragTgt({s:seat,u:u.uid})}
             hilite={isTgt({s:seat,u:u.uid})} onClick={()=>klikEnhed(seat,u)}/>)}
       </div>
 
       {/* mig */}
       <div className="bar min">
-        <HeltPlade g={g} s={seat} me={true} hilite={isTgt({s:seat,u:null})} shake={shake.has("h"+seat)} onClick={()=>klikHelt(seat)}/>
+        <HeltPlade g={g} s={seat} me={true} hilite={isTgt({s:seat,u:null})} shake={shake.has("h"+seat)} dragtgt={isDragTgt({s:seat,u:null})} onClick={()=>klikHelt(seat)}/>
         <Pips p={me}/>
         <button className={"kraft"+(hiB("kraft")?" tuthi":"")} disabled={!kanKraft} onClick={kraft} title={K.power.n+" ("+K.power.c+"⚡)"}>{K.power.ico}</button>
         <span style={{marginLeft:"auto",color:"var(--dim)"}}>🂠{me.deck.length}</span>
@@ -1980,7 +2092,7 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
           <div className="ctxt">{step.t}<div className="cnum">{tut+1} / {TUT.steps.length}</div></div>
           <button className="cx" onClick={onLeave} title="Skip tutorial">✕</button>
         </div>)}
-      {drag && drag.kind==="play" && <div className={"dragkort"+(drag.over?" over":"")} style={{left:drag.x,top:drag.y}}><MiniCard id={drag.id}/></div>}
+      {drag && drag.kind==="play" && <div className={"dragkort"+((drag.over||drag.tgt)?" over":"")} style={{left:drag.x,top:drag.y}}><MiniCard id={drag.id}/></div>}
       {drag && drag.kind==="atk" && <div className={"dragatk"+(drag.tgt?" hit":"")} style={{left:drag.x,top:drag.y}}>⚔</div>}
       <div className="fxlag">
         {sparks.map(f=>{
@@ -2046,10 +2158,12 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
       )}
 
       {slut && (
-        <div className="slor">
+        <div className={"slor"+(g.winner===seat?" sejr":"")}>
+          {g.winner===seat && <VictoryFX/>}
           <div className="ark" style={{textAlign:"center"}}>
-            <div className="logo" style={{fontSize:34}}>
-              {g.winner===2?"DRAW":(g.winner===seat?"VICTORY ⚡":"BREAKDOWN")}
+            <div className={"logo"+(g.winner===seat?" vlogo":"")} style={{fontSize:g.winner===seat?46:34}}>
+              {g.winner===2?"DRAW":(g.winner===seat?"VICTORY":"BREAKDOWN")}
+              {g.winner===seat && <span className="vbadge">⚡</span>}
             </div>
             <p className="rt" style={{color:"var(--dim)"}}>
               {g.winner===2?mode==="tutorial"?"Tutorial complete — you know the basics! Try the bot next. ⚡":"Both circuits burned out.":(g.winner===seat?(mode==="tutorial"?"Tutorial complete — you know the basics! Try the bot next. ⚡":"Your opponent’s circuit burned out."):"Your circuit burned out.")}
