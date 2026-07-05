@@ -877,12 +877,13 @@ const CSS = `
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body,#root{height:100%}
 .app{height:100dvh;display:flex;flex-direction:column;background:
-  radial-gradient(140% 105% at 50% 38%, transparent 55%, rgba(0,0,0,.45) 100%),
-  radial-gradient(1200px 500px at 50% -10%, #16301f 0%, transparent 60%),
-  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='340' height='340'%3E%3Cg fill='none' stroke='%23c9814a' stroke-opacity='.075' stroke-width='2.5' stroke-linecap='round'%3E%3Cpath d='M25 50h95l35 35v80'/%3E%3Cpath d='M310 25v70l-45 45h-60'/%3E%3Cpath d='M60 300h110l30-30v-45'/%3E%3Cpath d='M250 315v-55l35-35'/%3E%3Cpath d='M20 190h55l25 25'/%3E%3C/g%3E%3Cg fill='%23c9814a' fill-opacity='.1'%3E%3Ccircle cx='25' cy='50' r='4'/%3E%3Ccircle cx='155' cy='165' r='4'/%3E%3Ccircle cx='310' cy='25' r='4'/%3E%3Ccircle cx='205' cy='140' r='4'/%3E%3Ccircle cx='60' cy='300' r='4'/%3E%3Ccircle cx='285' cy='225' r='4'/%3E%3Ccircle cx='100' cy='215' r='4'/%3E%3C/g%3E%3C/svg%3E"),
-  repeating-linear-gradient(0deg, transparent 0 34px, rgba(201,129,74,.035) 34px 35px),
-  repeating-linear-gradient(90deg, transparent 0 34px, rgba(201,129,74,.035) 34px 35px),
-  var(--bg0);
+  radial-gradient(150% 110% at 50% 40%, transparent 48%, rgba(0,0,0,.5) 100%),
+  radial-gradient(900px 600px at 18% 8%, rgba(63,168,120,.10) 0%, transparent 55%),
+  radial-gradient(900px 600px at 85% 92%, rgba(201,129,74,.08) 0%, transparent 55%),
+  radial-gradient(1400px 600px at 50% -12%, #16301f 0%, transparent 60%),
+  url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22440%22%20height%3D%22440%22%20viewBox%3D%220%200%20440%20440%22%3E%20%3Cg%20fill%3D%22none%22%20stroke%3D%22%233fa878%22%20stroke-opacity%3D%220.11%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%20%3Cpath%20d%3D%22M20%2060%20H150%20L185%2095%20V200%20H320%22%2F%3E%20%3Cpath%20d%3D%22M60%2020%20V120%20L110%20170%20H210%22%2F%3E%20%3Cpath%20d%3D%22M420%2080%20H300%20L265%20115%20V240%22%2F%3E%20%3Cpath%20d%3D%22M380%2040%20V140%20L340%20180%22%2F%3E%20%3Cpath%20d%3D%22M20%20300%20H120%20L160%20260%20V150%22%2F%3E%20%3Cpath%20d%3D%22M40%20420%20V320%20L90%20270%20H190%20L220%20300%20V400%22%2F%3E%20%3Cpath%20d%3D%22M300%20420%20V340%20L350%20290%20H420%22%2F%3E%20%3Cpath%20d%3D%22M420%20360%20H320%20L280%20400%22%2F%3E%20%3Cpath%20d%3D%22M220%20220%20H280%20L310%20250%20V330%20H240%22%2F%3E%20%3Cpath%20d%3D%22M150%20340%20H210%20L240%20370%22%2F%3E%20%3C%2Fg%3E%20%3Cg%20fill%3D%22none%22%20stroke%3D%22%23c9814a%22%20stroke-opacity%3D%220.09%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%3E%20%3Cpath%20d%3D%22M120%20120%20H220%20L250%20150%20V210%22%2F%3E%20%3Cpath%20d%3D%22M300%20300%20H370%20L400%20270%22%2F%3E%20%3Cpath%20d%3D%22M70%20220%20H140%20L170%20190%22%2F%3E%20%3C%2Fg%3E%20%3Cg%20fill%3D%22%233fa878%22%20fill-opacity%3D%220.16%22%3E%20%3Ccircle%20cx%3D%2220%22%20cy%3D%2260%22%20r%3D%223.5%22%2F%3E%3Ccircle%20cx%3D%22185%22%20cy%3D%2295%22%20r%3D%223.5%22%2F%3E%3Ccircle%20cx%3D%22320%22%20cy%3D%22200%22%20r%3D%223.5%22%2F%3E%20%3Ccircle%20cx%3D%22110%22%20cy%3D%22170%22%20r%3D%223.5%22%2F%3E%3Ccircle%20cx%3D%22265%22%20cy%3D%22115%22%20r%3D%223.5%22%2F%3E%3Ccircle%20cx%3D%22160%22%20cy%3D%22260%22%20r%3D%223.5%22%2F%3E%20%3Ccircle%20cx%3D%22220%22%20cy%3D%22300%22%20r%3D%223.5%22%2F%3E%3Ccircle%20cx%3D%22310%22%20cy%3D%22250%22%20r%3D%223.5%22%2F%3E%3Ccircle%20cx%3D%22350%22%20cy%3D%22290%22%20r%3D%223.5%22%2F%3E%20%3Ccircle%20cx%3D%2290%22%20cy%3D%22270%22%20r%3D%223.5%22%2F%3E%3Ccircle%20cx%3D%22240%22%20cy%3D%22370%22%20r%3D%223.5%22%2F%3E%20%3C%2Fg%3E%20%3Cg%20fill%3D%22%23c9814a%22%20fill-opacity%3D%220.13%22%3E%20%3Ccircle%20cx%3D%22250%22%20cy%3D%22150%22%20r%3D%223%22%2F%3E%3Ccircle%20cx%3D%22170%22%20cy%3D%22190%22%20r%3D%223%22%2F%3E%3Ccircle%20cx%3D%22370%22%20cy%3D%22300%22%20r%3D%223%22%2F%3E%20%3C%2Fg%3E%20%3Cg%20fill%3D%22none%22%20stroke%3D%22%233fa878%22%20stroke-opacity%3D%220.13%22%20stroke-width%3D%221.5%22%3E%20%3Crect%20x%3D%22175%22%20y%3D%22200%22%20width%3D%2226%22%20height%3D%2226%22%20rx%3D%223%22%2F%3E%20%3Crect%20x%3D%22300%22%20y%3D%22330%22%20width%3D%2230%22%20height%3D%2220%22%20rx%3D%223%22%2F%3E%20%3C%2Fg%3E%20%3C%2Fsvg%3E"),
+  linear-gradient(160deg, #0e1c14 0%, #0a1610 55%, #0c1811 100%);
+  background-size:cover,cover,cover,cover,440px 440px,cover;
   color:var(--txt);font-family:system-ui,sans-serif;overflow:hidden;user-select:none}
 button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 input,select{font:inherit;color:var(--txt);background:var(--bg1);border:1px solid var(--line);border-radius:8px;padding:9px 11px;outline:none;width:100%}
@@ -1817,7 +1818,16 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
   const justDragged=useRef(false);
   const startDrag=(c,e)=>{
     if(!myTurn||tmode||!canPlay(g,seat,c.id)) return; // kun spilbare kort på egen tur
+    // knappen capturer pointeren by default → frigiv den så window-listeners fyrer
+    try{ e.currentTarget.releasePointerCapture(e.pointerId); }catch(_){}
     dragRef.current={uid:c.uid,id:c.id,x0:e.clientX,y0:e.clientY,moved:false};
+  };
+  const overBoard=(y)=>{
+    const bel=braetRef.current;
+    if(!bel) return false;
+    const r=bel.getBoundingClientRect();
+    // generøs zone: fra et stykke over brættet til lidt under det
+    return y < r.bottom+40 && y > r.top-120;
   };
   useEffect(()=>{
     const move=(e)=>{
@@ -1825,11 +1835,7 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
       const dx=e.clientX-d.x0, dy=e.clientY-d.y0;
       if(!d.moved && Math.hypot(dx,dy)<8) return; // lille bevægelse = stadig et klik
       d.moved=true;
-      let over=false;
-      const bel=braetRef.current;
-      if(bel){ const r=bel.getBoundingClientRect();
-        over = e.clientY < r.bottom+20 && e.clientY > r.top-80; }
-      setDrag({uid:d.uid,id:d.id,x:e.clientX,y:e.clientY,over});
+      setDrag({uid:d.uid,id:d.id,x:e.clientX,y:e.clientY,over:overBoard(e.clientY)});
     };
     const up=(e)=>{
       const d=dragRef.current; dragRef.current=null;
@@ -1837,17 +1843,14 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
       if(d.moved){
         justDragged.current=true;
         setDrag(null);
-        const bel=braetRef.current;
-        let over=false;
-        if(bel){ const r=bel.getBoundingClientRect();
-          over = e.clientY < r.bottom+20 && e.clientY > r.top-80; }
-        if(over){ const c=me.hand.find(x=>x.uid===d.uid); if(c) spilKortNu(c); }
+        if(overBoard(e.clientY)){ const c=me.hand.find(x=>x.uid===d.uid); if(c) spilKortNu(c); }
       }
       // hvis ikke moved: lad onClick håndtere det (klik-flowet)
     };
     window.addEventListener("pointermove",move);
     window.addEventListener("pointerup",up);
-    return ()=>{ window.removeEventListener("pointermove",move); window.removeEventListener("pointerup",up); };
+    window.addEventListener("pointercancel",up);
+    return ()=>{ window.removeEventListener("pointermove",move); window.removeEventListener("pointerup",up); window.removeEventListener("pointercancel",up); };
   },[g,myTurn,tmode,me.hand]);
   const kraft=()=>{
     if(tmode){ setT(null); return; }
