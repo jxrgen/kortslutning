@@ -1125,6 +1125,35 @@ button:active{transform:scale(.97)}
 .enh.dragtgt,.helt.dragtgt{outline:3px solid var(--rod);outline-offset:3px;
   box-shadow:0 0 22px rgba(255,109,90,.7);animation:dragtgtpuls .7s ease-in-out infinite;z-index:6}
 @keyframes dragtgtpuls{50%{outline-color:#ff9a8c;box-shadow:0 0 32px rgba(255,109,90,1)}}
+/* ---- knækket neonskilt (nederlag) ---- */
+.neonwrap{transform:rotate(-1.8deg);display:inline-block}
+.neon{position:relative;display:inline-flex;color:#ff5a4d;
+  font-family:var(--mono);letter-spacing:3px}
+.neon .nl{display:inline-block;
+  text-shadow:0 0 6px #ff5a4d,0 0 14px #ff2d1d,0 0 26px rgba(255,45,29,.6)}
+/* fire flimre-varianter — forskellig rytme så bogstaverne blinker i utakt */
+.neon .f1{animation:flick1 infinite steps(1)}
+.neon .f2{animation:flick2 infinite steps(1)}
+.neon .f3{animation:flick3 infinite steps(1)}
+.neon .f4{animation:flick4 infinite steps(1)}
+@keyframes flick1{0%,100%{opacity:1}43%{opacity:1}44%{opacity:.25}46%{opacity:1}72%{opacity:1}73%{opacity:.3}75%{opacity:1}}
+@keyframes flick2{0%,100%{opacity:1}12%{opacity:.3}14%{opacity:1}60%{opacity:1}61%{opacity:.2}64%{opacity:1}65%{opacity:.5}67%{opacity:1}}
+@keyframes flick3{0%,100%{opacity:1}30%{opacity:1}31%{opacity:.15}33%{opacity:1}34%{opacity:.4}36%{opacity:1}88%{opacity:1}89%{opacity:.3}91%{opacity:1}}
+@keyframes flick4{0%,100%{opacity:1}20%{opacity:.6}21%{opacity:1}50%{opacity:1}51%{opacity:.1}55%{opacity:1}}
+/* dødt bogstav: mest slukket, glimter kun kort og sjældent */
+.neon .dead{color:#5a2420;text-shadow:none;animation:flickdead 2.7s infinite steps(1)}
+@keyframes flickdead{0%,100%{opacity:.32}90%{opacity:.32}91%{opacity:1;text-shadow:0 0 8px #ff5a4d,0 0 18px #ff2d1d}93%{opacity:.32;text-shadow:none}96%{opacity:.7}97%{opacity:.32}}
+/* gnister der siver fra skiltet */
+.neonspark{position:absolute;width:3px;height:3px;border-radius:50%;background:#ffb347;
+  box-shadow:0 0 6px #ffb347;opacity:0}
+.neonspark.s1{left:18%;top:12%;animation:nspark 3.3s infinite ease-in}
+.neonspark.s2{right:24%;top:70%;animation:nspark 4.1s .8s infinite ease-in}
+@keyframes nspark{0%,72%{opacity:0;transform:translate(0,0) scale(1)}73%{opacity:1}100%{opacity:0;transform:translate(var(--sx,-8px),22px) scale(.3)}}
+@media (prefers-reduced-motion:reduce){
+  .neon .nl,.neon .dead{animation:none;opacity:1}
+  .neon .dead{opacity:.4}
+  .neonspark{display:none}
+}
 /* ---- sejrsanimation ---- */
 .slor.sejr{background:radial-gradient(120% 90% at 50% 30%,rgba(63,168,120,.18),rgba(6,12,9,.86) 70%)}
 .vfx{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:1}
@@ -1309,6 +1338,32 @@ function StorKort({id,unitInfo,g}){
         </div>
       )}
     </div>
+  );
+}
+function BrokenNeon({text}){
+  // hvert bogstav får sit eget uregelmæssige flimre; ét er næsten dødt
+  const letters=useMemo(()=>{
+    const arr=text.split("");
+    const deadIdx=(Math.random()*arr.length)|0; // ét "dødt" bogstav
+    return arr.map((ch,i)=>({
+      ch, i,
+      dead:i===deadIdx,
+      delay:(-Math.random()*3).toFixed(2),
+      dur:(1.4+Math.random()*2.6).toFixed(2),
+      variant:1+((Math.random()*4)|0), // vælg 1 af 4 flimre-keyframes
+    }));
+  },[text]);
+  return (
+    <span className="neon">
+      {letters.map(l=>(
+        <span key={l.i} className={"nl f"+l.variant+(l.dead?" dead":"")}
+          style={{animationDelay:l.delay+"s",animationDuration:l.dur+"s"}}>
+          {l.ch===" "?"\u00A0":l.ch}
+        </span>
+      ))}
+      <span className="neonspark s1"/>
+      <span className="neonspark s2"/>
+    </span>
   );
 }
 function VictoryFX(){
@@ -2161,8 +2216,8 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
         <div className={"slor"+(g.winner===seat?" sejr":"")}>
           {g.winner===seat && <VictoryFX/>}
           <div className="ark" style={{textAlign:"center"}}>
-            <div className={"logo"+(g.winner===seat?" vlogo":"")} style={{fontSize:g.winner===seat?46:34}}>
-              {g.winner===2?"DRAW":(g.winner===seat?"VICTORY":"BREAKDOWN")}
+            <div className={"logo"+(g.winner===seat?" vlogo":"")+(slut&&g.winner!==seat&&g.winner!==2?" neonwrap":"")} style={{fontSize:g.winner===seat?46:34}}>
+              {g.winner===2?"DRAW":(g.winner===seat?"VICTORY":<BrokenNeon text="BREAKDOWN"/>)}
               {g.winner===seat && <span className="vbadge">⚡</span>}
             </div>
             <p className="rt" style={{color:"var(--dim)"}}>
