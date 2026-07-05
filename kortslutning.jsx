@@ -1102,6 +1102,15 @@ button:active{transform:scale(.97)}
   100%{offset-distance:100%;opacity:0;transform:scale(.42)}}
 .mkort.hastip:hover{overflow:visible;z-index:70}
 .haand:hover{overflow:visible}
+/* ---- træk-og-slip ---- */
+.haand .mkort{touch-action:none}
+.dragkort{position:fixed;z-index:75;pointer-events:none;transform:translate(-50%,-50%) rotate(-4deg) scale(1.15);
+  filter:drop-shadow(0 12px 24px rgba(0,0,0,.6));opacity:.95}
+.dragkort.over{transform:translate(-50%,-50%) rotate(0deg) scale(1.25);
+  filter:drop-shadow(0 0 20px rgba(95,224,160,.8)) drop-shadow(0 12px 24px rgba(0,0,0,.6))}
+.braet.dropzone{outline:2.5px dashed var(--fos);outline-offset:4px;border-radius:12px;
+  background:rgba(95,224,160,.08);animation:dropz 1s ease-in-out infinite}
+@keyframes dropz{50%{background:rgba(95,224,160,.16);outline-color:#8effc0}}
 /* ---- hover-tooltip ---- */
 .ctip{position:absolute;bottom:calc(100% + 10px);left:50%;transform:translateX(-50%) translateY(6px);
   width:210px;background:linear-gradient(180deg,#14251b,#0b160f);border:1.5px solid var(--ce,#5fe0a0);
@@ -1216,10 +1225,10 @@ function CardTip({id}){
     </div>
   );
 }
-function MiniCard({id,onClick,glow,count,style,dfx,xcls,tip}){
+function MiniCard({id,onClick,glow,count,style,dfx,xcls,tip,onPointerDown}){
   const d=CARDS[id];
   return (
-    <button className={"mkort tema"+(d.r==="L"?" leg":"")+(glow?" spil":"")+(xcls?" "+xcls:"")+(tip?" hastip":"")} onClick={onClick} style={{...themeVars(d),...style}} data-fx={dfx}>
+    <button className={"mkort tema"+(d.r==="L"?" leg":"")+(glow?" spil":"")+(xcls?" "+xcls:"")+(tip?" hastip":"")} onClick={onClick} onPointerDown={onPointerDown} style={{...themeVars(d),...style}} data-fx={dfx}>
       <span className="pris">{d.c}</span>
       {count!=null && <span className="antal">{count}×</span>}
       {d.cls&&CLASSES[d.cls]&&<span className="clsdot" style={{background:CLASSES[d.cls].col}}/>}
@@ -1789,8 +1798,8 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
     const ref={s:rs,u:null};
     if(tmode){ if(isTgt(ref)){ if(!tOK("tgt",ref)){nope();return;} fire(ref); } else setT(null); return; }
   };
-  const spilFraArk=()=>{
-    const c=sel; if(!c) return;
+  const spilKortNu=(c)=>{
+    if(!c) return;
     if(!tOK("play",c.id)){ nope(); return; }
     const {need,list}=targetsForCard(g,seat,c.id,null);
     if(need&&list.length>1){
@@ -1800,6 +1809,46 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
       setSel(null); act(x=>playCard(x,seat,c.uid,list[0]));
     } else { setSel(null); act(x=>playCard(x,seat,c.uid,null)); }
   };
+  const spilFraArk=()=>{ spilKortNu(sel); };
+  // træk-og-slip: kort fra hånden op på brættet
+  const [drag,setDrag]=useState(null); // {uid,id,x,y,over}
+  const dragRef=useRef(null);
+  const braetRef=useRef(null);
+  const justDragged=useRef(false);
+  const startDrag=(c,e)=>{
+    if(!myTurn||tmode||!canPlay(g,seat,c.id)) return; // kun spilbare kort på egen tur
+    dragRef.current={uid:c.uid,id:c.id,x0:e.clientX,y0:e.clientY,moved:false};
+  };
+  useEffect(()=>{
+    const move=(e)=>{
+      const d=dragRef.current; if(!d) return;
+      const dx=e.clientX-d.x0, dy=e.clientY-d.y0;
+      if(!d.moved && Math.hypot(dx,dy)<8) return; // lille bevægelse = stadig et klik
+      d.moved=true;
+      let over=false;
+      const bel=braetRef.current;
+      if(bel){ const r=bel.getBoundingClientRect();
+        over = e.clientY < r.bottom+20 && e.clientY > r.top-80; }
+      setDrag({uid:d.uid,id:d.id,x:e.clientX,y:e.clientY,over});
+    };
+    const up=(e)=>{
+      const d=dragRef.current; dragRef.current=null;
+      if(!d) return;
+      if(d.moved){
+        justDragged.current=true;
+        setDrag(null);
+        const bel=braetRef.current;
+        let over=false;
+        if(bel){ const r=bel.getBoundingClientRect();
+          over = e.clientY < r.bottom+20 && e.clientY > r.top-80; }
+        if(over){ const c=me.hand.find(x=>x.uid===d.uid); if(c) spilKortNu(c); }
+      }
+      // hvis ikke moved: lad onClick håndtere det (klik-flowet)
+    };
+    window.addEventListener("pointermove",move);
+    window.addEventListener("pointerup",up);
+    return ()=>{ window.removeEventListener("pointermove",move); window.removeEventListener("pointerup",up); };
+  },[g,myTurn,tmode,me.hand]);
   const kraft=()=>{
     if(tmode){ setT(null); return; }
     if(!tOK("power")){ nope(); return; }
@@ -1844,7 +1893,7 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
 
       {kanAngribe>0 && mode!=="tutorial" &&
         <div className="atkhint">⚔ Tap a unit with a sword badge, then tap what you want to attack</div>}
-      <div className="braet">
+      <div className={"braet"+(drag&&drag.over?" dropzone":"")} ref={braetRef}>
         {me.board.length===0&&<span style={{color:"var(--dim)",fontFamily:"var(--mono)",fontSize:11}}>— empty board —</span>}
         {me.board.map(u=>
           <UnitTile key={u.uid} g={g} s={seat} u={u} mine={true} tuthi={hiB("unit:"+u.id)} shake={shake.has(u.uid)}
@@ -1865,8 +1914,9 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
         {me.hand.map((c,i)=>{
           const o=i-(me.hand.length-1)/2;
           return <MiniCard key={c.uid} id={c.id} dfx={c.uid} tip={true} xcls={hiB("hand:"+c.id)?"tuthi":""} glow={myTurn&&canPlay(g,seat,c.id)}
-            style={{"--o":o,"--a":Math.abs(o)}}
-            onClick={()=>{ if(tmode){setT(null);return;} setSel({kind:"hand",id:c.id,uid:c.uid}); }}/>;})}
+            style={{"--o":o,"--a":Math.abs(o),opacity:drag&&drag.uid===c.uid?0.3:undefined}}
+            onPointerDown={(e)=>startDrag(c,e)}
+            onClick={()=>{ if(justDragged.current){justDragged.current=false;return;} if(tmode){setT(null);return;} setSel({kind:"hand",id:c.id,uid:c.uid}); }}/>;})}
       </div>
 
       {step&&(
@@ -1875,6 +1925,7 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
           <div className="ctxt">{step.t}<div className="cnum">{tut+1} / {TUT.steps.length}</div></div>
           <button className="cx" onClick={onLeave} title="Skip tutorial">✕</button>
         </div>)}
+      {drag && <div className={"dragkort"+(drag.over?" over":"")} style={{left:drag.x,top:drag.y}}><MiniCard id={drag.id}/></div>}
       <div className="fxlag">
         {sparks.map(f=>{
           const ds={animationDelay:f.d+"s"};
