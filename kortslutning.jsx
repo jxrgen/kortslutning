@@ -1100,6 +1100,8 @@ button:active{transform:scale(.97)}
   animation:flyvk .62s cubic-bezier(.32,.08,.55,1) forwards}
 @keyframes flyvk{0%{offset-distance:0%;opacity:0}10%{opacity:1}
   100%{offset-distance:100%;opacity:0;transform:scale(.42)}}
+.mkort.hastip:hover{overflow:visible;z-index:70}
+.haand:hover{overflow:visible}
 /* ---- hover-tooltip ---- */
 .ctip{position:absolute;bottom:calc(100% + 10px);left:50%;transform:translateX(-50%) translateY(6px);
   width:210px;background:linear-gradient(180deg,#14251b,#0b160f);border:1.5px solid var(--ce,#5fe0a0);
