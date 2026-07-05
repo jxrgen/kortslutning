@@ -1,7 +1,7 @@
 {
   "name": "cardware-crash",
   "productName": "Cardware Crash",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "private": true,
   "main": "main.cjs",
   "description": "2-player electronics deckbuilder card game",
