@@ -42,7 +42,7 @@
       "category": "public.app-category.games",
       "target": [
         {
-          "target": "dmg",
+          "target": "zip",
           "arch": [
             "arm64",
             "x64"
@@ -50,9 +50,6 @@
         }
       ],
       "icon": "build/icon.icns"
-    },
-    "dmg": {
-      "title": "Cardware Crash ${version}"
     },
     "win": {
       "target": [
