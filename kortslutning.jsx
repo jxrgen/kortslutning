@@ -877,13 +877,13 @@ const CSS = `
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body,#root{height:100%}
 .app{height:100dvh;display:flex;flex-direction:column;background:
-  radial-gradient(150% 110% at 50% 40%, transparent 48%, rgba(0,0,0,.5) 100%),
-  radial-gradient(900px 600px at 18% 8%, rgba(63,168,120,.10) 0%, transparent 55%),
-  radial-gradient(900px 600px at 85% 92%, rgba(201,129,74,.08) 0%, transparent 55%),
-  radial-gradient(1400px 600px at 50% -12%, #16301f 0%, transparent 60%),
-  url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22440%22%20height%3D%22440%22%20viewBox%3D%220%200%20440%20440%22%3E%20%3Cg%20fill%3D%22none%22%20stroke%3D%22%233fa878%22%20stroke-opacity%3D%220.11%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%20%3Cpath%20d%3D%22M20%2060%20H150%20L185%2095%20V200%20H320%22%2F%3E%20%3Cpath%20d%3D%22M60%2020%20V120%20L110%20170%20H210%22%2F%3E%20%3Cpath%20d%3D%22M420%2080%20H300%20L265%20115%20V240%22%2F%3E%20%3Cpath%20d%3D%22M380%2040%20V140%20L340%20180%22%2F%3E%20%3Cpath%20d%3D%22M20%20300%20H120%20L160%20260%20V150%22%2F%3E%20%3Cpath%20d%3D%22M40%20420%20V320%20L90%20270%20H190%20L220%20300%20V400%22%2F%3E%20%3Cpath%20d%3D%22M300%20420%20V340%20L350%20290%20H420%22%2F%3E%20%3Cpath%20d%3D%22M420%20360%20H320%20L280%20400%22%2F%3E%20%3Cpath%20d%3D%22M220%20220%20H280%20L310%20250%20V330%20H240%22%2F%3E%20%3Cpath%20d%3D%22M150%20340%20H210%20L240%20370%22%2F%3E%20%3C%2Fg%3E%20%3Cg%20fill%3D%22none%22%20stroke%3D%22%23c9814a%22%20stroke-opacity%3D%220.09%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%3E%20%3Cpath%20d%3D%22M120%20120%20H220%20L250%20150%20V210%22%2F%3E%20%3Cpath%20d%3D%22M300%20300%20H370%20L400%20270%22%2F%3E%20%3Cpath%20d%3D%22M70%20220%20H140%20L170%20190%22%2F%3E%20%3C%2Fg%3E%20%3Cg%20fill%3D%22%233fa878%22%20fill-opacity%3D%220.16%22%3E%20%3Ccircle%20cx%3D%2220%22%20cy%3D%2260%22%20r%3D%223.5%22%2F%3E%3Ccircle%20cx%3D%22185%22%20cy%3D%2295%22%20r%3D%223.5%22%2F%3E%3Ccircle%20cx%3D%22320%22%20cy%3D%22200%22%20r%3D%223.5%22%2F%3E%20%3Ccircle%20cx%3D%22110%22%20cy%3D%22170%22%20r%3D%223.5%22%2F%3E%3Ccircle%20cx%3D%22265%22%20cy%3D%22115%22%20r%3D%223.5%22%2F%3E%3Ccircle%20cx%3D%22160%22%20cy%3D%22260%22%20r%3D%223.5%22%2F%3E%20%3Ccircle%20cx%3D%22220%22%20cy%3D%22300%22%20r%3D%223.5%22%2F%3E%3Ccircle%20cx%3D%22310%22%20cy%3D%22250%22%20r%3D%223.5%22%2F%3E%3Ccircle%20cx%3D%22350%22%20cy%3D%22290%22%20r%3D%223.5%22%2F%3E%20%3Ccircle%20cx%3D%2290%22%20cy%3D%22270%22%20r%3D%223.5%22%2F%3E%3Ccircle%20cx%3D%22240%22%20cy%3D%22370%22%20r%3D%223.5%22%2F%3E%20%3C%2Fg%3E%20%3Cg%20fill%3D%22%23c9814a%22%20fill-opacity%3D%220.13%22%3E%20%3Ccircle%20cx%3D%22250%22%20cy%3D%22150%22%20r%3D%223%22%2F%3E%3Ccircle%20cx%3D%22170%22%20cy%3D%22190%22%20r%3D%223%22%2F%3E%3Ccircle%20cx%3D%22370%22%20cy%3D%22300%22%20r%3D%223%22%2F%3E%20%3C%2Fg%3E%20%3Cg%20fill%3D%22none%22%20stroke%3D%22%233fa878%22%20stroke-opacity%3D%220.13%22%20stroke-width%3D%221.5%22%3E%20%3Crect%20x%3D%22175%22%20y%3D%22200%22%20width%3D%2226%22%20height%3D%2226%22%20rx%3D%223%22%2F%3E%20%3Crect%20x%3D%22300%22%20y%3D%22330%22%20width%3D%2230%22%20height%3D%2220%22%20rx%3D%223%22%2F%3E%20%3C%2Fg%3E%20%3C%2Fsvg%3E"),
-  linear-gradient(160deg, #0e1c14 0%, #0a1610 55%, #0c1811 100%);
-  background-size:cover,cover,cover,cover,440px 440px,cover;
+  radial-gradient(150% 110% at 50% 42%, transparent 42%, rgba(0,0,0,.5) 100%),
+  radial-gradient(900px 620px at 15% 6%, rgba(63,168,120,.16) 0%, transparent 55%),
+  radial-gradient(900px 620px at 88% 94%, rgba(201,129,74,.13) 0%, transparent 55%),
+  radial-gradient(1400px 620px at 50% -12%, #1a3826 0%, transparent 62%),
+  url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22440%22%20height%3D%22440%22%20viewBox%3D%220%200%20440%20440%22%3E%20%3Cg%20fill%3D%22none%22%20stroke%3D%22%233fa878%22%20stroke-opacity%3D%220.19%22%20stroke-width%3D%222.2%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%20%3Cpath%20d%3D%22M20%2060%20H150%20L185%2095%20V200%20H320%22%2F%3E%20%3Cpath%20d%3D%22M60%2020%20V120%20L110%20170%20H210%22%2F%3E%20%3Cpath%20d%3D%22M420%2080%20H300%20L265%20115%20V240%22%2F%3E%20%3Cpath%20d%3D%22M380%2040%20V140%20L340%20180%22%2F%3E%20%3Cpath%20d%3D%22M20%20300%20H120%20L160%20260%20V150%22%2F%3E%20%3Cpath%20d%3D%22M40%20420%20V320%20L90%20270%20H190%20L220%20300%20V400%22%2F%3E%20%3Cpath%20d%3D%22M300%20420%20V340%20L350%20290%20H420%22%2F%3E%20%3Cpath%20d%3D%22M420%20360%20H320%20L280%20400%22%2F%3E%20%3Cpath%20d%3D%22M220%20220%20H280%20L310%20250%20V330%20H240%22%2F%3E%20%3Cpath%20d%3D%22M150%20340%20H210%20L240%20370%22%2F%3E%20%3C%2Fg%3E%20%3Cg%20fill%3D%22none%22%20stroke%3D%22%23c9814a%22%20stroke-opacity%3D%220.15%22%20stroke-width%3D%222.2%22%20stroke-linecap%3D%22round%22%3E%20%3Cpath%20d%3D%22M120%20120%20H220%20L250%20150%20V210%22%2F%3E%20%3Cpath%20d%3D%22M300%20300%20H370%20L400%20270%22%2F%3E%20%3Cpath%20d%3D%22M70%20220%20H140%20L170%20190%22%2F%3E%20%3C%2Fg%3E%20%3Cg%20fill%3D%22%233fa878%22%20fill-opacity%3D%220.26%22%3E%20%3Ccircle%20cx%3D%2220%22%20cy%3D%2260%22%20r%3D%224%22%2F%3E%3Ccircle%20cx%3D%22185%22%20cy%3D%2295%22%20r%3D%224%22%2F%3E%3Ccircle%20cx%3D%22320%22%20cy%3D%22200%22%20r%3D%224%22%2F%3E%20%3Ccircle%20cx%3D%22110%22%20cy%3D%22170%22%20r%3D%224%22%2F%3E%3Ccircle%20cx%3D%22265%22%20cy%3D%22115%22%20r%3D%224%22%2F%3E%3Ccircle%20cx%3D%22160%22%20cy%3D%22260%22%20r%3D%224%22%2F%3E%20%3Ccircle%20cx%3D%22220%22%20cy%3D%22300%22%20r%3D%224%22%2F%3E%3Ccircle%20cx%3D%22310%22%20cy%3D%22250%22%20r%3D%224%22%2F%3E%3Ccircle%20cx%3D%22350%22%20cy%3D%22290%22%20r%3D%224%22%2F%3E%20%3Ccircle%20cx%3D%2290%22%20cy%3D%22270%22%20r%3D%224%22%2F%3E%3Ccircle%20cx%3D%22240%22%20cy%3D%22370%22%20r%3D%224%22%2F%3E%20%3C%2Fg%3E%20%3Cg%20fill%3D%22%23c9814a%22%20fill-opacity%3D%220.22%22%3E%20%3Ccircle%20cx%3D%22250%22%20cy%3D%22150%22%20r%3D%223.5%22%2F%3E%3Ccircle%20cx%3D%22170%22%20cy%3D%22190%22%20r%3D%223.5%22%2F%3E%3Ccircle%20cx%3D%22370%22%20cy%3D%22300%22%20r%3D%223.5%22%2F%3E%20%3C%2Fg%3E%20%3Cg%20fill%3D%22none%22%20stroke%3D%22%233fa878%22%20stroke-opacity%3D%220.22%22%20stroke-width%3D%221.8%22%3E%20%3Crect%20x%3D%22175%22%20y%3D%22200%22%20width%3D%2226%22%20height%3D%2226%22%20rx%3D%223%22%2F%3E%20%3Crect%20x%3D%22300%22%20y%3D%22330%22%20width%3D%2230%22%20height%3D%2220%22%20rx%3D%223%22%2F%3E%20%3C%2Fg%3E%20%3C%2Fsvg%3E"),
+  linear-gradient(160deg, #10231a 0%, #0b1913 55%, #0d1b13 100%);
+  background-size:cover,cover,cover,cover,420px 420px,cover;
   color:var(--txt);font-family:system-ui,sans-serif;overflow:hidden;user-select:none}
 button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 input,select{font:inherit;color:var(--txt);background:var(--bg1);border:1px solid var(--line);border-radius:8px;padding:9px 11px;outline:none;width:100%}
@@ -1118,13 +1118,19 @@ button:active{transform:scale(.97)}
 .braet.dropzone{outline:2.5px dashed var(--fos);outline-offset:4px;border-radius:12px;
   background:rgba(95,224,160,.08);animation:dropz 1s ease-in-out infinite}
 @keyframes dropz{50%{background:rgba(95,224,160,.16);outline-color:#8effc0}}
+.dragatk{position:fixed;z-index:76;pointer-events:none;transform:translate(-50%,-50%) scale(1.4);
+  font-size:32px;filter:drop-shadow(0 0 8px rgba(255,109,90,.8));color:#ff6d5a}
+.dragatk.hit{transform:translate(-50%,-50%) scale(1.9);filter:drop-shadow(0 0 16px rgba(255,109,90,1))}
+.enh.dragtgt,.helt.dragtgt{outline:3px solid var(--rod);outline-offset:3px;
+  box-shadow:0 0 22px rgba(255,109,90,.7);animation:dragtgtpuls .7s ease-in-out infinite;z-index:6}
+@keyframes dragtgtpuls{50%{outline-color:#ff9a8c;box-shadow:0 0 32px rgba(255,109,90,1)}}
 /* ---- hover-tooltip ---- */
 .ctip{position:absolute;bottom:calc(100% + 10px);left:50%;transform:translateX(-50%) translateY(6px);
   width:210px;background:linear-gradient(180deg,#14251b,#0b160f);border:1.5px solid var(--ce,#5fe0a0);
   border-radius:12px;padding:10px 12px;text-align:left;z-index:80;pointer-events:none;
   opacity:0;transition:opacity .12s,transform .12s;box-shadow:0 12px 30px rgba(0,0,0,.6);
   font-family:system-ui,-apple-system,"Segoe UI",sans-serif;white-space:normal}
-.mkort.hastip:hover .ctip{opacity:1;transform:translateX(-50%) translateY(0)}
+.mkort.hastip:hover .ctip,.enh.hastip:hover .ctip{opacity:1;transform:translateX(-50%) translateY(0)}
 .ctip::after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);
   border:7px solid transparent;border-top-color:var(--ce,#5fe0a0)}
 .ctip-h{display:flex;align-items:baseline;gap:7px;margin-bottom:3px}
@@ -1287,7 +1293,7 @@ function Pips({p}){
   for(let i=0;i<p.stored;i++) el.push(<span key={"g"+i} className="pip gemt"/>);
   return <span className="pips">{el}<span style={{marginLeft:5,color:"var(--amber)"}}>{p.cur}⚡</span></span>;
 }
-function UnitTile({g,s,u,mine,onClick,hilite,ready,shake,tuthi}){
+function UnitTile({g,s,u,mine,onClick,hilite,ready,shake,tuthi,onPointerDown,dragtgt}){
   const d=CARDS[u.id];
   const hp=effHp(g,s,u), mx=effMax(g,s,u);
   const ik=kwIkoner(g,s,u);
@@ -1295,8 +1301,8 @@ function UnitTile({g,s,u,mine,onClick,hilite,ready,shake,tuthi}){
   const liveKws=kws(g,s,u).map(k=>KWINFO[k]?KWINFO[k].n:null).filter(Boolean);
   if(d.sig) liveKws.push("Signal Strength +"+d.sig);
   return (
-    <button className={"enh tema hastip"+(d.r==="L"?" leg":"")+(hilite?" tgt":"")+(ready?" klar":"")+(u.sil?" sil":"")+(sover?" sover":"")+(shake?" ryst":"")+(tuthi?" tuthi":"")}
-      onClick={onClick} data-fx={u.uid} style={themeVars(d)}>
+    <button className={"enh tema hastip"+(d.r==="L"?" leg":"")+(hilite?" tgt":"")+(ready?" klar":"")+(u.sil?" sil":"")+(sover?" sover":"")+(shake?" ryst":"")+(tuthi?" tuthi":"")+(dragtgt?" dragtgt":"")}
+      onClick={onClick} onPointerDown={onPointerDown} data-fx={u.uid} style={themeVars(d)}>
       {ik.length>0 && <span className="ikoner">{ik.join("")}</span>}
       {u.sh && <span className="skjold"/>}
       <CardArt id={u.id} className={u.st?"dimart":undefined}/>
@@ -1307,10 +1313,10 @@ function UnitTile({g,s,u,mine,onClick,hilite,ready,shake,tuthi}){
     </button>
   );
 }
-function HeltPlade({g,s,me,onClick,hilite,shake,tuthi}){
+function HeltPlade({g,s,me,onClick,hilite,shake,tuthi,dragtgt}){
   const p=g.players[s];
   return (
-    <button className={"helt"+(hilite?" tgt":"")+(shake?" ryst":"")+(tuthi?" tuthi":"")} onClick={onClick} style={{borderRadius:10}} data-fx={"h"+s}>
+    <button className={"helt"+(hilite?" tgt":"")+(shake?" ryst":"")+(tuthi?" tuthi":"")+(dragtgt?" dragtgt":"")} onClick={onClick} style={{borderRadius:10}} data-fx={"h"+s}>
       <span style={{fontSize:20}}>{(CLASSES[p.cls]||CLASSES.tek).ico}</span>
       <span>
         <span className="nm">{p.name}</span><br/>
@@ -1831,7 +1837,25 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
     if(!myTurn||tmode||!canPlay(g,seat,c.id)) return; // kun spilbare kort på egen tur
     // knappen capturer pointeren by default → frigiv den så window-listeners fyrer
     try{ e.currentTarget.releasePointerCapture(e.pointerId); }catch(_){}
-    dragRef.current={uid:c.uid,id:c.id,x0:e.clientX,y0:e.clientY,moved:false};
+    dragRef.current={kind:"play",uid:c.uid,id:c.id,x0:e.clientX,y0:e.clientY,moved:false};
+  };
+  const startAttackDrag=(u,e)=>{
+    if(!myTurn||tmode) return;
+    if(attackTargets(g,seat,u.uid).length===0) return; // kun enheder der kan angribe
+    try{ e.currentTarget.releasePointerCapture(e.pointerId); }catch(_){}
+    dragRef.current={kind:"atk",uid:u.uid,id:u.id,x0:e.clientX,y0:e.clientY,moved:false};
+  };
+  // find hvilket kamp-mål pointeren er over (fjendtlig enhed eller modstanderens helt)
+  const targetAt=(x,y)=>{
+    const el=document.elementFromPoint(x,y);
+    if(!el) return null;
+    const fxEl=el.closest("[data-fx]");
+    if(!fxEl) return null;
+    const key=fxEl.dataset.fx;
+    if(key==="h"+(1-seat)) return {s:1-seat,u:null};       // modstanderens helt
+    const u=op.board.find(x=>x.uid===key);                  // fjendtlig enhed
+    if(u) return {s:1-seat,u:u.uid};
+    return null;
   };
   const overBoard=(y)=>{
     const bel=braetRef.current;
@@ -1846,7 +1870,13 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
       const dx=e.clientX-d.x0, dy=e.clientY-d.y0;
       if(!d.moved && Math.hypot(dx,dy)<8) return; // lille bevægelse = stadig et klik
       d.moved=true;
-      setDrag({uid:d.uid,id:d.id,x:e.clientX,y:e.clientY,over:overBoard(e.clientY)});
+      if(d.kind==="play"){
+        setDrag({kind:"play",uid:d.uid,id:d.id,x:e.clientX,y:e.clientY,over:overBoard(e.clientY)});
+      } else {
+        const tgt=targetAt(e.clientX,e.clientY);
+        const valid=tgt && attackTargets(g,seat,d.uid).some(r=>r.s===tgt.s&&r.u===tgt.u);
+        setDrag({kind:"atk",uid:d.uid,id:d.id,x:e.clientX,y:e.clientY,tgt:valid?tgt:null});
+      }
     };
     const up=(e)=>{
       const d=dragRef.current; dragRef.current=null;
@@ -1854,7 +1884,14 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
       if(d.moved){
         justDragged.current=true;
         setDrag(null);
-        if(overBoard(e.clientY)){ const c=me.hand.find(x=>x.uid===d.uid); if(c) spilKortNu(c); }
+        if(d.kind==="play"){
+          if(overBoard(e.clientY)){ const c=me.hand.find(x=>x.uid===d.uid); if(c) spilKortNu(c); }
+        } else {
+          const tgt=targetAt(e.clientX,e.clientY);
+          if(tgt && attackTargets(g,seat,d.uid).some(r=>r.s===tgt.s&&r.u===tgt.u)){
+            act(x=>unitAttack(x,seat,d.uid,tgt));
+          }
+        }
       }
       // hvis ikke moved: lad onClick håndtere det (klik-flowet)
     };
@@ -1884,7 +1921,9 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
 
       {/* modstander */}
       <div className="bar">
-        <HeltPlade g={g} s={1-seat} me={false} tuthi={hiB("h1")} hilite={isTgt({s:1-seat,u:null})} shake={shake.has("h"+(1-seat))} onClick={()=>klikHelt(1-seat)}/>
+        <HeltPlade g={g} s={1-seat} me={false} tuthi={hiB("h1")} hilite={isTgt({s:1-seat,u:null})} shake={shake.has("h"+(1-seat))}
+          dragtgt={drag&&drag.kind==="atk"&&attackTargets(g,seat,drag.uid).some(r=>r.u==null)}
+          onClick={()=>klikHelt(1-seat)}/>
         <Pips p={op}/>
         <span style={{marginLeft:"auto",display:"flex",alignItems:"center"}}>
           {Array.from({length:Math.min(op.hand.length,9)}).map((_,i)=><span key={i} className="ryg"/>)}
@@ -1895,6 +1934,7 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
         {op.board.length===0&&<span style={{color:"var(--dim)",fontFamily:"var(--mono)",fontSize:11}}>— empty board —</span>}
         {op.board.map(u=>
           <UnitTile key={u.uid} g={g} s={1-seat} u={u} mine={false} tuthi={hiB("eunit:"+u.id)} shake={shake.has(u.uid)}
+            dragtgt={drag&&drag.kind==="atk"&&attackTargets(g,seat,drag.uid).some(r=>r.u===u.uid)}
             hilite={isTgt({s:1-seat,u:u.uid})} onClick={()=>klikEnhed(1-seat,u)}/>)}
       </div>
 
@@ -1912,6 +1952,7 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
         {me.board.map(u=>
           <UnitTile key={u.uid} g={g} s={seat} u={u} mine={true} tuthi={hiB("unit:"+u.id)} shake={shake.has(u.uid)}
             ready={myTurn&&attackTargets(g,seat,u.uid).length>0}
+            onPointerDown={(e)=>startAttackDrag(u,e)}
             hilite={isTgt({s:seat,u:u.uid})} onClick={()=>klikEnhed(seat,u)}/>)}
       </div>
 
@@ -1939,7 +1980,8 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
           <div className="ctxt">{step.t}<div className="cnum">{tut+1} / {TUT.steps.length}</div></div>
           <button className="cx" onClick={onLeave} title="Skip tutorial">✕</button>
         </div>)}
-      {drag && <div className={"dragkort"+(drag.over?" over":"")} style={{left:drag.x,top:drag.y}}><MiniCard id={drag.id}/></div>}
+      {drag && drag.kind==="play" && <div className={"dragkort"+(drag.over?" over":"")} style={{left:drag.x,top:drag.y}}><MiniCard id={drag.id}/></div>}
+      {drag && drag.kind==="atk" && <div className={"dragatk"+(drag.tgt?" hit":"")} style={{left:drag.x,top:drag.y}}>⚔</div>}
       <div className="fxlag">
         {sparks.map(f=>{
           const ds={animationDelay:f.d+"s"};
