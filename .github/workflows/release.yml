@@ -1,0 +1,41 @@
+name: Build & release desktop apps
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            cmd: dist:mac
+          - os: windows-latest
+            cmd: dist:win
+          - os: ubuntu-latest
+            cmd: dist:linux
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Byg web-bundle ind i desktop/app
+        run: |
+          npm ci
+          node tools/build-web.mjs
+      - name: Installer desktop-afhængigheder
+        working-directory: desktop
+        run: npm install
+      - name: Byg og publicér (usigneret)
+        working-directory: desktop
+        run: npm run ${{ matrix.cmd }} -- --publish always
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CSC_IDENTITY_AUTO_DISCOVERY: "false"
