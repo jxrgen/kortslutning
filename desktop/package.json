@@ -1,8 +1,53 @@
 {
-  "name": "kortslutning",
-  "productName": "KORTSLUTNING",
+  "name": "cardware-crash",
+  "productName": "Cardware Crash",
   "version": "1.0.0",
   "private": true,
   "main": "main.cjs",
-  "description": "Dansk 2-spiller deckbuilder-kortspil med elektroniktema"
+  "description": "2-player electronics deckbuilder card game",
+  "author": "jxrgen",
+  "scripts": {
+    "dist": "electron-builder",
+    "dist:mac": "electron-builder --mac",
+    "dist:win": "electron-builder --win",
+    "dist:linux": "electron-builder --linux"
+  },
+  "devDependencies": {
+    "electron": "^33.3.0",
+    "electron-builder": "^25.1.8"
+  },
+  "dependencies": {
+    "electron-updater": "^6.3.9"
+  },
+  "build": {
+    "appId": "dk.jxrgen.cardwarecrash",
+    "productName": "Cardware Crash",
+    "copyright": "Copyright © 2026 jxrgen",
+    "directories": { "output": "release", "buildResources": "build" },
+    "files": ["main.cjs", "app/**/*"],
+    "publish": [
+      { "provider": "github", "owner": "jxrgen", "repo": "kortslutning" }
+    ],
+    "mac": {
+      "category": "public.app-category.games",
+      "target": [{ "target": "dmg", "arch": ["arm64", "x64"] }],
+      "icon": "build/icon.icns"
+    },
+    "dmg": { "title": "Cardware Crash ${version}" },
+    "win": {
+      "target": [{ "target": "nsis", "arch": ["x64"] }],
+      "icon": "build/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "shortcutName": "Cardware Crash"
+    },
+    "linux": {
+      "target": ["AppImage"],
+      "category": "Game",
+      "icon": "build/icon.png"
+    }
+  }
 }

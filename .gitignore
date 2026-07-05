@@ -6,3 +6,7 @@ desktop/app/
 
 # fjern naar token faar workflow-scope
 .github/workflows/build.yml
+
+desktop/release/
+desktop/node_modules/
+.github/workflows/release.yml
