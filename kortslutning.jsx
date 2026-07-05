@@ -2096,6 +2096,7 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
   useEffect(()=>{ if(g.turn!==prevTurn.current){ prevTurn.current=g.turn;
       if(myTurn&&g.status==="igang") setTurban(x=>x+1); } },[g.turn,myTurn]);
   useEffect(()=>{ if(!myTurn){ setT(null); } },[myTurn]);
+  const sluttet=useRef(false);
   useEffect(()=>{
     if(g.status==="slut" && !sluttet.current){
       sluttet.current=true;
