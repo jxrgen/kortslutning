@@ -1044,11 +1044,15 @@ input:focus,select:focus{border-color:var(--cu)}
 .enh.sover .art{opacity:.5}
 .enh.sover::before{content:"z";position:absolute;top:-6px;right:2px;font-size:13px;color:var(--dim);font-style:italic;z-index:3}
 .enh .zz{position:absolute;top:1px;right:4px;font-size:11px;color:var(--dim)}
-.enh .ikoner{position:absolute;top:-8px;left:50%;transform:translateX(-50%);display:flex;gap:1px;
-  font-size:9px;background:#0a140e;border:1px solid var(--line);border-radius:6px;padding:0 4px;white-space:nowrap;font-family:var(--mono)}
+.enh .ikoner{position:absolute;top:-11px;left:50%;transform:translateX(-50%);display:flex;gap:2px;
+  background:#0a140e;border:1px solid var(--line);border-radius:8px;padding:2px 4px;white-space:nowrap;z-index:4}
+.kwb{display:inline-flex;align-items:center;justify-content:center;line-height:0;
+  filter:drop-shadow(0 0 3px currentColor)}
+.kwb svg{display:block}
 .enh .stat{bottom:1px;font-size:13px}
 .enh.sil{filter:grayscale(.8)}
-.enh .skjold{position:absolute;inset:-4px;border-radius:12px;border:1.5px solid var(--guld);opacity:.8;pointer-events:none}
+.enh .skjold{position:absolute;inset:-4px;border-radius:12px;border:2.5px solid #4db4ff;opacity:.9;pointer-events:none;box-shadow:0 0 10px rgba(77,180,255,.6),inset 0 0 8px rgba(77,180,255,.3);animation:skjoldpuls 2s ease-in-out infinite}
+@keyframes skjoldpuls{50%{box-shadow:0 0 16px rgba(77,180,255,.9),inset 0 0 12px rgba(77,180,255,.45)}}
 .tgt{border-color:var(--rod) !important;border-width:3px !important;
   box-shadow:0 0 0 3px rgba(255,109,90,.5),0 0 22px rgba(255,109,90,.75) !important;
   animation:puls .8s infinite;z-index:6}
@@ -1256,8 +1260,12 @@ button:active{transform:scale(.97)}
   .neon .dead{opacity:.4}
   .neonspark{display:none}
 }
+.kwlegend{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.kwleg{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--txt);
+  background:#0d1b13;border:1px solid var(--line);border-radius:8px;padding:3px 8px 3px 6px}
+.kwleg span{white-space:nowrap}
 /* ---- settings ---- */
-.setwrap{max-width:560px;text-align:left;max-height:86vh;overflow-y:auto}
+.setwrap{max-width:100%;text-align:left;max-height:none;overflow-y:visible}
 .setsec{margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--line)}
 .seth{font-family:var(--mono);font-size:14px;color:var(--fos);letter-spacing:.05em;margin-bottom:6px;text-transform:uppercase}
 .setnote{font-size:12px;color:var(--dim);margin-bottom:10px;line-height:1.4}
@@ -1389,10 +1397,38 @@ button:active{transform:scale(.97)}
 `;
 
 // ---------- småkomponenter ----------
-function kwIkoner(g,s,u){
+// tydelige SVG-ikoner pr. keyword — genkendeligt symbol + farve
+const KWSVG = {
+  jord: {c:"#8b6cff", t:"Grounded — must be attacked first",
+    svg:'<path d="M12 3 v7 M7 10 h10 M8.5 13 h7 M10 16 h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/>'},
+  turbo: {c:"#5fe0a0", t:"Turbo — can attack the turn it's played",
+    svg:'<path d="M7 4 L15 4 L10 11 L14 11 L7 20 L9 12 L5 12 Z" fill="currentColor"/>'},
+  iso: {c:"#4db4ff", t:"Insulated — ignores the first damage",
+    svg:'<path d="M12 3 L19 6 V11 C19 15.5 16 18.5 12 20 C8 18.5 5 15.5 5 11 V6 Z" fill="currentColor" opacity="0.9"/><path d="M9 11.5 l2 2 l4 -4.5" stroke="#0a140e" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>'},
+  hoj: {c:"#ff5a4d", t:"High Voltage — destroys any unit it damages",
+    svg:'<path d="M13 2 L5 13 H10 L9 22 L18 10 H12 Z" fill="currentColor"/>'},
+  dob: {c:"#ffb347", t:"Dual Core — can attack twice",
+    svg:'<path d="M4 8 L10 8 L10 5 L15 11 L10 17 L10 14 L4 14 Z" fill="currentColor"/><path d="M20 8 L20 14" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M16.5 8 L16.5 14" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>'},
+  host: {c:"#ff8ec4", t:"Energy Harvest — its damage heals your hero",
+    svg:'<path d="M12 20 C12 20 3 14 3 8.5 C3 5.5 5.2 4 7.3 4 C9 4 10.5 5 12 7 C13.5 5 15 4 16.7 4 C18.8 4 21 5.5 21 8.5 C21 14 12 20 12 20 Z" fill="currentColor"/><path d="M11 9 h2 v2 h2 v2 h-2 v2 h-2 v-2 h-2 v-2 h2 Z" fill="#0a140e"/>'},
+  skjul: {c:"#9fb4a8", t:"Cloaked — can't be targeted until it attacks",
+    svg:'<path d="M2 12 C5 7 8.5 5 12 5 C15.5 5 19 7 22 12 C19 17 15.5 19 12 19 C8.5 19 5 17 2 12 Z" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="3" fill="currentColor"/><path d="M4 19 L20 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>'},
+  noHero: {c:"#e0765a", t:"Units only — can't attack heroes",
+    svg:'<circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M6 6 L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>'},
+  sig: {c:"#5fe0a0", t:"Signal Strength — your Spells hit harder",
+    svg:'<path d="M4 20 v-4 M9 20 v-8 M14 20 v-12 M19 20 v-16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>'},
+};
+function KwBadge({k,live}){
+  const info=KWSVG[k]; if(!info) return null;
+  return (
+    <span className="kwb" style={{color:info.c}} title={info.t}
+      dangerouslySetInnerHTML={{__html:'<svg viewBox="0 0 24 24" width="15" height="15">'+info.svg+'</svg>'}}/>
+  );
+}
+function kwList(g,s,u){
   const out=[];
-  for(const k of kws(g,s,u)){ if(KWINFO[k]) out.push(KWINFO[k].ico); }
-  if(!u.sil && CARDS[u.id].sig) out.push("📶");
+  for(const k of kws(g,s,u)){ if(KWSVG[k]) out.push(k); }
+  if(!u.sil && CARDS[u.id].sig) out.push("sig");
   return out;
 }
 const CARDTHEME={
@@ -1446,9 +1482,14 @@ function MiniCard({id,onClick,glow,count,style,dfx,xcls,tip,onPointerDown}){
 }
 function StorKort({id,unitInfo,g}){
   const d=CARDS[id];
-  let live=null;
+  let live=null, kwl=[];
   if(unitInfo&&g){ const u=refUnit(g,{s:unitInfo.s,u:unitInfo.uid});
-    if(u) live={a:effAtk(g,unitInfo.s,u),h:effHp(g,unitInfo.s,u),m:effMax(g,unitInfo.s,u),sil:u.sil,ik:kwIkoner(g,unitInfo.s,u)}; }
+    if(u){ live={a:effAtk(g,unitInfo.s,u),h:effHp(g,unitInfo.s,u),m:effMax(g,unitInfo.s,u),sil:u.sil};
+      kwl=kwList(g,unitInfo.s,u); } }
+  else if(d.t==="unit"){ // basiskortets keywords (uden live-instans)
+    if(d.kw) for(const k of d.kw){ if(KWSVG[k]) kwl.push(k); }
+    if(d.sig) kwl.push("sig");
+  }
   return (
     <div className={"storkort tema"+(d.r==="L"?" leg":"")} style={themeVars(d)}>
       <div className="top">
@@ -1459,11 +1500,15 @@ function StorKort({id,unitInfo,g}){
         </div>
       </div>
       <div className="txt">{live&&live.sil?<i>Reset — all text removed.</i>:(d.txt||"—")}</div>
+      {kwl.length>0 && (
+        <div className="kwlegend">
+          {kwl.map(k=>(<span key={k} className="kwleg"><KwBadge k={k}/><span>{k==="sig"?"Signal Strength":KWINFO[k].n}</span></span>))}
+        </div>
+      )}
       {d.t==="unit" && (
         <div className="statraek">
           <span style={{color:"var(--amber)"}}>⚔ {live?live.a:d.a}</span>
           <span style={{color:live&&live.h<live.m?"var(--rod)":"var(--fos)"}}>♥ {live?live.h+"/"+live.m:d.h}</span>
-          {live&&live.ik.length>0&&<span style={{color:"var(--dim)",fontFamily:"var(--mono)",fontSize:12}}>{live.ik.join(" ")}</span>}
         </div>
       )}
     </div>
@@ -1550,14 +1595,14 @@ function Pips({p}){
 function UnitTile({g,s,u,mine,onClick,hilite,ready,shake,tuthi,onPointerDown,dragtgt}){
   const d=CARDS[u.id];
   const hp=effHp(g,s,u), mx=effMax(g,s,u);
-  const ik=kwIkoner(g,s,u);
+  const kwl=kwList(g,s,u);
   const sover=mine&&u.jp&&!hasKw(g,s,u,"turbo");
   const liveKws=kws(g,s,u).map(k=>KWINFO[k]?KWINFO[k].n:null).filter(Boolean);
   if(d.sig) liveKws.push("Signal Strength +"+d.sig);
   return (
     <button className={"enh tema hastip"+(d.r==="L"?" leg":"")+(hilite?" tgt":"")+(ready?" klar":"")+(u.sil?" sil":"")+(sover?" sover":"")+(shake?" ryst":"")+(tuthi?" tuthi":"")+(dragtgt?" dragtgt":"")}
       onClick={onClick} onPointerDown={onPointerDown} data-fx={u.uid} style={themeVars(d)}>
-      {ik.length>0 && <span className="ikoner">{ik.join("")}</span>}
+      {kwl.length>0 && <span className="ikoner">{kwl.map(k=><KwBadge key={k} k={k}/>)}</span>}
       {u.sh && <span className="skjold"/>}
       <CardArt id={u.id} className={u.st?"dimart":undefined}/>
       {sover && <span className="zz">z</span>}
@@ -2933,7 +2978,7 @@ export default function App(){
     indhold=<Regler onBack={()=>setSkaerm("menu")}/>;
   }
   else if(skaerm==="settings"){
-    indhold=<SettingsScreen onBack={()=>setSkaerm("menu")}/>;
+    indhold=<div className="pane"><SettingsScreen onBack={()=>setSkaerm("menu")}/></div>;
   }
   else if(skaerm==="spil"){
     if(lobby&&!g){
