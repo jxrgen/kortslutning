@@ -1103,6 +1103,12 @@ button:active{transform:scale(.97)}
   100%{offset-distance:100%;opacity:0;transform:scale(.42)}}
 .mkort.hastip:hover{overflow:visible;z-index:70}
 .haand:hover{overflow:visible}
+.enh.hastip:hover{overflow:visible;z-index:70}
+.braet{overflow:visible}
+/* modstanderens (øverste) enheder: tooltip nedad så den ikke ryger ud over toppen */
+.braet.op .enh .ctip{bottom:auto;top:calc(100% + 10px);transform:translateX(-50%) translateY(-6px)}
+.braet.op .enh:hover .ctip{transform:translateX(-50%) translateY(0)}
+.braet.op .enh .ctip::after{top:auto;bottom:100%;border-top-color:transparent;border-bottom-color:var(--ce,#5fe0a0)}
 /* ---- træk-og-slip ---- */
 .haand .mkort{touch-action:none}
 .dragkort{position:fixed;z-index:75;pointer-events:none;transform:translate(-50%,-50%) rotate(-4deg) scale(1.15);
@@ -1210,9 +1216,11 @@ function cardKws(d){
   if(d.sig) out.push("Signal Strength +"+d.sig);
   return out;
 }
-function CardTip({id}){
+function CardTip({id,live}){
   const d=CARDS[id];
-  const kws=cardKws(d);
+  // live = {atk,hp,kws} for en enhed på brættet (viser aktuelle værdier efter buffs/skade)
+  const kws=live?live.kws:cardKws(d);
+  const atk=live?live.atk:d.a, hp=live?live.hp:d.h;
   return (
     <div className="ctip">
       <div className="ctip-h">
@@ -1220,7 +1228,7 @@ function CardTip({id}){
         <span className="ctip-n">{d.n}</span>
       </div>
       <div className="ctip-t">{d.t==="unit"?"Unit":"Spell"}{d.tr?" · "+d.tr:""}{d.cls&&CLASSES[d.cls]?" · "+CLASSES[d.cls].n:""}{d.r==="L"?" · ★ Legendary":""}</div>
-      {d.t==="unit" && <div className="ctip-s">⚔ {d.a} &nbsp; ❤ {d.h}</div>}
+      {d.t==="unit" && <div className="ctip-s">⚔ {atk} &nbsp; ❤ {hp}</div>}
       {kws.length>0 && <div className="ctip-k">{kws.join(" · ")}</div>}
       {d.txt && <div className="ctip-x">{d.txt}</div>}
     </div>
@@ -1284,8 +1292,10 @@ function UnitTile({g,s,u,mine,onClick,hilite,ready,shake,tuthi}){
   const hp=effHp(g,s,u), mx=effMax(g,s,u);
   const ik=kwIkoner(g,s,u);
   const sover=mine&&u.jp&&!hasKw(g,s,u,"turbo");
+  const liveKws=kws(g,s,u).map(k=>KWINFO[k]?KWINFO[k].n:null).filter(Boolean);
+  if(d.sig) liveKws.push("Signal Strength +"+d.sig);
   return (
-    <button className={"enh tema"+(d.r==="L"?" leg":"")+(hilite?" tgt":"")+(ready?" klar":"")+(u.sil?" sil":"")+(sover?" sover":"")+(shake?" ryst":"")+(tuthi?" tuthi":"")}
+    <button className={"enh tema hastip"+(d.r==="L"?" leg":"")+(hilite?" tgt":"")+(ready?" klar":"")+(u.sil?" sil":"")+(sover?" sover":"")+(shake?" ryst":"")+(tuthi?" tuthi":"")}
       onClick={onClick} data-fx={u.uid} style={themeVars(d)}>
       {ik.length>0 && <span className="ikoner">{ik.join("")}</span>}
       {u.sh && <span className="skjold"/>}
@@ -1293,6 +1303,7 @@ function UnitTile({g,s,u,mine,onClick,hilite,ready,shake,tuthi}){
       {sover && <span className="zz">z</span>}
       <span className="stat a">{effAtk(g,s,u)}</span>
       <span className={"stat h"+(hp<mx?" skadet":"")}>{hp}</span>
+      <CardTip id={u.id} live={{atk:effAtk(g,s,u),hp,kws:liveKws}}/>
     </button>
   );
 }
