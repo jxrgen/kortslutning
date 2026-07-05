@@ -866,6 +866,108 @@ async function stSet(k,v,sh){ if(!store) return false; try{ const r=await store.
 async function stDel(k,sh){ if(!store) return; try{ await store.delete(k,sh); }catch(e){} }
 function codeGen(){ const A="ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; let c=""; for(let i=0;i<4;i++) c+=A[rnd(A.length)]; return c; }
 
+// ---------- indstillinger ----------
+// langsomhed: 0 = normal fart, 1 = maks langsom. Skalerer ALLE animationers varighed.
+const DEFAULT_SETTINGS = {
+  slowness: 0.25,            // 25% langsommere som udgangspunkt
+  sound: true,              // lydeffekter
+  music: true,              // 8-bit baggrundsmusik
+  musicVol: 0.4,
+  sfxVol: 0.6,
+  fxMotion: true,           // partikler/rystelser
+  showEnemyBanner: true,    // vis tydeligt hvad modstanderen gør
+  keys: { end:" ", power:"q", cancel:"Escape", card1:"1",card2:"2",card3:"3",card4:"4",card5:"5",card6:"6",card7:"7",card8:"8",card9:"9",card10:"0" },
+};
+let SETTINGS = { ...DEFAULT_SETTINGS };
+const _slisteners = new Set();
+function applySettings(next){ SETTINGS = { ...SETTINGS, ...next }; for(const f of _slisteners) f(SETTINGS); stSet("settings", SETTINGS); }
+async function loadSettings(){ const s=await stGet("settings"); if(s) SETTINGS={ ...DEFAULT_SETTINGS, ...s, keys:{ ...DEFAULT_SETTINGS.keys, ...(s.keys||{}) } }; for(const f of _slisteners) f(SETTINGS); return SETTINGS; }
+function onSettings(fn){ _slisteners.add(fn); return ()=>_slisteners.delete(fn); }
+// tempo-faktor: 1.0 ved 0% langsomhed, større = langsommere
+function tempo(){ return 1 + SETTINGS.slowness*1.5; }
+function slowMs(ms){ return Math.round(ms*tempo()); }
+// ---------- lyd: 8-bit SFX + baggrundsmusik (syntetiseret, ingen filer) ----------
+const Audio8 = (() => {
+  let ctx=null, master=null, musicGain=null, sfxGain=null, musicTimer=null, musicOn=false;
+  function ensure(){
+    if(ctx) return;
+    try{
+      ctx = new (window.AudioContext||window.webkitAudioContext)();
+      master = ctx.createGain(); master.gain.value=0.9; master.connect(ctx.destination);
+      musicGain = ctx.createGain(); musicGain.gain.value=SETTINGS.musicVol; musicGain.connect(master);
+      sfxGain = ctx.createGain(); sfxGain.gain.value=SETTINGS.sfxVol; sfxGain.connect(master);
+    }catch(e){}
+  }
+  function resume(){ ensure(); if(ctx&&ctx.state==="suspended") ctx.resume(); }
+  // enkelt tone
+  function tone(freq,dur,type="square",when=0,vol=0.5,gainNode){
+    if(!ctx) return;
+    const t=ctx.currentTime+when;
+    const o=ctx.createOscillator(), g=ctx.createGain();
+    o.type=type; o.frequency.setValueAtTime(freq,t);
+    g.gain.setValueAtTime(0,t);
+    g.gain.linearRampToValueAtTime(vol,t+0.008);
+    g.gain.exponentialRampToValueAtTime(0.0008,t+dur);
+    o.connect(g); g.connect(gainNode||sfxGain);
+    o.start(t); o.stop(t+dur+0.02);
+  }
+  function slide(f1,f2,dur,type="square",vol=0.5){
+    if(!ctx) return; const t=ctx.currentTime;
+    const o=ctx.createOscillator(), g=ctx.createGain();
+    o.type=type; o.frequency.setValueAtTime(f1,t); o.frequency.exponentialRampToValueAtTime(f2,t+dur);
+    g.gain.setValueAtTime(vol,t); g.gain.exponentialRampToValueAtTime(0.0008,t+dur);
+    o.connect(g); g.connect(sfxGain); o.start(t); o.stop(t+dur+0.02);
+  }
+  function noise(dur,vol=0.4){
+    if(!ctx) return; const t=ctx.currentTime;
+    const n=ctx.createBufferSource(), buf=ctx.createBuffer(1,ctx.sampleRate*dur,ctx.sampleRate);
+    const data=buf.getChannelData(0); for(let i=0;i<data.length;i++) data[i]=(Math.random()*2-1);
+    n.buffer=buf; const g=ctx.createGain(); g.gain.setValueAtTime(vol,t); g.gain.exponentialRampToValueAtTime(0.0008,t+dur);
+    const f=ctx.createBiquadFilter(); f.type="highpass"; f.frequency.value=800;
+    n.connect(f); f.connect(g); g.connect(sfxGain); n.start(t); n.stop(t+dur);
+  }
+  const sfx = {
+    play(){ resume(); if(!SETTINGS.sound)return; tone(330,0.07,"square",0,0.4); tone(494,0.09,"square",0.06,0.4); },
+    unit(){ resume(); if(!SETTINGS.sound)return; tone(196,0.08,"triangle",0,0.5); tone(294,0.1,"triangle",0.07,0.45); },
+    spell(){ resume(); if(!SETTINGS.sound)return; slide(400,900,0.22,"sawtooth",0.4); },
+    attack(){ resume(); if(!SETTINGS.sound)return; slide(300,140,0.16,"square",0.5); noise(0.12,0.25); },
+    hit(){ resume(); if(!SETTINGS.sound)return; noise(0.14,0.4); tone(110,0.12,"square",0,0.4); },
+    heal(){ resume(); if(!SETTINGS.sound)return; tone(523,0.1,"sine",0,0.4); tone(659,0.12,"sine",0.08,0.4); tone(784,0.14,"sine",0.16,0.4); },
+    death(){ resume(); if(!SETTINGS.sound)return; slide(200,60,0.4,"sawtooth",0.45); noise(0.25,0.3); },
+    zap(){ resume(); if(!SETTINGS.sound)return; slide(1200,300,0.14,"square",0.35); noise(0.08,0.3); },
+    endturn(){ resume(); if(!SETTINGS.sound)return; tone(392,0.09,"square",0,0.4); tone(261,0.12,"square",0.08,0.4); },
+    win(){ resume(); if(!SETTINGS.sound)return; [523,659,784,1047].forEach((f,i)=>tone(f,0.18,"square",i*0.11,0.45)); },
+    lose(){ resume(); if(!SETTINGS.sound)return; [392,330,262,196].forEach((f,i)=>tone(f,0.2,"sawtooth",i*0.13,0.4)); },
+    click(){ resume(); if(!SETTINGS.sound)return; tone(660,0.04,"square",0,0.25); },
+    error(){ resume(); if(!SETTINGS.sound)return; tone(140,0.12,"square",0,0.4); tone(120,0.14,"square",0.09,0.4); },
+  };
+  // baggrundsmusik: enkel loopende 8-bit basgang + melodi
+  const BASS=[130.81,130.81,164.81,196.00,174.61,174.61,146.83,196.00]; // C C E G F F D G
+  const MEL =[523.25,659.25,587.33,783.99,698.46,659.25,587.33,523.25,
+              493.88,587.33,523.25,659.25,587.33,523.25,493.88,440.00];
+  let step=0;
+  function musicTick(){
+    if(!ctx||!musicOn) return;
+    const beat=0.34*tempo(); // musik følger også langsomhed en anelse
+    const b=BASS[step%BASS.length];
+    tone(b,beat*0.9,"triangle",0,0.5,musicGain);
+    tone(b*2,beat*0.4,"square",0,0.12,musicGain);
+    const m=MEL[step%MEL.length];
+    tone(m,beat*0.5,"square",beat*0.5,0.18,musicGain);
+    if(step%2===0) tone(m*1.5,beat*0.25,"square",beat*0.25,0.08,musicGain);
+    step++;
+    musicTimer=setTimeout(musicTick, beat*1000);
+  }
+  return {
+    sfx,
+    startMusic(){ resume(); if(!SETTINGS.music||musicOn) return; musicOn=true; step=0; musicTick(); },
+    stopMusic(){ musicOn=false; if(musicTimer) clearTimeout(musicTimer); },
+    setMusicVol(v){ ensure(); if(musicGain) musicGain.gain.value=v; },
+    setSfxVol(v){ ensure(); if(sfxGain) sfxGain.gain.value=v; },
+    resume,
+  };
+})();
+
 const CSS = `
 :root{
   --bg0:#0c1811; --bg1:#12241a; --bg2:#173021; --line:#274a35;
@@ -1055,29 +1157,29 @@ button:active{transform:scale(.97)}
 @keyframes spilpuls{0%,100%{box-shadow:0 0 16px rgba(95,224,160,.55),0 6px 12px rgba(0,0,0,.5)}50%{box-shadow:0 0 26px rgba(95,224,160,.9),0 6px 12px rgba(0,0,0,.5)}}
 .enh.klar{animation:klarpuls 2s ease-in-out infinite}
 @keyframes klarpuls{0%,100%{box-shadow:0 0 15px rgba(95,224,160,.5)}50%{box-shadow:0 0 24px rgba(95,224,160,.85)}}
-.enh{animation:enhind .38s cubic-bezier(.2,1.5,.4,1)}
+.enh{animation:enhind calc(.38s * var(--tempo,1)) cubic-bezier(.2,1.5,.4,1)}
 @keyframes enhind{from{transform:scale(.3);opacity:0;filter:brightness(2.2)}}
-.ryst{animation:ryst .32s ease-in-out !important}
+.ryst{animation:ryst calc(.32s * var(--tempo,1)) ease-in-out !important}
 @keyframes ryst{20%{transform:translateX(-4px)}40%{transform:translateX(4px)}60%{transform:translateX(-3px)}80%{transform:translateX(2px)}}
 /* ---- FX-lag ---- */
 .fxlag{position:fixed;inset:0;pointer-events:none;z-index:60;overflow:hidden}
 .fxtal{position:fixed;transform:translate(-50%,-50%);font-family:var(--mono);font-weight:700;font-size:30px;
-  text-shadow:0 0 12px currentColor;animation:fxtal .95s ease-out forwards;opacity:0}
+  text-shadow:0 0 12px currentColor;animation:fxtal calc(.95s * var(--tempo,1)) ease-out forwards;opacity:0}
 @keyframes fxtal{0%{opacity:0;transform:translate(-50%,-28%) scale(.6)}14%{opacity:1;transform:translate(-50%,-50%) scale(1.18)}
   100%{opacity:0;transform:translate(-50%,-170%) scale(1)}}
 .fxburst{position:fixed}
 .fxburst i{position:absolute;width:7px;height:7px;border-radius:2px;background:currentColor;
-  box-shadow:0 0 9px currentColor;animation:gnist .65s ease-out forwards}
+  box-shadow:0 0 9px currentColor;animation:gnist calc(.65s * var(--tempo,1)) ease-out forwards}
 @keyframes gnist{to{transform:translate(var(--dx),var(--dy)) rotate(220deg) scale(.15);opacity:0}}
 .fxring{position:fixed;width:26px;height:26px;margin:-13px 0 0 -13px;border:3px solid;border-radius:50%;
-  animation:fxring .6s ease-out forwards;box-shadow:0 0 12px currentColor}
+  animation:fxring calc(.6s * var(--tempo,1)) ease-out forwards;box-shadow:0 0 12px currentColor}
 @keyframes fxring{to{transform:scale(3.6);opacity:0}}
-.fxzap{position:fixed;inset:0;width:100vw;height:100vh;animation:zapfl .32s ease-out forwards;
+.fxzap{position:fixed;inset:0;width:100vw;height:100vh;animation:zapfl calc(.32s * var(--tempo,1)) ease-out forwards;
   filter:drop-shadow(0 0 7px rgba(240,178,62,.9))}
 .fxzap.spell{filter:drop-shadow(0 0 7px rgba(95,224,160,.9))}
 @keyframes zapfl{0%{opacity:1}45%{opacity:.3}60%{opacity:1}100%{opacity:0}}
 .fxflyv{position:fixed;font-size:42px;transform:translate(-50%,-50%);z-index:61;
-  text-shadow:0 0 16px rgba(95,224,160,.9);animation:flyv .55s cubic-bezier(.3,.1,.55,1) forwards}
+  text-shadow:0 0 16px rgba(95,224,160,.9);animation:flyv calc(.55s * var(--tempo,1)) cubic-bezier(.3,.1,.55,1) forwards}
 @keyframes flyv{55%{opacity:1}100%{transform:translate(calc(-50% + var(--tx)),calc(-50% + var(--ty))) scale(.35);opacity:0}}
 .art{display:block;pointer-events:none}
 .art.dimart{opacity:.45}
@@ -1098,7 +1200,7 @@ button:active{transform:scale(.97)}
   display:flex;align-items:center;justify-content:center;font-size:0}
 .fxflyv .art{width:44px;height:44px}
 .fxflyv.kurve{left:0;top:0;transform:none;offset-rotate:0deg;offset-anchor:50% 50%;
-  animation:flyvk .62s cubic-bezier(.32,.08,.55,1) forwards}
+  animation:flyvk calc(.62s * var(--tempo,1)) cubic-bezier(.32,.08,.55,1) forwards}
 @keyframes flyvk{0%{offset-distance:0%;opacity:0}10%{opacity:1}
   100%{offset-distance:100%;opacity:0;transform:scale(.42)}}
 .mkort.hastip:hover{overflow:visible;z-index:70}
@@ -1154,6 +1256,33 @@ button:active{transform:scale(.97)}
   .neon .dead{opacity:.4}
   .neonspark{display:none}
 }
+/* ---- settings ---- */
+.setwrap{max-width:560px;text-align:left;max-height:86vh;overflow-y:auto}
+.setsec{margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--line)}
+.seth{font-family:var(--mono);font-size:14px;color:var(--fos);letter-spacing:.05em;margin-bottom:6px;text-transform:uppercase}
+.setnote{font-size:12px;color:var(--dim);margin-bottom:10px;line-height:1.4}
+.setrow{display:flex;align-items:center;gap:12px;margin:8px 0}
+.setrow.sub{padding-left:22px;font-size:13px;color:var(--txt)}
+.setrow.sub span{min-width:100px;color:var(--dim)}
+.slider{flex:1;accent-color:var(--fos);height:4px}
+.slider.sm{max-width:180px}
+.setval{font-family:var(--mono);color:var(--amber);min-width:78px;text-align:right;font-size:13px}
+.setpreset{display:flex;gap:6px;margin-top:8px}
+.minknap{font-family:var(--mono);font-size:12px;padding:5px 12px;border-radius:8px;
+  background:var(--bg2);border:1px solid var(--line);color:var(--txt);cursor:pointer;transition:all .12s}
+.minknap:hover{border-color:var(--fos)}
+.minknap.aktiv{border-color:var(--fos);color:var(--fos);background:rgba(95,224,160,.1)}
+.settoggle{display:flex;align-items:center;gap:9px;margin:9px 0;font-size:14px;color:var(--txt);cursor:pointer}
+.settoggle input{width:17px;height:17px;accent-color:var(--fos);cursor:pointer}
+.keygrid{display:grid;grid-template-columns:1fr 1fr;gap:7px 14px;margin-top:8px}
+.keyrow{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.keylabel{font-size:12.5px;color:var(--txt)}
+.keybtn{font-family:var(--mono);font-size:12px;min-width:64px;padding:4px 8px;border-radius:6px;
+  background:#0d1b13;border:1px solid var(--line);color:var(--amber);cursor:pointer;transition:all .12s}
+.keybtn:hover{border-color:var(--fos)}
+.keybtn.waiting{border-color:var(--fos);color:var(--fos);background:rgba(95,224,160,.12);animation:keywait 1s ease-in-out infinite}
+@keyframes keywait{50%{background:rgba(95,224,160,.24)}}
+@media (max-width:560px){ .keygrid{grid-template-columns:1fr} }
 /* ---- sejrsanimation ---- */
 .slor.sejr{background:radial-gradient(120% 90% at 50% 30%,rgba(63,168,120,.18),rgba(6,12,9,.86) 70%)}
 .vfx{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:1}
@@ -1810,7 +1939,7 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
   const K=CLASSES[me.cls]||CLASSES.tek;
   const step=mode==="tutorial"?TUT.steps[tut]:null;
   const [wob,setWob]=useState(false);
-  const nope=()=>{ setWob(true); setTimeout(()=>setWob(false),450); };
+  const nope=()=>{ Audio8.sfx.error(); setWob(true); setTimeout(()=>setWob(false),450); };
   const hiB=k=>!!(step&&step.hi&&step.hi.includes(k));
   const tOK=(k,v)=>{
     if(!step) return true;
@@ -1859,41 +1988,44 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
     const nye=fx.filter(e=>e.k>fxDone.current);
     if(fx.length) fxDone.current=fx[fx.length-1].k;
     if(!nye.length) return;
-    const redMo=typeof window!=="undefined"&&window.matchMedia
-      &&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const redMo=(typeof window!=="undefined"&&window.matchMedia
+      &&window.matchMedia("(prefers-reduced-motion: reduce)").matches)||!SETTINGS.fxMotion;
+    const T=tempo(); // langsomhed-faktor
+    const gap=0.14*T; // afstand mellem sekventielle fx (før: 0.06)
     const add=[], sh=[];
     for(const e of nye){
-      const d=add.length*0.06, kk=e.k;
+      const d=add.length*gap, kk=e.k;
       if(e.t==="dmg"){ const P=posOf(e.s,e.u!==undefined?e.u:null); if(!P) continue;
         add.push({key:"t"+kk,type:"tal",x:P.x,y:P.y,txt:"−"+e.n,c:"var(--rod)",d});
         add.push({key:"b"+kk,type:"burst",x:P.x,y:P.y,n:7,c:"var(--amber)",d});
-        sh.push(e.u!=null?e.u:"h"+e.s); }
+        sh.push(e.u!=null?e.u:"h"+e.s); Audio8.sfx.hit(); }
       else if(e.t==="heal"){ const P=posOf(e.s,e.u); if(!P) continue;
         add.push({key:"t"+kk,type:"tal",x:P.x,y:P.y,txt:"+"+e.n,c:"var(--fos)",d});
-        add.push({key:"r"+kk,type:"ring",x:P.x,y:P.y,c:"var(--fos)",d}); }
+        add.push({key:"r"+kk,type:"ring",x:P.x,y:P.y,c:"var(--fos)",d}); Audio8.sfx.heal(); }
       else if(e.t==="boom"){ const P=posOf(e.s,e.u); if(!P) continue;
-        add.push({key:"b"+kk,type:"burst",x:P.x,y:P.y,n:14,c:"var(--cu2)",stor:true,d});
+        add.push({key:"b"+kk,type:"burst",x:P.x,y:P.y,n:14,c:"var(--cu2)",stor:true,d}); Audio8.sfx.death();
         if(!redMo){ const fl=document.querySelector(".spilflade");
           if(fl&&fl.animate) fl.animate(
             [{transform:"translate(0,0)"},{transform:"translate(-5px,2px)"},{transform:"translate(4px,-2px)"},{transform:"translate(-2px,1px)"},{transform:"translate(0,0)"}],
-            {duration:260,delay:d*1000}); } }
+            {duration:slowMs(260),delay:d*1000}); } }
       else if(e.t==="skjold"){ const P=posOf(e.s,e.u); if(!P) continue;
         add.push({key:"r"+kk,type:"ring",x:P.x,y:P.y,c:"var(--guld)",d}); }
       else if(e.t==="pop"){ const P=posOf(e.s,e.u); if(!P) continue;
-        add.push({key:"b"+kk,type:"burst",x:P.x,y:P.y,n:6,c:"var(--fos)",d}); }
+        add.push({key:"b"+kk,type:"burst",x:P.x,y:P.y,n:6,c:"var(--fos)",d}); Audio8.sfx.unit(); }
       else if(e.t==="cast"){ const P=posOf(e.s,null); if(!P) continue;
-        add.push({key:"r"+kk,type:"ring",x:P.x,y:P.y,c:"var(--amber)",d}); }
+        add.push({key:"r"+kk,type:"ring",x:P.x,y:P.y,c:"var(--amber)",d}); Audio8.sfx.spell(); }
       else if(e.t==="zap"&&e.art==="melee"){
         const P1=posOf(e.fs,e.fu), P2=posOf(e.ts,e.tu); if(!P1||!P2) continue;
+        Audio8.sfx.attack();
         if(!redMo){ const el=document.querySelector('[data-fx="'+e.fu+'"]');
           if(el&&el.animate){ const lx=(P2.x-P1.x)*0.7, ly=(P2.y-P1.y)*0.7;
             el.animate([{transform:"translate(0,0)"},
               {transform:"translate("+lx+"px,"+ly+"px) scale(1.07)",offset:0.42},
               {transform:"translate(0,0)"}],
-              {duration:330,easing:"cubic-bezier(.34,.65,.3,1)",delay:d*1000}); } }
-        add.push({key:"b"+kk,type:"burst",x:P2.x,y:P2.y,n:8,c:"var(--amber)",d:d+0.13}); }
+              {duration:slowMs(330),easing:"cubic-bezier(.34,.65,.3,1)",delay:d*1000}); } }
+        add.push({key:"b"+kk,type:"burst",x:P2.x,y:P2.y,n:8,c:"var(--amber)",d:d+0.13*T}); }
       else if(e.t==="zap"){ const P1=posOf(e.fs,e.fu), P2=posOf(e.ts,e.tu); if(!P1||!P2) continue;
-        add.push({key:"z"+kk,type:"zap",p1:P1,p2:P2,art:e.art,d}); }
+        add.push({key:"z"+kk,type:"zap",p1:P1,p2:P2,art:e.art,d}); Audio8.sfx.zap(); }
       else if(e.t==="spil"){ const fra=posOf(e.s,e.hu)||posOf(e.s,null); if(!fra) continue;
         const til=e.ts!=null?posOf(e.ts,e.tu):null;
         const cx=(typeof window!=="undefined"?window.innerWidth/2:400);
@@ -1907,18 +2039,30 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
     if(add.length){
       setSparks(x=>[...x,...add]);
       const keys=add.map(a=>a.key);
-      setTimeout(()=>setSparks(x=>x.filter(f=>!keys.includes(f.key))),1400);
+      setTimeout(()=>setSparks(x=>x.filter(f=>!keys.includes(f.key))),slowMs(1400));
     }
-    if(sh.length){ setShake(new Set(sh)); setTimeout(()=>setShake(new Set()),380); }
+    if(sh.length){ setShake(new Set(sh)); setTimeout(()=>setShake(new Set()),slowMs(380)); }
   },[g]);
 
   useEffect(()=>{ const L=g.last;
     if(L&&L.k!==lastK.current){ lastK.current=L.k;
-      if(L.s!==seat){ setPt(L); const t=setTimeout(()=>setPt(null),2600); return ()=>clearTimeout(t); } }
+      if(L.s!==seat && SETTINGS.showEnemyBanner){ setPt(L); const t=setTimeout(()=>setPt(null),slowMs(2600)); return ()=>clearTimeout(t); } }
   },[g.last&&g.last.k]);
   useEffect(()=>{ if(g.turn!==prevTurn.current){ prevTurn.current=g.turn;
       if(myTurn&&g.status==="igang") setTurban(x=>x+1); } },[g.turn,myTurn]);
   useEffect(()=>{ if(!myTurn){ setT(null); } },[myTurn]);
+  useEffect(()=>{
+    if(g.status==="slut" && !sluttet.current){
+      sluttet.current=true;
+      if(g.winner===seat) Audio8.sfx.win(); else if(g.winner!==2) Audio8.sfx.lose();
+    }
+    if(g.status==="igang") sluttet.current=false;
+  },[g.status,g.winner,seat]);
+  // start baggrundsmusik når spillet er i gang
+  useEffect(()=>{
+    if(g.status==="igang" && SETTINGS.music){ Audio8.startMusic(); }
+    return ()=>{ if(g.status!=="igang") Audio8.stopMusic(); };
+  },[g.status]);
 
   const isTgt=r=>tmode&&tmode.list.some(x=>x.s===r.s&&x.u===r.u);
   const fire=r=>{ const run=tmode.run; setT(null); setSel(null); run(r); };
@@ -1944,6 +2088,8 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
   const spilKortNu=(c)=>{
     if(!c) return;
     if(!tOK("play",c.id)){ nope(); return; }
+    const d=CARDS[c.id];
+    if(d) (d.t==="spell"?Audio8.sfx.spell:Audio8.sfx.unit)();
     const {need,list}=targetsForCard(g,seat,c.id,null);
     if(need&&list.length>1){
       setSel(null);
@@ -2078,10 +2224,37 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
 
   const slut=g.status==="slut";
   const kanKraft=myTurn&&!me.heroUsed&&me.cur>=K.power.c;
+  // keyboard-shortcuts (konfigurerbare via settings)
+  useEffect(()=>{
+    const onKey=(e)=>{
+      if(e.target&&/input|textarea|select/i.test(e.target.tagName)) return;
+      const K=SETTINGS.keys, key=e.key;
+      if(key===K.end){ e.preventDefault(); if(myTurn&&!slut&&tOK("end")){ Audio8.sfx.endturn(); act(x=>endTurn(x,seat)); } return; }
+      if(key===K.cancel){ if(tmode){ setT(null); } else if(sel){ setSel(null); } return; }
+      if(key===K.power||key===(K.power||"").toUpperCase()){ if(kanKraft){ kraft(); } return; }
+      // kort 1-10
+      for(let i=1;i<=10;i++){
+        if(key===K["card"+i]){ e.preventDefault();
+          const c=me.hand[i-1];
+          if(c && myTurn && !slut){
+            if(canPlay(g,seat,c.id)){ Audio8.sfx.click(); spilKortNu(c); }
+            else { Audio8.sfx.error(); nope(); }
+          }
+          return;
+        }
+      }
+    };
+    window.addEventListener("keydown",onKey);
+    return ()=>window.removeEventListener("keydown",onKey);
+  },[g,myTurn,slut,tmode,sel,me.hand]);
   const kanAngribe=myTurn&&!slut&&!tmode&&me.board.filter(u=>attackTargets(g,seat,u.uid).length>0).length;
 
+  const [slowUI,setSlowUI]=useState(SETTINGS.slowness);
+  useEffect(()=>onSettings(s=>setSlowUI(s.slowness)),[]);
+  const tempoVar=1+slowUI*1.5;
+
   return (
-    <div className={"spilflade"+(tmode?" targeting":"")+(tmode&&tmode.atk?" atkmode":"")}>
+    <div className={"spilflade"+(tmode?" targeting":"")+(tmode&&tmode.atk?" atkmode":"")} style={{"--tempo":tempoVar}}>
       {tmode && <button className={"banner"+(tmode.atk?" atk":"")} onClick={()=>setT(null)}>{tmode.label}<span className="bx">· tap here to cancel</span></button>}
       {turban>0 && myTurn && !slut && <div key={turban} className="turban">YOUR TURN</div>}
 
@@ -2108,7 +2281,7 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
         <span>Round {Math.max(1,Math.ceil(g.turn/2))}</span>
         <span style={{color:myTurn?"var(--fos)":"var(--dim)"}}>{slut?"Game over":(myTurn?"⚡ Your turn":"Waiting for "+op.name+"…")}</span>
         <button className={"slutknap"+(hiB("end")?" tuthi":"")} disabled={!myTurn||slut}
-          onClick={()=>{ if(!tOK("end")){nope();return;} act(x=>endTurn(x,seat)); }}>END TURN</button>
+          onClick={()=>{ if(!tOK("end")){nope();return;} Audio8.sfx.endturn(); act(x=>endTurn(x,seat)); }}>END TURN</button>
       </div>
 
       {kanAngribe>0 && mode!=="tutorial" &&
@@ -2187,7 +2360,7 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
         </div>
       )}
 
-      {ptoast && <div className="optoast"><MiniCard id={ptoast.id}/><span style={{fontFamily:"var(--mono)",fontSize:12,color:"var(--dim)"}}>{op.name}<br/>plays…</span></div>}
+      {ptoast && <div className="optoast"><MiniCard id={ptoast.id}/><span style={{fontFamily:"var(--mono)",fontSize:12,color:"var(--dim)"}}><b style={{color:"var(--rod)"}}>{op.name} plays</b><br/><span style={{color:"var(--txt)",fontSize:14}}>{CARDS[ptoast.id]?CARDS[ptoast.id].n:"a card"}</span></span></div>}
 
       {sel && (
         <div className="slor" onClick={()=>setSel(null)}>
@@ -2240,6 +2413,94 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
 }
 
 // ---------- deckbygger ----------
+function SettingsScreen({onBack}){
+  const [s,setS]=useState(SETTINGS);
+  const [rebind,setRebind]=useState(null); // hvilken tast der ventes på
+  useEffect(()=>onSettings(setS),[]);
+  const upd=(patch)=>{ applySettings(patch); setS({...SETTINGS}); };
+  // live-preview af lyd/musik-volumen
+  useEffect(()=>{ Audio8.setMusicVol(s.musicVol); Audio8.setSfxVol(s.sfxVol); },[s.musicVol,s.sfxVol]);
+  useEffect(()=>{
+    if(!rebind) return;
+    const onKey=(e)=>{
+      e.preventDefault();
+      const val=e.key;
+      upd({keys:{...SETTINGS.keys,[rebind]:val}});
+      setRebind(null);
+    };
+    window.addEventListener("keydown",onKey,{once:true});
+    return ()=>window.removeEventListener("keydown",onKey);
+  },[rebind]);
+  const pct=Math.round(s.slowness*100);
+  const keyName=(k)=> k===" "?"Space": k==="Escape"?"Esc": (k||"").length===1?k.toUpperCase():k;
+  const shortcuts=[
+    ["end","End turn"],["power","Hero power"],["cancel","Cancel / deselect"],
+    ["card1","Play hand card 1"],["card2","Card 2"],["card3","Card 3"],["card4","Card 4"],["card5","Card 5"],
+    ["card6","Card 6"],["card7","Card 7"],["card8","Card 8"],["card9","Card 9"],["card10","Card 10"],
+  ];
+  return (
+    <div className="ark setwrap">
+      <div className="logo" style={{fontSize:26,marginBottom:14}}>⚙️ SETTINGS</div>
+
+      <div className="setsec">
+        <div className="seth">Game speed</div>
+        <p className="setnote">How slow and readable the animations play. Higher = slower, easier to follow what happens.</p>
+        <div className="setrow">
+          <input type="range" min="0" max="100" value={pct}
+            onChange={e=>upd({slowness:(+e.target.value)/100})} className="slider"/>
+          <span className="setval">{pct}% slow</span>
+        </div>
+        <div className="setpreset">
+          {[0,25,50,75,100].map(v=>(
+            <button key={v} className={"minknap"+(pct===v?" aktiv":"")} onClick={()=>upd({slowness:v/100})}>{v}%</button>
+          ))}
+        </div>
+      </div>
+
+      <div className="setsec">
+        <div className="seth">Sound</div>
+        <label className="settoggle"><input type="checkbox" checked={s.sound} onChange={e=>{upd({sound:e.target.checked}); if(e.target.checked) Audio8.sfx.click();}}/> Sound effects</label>
+        <div className="setrow sub"><span>SFX volume</span>
+          <input type="range" min="0" max="100" value={Math.round(s.sfxVol*100)} disabled={!s.sound}
+            onChange={e=>upd({sfxVol:(+e.target.value)/100})} onMouseUp={()=>Audio8.sfx.play()} className="slider sm"/>
+        </div>
+        <label className="settoggle"><input type="checkbox" checked={s.music} onChange={e=>{upd({music:e.target.checked}); if(e.target.checked) Audio8.startMusic(); else Audio8.stopMusic();}}/> 8-bit background music</label>
+        <div className="setrow sub"><span>Music volume</span>
+          <input type="range" min="0" max="100" value={Math.round(s.musicVol*100)} disabled={!s.music}
+            onChange={e=>upd({musicVol:(+e.target.value)/100})} className="slider sm"/>
+        </div>
+      </div>
+
+      <div className="setsec">
+        <div className="seth">Visuals</div>
+        <label className="settoggle"><input type="checkbox" checked={s.fxMotion} onChange={e=>upd({fxMotion:e.target.checked})}/> Particle & shake effects</label>
+        <label className="settoggle"><input type="checkbox" checked={s.showEnemyBanner} onChange={e=>upd({showEnemyBanner:e.target.checked})}/> Show a banner for opponent’s actions</label>
+      </div>
+
+      <div className="setsec">
+        <div className="seth">Keyboard shortcuts</div>
+        <p className="setnote">Click a key to rebind it, then press the new key.</p>
+        <div className="keygrid">
+          {shortcuts.map(([id,label])=>(
+            <div key={id} className="keyrow">
+              <span className="keylabel">{label}</span>
+              <button className={"keybtn"+(rebind===id?" waiting":"")} onClick={()=>setRebind(id)}>
+                {rebind===id?"press a key…":keyName(s.keys[id])}
+              </button>
+            </div>
+          ))}
+        </div>
+        <button className="minknap" style={{marginTop:10}} onClick={()=>upd({keys:{...DEFAULT_SETTINGS.keys}})}>Reset shortcuts</button>
+      </div>
+
+      <div className="setsec">
+        <button className="minknap" onClick={()=>{applySettings({...DEFAULT_SETTINGS}); setS({...SETTINGS});}}>Reset all to defaults</button>
+      </div>
+
+      <button className="knap cu" onClick={onBack}>← Back to menu</button>
+    </div>
+  );
+}
 function DeckBuilder({decks,gemDecks,onBack,flash}){
   const [cards,setCards]=useState([]);
   const [navn,setNavn]=useState("My deck");
@@ -2433,6 +2694,7 @@ export default function App(){
   const flash=t=>{ setToast(t); clearTimeout(toastT.current); toastT.current=setTimeout(()=>setToast(null),2600); };
 
   useEffect(()=>{ (async()=>{
+    await loadSettings();
     const n=await stGet("ks-navn",false); if(n) setNavn(n);
     const d=await stGet("ks-decks",false); if(Array.isArray(d)) setDecks(d);
     const k=await stGet("ks-cls",false); if(k&&CLASSES[k]) setClsS(k);
@@ -2660,6 +2922,7 @@ export default function App(){
         <div className="etiket">Other</div>
         <button className="knap" onClick={()=>setSkaerm("deck")}>🃏 Card library & deck builder</button>
         <button className="knap" onClick={()=>setSkaerm("regler")}>📖 Rules</button>
+        <button className="knap" onClick={()=>setSkaerm("settings")}>⚙️ Settings</button>
       </div>
     );
   }
@@ -2668,6 +2931,9 @@ export default function App(){
   }
   else if(skaerm==="regler"){
     indhold=<Regler onBack={()=>setSkaerm("menu")}/>;
+  }
+  else if(skaerm==="settings"){
+    indhold=<SettingsScreen onBack={()=>setSkaerm("menu")}/>;
   }
   else if(skaerm==="spil"){
     if(lobby&&!g){
