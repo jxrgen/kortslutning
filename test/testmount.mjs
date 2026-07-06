@@ -82,6 +82,11 @@ async function mount(name, props) {
   g.status = "slut"; g.winner = 1;
   await mount("GameView (nederlag)", baseProps(g, { myTurn: false }));
 }
+// 6) online-spil med chat
+{
+  const g = E.mkState({ mode: "online", code: "TEST", names: ["A", "B"], cids: ["a", "b"], decks: [E.autoDeck("tek"), E.autoDeck("tek")], classes: ["tek", "tek"], starter: 0 });
+  await mount("GameView (online + chat)", baseProps(g, { mode: "online", kode: "TEST" }));
+}
 
 execSync("rm -f ./_m.jsx ./_m.mjs");
 if (failed) { console.log("MOUNT-TEST: " + failed + " FEJL"); process.exit(1); }

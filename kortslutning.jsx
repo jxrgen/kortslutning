@@ -870,7 +870,7 @@ function codeGen(){ const A="ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; let c=""; for(le
 // ---------- indstillinger ----------
 // langsomhed: 0 = normal fart, 1 = maks langsom. Skalerer ALLE animationers varighed.
 const DEFAULT_SETTINGS = {
-  slowness: 0.25,            // 25% langsommere som udgangspunkt
+  slowness: 0.4,             // 40% langsommere som udgangspunkt — mere læsbart
   sound: true,              // lydeffekter
   music: true,              // 8-bit baggrundsmusik
   musicVol: 0.4,
@@ -1030,9 +1030,22 @@ input:focus,select:focus{border-color:var(--cu)}
 .bar{display:flex;align-items:center;gap:10px;padding:7px 12px;background:rgba(9,16,11,.65);
   border-bottom:1px solid var(--line);font-family:var(--mono);font-size:13px}
 .bar.min{border-bottom:none;border-top:1px solid var(--line)}
-.helt{display:flex;align-items:center;gap:7px;padding:4px 10px;border-radius:10px;border:1px solid transparent}
-.helt .hp{font-weight:700;font-size:16px;color:var(--fos)} .helt .hp.lav{color:var(--rod)}
-.helt .nm{max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--dim);font-size:12px}
+.helt{display:flex;align-items:center;gap:11px;padding:7px 16px 7px 8px;border-radius:14px;
+  border:1.5px solid color-mix(in srgb, var(--kf) 45%, transparent);
+  background:linear-gradient(135deg, color-mix(in srgb, var(--kf) 12%, var(--bg2)), var(--bg1));
+  box-shadow:0 2px 10px rgba(0,0,0,.35), inset 0 0 18px color-mix(in srgb, var(--kf) 8%, transparent);
+  transition:transform .15s, box-shadow .15s, border-color .15s}
+.helt:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,.45), inset 0 0 22px color-mix(in srgb, var(--kf) 14%, transparent)}
+.heltikon{display:flex;align-items:center;justify-content:center;width:46px;height:46px;flex:none;
+  font-size:26px;border-radius:50%;
+  background:radial-gradient(circle at 38% 30%, color-mix(in srgb, var(--kf) 35%, #1a2b20), #0d1811);
+  border:2px solid var(--kf);box-shadow:0 0 12px color-mix(in srgb, var(--kf) 55%, transparent), inset 0 0 8px rgba(0,0,0,.5)}
+.heltinfo{display:flex;flex-direction:column;gap:1px;line-height:1.15;text-align:left}
+.helt .nm{max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  color:#f2f7f3;font-size:17px;font-weight:800;letter-spacing:.02em;
+  text-shadow:0 0 10px color-mix(in srgb, var(--kf) 40%, transparent)}
+.heltklasse{font-size:10px;color:var(--kf);font-family:var(--mono);letter-spacing:.06em;text-transform:uppercase;opacity:.85}
+.helt .hp{font-weight:800;font-size:17px;color:var(--fos)} .helt .hp.lav{color:var(--rod)}
 .braet{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;padding:6px 8px;min-height:74px;position:relative}
 .braet.op{border-bottom:1px dashed var(--line)}
 .enh{position:relative;width:58px;height:66px;border-radius:10px;background:linear-gradient(180deg,var(--bg2),var(--bg1));
@@ -1276,6 +1289,43 @@ button:active{transform:scale(.97)}
   text-shadow:0 0 12px rgba(255,90,77,.8);min-width:34px;text-align:center;
   animation:nedtaeltik 1s steps(1) infinite;pointer-events:none}
 @keyframes nedtaeltik{0%{transform:translateY(-50%) scale(1.25);opacity:1}30%{transform:translateY(-50%) scale(1);opacity:.85}100%{transform:translateY(-50%) scale(1);opacity:.85}}
+/* ---- chat ---- */
+.chatbox{position:fixed;right:14px;bottom:14px;z-index:45;display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+.chatknap{width:52px;height:52px;border-radius:50%;border:1.5px solid var(--fos);
+  background:radial-gradient(circle at 38% 30%,#1c3a28,#0d1811);color:#fff;font-size:22px;cursor:pointer;position:relative;
+  box-shadow:0 3px 12px rgba(0,0,0,.5),0 0 14px rgba(95,224,160,.3);transition:transform .15s,box-shadow .15s}
+.chatknap:hover{transform:translateY(-2px) scale(1.05);box-shadow:0 5px 18px rgba(0,0,0,.6),0 0 20px rgba(95,224,160,.5)}
+.chatbadge{position:absolute;top:-4px;right:-4px;min-width:20px;height:20px;border-radius:10px;background:var(--rod);
+  color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0 5px;
+  box-shadow:0 0 8px rgba(255,90,77,.7);animation:chatpop .3s cubic-bezier(.3,1.5,.5,1)}
+@keyframes chatpop{from{transform:scale(0)}}
+.chatpanel{width:300px;max-width:80vw;height:360px;max-height:56vh;display:flex;flex-direction:column;
+  background:linear-gradient(180deg,var(--bg1),var(--bg0));border:1.5px solid var(--line);border-radius:14px;overflow:hidden;
+  box-shadow:0 12px 40px rgba(0,0,0,.6);animation:chatind .22s cubic-bezier(.3,1.2,.5,1)}
+@keyframes chatind{from{transform:translateY(20px) scale(.94);opacity:0}}
+.chathead{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;
+  border-bottom:1px solid var(--line);font-family:var(--mono);font-size:14px;color:var(--fos);
+  background:rgba(95,224,160,.06)}
+.chatx{background:none;border:none;color:var(--dim);font-size:16px;cursor:pointer;padding:2px 6px;border-radius:6px}
+.chatx:hover{color:#fff;background:rgba(255,255,255,.08)}
+.chatlist{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px}
+.chattom{color:var(--dim);font-size:13px;text-align:center;margin:auto;font-style:italic}
+.chatmsg{display:flex;flex-direction:column;gap:2px;max-width:82%;align-self:flex-start;
+  animation:msgind .25s cubic-bezier(.3,1.1,.5,1)}
+@keyframes msgind{from{transform:translateY(8px);opacity:0}}
+.chatmsg.mig{align-self:flex-end;align-items:flex-end}
+.chatn{font-size:10px;color:var(--dim);font-family:var(--mono);padding:0 4px}
+.chatt{font-size:14px;color:var(--txt);background:var(--bg2);padding:7px 11px;border-radius:12px;
+  border:1px solid var(--line);word-break:break-word;line-height:1.35}
+.chatmsg.mig .chatt{background:color-mix(in srgb,var(--fos) 18%,var(--bg2));border-color:color-mix(in srgb,var(--fos) 40%,var(--line))}
+.chatind{display:flex;gap:7px;padding:10px;border-top:1px solid var(--line)}
+.chatind input{flex:1;background:var(--bg0);border:1px solid var(--line);border-radius:9px;color:var(--txt);
+  padding:9px 12px;font-size:14px;font-family:inherit;outline:none}
+.chatind input:focus{border-color:var(--fos)}
+.chatsend{width:40px;border:none;border-radius:9px;background:var(--fos);color:#062012;font-size:16px;cursor:pointer;
+  transition:transform .12s,filter .12s}
+.chatsend:hover{transform:scale(1.06);filter:brightness(1.1)}
+@media (max-width:560px){ .chatbox{bottom:78px} }
 /* ---- settings ---- */
 .setwrap{max-width:100%;text-align:left;max-height:none;overflow-y:visible}
 .setsec{margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--line)}
@@ -1380,28 +1430,28 @@ button:active{transform:scale(.97)}
   .enh{width:68px;height:76px}.enh .art{width:46px;height:46px}
 }
 @media (min-width:820px){
-  .spilflade{max-width:1400px;width:100%;margin:0 auto}
-  .mkort{width:88px;height:123px}.mkort .art{width:56px;height:56px}.mkort .nv{font-size:11px;max-height:24px}
+  .spilflade{max-width:1080px;width:100%;margin:0 auto}
+  .mkort{width:92px;height:129px}.mkort .art{width:60px;height:60px}.mkort .nv{font-size:11px;max-height:24px}
   .mkort .stat{font-size:15px}.pris{font-size:15px;min-width:24px;height:24px}
-  .enh{width:84px;height:94px}.enh .art{width:56px;height:56px}.enh .stat{font-size:16px}
+  .enh{width:96px;height:108px}.enh .art{width:64px;height:64px}.enh .stat{font-size:17px}
   .enh .ikoner{font-size:11px}
-  .braet{gap:12px;min-height:108px}
-  .bar{font-size:15px;padding:10px 24px}
+  .braet{gap:14px;min-height:150px}
+  .bar{font-size:17px;padding:14px 28px}
   .midt{padding:6px 24px;font-size:13px}
-  .haand{justify-content:center;overflow:visible;padding-top:26px;min-height:174px;gap:0}
-  .haand .mkort{margin:0 -7px;transform-origin:50% 135%;
+  .haand{justify-content:center;overflow:visible;padding-top:26px;min-height:186px;gap:0}
+  .haand .mkort{margin:0 -6px;transform-origin:50% 135%;
     transform:rotate(calc(var(--o,0)*3.5deg)) translateY(calc(var(--a,0)*7px))}
   .haand .mkort.spil{transform:rotate(calc(var(--o,0)*3.5deg)) translateY(calc(var(--a,0)*7px - 8px))}
-  .haand .mkort:hover{transform:rotate(0deg) translateY(-34px) scale(1.14);z-index:6}
-  .kraft{width:54px;height:54px;font-size:24px}
+  .haand .mkort:hover{transform:rotate(0deg) translateY(-34px) scale(1.16);z-index:6}
+  .kraft{width:58px;height:58px;font-size:26px}
   .logpanel{bottom:190px}.logknap{bottom:190px}
 }
 @media (min-width:1200px){
-  .spilflade{max-width:1600px}
-  .mkort{width:100px;height:140px}.mkort .art{width:64px;height:64px}
-  .enh{width:96px;height:106px}.enh .art{width:64px;height:64px}
-  .braet{gap:16px;min-height:120px}
-  .haand .mkort{margin:0 -6px}
+  .spilflade{max-width:1240px}
+  .mkort{width:104px;height:146px}.mkort .art{width:68px;height:68px}
+  .enh{width:108px;height:120px}.enh .art{width:72px;height:72px}
+  .braet{gap:18px;min-height:172px}
+  .haand .mkort{margin:0 -5px}
 }
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important}
@@ -1627,11 +1677,14 @@ function UnitTile({g,s,u,mine,onClick,hilite,ready,shake,tuthi,onPointerDown,dra
 }
 function HeltPlade({g,s,me,onClick,hilite,shake,tuthi,dragtgt}){
   const p=g.players[s];
+  const K=CLASSES[p.cls]||CLASSES.tek;
   return (
-    <button className={"helt"+(hilite?" tgt":"")+(shake?" ryst":"")+(tuthi?" tuthi":"")+(dragtgt?" dragtgt":"")} onClick={onClick} style={{borderRadius:10}} data-fx={"h"+s}>
-      <span style={{fontSize:20}}>{(CLASSES[p.cls]||CLASSES.tek).ico}</span>
-      <span>
-        <span className="nm">{p.name}</span><br/>
+    <button className={"helt"+(hilite?" tgt":"")+(shake?" ryst":"")+(tuthi?" tuthi":"")+(dragtgt?" dragtgt":"")} onClick={onClick} data-fx={"h"+s}
+      style={{"--kf":K.col||"var(--fos)"}}>
+      <span className="heltikon">{K.ico}</span>
+      <span className="heltinfo">
+        <span className="nm">{p.name}</span>
+        <span className="heltklasse">{K.n}</span>
         <span className={"hp"+(p.hp<=10?" lav":"")}>❤ {p.hp}</span>
       </span>
     </button>
@@ -1992,7 +2045,75 @@ function zigzag(a,b){
 }
 
 // ---------- spilskærm ----------
-function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,pos,tut,setTut}){
+function ChatBox({kode,seat,navn,opNavn}){
+  const [beskeder,setBeskeder]=useState([]);
+  const [tekst,setTekst]=useState("");
+  const [aaben,setAaben]=useState(false);
+  const [uleste,setUleste]=useState(0);
+  const nkey="chat:"+kode;
+  const sidst=useRef(0);
+  const listRef=useRef(null);
+  // poll chat-beskeder
+  useEffect(()=>{
+    if(!kode) return; let stop=false;
+    const tick=async()=>{
+      const v=await stGet(nkey,true); if(stop||!v||!Array.isArray(v.msgs)) return;
+      setBeskeder(prev=>{
+        if(v.msgs.length!==prev.length){
+          // tæl uleste fra modparten hvis chat er lukket
+          const nye=v.msgs.slice(prev.length).filter(m=>m.s!==seat);
+          if(nye.length && !aaben) setUleste(u=>u+nye.length);
+          return v.msgs;
+        }
+        return prev;
+      });
+    };
+    tick(); const t=setInterval(tick,1500);
+    return ()=>{ stop=true; clearInterval(t); };
+  },[kode,aaben,seat]);
+  // scroll til bunden ved nye beskeder
+  useEffect(()=>{ if(listRef.current) listRef.current.scrollTop=listRef.current.scrollHeight; },[beskeder,aaben]);
+  const send=async()=>{
+    const t=tekst.trim(); if(!t) return;
+    if(t.length>200) return;
+    const v=await stGet(nkey,true)||{msgs:[]};
+    const msgs=Array.isArray(v.msgs)?v.msgs:[];
+    msgs.push({s:seat,n:navn,t,ts:Date.now()});
+    // hold historikken kort
+    while(msgs.length>50) msgs.shift();
+    await stSet(nkey,{msgs},true);
+    setBeskeder(msgs); setTekst(""); Audio8.sfx.click();
+  };
+  const aabn=()=>{ setAaben(a=>!a); setUleste(0); };
+  return (
+    <div className={"chatbox"+(aaben?" open":"")}>
+      {aaben && (
+        <div className="chatpanel">
+          <div className="chathead"><span>💬 Chat</span><button className="chatx" onClick={aabn}>✕</button></div>
+          <div className="chatlist" ref={listRef}>
+            {beskeder.length===0 && <div className="chattom">Say hi to {opNavn} 👋</div>}
+            {beskeder.map((m,i)=>(
+              <div key={i} className={"chatmsg"+(m.s===seat?" mig":"")}>
+                <span className="chatn">{m.s===seat?"You":(m.n||opNavn)}</span>
+                <span className="chatt">{m.t}</span>
+              </div>
+            ))}
+          </div>
+          <div className="chatind">
+            <input value={tekst} maxLength={200} placeholder="Type a message…"
+              onChange={e=>setTekst(e.target.value)}
+              onKeyDown={e=>{ if(e.key==="Enter"){ e.preventDefault(); send(); } }}/>
+            <button className="chatsend" onClick={send}>➤</button>
+          </div>
+        </div>
+      )}
+      <button className="chatknap" onClick={aabn} title="Chat">
+        💬{uleste>0 && <span className="chatbadge">{uleste>9?"9+":uleste}</span>}
+      </button>
+    </div>
+  );
+}
+function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,pos,tut,setTut,kode}){
   const me=g.players[seat], op=g.players[1-seat];
   const K=CLASSES[me.cls]||CLASSES.tek;
   const step=mode==="tutorial"?TUT.steps[tut]:null;
@@ -2177,6 +2298,7 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
   const [drag,setDrag]=useState(null); // {uid,id,x,y,over}
   const dragRef=useRef(null);
   const braetRef=useRef(null);
+  const opAreaRef=useRef(null);
   const justDragged=useRef(false);
   const startDrag=(c,e)=>{
     if(!myTurn||tmode||!canPlay(g,seat,c.id)) return; // kun spilbare kort på egen tur
@@ -2193,13 +2315,24 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
   // find hvilket kamp-mål pointeren er over (fjendtlig enhed eller modstanderens helt)
   const targetAt=(x,y)=>{
     const el=document.elementFromPoint(x,y);
-    if(!el) return null;
-    const fxEl=el.closest("[data-fx]");
-    if(!fxEl) return null;
-    const key=fxEl.dataset.fx;
-    if(key==="h"+(1-seat)) return {s:1-seat,u:null};       // modstanderens helt
-    const u=op.board.find(x=>x.uid===key);                  // fjendtlig enhed
-    if(u) return {s:1-seat,u:u.uid};
+    if(el){
+      const fxEl=el.closest("[data-fx]");
+      if(fxEl){
+        const key=fxEl.dataset.fx;
+        if(key==="h"+(1-seat)) return {s:1-seat,u:null};       // direkte på modstanderens helt
+        const u=op.board.find(z=>z.uid===key);                  // direkte på fjendtlig enhed
+        if(u) return {s:1-seat,u:u.uid};
+      }
+    }
+    // ikke over et konkret mål: er vi i modstanderens område? → sigt efter helten
+    // (attackTargets-checket bagefter afviser hvis fx Grounded forhindrer det)
+    const area=opAreaRef.current;
+    if(area && drag && drag.kind==="atk"){
+      const r=area.getBoundingClientRect();
+      if(y < r.bottom+60){ // hele modstanderens halvdel + lidt luft under
+        return {s:1-seat,u:null};
+      }
+    }
     return null;
   };
   // find ETHVERT mål under pointeren (egne+fjendtlige enheder + begge helte) — til spells
@@ -2360,6 +2493,7 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
 
   return (
     <div className={"spilflade"+(tmode?" targeting":"")+(tmode&&tmode.atk?" atkmode":"")} style={{"--tempo":tempoVar}}>
+      {mode==="online" && kode && <ChatBox kode={kode} seat={seat} navn={me.name} opNavn={op.name}/>}
       {tmode && <button className={"banner"+(tmode.atk?" atk":"")} onClick={()=>setT(null)}>{tmode.label}<span className="bx">· tap here to cancel</span></button>}
       {turban>0 && myTurn && !slut && <div key={turban} className="turban">YOUR TURN</div>}
 
@@ -2374,7 +2508,7 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
           <span style={{marginLeft:8,color:"var(--dim)"}}>🂠{op.deck.length}</span>
         </span>
       </div>
-      <div className="braet op">
+      <div className="braet op" ref={opAreaRef}>
         {op.board.length===0&&<span style={{color:"var(--dim)",fontFamily:"var(--mono)",fontSize:11}}>— empty board —</span>}
         {op.board.map(u=>
           <UnitTile key={u.uid} g={g} s={1-seat} u={u} mine={false} tuthi={hiB("eunit:"+u.id)} shake={shake.has(u.uid)}
@@ -2965,7 +3099,7 @@ export default function App(){
         if(botSteps.current++>40 || !botAction(x,1)) return endTurn(x,1);
         return null;
       });
-    }, botSteps.current===0?900:650);
+    }, slowMs(botSteps.current===0?950:800));
     return ()=>clearTimeout(t);
   },[g,mode]);
   useEffect(()=>{
@@ -3058,6 +3192,7 @@ export default function App(){
       indhold=(
         <>
           <GameView g={g} seat={seatNu} myTurn={minTur} act={doAct} mode={mode} pos={posRef} tut={tut} setTut={setTut}
+            kode={kode.current}
             onLeave={tilMenu} onConcede={opgiv} onRematch={revanche} onDelete={sletSpil}/>
           {mode==="lokal"&&handoff&&g.status==="igang"&&(
             <div className="slor">
