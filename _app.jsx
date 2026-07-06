@@ -451,7 +451,6 @@ function takeControl(g,s,ref){
   if(g.players[s].board.length>=MAXBOARD) return;
   const b=g.players[ref.s].board; b.splice(b.indexOf(u),1);
   u.jp=true; g.players[s].board.push(u);
-  fxPush(g,{t:"flyt",uid:u.uid,fra:ref.s,til:s,id:u.id});
   log(g,"🥷 "+g.players[s].name+" takes control of "+CARDS[u.id].n+"!");
 }
 function addStored(g,s,n){ const p=g.players[s]; p.stored=Math.min(MAXSTORED,p.stored+n); }
@@ -1045,11 +1044,10 @@ input:focus,select:focus{border-color:var(--cu)}
 .enh.sover .art{opacity:.5}
 .enh.sover::before{content:"z";position:absolute;top:-6px;right:2px;font-size:13px;color:var(--dim);font-style:italic;z-index:3}
 .enh .zz{position:absolute;top:1px;right:4px;font-size:11px;color:var(--dim)}
-.enh .ikoner{position:absolute;top:-15px;left:50%;transform:translateX(-50%);display:flex;gap:3px;
-  white-space:nowrap;z-index:5}
+.enh .ikoner{position:absolute;top:-11px;left:50%;transform:translateX(-50%);display:flex;gap:2px;
+  background:#0a140e;border:1px solid var(--line);border-radius:8px;padding:2px 4px;white-space:nowrap;z-index:4}
 .kwb{display:inline-flex;align-items:center;justify-content:center;line-height:0;
-  border-radius:50%;border:1.5px solid;padding:2px;
-  filter:drop-shadow(0 1px 3px rgba(0,0,0,.6))}
+  filter:drop-shadow(0 0 3px currentColor)}
 .kwb svg{display:block}
 .enh .stat{bottom:1px;font-size:13px}
 .enh.sil{filter:grayscale(.8)}
@@ -1221,11 +1219,9 @@ button:active{transform:scale(.97)}
 .haand .mkort{touch-action:none}
 .braet .enh{touch-action:none}
 .dragkort{position:fixed;z-index:75;pointer-events:none;transform:translate(-50%,-50%) rotate(-4deg) scale(1.15);
-  filter:drop-shadow(0 12px 24px rgba(0,0,0,.6));opacity:.97;
-  transition:transform .12s cubic-bezier(.3,1.3,.5,1),filter .12s;animation:dragpop .16s ease-out}
-@keyframes dragpop{0%{transform:translate(-50%,-50%) rotate(0) scale(.85);opacity:.5}100%{transform:translate(-50%,-50%) rotate(-4deg) scale(1.15);opacity:.97}}
-.dragkort.over{transform:translate(-50%,-50%) rotate(0deg) scale(1.28);
-  filter:drop-shadow(0 0 22px rgba(95,224,160,.9)) drop-shadow(0 12px 24px rgba(0,0,0,.6))}
+  filter:drop-shadow(0 12px 24px rgba(0,0,0,.6));opacity:.95}
+.dragkort.over{transform:translate(-50%,-50%) rotate(0deg) scale(1.25);
+  filter:drop-shadow(0 0 20px rgba(95,224,160,.8)) drop-shadow(0 12px 24px rgba(0,0,0,.6))}
 .braet.dropzone{outline:2.5px dashed var(--fos);outline-offset:4px;border-radius:12px;
   background:rgba(95,224,160,.08);animation:dropz 1s ease-in-out infinite}
 @keyframes dropz{50%{background:rgba(95,224,160,.16);outline-color:#8effc0}}
@@ -1268,14 +1264,6 @@ button:active{transform:scale(.97)}
 .kwleg{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--txt);
   background:#0d1b13;border:1px solid var(--line);border-radius:8px;padding:3px 8px 3px 6px}
 .kwleg span{white-space:nowrap}
-.slutknap{position:relative}
-.slutknap.haster{border-color:var(--rod);box-shadow:0 0 14px rgba(255,90,77,.5);animation:hasterpuls .5s ease-in-out infinite}
-@keyframes hasterpuls{50%{box-shadow:0 0 22px rgba(255,90,77,.85)}}
-.nedtael{position:absolute;right:-46px;top:50%;transform:translateY(-50%);
-  font-family:var(--mono);font-weight:700;font-size:30px;color:var(--rod);
-  text-shadow:0 0 12px rgba(255,90,77,.8);min-width:34px;text-align:center;
-  animation:nedtaeltik 1s steps(1) infinite;pointer-events:none}
-@keyframes nedtaeltik{0%{transform:translateY(-50%) scale(1.25);opacity:1}30%{transform:translateY(-50%) scale(1);opacity:.85}100%{transform:translateY(-50%) scale(1);opacity:.85}}
 /* ---- settings ---- */
 .setwrap{max-width:100%;text-align:left;max-height:none;overflow-y:visible}
 .setsec{margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--line)}
@@ -1430,12 +1418,11 @@ const KWSVG = {
   sig: {c:"#5fe0a0", t:"Signal Strength — your Spells hit harder",
     svg:'<path d="M4 20 v-4 M9 20 v-8 M14 20 v-12 M19 20 v-16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>'},
 };
-function KwBadge({k,live,big}){
+function KwBadge({k,live}){
   const info=KWSVG[k]; if(!info) return null;
-  const sz=big?26:22;
   return (
-    <span className={"kwb"+(big?" big":"")} style={{color:info.c,background:info.c+"22",borderColor:info.c}} title={info.t}
-      dangerouslySetInnerHTML={{__html:'<svg viewBox="0 0 24 24" width="'+sz+'" height="'+sz+'">'+info.svg+'</svg>'}}/>
+    <span className="kwb" style={{color:info.c}} title={info.t}
+      dangerouslySetInnerHTML={{__html:'<svg viewBox="0 0 24 24" width="15" height="15">'+info.svg+'</svg>'}}/>
   );
 }
 function kwList(g,s,u){
@@ -2084,21 +2071,6 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
         add.push({key:"b"+kk,type:"burst",x:P2.x,y:P2.y,n:8,c:"var(--amber)",d:d+0.13*T}); }
       else if(e.t==="zap"){ const P1=posOf(e.fs,e.fu), P2=posOf(e.ts,e.tu); if(!P1||!P2) continue;
         add.push({key:"z"+kk,type:"zap",p1:P1,p2:P2,art:e.art,d}); Audio8.sfx.zap(); }
-      else if(e.t==="flyt"){
-        // mind control: kortet er allerede flyttet i state; animer det fra
-        // modstanderens side ned til din side med et glimt
-        const P=posOf(e.til,e.uid); if(!P) continue;
-        const fraY=posOf(e.fra,null);
-        const startY=fraY?fraY.y:P.y-220;
-        add.push({key:"mcr"+kk,type:"ring",x:P.x,y:P.y,c:"#c07bff",d:d+0.3*T});
-        Audio8.sfx.zap();
-        if(!redMo){ const el=document.querySelector('[data-fx="'+e.uid+'"]');
-          if(el&&el.animate){
-            el.animate([
-              {transform:"translateY("+(startY-P.y)+"px) scale(1.15) rotate(-8deg)",filter:"brightness(2) drop-shadow(0 0 12px #c07bff)",offset:0},
-              {transform:"translateY(0) scale(1) rotate(0)",filter:"brightness(1)",offset:1}
-            ],{duration:slowMs(600),easing:"cubic-bezier(.3,.9,.4,1)",delay:d*1000}); } }
-      }
       else if(e.t==="spil"){ const fra=posOf(e.s,e.hu)||posOf(e.s,null); if(!fra) continue;
         const til=e.ts!=null?posOf(e.ts,e.tu):null;
         const cx=(typeof window!=="undefined"?window.innerWidth/2:400);
@@ -2311,13 +2283,8 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
         if(key===K["card"+i]){ e.preventDefault();
           const c=me.hand[i-1];
           if(c && myTurn && !slut){
-            // allerede valgt dette kort? → spil det. Ellers: vælg (vis stort).
-            if(sel && sel.kind==="hand" && sel.uid===c.uid){
-              if(canPlay(g,seat,c.id)){ Audio8.sfx.click(); spilKortNu(c); }
-              else { Audio8.sfx.error(); nope(); }
-            } else {
-              Audio8.sfx.click(); setT(null); setSel({kind:"hand",id:c.id,uid:c.uid});
-            }
+            if(canPlay(g,seat,c.id)){ Audio8.sfx.click(); spilKortNu(c); }
+            else { Audio8.sfx.error(); nope(); }
           }
           return;
         }
@@ -2327,32 +2294,6 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
     return ()=>window.removeEventListener("keydown",onKey);
   },[g,myTurn,slut,tmode,sel,me.hand]);
   const kanAngribe=myTurn&&!slut&&!tmode&&me.board.filter(u=>attackTargets(g,seat,u.uid).length>0).length;
-  // kan spilleren overhovedet foretage sig noget? (spille kort, angribe, bruge hero power)
-  const kanSpilleKort=myTurn&&!slut&&me.hand.some(c=>canPlay(g,seat,c.id));
-  const kanIntet=myTurn&&!slut&&!tmode&&!kanSpilleKort&&!kanAngribe&&!kanKraft;
-
-  // nedtælling: når man intet kan gøre, tæl 5 sek ned og auto-slut turen
-  const [nedtael,setNedtael]=useState(null);
-  const nedRef=useRef(null);
-  useEffect(()=>{
-    if(kanIntet){
-      setNedtael(5);
-      nedRef.current=setInterval(()=>{
-        setNedtael(n=>{
-          if(n<=1){ clearInterval(nedRef.current);
-            // slut turen automatisk
-            setTimeout(()=>{ if(tOK("end")){ Audio8.sfx.endturn(); act(x=>endTurn(x,seat)); } },0);
-            return null;
-          }
-          return n-1;
-        });
-      },1000);
-    } else {
-      setNedtael(null);
-      if(nedRef.current) clearInterval(nedRef.current);
-    }
-    return ()=>{ if(nedRef.current) clearInterval(nedRef.current); };
-  },[kanIntet]);
 
   const [slowUI,setSlowUI]=useState(SETTINGS.slowness);
   useEffect(()=>onSettings(s=>setSlowUI(s.slowness)),[]);
@@ -2385,11 +2326,8 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
       <div className="midt">
         <span>Round {Math.max(1,Math.ceil(g.turn/2))}</span>
         <span style={{color:myTurn?"var(--fos)":"var(--dim)"}}>{slut?"Game over":(myTurn?"⚡ Your turn":"Waiting for "+op.name+"…")}</span>
-        <button className={"slutknap"+(hiB("end")?" tuthi":"")+(nedtael!=null?" haster":"")} disabled={!myTurn||slut}
-          onClick={()=>{ if(!tOK("end")){nope();return;} Audio8.sfx.endturn(); act(x=>endTurn(x,seat)); }}>
-          END TURN
-          {nedtael!=null && <span className="nedtael">{nedtael}</span>}
-        </button>
+        <button className={"slutknap"+(hiB("end")?" tuthi":"")} disabled={!myTurn||slut}
+          onClick={()=>{ if(!tOK("end")){nope();return;} Audio8.sfx.endturn(); act(x=>endTurn(x,seat)); }}>END TURN</button>
       </div>
 
       {kanAngribe>0 && mode!=="tutorial" &&
@@ -3083,3 +3021,6 @@ export default function App(){
     </div>
   );
 }
+
+export default App;
+export { App };
