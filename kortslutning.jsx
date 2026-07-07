@@ -406,7 +406,11 @@ function draw(g,s,n){
     }
     const id=p.deck.pop();
     if(p.hand.length>=MAXHAND){ log(g,"🔥 "+p.name+"’s hand is full — "+CARDS[id].n+" burns up."); }
-    else p.hand.push({uid:nuid(g),id});
+    else {
+      const uid=nuid(g);
+      p.hand.push({uid,id});
+      if(g.turn>0) fxPush(g,{t:"trek",s,id,hu:uid});
+    }
   }
 }
 function addHand(g,s,id){
@@ -524,7 +528,7 @@ function playCard(g,s,handUid,tref){
   }
   const combo=p.played>0;
   p.played++; p.cur-=d.c; p.hand.splice(hi,1);
-  g.lc=(g.lc||0)+1; g.last={s,id,k:g.lc};
+  g.lc=(g.lc||0)+1; g.last={s,id,k:g.lc,act:"spil"};
   fxPush(g,{t:"spil",s,hu:handUid,id,ts:tref?tref.s:null,tu:tref?tref.u:null});
   if(d.t==="spell"&&tref) fxPush(g,{t:"zap",fs:s,fu:null,ts:tref.s,tu:tref.u,art:"spell"});
   else if(d.t==="spell") fxPush(g,{t:"cast",s});
@@ -565,6 +569,7 @@ function unitAttack(g,s,uid,tref){
   const list=attackTargets(g,s,uid);
   if(!list.some(r=>r.s===tref.s&&r.u===tref.u)) return "Invalid target.";
   u.atkLeft--; u.st=false;
+  g.lc=(g.lc||0)+1; g.last={s,id:u.id,k:g.lc,act:"angreb",tu:tref.u,ts:tref.s};
   fxPush(g,{t:"zap",fs:s,fu:uid,ts:tref.s,tu:tref.u,art:"melee"});
   const aA=effAtk(g,s,u);
   const srcA={hoj:hasKw(g,s,u,"hoj"),host:hasKw(g,s,u,"host"),hs:s};
@@ -638,6 +643,7 @@ function heroPower(g,s,tref){
   if(p.cur<K.power.c) return "Not enough energy.";
   if(!heroTargets(g,s).some(r=>r.s===tref.s&&r.u===tref.u)) return "Invalid target.";
   p.heroUsed=true; p.cur-=K.power.c;
+  g.lc=(g.lc||0)+1; g.last={s,k:g.lc,act:"kraft"};
   K.powerFx(g,s,tref);
   sweep(g); checkWin(g);
   return null;
@@ -1005,19 +1011,33 @@ input:focus,select:focus{border-color:var(--cu)}
 .etiket{font-family:var(--mono);font-size:11px;letter-spacing:1.5px;color:var(--cu);text-transform:uppercase;margin:20px 0 6px}
 .raek{display:flex;gap:8px;align-items:center}
 .tilbage{color:var(--dim);font-family:var(--mono);font-size:13px;padding:6px 0;margin-bottom:6px}
-/* ---- kort ---- */
-.haand .mkort:not(.spil){opacity:.62;filter:saturate(.7)}
-.mkort{position:relative;width:66px;height:92px;border-radius:9px;flex:none;
-  background:linear-gradient(180deg,var(--bg2),var(--bg1));border:1px solid var(--line);
+/* ---- kort (papirtekstur, statisk — ingen hover-tilt) ---- */
+.haand .mkort:not(.spil){opacity:.66;filter:saturate(.78) brightness(.96)}
+.mkort,.enh{
+  position:relative;width:66px;height:92px;border-radius:9px;flex:none;
+  border:1px solid color-mix(in srgb,var(--ce,#274a35) 42%,#0a100c);
+  background:
+    repeating-linear-gradient(118deg,transparent 0 2px,rgba(255,255,255,.022) 2px 3px,transparent 3px 7px),
+    repeating-linear-gradient(28deg,transparent 0 3px,rgba(0,0,0,.04) 3px 4px),
+    linear-gradient(168deg,color-mix(in srgb,var(--ct,var(--bg2)) 90%,#fff 3%),var(--cb,var(--bg1)) 50%,color-mix(in srgb,var(--cb,var(--bg1)) 78%,#000 22%));
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
-  padding-bottom:7px;overflow:hidden;transition:transform .12s,border-color .12s,box-shadow .12s}
-.mkort::after{content:"";position:absolute;left:8px;right:8px;bottom:0;height:6px;border-radius:2px 2px 0 0;
-  background:repeating-linear-gradient(90deg,var(--guld) 0 4px,#3a2f12 4px 7px);opacity:.85}
-.mkort.leg{border-color:var(--guld)}
-.mkort.spil{border-color:var(--fos);border-width:2px;box-shadow:0 0 16px rgba(95,224,160,.6),0 6px 12px rgba(0,0,0,.5);transform:translateY(-9px) scale(1.04)}
+  padding-bottom:7px;overflow:hidden;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.09),inset 0 -2px 4px rgba(0,0,0,.26),
+    0 2px 0 #0a0e0b,0 4px 0 #060806,0 7px 14px rgba(0,0,0,.4);
+  transition:transform .16s ease,border-color .14s,box-shadow .16s,filter .14s}
+.mkort::after{content:"";position:absolute;left:7px;right:7px;bottom:0;height:7px;border-radius:2px 2px 0 0;
+  background:repeating-linear-gradient(90deg,var(--guld) 0 4px,#3a2f12 4px 7px);opacity:.9}
+.mkort .kortface{position:relative;width:44px;height:44px;margin-top:1px;border-radius:6px;overflow:hidden;
+  background:radial-gradient(ellipse 88% 78% at 50% 26%,color-mix(in srgb,var(--ce,#5fe0a0) 16%,#173021),#0c1811);
+  border:1.5px solid color-mix(in srgb,var(--ce,#274a35) 50%,#000);
+  box-shadow:inset 0 2px 7px rgba(0,0,0,.5),inset 0 -1px 0 rgba(255,255,255,.05)}
+.mkort .kortface .art{width:100%;height:100%}
+.mkort.leg{border-color:var(--guld);box-shadow:inset 0 1px 0 rgba(255,240,180,.12),0 2px 0 #2a2010,0 4px 0 #120e06,0 7px 14px rgba(0,0,0,.4),0 0 14px rgba(255,209,102,.18)}
+.mkort.spil{border-color:var(--fos);border-width:2px;box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 0 18px rgba(95,224,160,.45),0 3px 0 #0a0e0b,0 8px 18px rgba(0,0,0,.48);transform:translateY(-9px) scale(1.05)}
 .mkort.spil::before{content:"";position:absolute;top:-8px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-bottom:8px solid var(--fos);filter:drop-shadow(0 0 4px var(--fos));z-index:3}
-.mkort .art{width:40px;height:40px}
-.mkort .nv{font-size:8.5px;line-height:1.05;text-align:center;color:var(--txt);padding:0 3px;max-height:19px;overflow:hidden}
+.mkort.nytrukket{animation:korttrukket calc(.55s * var(--tempo,1)) cubic-bezier(.2,1.3,.4,1)}
+@keyframes korttrukket{0%{transform:scale(.55) translateY(18px);filter:brightness(1.8)}55%{transform:scale(1.1) translateY(-6px)}100%{transform:scale(1) translateY(0);filter:brightness(1)}}
+.mkort .nv{font-size:8.5px;line-height:1.05;text-align:center;color:var(--txt);padding:0 3px;max-height:19px;overflow:hidden;text-shadow:0 1px 2px rgba(0,0,0,.55)}
 .pris{position:absolute;top:-1px;left:-1px;background:var(--amber);color:#1c1405;font-family:var(--mono);
   font-weight:700;font-size:12px;min-width:20px;height:20px;border-radius:0 0 8px 0;display:flex;align-items:center;justify-content:center}
 .stat{position:absolute;bottom:2px;font-family:var(--mono);font-weight:700;font-size:12px}
@@ -1048,9 +1068,20 @@ input:focus,select:focus{border-color:var(--cu)}
 .helt .hp{font-weight:800;font-size:17px;color:var(--fos)} .helt .hp.lav{color:var(--rod)}
 .braet{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;padding:6px 8px;min-height:74px;position:relative}
 .braet.op{border-bottom:1px dashed var(--line)}
-.enh{position:relative;width:58px;height:66px;border-radius:10px;background:linear-gradient(180deg,var(--bg2),var(--bg1));
-  border:1.5px solid var(--line);display:flex;align-items:center;justify-content:center;transition:border-color .12s,box-shadow .12s}
-.enh .art{width:40px;height:40px}
+.enh{
+  position:relative;width:58px;height:66px;border-radius:10px;
+  border:1.5px solid color-mix(in srgb,var(--ce,#274a35) 42%,#0a100c);
+  background:
+    repeating-linear-gradient(118deg,transparent 0 2px,rgba(255,255,255,.022) 2px 3px,transparent 3px 7px),
+    linear-gradient(168deg,color-mix(in srgb,var(--ct,var(--bg2)) 90%,#fff 3%),var(--cb,var(--bg1)) 50%,color-mix(in srgb,var(--cb,var(--bg1)) 78%,#000 22%));
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.09),inset 0 -2px 4px rgba(0,0,0,.26),0 2px 0 #0a0e0b,0 4px 0 #060806,0 6px 12px rgba(0,0,0,.38);
+  transition:border-color .14s,box-shadow .16s}
+.enh .kortface{position:relative;width:42px;height:42px;border-radius:6px;overflow:hidden;
+  background:radial-gradient(ellipse 88% 78% at 50% 26%,color-mix(in srgb,var(--ce,#5fe0a0) 16%,#173021),#0c1811);
+  border:1.5px solid color-mix(in srgb,var(--ce,#274a35) 50%,#000);
+  box-shadow:inset 0 2px 7px rgba(0,0,0,.5)}
+.enh .kortface .art{width:100%;height:100%}
 .enh.klar{border-color:var(--fos)!important;border-width:2px;box-shadow:0 0 15px rgba(95,224,160,.55)}
 .enh.klar::after{content:"⚔";position:absolute;top:-9px;right:-6px;font-size:14px;background:var(--fos);color:#0c1811;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 8px rgba(95,224,160,.8);z-index:4}
 .enh.leg{border-color:var(--guld)}
@@ -1098,12 +1129,19 @@ input:focus,select:focus{border-color:var(--cu)}
   z-index:40;padding:18px;backdrop-filter:blur(2px)}
 .ark{background:var(--bg1);border:1px solid var(--line);border-radius:16px;padding:18px;width:100%;max-width:360px;
   max-height:85dvh;overflow-y:auto}
-.storkort{border:1px solid var(--line);border-radius:14px;padding:14px;background:linear-gradient(180deg,var(--bg2),var(--bg1));position:relative;overflow:hidden}
+.storkort{border:1px solid color-mix(in srgb,var(--ce,#274a35) 45%,#0a100c);border-radius:14px;padding:14px;
+  background:
+    repeating-linear-gradient(118deg,transparent 0 2px,rgba(255,255,255,.02) 2px 3px,transparent 3px 7px),
+    linear-gradient(168deg,color-mix(in srgb,var(--ct,var(--bg2)) 92%,#fff 4%),var(--cb,var(--bg1)) 52%,color-mix(in srgb,var(--cb,var(--bg1)) 75%,#000 25%));
+  position:relative;overflow:hidden;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 4px 0 #0a0e0b,0 10px 24px rgba(0,0,0,.42)}
 .storkort.leg{border-color:var(--guld)}
 .storkort::after{content:"";position:absolute;left:14px;right:14px;bottom:0;height:8px;border-radius:3px 3px 0 0;
-  background:repeating-linear-gradient(90deg,var(--guld) 0 6px,#3a2f12 6px 10px);opacity:.85}
+  background:repeating-linear-gradient(90deg,var(--guld) 0 6px,#3a2f12 6px 10px);opacity:.9}
 .storkort .top{display:flex;gap:10px;align-items:center}
-.storkort .art.storart{width:82px;height:82px;flex:none}
+.storkort .kortface.storart{width:82px;height:82px;flex:none;border-radius:9px;overflow:hidden;
+  border:2px solid color-mix(in srgb,var(--ce,#274a35) 50%,#000);box-shadow:inset 0 3px 10px rgba(0,0,0,.5)}
+.storkort .kortface.storart .art{width:100%;height:100%}
 .storkort h3{font-family:var(--disp);letter-spacing:1px;font-size:20px;color:var(--cu2)}
 .storkort .meta{font-family:var(--mono);font-size:11px;color:var(--dim);margin-top:2px}
 .storkort .txt{margin:12px 0 14px;font-size:14px;line-height:1.45;color:var(--txt)}
@@ -1114,8 +1152,21 @@ input:focus,select:focus{border-color:var(--cu)}
   border:1px solid var(--cu);border-radius:12px;padding:9px 14px;font-family:var(--mono);font-size:13px;
   max-width:90%;text-align:center;animation:ind .2s}
 @keyframes ind{from{opacity:0;transform:translateX(-50%) translateY(8px)}}
-.optoast{position:fixed;top:64px;left:50%;transform:translateX(-50%);z-index:38;display:flex;gap:10px;align-items:center;
-  background:#0a140e;border:1px solid var(--line);border-radius:14px;padding:8px 12px;animation:ind .2s}
+.optoast{position:fixed;top:64px;left:50%;transform:translateX(-50%);z-index:38;display:flex;gap:12px;align-items:center;
+  background:linear-gradient(180deg,#101a12,#0a140e);border:1.5px solid var(--line);border-radius:16px;padding:10px 14px;
+  box-shadow:0 10px 32px rgba(0,0,0,.55),0 0 20px rgba(255,109,90,.15);animation:opind calc(.35s * var(--tempo,1)) cubic-bezier(.2,1.2,.4,1)}
+.optoast.angreb{border-color:rgba(240,178,62,.55);box-shadow:0 10px 32px rgba(0,0,0,.55),0 0 22px rgba(240,178,62,.2)}
+.optoast.kraft{border-color:rgba(95,224,160,.45)}
+.optoast .opico{font-size:28px;line-height:1;filter:drop-shadow(0 0 8px currentColor)}
+.optoast .optxt{font-family:var(--mono);font-size:12px;color:var(--dim);line-height:1.35}
+.optoast .optxt b{color:var(--rod);font-size:13px}
+.optoast .optxt .onm{color:var(--txt);font-size:14px}
+@keyframes opind{0%{opacity:0;transform:translateX(-50%) translateY(-16px) scale(.92)}100%{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}}
+.botbanner{position:fixed;top:64px;left:50%;transform:translateX(-50%);z-index:37;
+  background:linear-gradient(180deg,#1a1228,#120c1c);border:1.5px solid #c76bd9;border-radius:12px;
+  padding:8px 16px;font-family:var(--mono);font-size:13px;color:#e8c8ff;
+  box-shadow:0 8px 24px rgba(0,0,0,.5),0 0 16px rgba(199,107,217,.25);animation:botpul calc(1.2s * var(--tempo,1)) ease-in-out infinite}
+@keyframes botpul{50%{box-shadow:0 8px 24px rgba(0,0,0,.5),0 0 24px rgba(199,107,217,.45)}}
 .logpanel{position:fixed;left:8px;bottom:130px;z-index:36;width:min(320px,86vw);max-height:44dvh;overflow-y:auto;
   background:rgba(8,14,10,.96);border:1px solid var(--line);border-radius:12px;padding:0;
   font-family:var(--mono);font-size:11.5px;line-height:1.5;color:var(--dim)}
@@ -1166,18 +1217,16 @@ p.rt{font-size:14px;line-height:1.55;color:var(--txt);margin:6px 0}
 .storkort.tema .top{background:color-mix(in srgb,var(--ct) 60%,#0c1811);border-color:color-mix(in srgb,var(--ce) 40%,transparent)}
 .storkort.tema.leg{border-color:var(--guld)}
 /* ---- dybde & liv ---- */
-.mkort{box-shadow:0 4px 10px rgba(0,0,0,.45)}
-.enh{box-shadow:0 3px 8px rgba(0,0,0,.4)}
-.ark{box-shadow:0 18px 50px rgba(0,0,0,.6)}
+.ark{box-shadow:0 18px 50px rgba(0,0,0,.6),0 4px 0 #0a0e0b}
 .knap{transition:transform .12s,border-color .15s,box-shadow .15s}
 .knap:hover{border-color:var(--cu);box-shadow:0 4px 14px rgba(0,0,0,.35)}
 button:active{transform:scale(.97)}
 .mkort.spil{animation:spilpuls 1.6s ease-in-out infinite}
-@keyframes spilpuls{0%,100%{box-shadow:0 0 16px rgba(95,224,160,.55),0 6px 12px rgba(0,0,0,.5)}50%{box-shadow:0 0 26px rgba(95,224,160,.9),0 6px 12px rgba(0,0,0,.5)}}
+@keyframes spilpuls{0%,100%{box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 0 18px rgba(95,224,160,.45),0 3px 0 #0a0e0b,0 8px 18px rgba(0,0,0,.48)}50%{box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 0 28px rgba(95,224,160,.75),0 3px 0 #0a0e0b,0 10px 22px rgba(0,0,0,.52)}}
 .enh.klar{animation:klarpuls 2s ease-in-out infinite}
 @keyframes klarpuls{0%,100%{box-shadow:0 0 15px rgba(95,224,160,.5)}50%{box-shadow:0 0 24px rgba(95,224,160,.85)}}
-.enh{animation:enhind calc(.38s * var(--tempo,1)) cubic-bezier(.2,1.5,.4,1)}
-@keyframes enhind{from{transform:scale(.3);opacity:0;filter:brightness(2.2)}}
+.enh{animation:enhind calc(.45s * var(--tempo,1)) cubic-bezier(.18,1.35,.32,1)}
+@keyframes enhind{0%{transform:scale(.35) translateY(24px);opacity:0;filter:brightness(2.2)}55%{transform:scale(1.07) translateY(-5px);filter:brightness(1.25)}100%{transform:scale(1) translateY(0);opacity:1;filter:brightness(1)}}
 .ryst{animation:ryst calc(.32s * var(--tempo,1)) ease-in-out !important}
 @keyframes ryst{20%{transform:translateX(-4px)}40%{transform:translateX(4px)}60%{transform:translateX(-3px)}80%{transform:translateX(2px)}}
 /* ---- FX-lag ---- */
@@ -1197,27 +1246,25 @@ button:active{transform:scale(.97)}
   filter:drop-shadow(0 0 7px rgba(240,178,62,.9))}
 .fxzap.spell{filter:drop-shadow(0 0 7px rgba(95,224,160,.9))}
 @keyframes zapfl{0%{opacity:1}45%{opacity:.3}60%{opacity:1}100%{opacity:0}}
-.fxflyv{position:fixed;font-size:42px;transform:translate(-50%,-50%);z-index:61;
-  text-shadow:0 0 16px rgba(95,224,160,.9);animation:flyv calc(.55s * var(--tempo,1)) cubic-bezier(.3,.1,.55,1) forwards}
-@keyframes flyv{55%{opacity:1}100%{transform:translate(calc(-50% + var(--tx)),calc(-50% + var(--ty))) scale(.35);opacity:0}}
+.fxflyv{position:fixed;transform:translate(-50%,-50%);z-index:61;
+  width:58px;height:80px;border-radius:9px;font-size:0;
+  background:repeating-linear-gradient(118deg,transparent 0 2px,rgba(255,255,255,.02) 2px 3px),linear-gradient(168deg,var(--bg2),var(--bg1));
+  border:1.5px solid var(--fos);box-shadow:0 3px 0 #0a0e0b,0 0 20px rgba(95,224,160,.5),0 10px 20px rgba(0,0,0,.45);
+  display:flex;align-items:center;justify-content:center;
+  animation:flyv calc(.62s * var(--tempo,1)) cubic-bezier(.25,.1,.45,1) forwards}
+.fxflyv .kortface{width:42px;height:42px;border-radius:6px;overflow:hidden}
+.fxflyv .kortface .art{width:100%;height:100%}
+@keyframes flyv{0%{opacity:0;transform:translate(-50%,-50%) scale(.45) rotate(-8deg)}
+  12%{opacity:1}55%{opacity:1;transform:translate(calc(-50% + var(--tx)*.45),calc(-50% + var(--ty)*.45)) scale(.88) rotate(2deg)}
+  100%{opacity:0;transform:translate(calc(-50% + var(--tx)),calc(-50% + var(--ty))) scale(.3) rotate(6deg)}}
 .art{display:block;pointer-events:none}
 .art.dimart{opacity:.45}
-/* glans-sweep + legendarisk shimmer */
-.mkort::before{content:"";position:absolute;inset:0;pointer-events:none;
-  background:linear-gradient(115deg,transparent 32%,rgba(255,224,150,.26) 50%,transparent 68%);
-  transform:translateX(-135%)}
-.mkort.leg::before{animation:skin 4.4s ease-in-out infinite}
+/* glans — kun legendariske, langsom; ingen hover-sweep (undgår flimren) */
 .mkort.leg{animation:legpuls 3.2s ease-in-out infinite}
-@keyframes skin{14%{transform:translateX(135%)}100%{transform:translateX(135%)}}
-@keyframes legpuls{50%{box-shadow:0 0 16px rgba(255,209,102,.5),0 4px 10px rgba(0,0,0,.45)}}
-.enh.leg{animation:legpuls 3.2s ease-in-out infinite}
-@media (hover:hover){ .mkort:hover::before{animation:skin .75s ease-out 1} }
+.enh.leg{animation:legpuls 3.2s ease-in-out infinite,enhind calc(.45s * var(--tempo,1)) cubic-bezier(.18,1.35,.32,1)}
+@keyframes legpuls{50%{box-shadow:inset 0 1px 0 rgba(255,240,180,.1),0 2px 0 #2a2010,0 7px 14px rgba(0,0,0,.4),0 0 18px rgba(255,209,102,.35)}}
 .pip.gemt{animation:gemtpuls 1.9s ease-in-out infinite}
 @keyframes gemtpuls{50%{box-shadow:0 0 8px rgba(95,224,160,.8)}}
-.fxflyv{width:64px;height:78px;border-radius:10px;background:linear-gradient(180deg,var(--bg2),var(--bg1));
-  border:1.5px solid var(--fos);box-shadow:0 0 18px rgba(95,224,160,.55);
-  display:flex;align-items:center;justify-content:center;font-size:0}
-.fxflyv .art{width:44px;height:44px}
 .fxflyv.kurve{left:0;top:0;transform:none;offset-rotate:0deg;offset-anchor:50% 50%;
   animation:flyvk calc(.62s * var(--tempo,1)) cubic-bezier(.32,.08,.55,1) forwards}
 @keyframes flyvk{0%{offset-distance:0%;opacity:0}10%{opacity:1}
@@ -1426,14 +1473,14 @@ button:active{transform:scale(.97)}
 @media (min-width:820px){ .coach{bottom:206px} }
 /* ---- store skærme / landscape ---- */
 @media (min-width:700px){
-  .mkort{width:74px;height:104px}.mkort .art{width:46px;height:46px}.mkort .nv{font-size:9.5px}
-  .enh{width:68px;height:76px}.enh .art{width:46px;height:46px}
+  .mkort{width:74px;height:104px}.mkort .kortface{width:50px;height:50px}.mkort .nv{font-size:9.5px}
+  .enh{width:68px;height:76px}.enh .kortface{width:46px;height:46px}
 }
 @media (min-width:820px){
   .spilflade{max-width:1080px;width:100%;margin:0 auto}
-  .mkort{width:92px;height:129px}.mkort .art{width:60px;height:60px}.mkort .nv{font-size:11px;max-height:24px}
+  .mkort{width:92px;height:129px}.mkort .kortface{width:64px;height:64px}.mkort .nv{font-size:11px;max-height:24px}
   .mkort .stat{font-size:15px}.pris{font-size:15px;min-width:24px;height:24px}
-  .enh{width:96px;height:108px}.enh .art{width:64px;height:64px}.enh .stat{font-size:17px}
+  .enh{width:96px;height:108px}.enh .kortface{width:64px;height:64px}.enh .stat{font-size:17px}
   .enh .ikoner{font-size:11px}
   .braet{gap:14px;min-height:150px}
   .bar{font-size:17px;padding:14px 28px}
@@ -1448,8 +1495,8 @@ button:active{transform:scale(.97)}
 }
 @media (min-width:1200px){
   .spilflade{max-width:1240px}
-  .mkort{width:104px;height:146px}.mkort .art{width:68px;height:68px}
-  .enh{width:108px;height:120px}.enh .art{width:72px;height:72px}
+  .mkort{width:104px;height:146px}.mkort .kortface{width:72px;height:72px}
+  .enh{width:108px;height:120px}.enh .kortface{width:72px;height:72px}
   .braet{gap:18px;min-height:172px}
   .haand .mkort{margin:0 -5px}
 }
@@ -1529,14 +1576,14 @@ function CardTip({id,live}){
     </div>
   );
 }
-function MiniCard({id,onClick,glow,count,style,dfx,xcls,tip,onPointerDown}){
+function MiniCard({id,onClick,glow,count,style,dfx,xcls,tip,onPointerDown,ny}){
   const d=CARDS[id];
   return (
-    <button className={"mkort tema"+(d.r==="L"?" leg":"")+(glow?" spil":"")+(xcls?" "+xcls:"")+(tip?" hastip":"")} onClick={onClick} onPointerDown={onPointerDown} style={{...themeVars(d),...style}} data-fx={dfx}>
+    <button className={"mkort tema"+(d.r==="L"?" leg":"")+(glow?" spil":"")+(ny?" nytrukket":"")+(xcls?" "+xcls:"")+(tip?" hastip":"")} onClick={onClick} onPointerDown={onPointerDown} style={{...themeVars(d),...style}} data-fx={dfx}>
       <span className="pris">{d.c}</span>
       {count!=null && <span className="antal">{count}×</span>}
       {d.cls&&CLASSES[d.cls]&&<span className="clsdot" style={{background:CLASSES[d.cls].col}}/>}
-      <CardArt id={id}/>
+      <span className="kortface"><CardArt id={id}/></span>
       <span className="nv">{d.n}</span>
       {d.t==="unit" && <><span className="stat a">{d.a}</span><span className="stat h">{d.h}</span></>}
       {tip && <CardTip id={id}/>}
@@ -1556,7 +1603,7 @@ function StorKort({id,unitInfo,g}){
   return (
     <div className={"storkort tema"+(d.r==="L"?" leg":"")} style={themeVars(d)}>
       <div className="top">
-        <CardArt id={id} pattern={true} className="storart"/>
+        <span className="kortface storart"><CardArt id={id} pattern={true}/></span>
         <div>
           <h3>{d.n}</h3>
           <div className="meta">{d.c}⚡ · {d.cls&&CLASSES[d.cls]?CLASSES[d.cls].n+" · ":""}{d.t==="unit"?"Unit":"Spell"}{d.tr?" · "+d.tr:""}{d.r==="L"?" · ★ Legendary":""}</div>
@@ -1667,7 +1714,7 @@ function UnitTile({g,s,u,mine,onClick,hilite,ready,shake,tuthi,onPointerDown,dra
       onClick={onClick} onPointerDown={onPointerDown} data-fx={u.uid} style={themeVars(d)}>
       {kwl.length>0 && <span className="ikoner">{kwl.map(k=><KwBadge key={k} k={k}/>)}</span>}
       {u.sh && <span className="skjold"/>}
-      <CardArt id={u.id} className={u.st?"dimart":undefined}/>
+      <span className="kortface"><CardArt id={u.id} className={u.st?"dimart":undefined}/></span>
       {sover && <span className="zz">z</span>}
       <span className="stat a">{effAtk(g,s,u)}</span>
       <span className={"stat h"+(hp<mx?" skadet":"")}>{hp}</span>
@@ -2146,6 +2193,7 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
   const [visLog,setVisLog]=useState(false);
   const [bekraeft,setBekraeft]=useState(false);
   const [ptoast,setPt]=useState(null);
+  const [nyTrukket,setNyTrukket]=useState(null);
   const [sparks,setSparks]=useState([]);
   const [shake,setShake]=useState(new Set());
   const fxDone=useRef(g.fxk||0);
@@ -2159,6 +2207,18 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
     if(el){ const r=el.getBoundingClientRect(); return {x:r.left+r.width/2,y:r.top+r.height/2}; }
     const r=pos&&pos.current&&pos.current[key];
     return r?{x:r.left+r.width/2,y:r.top+r.height/2}:null;
+  };
+  const deckPosOf=(s2)=>{
+    const el=document.querySelector('[data-fx="deck'+s2+'"]');
+    if(el){ const r=el.getBoundingClientRect(); return {x:r.left+r.width/2,y:r.top+r.height/2}; }
+    const W=typeof window!=="undefined"?window.innerWidth:800, H=typeof window!=="undefined"?window.innerHeight:600;
+    return s2===seat?{x:W-48,y:H-88}:{x:W/2,y:68};
+  };
+  const handZoneOf=(s2)=>{
+    const el=document.querySelector('[data-fx="hand'+s2+'"]');
+    if(el){ const r=el.getBoundingClientRect(); return {x:r.left+r.width/2,y:r.top+r.height/2}; }
+    const W=typeof window!=="undefined"?window.innerWidth:800, H=typeof window!=="undefined"?window.innerHeight:600;
+    return s2===seat?{x:W/2,y:H-72}:{x:W/2,y:68};
   };
 
   useEffect(()=>{
@@ -2220,7 +2280,16 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
               {transform:"translateY(0) scale(1) rotate(0)",filter:"brightness(1)",offset:1}
             ],{duration:slowMs(600),easing:"cubic-bezier(.3,.9,.4,1)",delay:d*1000}); } }
       }
-      else if(e.t==="spil"){ const fra=posOf(e.s,e.hu)||posOf(e.s,null); if(!fra) continue;
+      else if(e.t==="trek"){
+        const fra=deckPosOf(e.s);
+        let til=posOf(e.s,e.hu)||handZoneOf(e.s);
+        add.push({key:"tr"+kk,type:"flyv",x:fra.x,y:fra.y,tx:til.x-fra.x,ty:til.y-fra.y,id:e.id,d});
+        if(e.s===seat){ setNyTrukket(e.hu); setTimeout(()=>setNyTrukket(null),slowMs(750)); }
+        Audio8.sfx.click();
+      }
+      else if(e.t==="spil"){
+        let fra=posOf(e.s,e.hu)||handZoneOf(e.s)||posOf(e.s,null);
+        if(!fra) continue;
         const til=e.ts!=null?posOf(e.ts,e.tu):null;
         const cx=(typeof window!=="undefined"?window.innerWidth/2:400);
         const cy=(typeof window!=="undefined"?window.innerHeight/2:400);
@@ -2228,7 +2297,9 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
         const kurve=typeof CSS!=="undefined"&&CSS.supports&&CSS.supports("offset-path",'path("M0 0 L1 1")');
         add.push({key:"f"+kk,type:"flyv",x:fra.x,y:fra.y,tx:mx-fra.x,ty:my-fra.y,id:e.id,d,
           op:kurve?('path("M '+fra.x.toFixed(0)+' '+fra.y.toFixed(0)+' Q '+((fra.x+mx)/2).toFixed(0)+' '
-            +(Math.min(fra.y,my)-110).toFixed(0)+' '+mx.toFixed(0)+' '+my.toFixed(0)+'")'):null}); }
+            +(Math.min(fra.y,my)-110).toFixed(0)+' '+mx.toFixed(0)+' '+my.toFixed(0)+'")'):null});
+        if(CARDS[e.id].t==="unit") Audio8.sfx.unit(); else Audio8.sfx.spell();
+      }
     }
     if(add.length){
       setSparks(x=>[...x,...add]);
@@ -2240,7 +2311,7 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
 
   useEffect(()=>{ const L=g.last;
     if(L&&L.k!==lastK.current){ lastK.current=L.k;
-      if(L.s!==seat && SETTINGS.showEnemyBanner){ setPt(L); const t=setTimeout(()=>setPt(null),slowMs(2600)); return ()=>clearTimeout(t); } }
+      if(L.s!==seat && SETTINGS.showEnemyBanner){ setPt(L); const t=setTimeout(()=>setPt(null),slowMs(3200)); return ()=>clearTimeout(t); } }
   },[g.last&&g.last.k]);
   useEffect(()=>{ if(g.turn!==prevTurn.current){ prevTurn.current=g.turn;
       if(myTurn&&g.status==="igang") setTurban(x=>x+1); } },[g.turn,myTurn]);
@@ -2503,9 +2574,9 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
           dragtgt={isDragTgt({s:1-seat,u:null})}
           onClick={()=>klikHelt(1-seat)}/>
         <Pips p={op}/>
-        <span style={{marginLeft:"auto",display:"flex",alignItems:"center"}}>
+        <span style={{marginLeft:"auto",display:"flex",alignItems:"center"}} data-fx={"hand"+(1-seat)}>
           {Array.from({length:Math.min(op.hand.length,9)}).map((_,i)=><span key={i} className="ryg"/>)}
-          <span style={{marginLeft:8,color:"var(--dim)"}}>🂠{op.deck.length}</span>
+          <span data-fx={"deck"+(1-seat)} style={{marginLeft:8,color:"var(--dim)"}}>🂠{op.deck.length}</span>
         </span>
       </div>
       <div className="braet op" ref={opAreaRef}>
@@ -2543,14 +2614,14 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
         <HeltPlade g={g} s={seat} me={true} hilite={isTgt({s:seat,u:null})} shake={shake.has("h"+seat)} dragtgt={isDragTgt({s:seat,u:null})} onClick={()=>klikHelt(seat)}/>
         <Pips p={me}/>
         <button className={"kraft"+(hiB("kraft")?" tuthi":"")} disabled={!kanKraft} onClick={kraft} title={K.power.n+" ("+K.power.c+"⚡)"}>{K.power.ico}</button>
-        <span style={{marginLeft:"auto",color:"var(--dim)"}}>🂠{me.deck.length}</span>
+        <span data-fx={"deck"+seat} style={{marginLeft:"auto",color:"var(--dim)"}}>🂠{me.deck.length}</span>
         <button style={{color:"var(--dim)",fontSize:16,padding:"0 4px"}} onClick={()=>setBekraeft(true)}>🏳</button>
       </div>
-      <div className="haand">
+      <div className="haand" data-fx={"hand"+seat}>
         {me.hand.length===0&&<span style={{color:"var(--dim)",fontFamily:"var(--mono)",fontSize:11,alignSelf:"center"}}>hand is empty</span>}
         {me.hand.map((c,i)=>{
           const o=i-(me.hand.length-1)/2;
-          return <MiniCard key={c.uid} id={c.id} dfx={c.uid} tip={true} xcls={hiB("hand:"+c.id)?"tuthi":""} glow={myTurn&&canPlay(g,seat,c.id)}
+          return <MiniCard key={c.uid} id={c.id} dfx={c.uid} tip={true} ny={nyTrukket===c.uid} xcls={hiB("hand:"+c.id)?"tuthi":""} glow={myTurn&&canPlay(g,seat,c.id)}
             style={{"--o":o,"--a":Math.abs(o),opacity:drag&&drag.uid===c.uid?0.3:undefined}}
             onPointerDown={(e)=>startDrag(c,e)}
             onClick={()=>{ if(justDragged.current){justDragged.current=false;return;} if(tmode){setT(null);return;} setSel({kind:"hand",id:c.id,uid:c.uid}); }}/>;})}
@@ -2577,8 +2648,8 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
               })}
             </div>);
           if(f.type==="flyv") return f.op
-            ? <div key={f.key} className="fxflyv kurve" style={{offsetPath:f.op}}><CardArt id={f.id}/></div>
-            : <div key={f.key} className="fxflyv" style={{left:f.x,top:f.y,"--tx":f.tx+"px","--ty":f.ty+"px"}}><CardArt id={f.id}/></div>;
+            ? <div key={f.key} className="fxflyv kurve" style={{offsetPath:f.op}}><span className="kortface"><CardArt id={f.id}/></span></div>
+            : <div key={f.key} className="fxflyv" style={{left:f.x,top:f.y,"--tx":f.tx+"px","--ty":f.ty+"px"}}><span className="kortface"><CardArt id={f.id}/></span></div>;
           if(f.type==="zap"){
             const Z=zigzag(f.p1,f.p2), c=f.art==="spell"?"var(--fos)":"var(--amber)";
             return (
@@ -2602,7 +2673,25 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
         </div>
       )}
 
-      {ptoast && <div className="optoast"><MiniCard id={ptoast.id}/><span style={{fontFamily:"var(--mono)",fontSize:12,color:"var(--dim)"}}><b style={{color:"var(--rod)"}}>{op.name} plays</b><br/><span style={{color:"var(--txt)",fontSize:14}}>{CARDS[ptoast.id]?CARDS[ptoast.id].n:"a card"}</span></span></div>}
+      {mode==="solo"&&!myTurn&&!slut&&!ptoast&&g.status==="igang"&&
+        <div className="botbanner">🤖 {op.name} is playing…</div>}
+
+      {ptoast && (()=>{
+        const d=ptoast.id?CARDS[ptoast.id]:null;
+        const act=ptoast.act||"spil";
+        const OK=CLASSES[op.cls]||CLASSES.tek;
+        return (
+          <div className={"optoast"+(act==="angreb"?" angreb":"")+(act==="kraft"?" kraft":"")}>
+            {(act==="spil"||act==="angreb")&&d && <MiniCard id={ptoast.id}/>}
+            {act==="kraft" && <span className="opico" style={{color:OK.col}}>{OK.power.ico}</span>}
+            <span className="optxt">
+              {act==="spil" && <><b>{op.name}</b> plays<br/><span className="onm">{d?.n||"a card"}</span></>}
+              {act==="angreb" && <><b>{op.name}</b> attacks with<br/><span className="onm">⚔ {d?.n||"unit"}</span></>}
+              {act==="kraft" && <><b>{op.name}</b> uses<br/><span className="onm">{OK.power.n}</span></>}
+            </span>
+          </div>
+        );
+      })()}
 
       {sel && (
         <div className="slor" onClick={()=>setSel(null)}>
