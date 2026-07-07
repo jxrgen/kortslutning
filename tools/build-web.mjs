@@ -1,6 +1,6 @@
 // Bygger den statiske udgave (GitHub Pages + Electron-app) fra web/index.html-templaten
 import { execSync } from "child_process";
-import { mkdirSync, writeFileSync, readFileSync, copyFileSync, existsSync } from "fs";
+import { mkdirSync, writeFileSync, readFileSync, copyFileSync, existsSync, readdirSync } from "fs";
 
 const SPLASH = ["l_titan","l_kvante","hk_mirror","ov_giga","s_emp","hk_root",
                 "ov_heatwave","u_spole","u_nano","u_datamide","l_moderkort","n_mainframe"];
@@ -32,8 +32,9 @@ for (const dir of ["docs", "desktop/app"]) {
   execSync(`npx esbuild web/main.jsx --bundle --minify --jsx=automatic --loader:.jsx=jsx --outfile=${dir}/app.js`, { stdio: "inherit" });
   writeFileSync(`${dir}/index.html`, html);
   copyFileSync("web/storage-shim.js", `${dir}/storage-shim.js`);
-  for (const id of new Set([...SPLASH, ...FAN]))
+  const allCards = readdirSync("assets/svg").filter(f => f.endsWith(".svg")).map(f => f.replace(/\.svg$/, ""));
+  for (const id of allCards)
     copyFileSync(`assets/svg/${id}.svg`, `${dir}/cards/${id}.svg`);
   if (existsSync("web/og.png")) copyFileSync("web/og.png", `${dir}/og.png`);
 }
-console.log("Web-build OK → docs/ + desktop/app/ (landing + " + SPLASH.length + " splash-kort)");
+console.log("Web-build OK → docs/ + desktop/app/ (" + readdirSync("assets/svg").filter(f=>f.endsWith(".svg")).length + " kort-SVG'er)");

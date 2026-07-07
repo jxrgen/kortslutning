@@ -1044,6 +1044,12 @@ input:focus,select:focus{border-color:var(--cu)}
     inset 0 1px 0 rgba(255,255,255,.12),0 0 20px rgba(95,224,160,.45),
     0 4px 0 #0a0e0b,0 7px 0 #060806,0 12px 22px rgba(0,0,0,.5),0 0 28px rgba(95,224,160,.35)}
 .mkort.spil::before{content:"";position:absolute;top:-8px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-bottom:8px solid var(--fos);filter:drop-shadow(0 0 4px var(--fos));z-index:3}
+.mkort.fuldt,.enh.fuldt{padding:0;gap:0;background:transparent;border-color:transparent}
+.mkort.fuldt::after,.enh.fuldt::after{display:none}
+.kortbillede{width:100%;height:100%;object-fit:cover;border-radius:inherit;display:block;pointer-events:none;
+  filter:drop-shadow(0 1px 0 rgba(255,255,255,.08))}
+.mkort.fuldt .kortbillede,.enh.fuldt .kortbillede{border-radius:9px}
+.enh.fuldt .kortbillede{border-radius:10px}
 .mkort .nv{font-size:8.5px;line-height:1.05;text-align:center;color:var(--txt);padding:0 3px;max-height:19px;overflow:hidden;text-shadow:0 1px 2px rgba(0,0,0,.6)}
 .pris{position:absolute;top:-1px;left:-1px;background:var(--amber);color:#1c1405;font-family:var(--mono);
   font-weight:700;font-size:12px;min-width:20px;height:20px;border-radius:0 0 8px 0;display:flex;align-items:center;justify-content:center}
@@ -1626,22 +1632,39 @@ function useCardTilt(){
   };
   return {ref,onPointerMove,onPointerLeave:reset,onPointerDown:reset};
 }
+function CardImage({id,pattern,className,onFuldt}){
+  const [fuldt,setFuldt]=useState(false);
+  useEffect(()=>{ setFuldt(false); },[id]);
+  if(fuldt) return <img className={"kortbillede"+(className?" "+className:"")} src={"cards/"+id+".svg"} alt="" draggable={false} loading="lazy"/>;
+  return (<>
+    <img src={"cards/"+id+".svg"} alt="" aria-hidden="true" draggable={false}
+      onLoad={()=>{ setFuldt(true); onFuldt&&onFuldt(true); }}
+      onError={()=>{ onFuldt&&onFuldt(false); }}
+      style={{position:"absolute",width:0,height:0,opacity:0,pointerEvents:"none"}}/>
+    <span className={"kortface"+(className?" "+className:"")}><CardArt id={id} pattern={pattern}/></span>
+  </>);
+}
 function MiniCard({id,onClick,glow,count,style,dfx,xcls,tip,onPointerDown}){
   const d=CARDS[id];
   const tilt=useCardTilt();
+  const [fuldt,setFuldt]=useState(false);
   return (
-    <button ref={tilt.ref} className={"mkort tema"+(d.r==="L"?" leg":"")+(glow?" spil":"")+(xcls?" "+xcls:"")+(tip?" hastip":"")}
+    <button ref={tilt.ref} className={"mkort tema"+(d.r==="L"?" leg":"")+(glow?" spil":"")+(fuldt?" fuldt":"")+(xcls?" "+xcls:"")+(tip?" hastip":"")}
       onClick={onClick} onPointerDown={(e)=>{tilt.onPointerDown(); onPointerDown&&onPointerDown(e);}}
       onPointerMove={tilt.onPointerMove} onPointerLeave={tilt.onPointerLeave}
       style={{...themeVars(d),...style}} data-fx={dfx}>
       <span className="kortkant" aria-hidden="true"/>
       <span className="kortglans" aria-hidden="true"/>
-      <span className="pris">{d.c}</span>
+      {fuldt
+        ? <img className="kortbillede" src={"cards/"+id+".svg"} alt="" draggable={false} loading="lazy"/>
+        : <CardImage id={id} onFuldt={setFuldt}/>}
+      {!fuldt && <>
+        <span className="pris">{d.c}</span>
+        <span className="nv">{d.n}</span>
+        {d.t==="unit" && <><span className="stat a">{d.a}</span><span className="stat h">{d.h}</span></>}
+      </>}
       {count!=null && <span className="antal">{count}×</span>}
       {d.cls&&CLASSES[d.cls]&&<span className="clsdot" style={{background:CLASSES[d.cls].col}}/>}
-      <span className="kortface"><CardArt id={id}/></span>
-      <span className="nv">{d.n}</span>
-      {d.t==="unit" && <><span className="stat a">{d.a}</span><span className="stat h">{d.h}</span></>}
       {tip && <CardTip id={id}/>}
     </button>
   );
@@ -1659,7 +1682,7 @@ function StorKort({id,unitInfo,g}){
   return (
     <div className={"storkort tema"+(d.r==="L"?" leg":"")} style={themeVars(d)}>
       <div className="top">
-        <span className="kortface storart"><CardArt id={id} pattern={true}/></span>
+        <CardImage id={id} pattern={true} className="storart" onFuldt={()=>{}}/>
         <div>
           <h3>{d.n}</h3>
           <div className="meta">{d.c}⚡ · {d.cls&&CLASSES[d.cls]?CLASSES[d.cls].n+" · ":""}{d.t==="unit"?"Unit":"Spell"}{d.tr?" · "+d.tr:""}{d.r==="L"?" · ★ Legendary":""}</div>
@@ -1766,17 +1789,26 @@ function UnitTile({g,s,u,mine,onClick,hilite,ready,shake,tuthi,onPointerDown,dra
   const liveKws=kws(g,s,u).map(k=>KWINFO[k]?KWINFO[k].n:null).filter(Boolean);
   if(d.sig) liveKws.push("Signal Strength +"+d.sig);
   const tilt=useCardTilt();
+  const [fuldt,setFuldt]=useState(false);
   return (
-    <button ref={tilt.ref} className={"enh tema hastip"+(d.r==="L"?" leg":"")+(hilite?" tgt":"")+(ready?" klar":"")+(u.sil?" sil":"")+(sover?" sover":"")+(shake?" ryst":"")+(tuthi?" tuthi":"")+(dragtgt?" dragtgt":"")}
+    <button ref={tilt.ref} className={"enh tema hastip"+(d.r==="L"?" leg":"")+(hilite?" tgt":"")+(ready?" klar":"")+(u.sil?" sil":"")+(sover?" sover":"")+(shake?" ryst":"")+(tuthi?" tuthi":"")+(dragtgt?" dragtgt":"")+(fuldt?" fuldt":"")}
       onClick={onClick} onPointerDown={(e)=>{tilt.onPointerDown(); onPointerDown&&onPointerDown(e);}}
       onPointerMove={tilt.onPointerMove} onPointerLeave={tilt.onPointerLeave} data-fx={u.uid} style={themeVars(d)}>
       <span className="kortkant" aria-hidden="true"/>
       {kwl.length>0 && <span className="ikoner">{kwl.map(k=><KwBadge key={k} k={k}/>)}</span>}
       {u.sh && <span className="skjold"/>}
-      <span className="kortface"><CardArt id={u.id} className={u.st?"dimart":undefined}/></span>
-      {sover && <span className="zz">z</span>}
-      <span className="stat a">{effAtk(g,s,u)}</span>
-      <span className={"stat h"+(hp<mx?" skadet":"")}>{hp}</span>
+      {fuldt
+        ? <img className="kortbillede" src={"cards/"+u.id+".svg"} alt="" draggable={false} loading="lazy"/>
+        : <CardImage id={u.id} onFuldt={setFuldt}/>}
+      {fuldt && <>
+        <span className="stat a">{effAtk(g,s,u)}</span>
+        <span className={"stat h"+(hp<mx?" skadet":"")}>{hp}</span>
+      </>}
+      {!fuldt && <>
+        {sover && <span className="zz">z</span>}
+        <span className="stat a">{effAtk(g,s,u)}</span>
+        <span className={"stat h"+(hp<mx?" skadet":"")}>{hp}</span>
+      </>}
       <CardTip id={u.id} live={{atk:effAtk(g,s,u),hp,kws:liveKws}}/>
     </button>
   );
