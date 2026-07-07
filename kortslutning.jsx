@@ -1005,19 +1005,46 @@ input:focus,select:focus{border-color:var(--cu)}
 .etiket{font-family:var(--mono);font-size:11px;letter-spacing:1.5px;color:var(--cu);text-transform:uppercase;margin:20px 0 6px}
 .raek{display:flex;gap:8px;align-items:center}
 .tilbage{color:var(--dim);font-family:var(--mono);font-size:13px;padding:6px 0;margin-bottom:6px}
-/* ---- kort ---- */
-.haand .mkort:not(.spil){opacity:.62;filter:saturate(.7)}
-.mkort{position:relative;width:66px;height:92px;border-radius:9px;flex:none;
-  background:linear-gradient(180deg,var(--bg2),var(--bg1));border:1px solid var(--line);
+/* ---- kort (3D fysiske kort) ---- */
+.spilflade{perspective:1400px;perspective-origin:50% 42%}
+.haand .mkort:not(.spil){opacity:.68;filter:saturate(.75) brightness(.94)}
+.mkort,.enh{
+  --rx:0deg;--ry:0deg;
+  position:relative;width:66px;height:92px;border-radius:9px;flex:none;
+  transform-style:preserve-3d;transform:perspective(720px) rotateX(var(--rx)) rotateY(var(--ry));
+  border:1px solid color-mix(in srgb,var(--ce,#274a35) 40%,#0a100c);
+  background:
+    repeating-linear-gradient(118deg,transparent 0 2px,rgba(255,255,255,.018) 2px 3px,transparent 3px 7px),
+    repeating-linear-gradient(28deg,transparent 0 3px,rgba(0,0,0,.04) 3px 4px),
+    linear-gradient(168deg,color-mix(in srgb,var(--ct,var(--bg2)) 88%,#fff 4%),var(--cb,var(--bg1)) 48%,color-mix(in srgb,var(--cb,var(--bg1)) 80%,#000 20%));
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
-  padding-bottom:7px;overflow:hidden;transition:transform .12s,border-color .12s,box-shadow .12s}
-.mkort::after{content:"";position:absolute;left:8px;right:8px;bottom:0;height:6px;border-radius:2px 2px 0 0;
-  background:repeating-linear-gradient(90deg,var(--guld) 0 4px,#3a2f12 4px 7px);opacity:.85}
-.mkort.leg{border-color:var(--guld)}
-.mkort.spil{border-color:var(--fos);border-width:2px;box-shadow:0 0 16px rgba(95,224,160,.6),0 6px 12px rgba(0,0,0,.5);transform:translateY(-9px) scale(1.04)}
+  padding-bottom:7px;overflow:hidden;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.1),inset 0 -2px 4px rgba(0,0,0,.28),
+    0 3px 0 #0a0e0b,0 5px 0 #060806,0 8px 14px rgba(0,0,0,.42),0 16px 28px rgba(0,0,0,.22);
+  transition:transform .22s cubic-bezier(.25,.9,.35,1.2),border-color .15s,box-shadow .22s,filter .18s}
+.mkort::after{content:"";position:absolute;left:7px;right:7px;bottom:0;height:7px;border-radius:2px 2px 0 0;
+  background:repeating-linear-gradient(90deg,var(--guld) 0 4px,#3a2f12 4px 7px);opacity:.9;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.25)}
+.mkort .kortkant{position:absolute;left:3px;right:3px;bottom:-4px;height:5px;border-radius:0 0 5px 5px;
+  background:linear-gradient(180deg,#1c1610,#060504);transform:translateZ(-3px);pointer-events:none;z-index:-1}
+.mkort .kortface{position:relative;width:48px;height:48px;margin-top:2px;border-radius:7px;overflow:hidden;
+  background:radial-gradient(ellipse 90% 80% at 50% 28%,color-mix(in srgb,var(--ce,#5fe0a0) 18%,#173021),#0c1811);
+  border:1.5px solid color-mix(in srgb,var(--ce,#274a35) 55%,#000);
+  box-shadow:inset 0 3px 8px rgba(0,0,0,.55),inset 0 -1px 0 rgba(255,255,255,.06),0 2px 6px rgba(0,0,0,.35)}
+.mkort .kortface::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:linear-gradient(145deg,rgba(255,255,255,.14) 0%,transparent 38%,transparent 62%,rgba(0,0,0,.22) 100%)}
+.mkort .kortface .art{width:100%;height:100%}
+.mkort.leg{border-color:var(--guld);box-shadow:
+  inset 0 1px 0 rgba(255,240,180,.14),inset 0 -2px 4px rgba(0,0,0,.28),
+  0 3px 0 #2a2010,0 5px 0 #120e06,0 8px 14px rgba(0,0,0,.42),0 0 18px rgba(255,209,102,.22)}
+.mkort.spil{border-color:var(--fos);border-width:2px;
+  transform:perspective(720px) rotateX(calc(var(--rx) - 6deg)) rotateY(var(--ry)) translateY(-11px) scale(1.06);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.12),0 0 20px rgba(95,224,160,.45),
+    0 4px 0 #0a0e0b,0 7px 0 #060806,0 12px 22px rgba(0,0,0,.5),0 0 28px rgba(95,224,160,.35)}
 .mkort.spil::before{content:"";position:absolute;top:-8px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-bottom:8px solid var(--fos);filter:drop-shadow(0 0 4px var(--fos));z-index:3}
-.mkort .art{width:40px;height:40px}
-.mkort .nv{font-size:8.5px;line-height:1.05;text-align:center;color:var(--txt);padding:0 3px;max-height:19px;overflow:hidden}
+.mkort .nv{font-size:8.5px;line-height:1.05;text-align:center;color:var(--txt);padding:0 3px;max-height:19px;overflow:hidden;text-shadow:0 1px 2px rgba(0,0,0,.6)}
 .pris{position:absolute;top:-1px;left:-1px;background:var(--amber);color:#1c1405;font-family:var(--mono);
   font-weight:700;font-size:12px;min-width:20px;height:20px;border-radius:0 0 8px 0;display:flex;align-items:center;justify-content:center}
 .stat{position:absolute;bottom:2px;font-family:var(--mono);font-weight:700;font-size:12px}
@@ -1046,12 +1073,33 @@ input:focus,select:focus{border-color:var(--cu)}
   text-shadow:0 0 10px color-mix(in srgb, var(--kf) 40%, transparent)}
 .heltklasse{font-size:10px;color:var(--kf);font-family:var(--mono);letter-spacing:.06em;text-transform:uppercase;opacity:.85}
 .helt .hp{font-weight:800;font-size:17px;color:var(--fos)} .helt .hp.lav{color:var(--rod)}
-.braet{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;padding:6px 8px;min-height:74px;position:relative}
+.braet{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;padding:6px 8px;min-height:74px;position:relative;
+  transform-style:preserve-3d;perspective-origin:50% 60%}
 .braet.op{border-bottom:1px dashed var(--line)}
-.enh{position:relative;width:58px;height:66px;border-radius:10px;background:linear-gradient(180deg,var(--bg2),var(--bg1));
-  border:1.5px solid var(--line);display:flex;align-items:center;justify-content:center;transition:border-color .12s,box-shadow .12s}
-.enh .art{width:40px;height:40px}
-.enh.klar{border-color:var(--fos)!important;border-width:2px;box-shadow:0 0 15px rgba(95,224,160,.55)}
+.enh{
+  --rx:0deg;--ry:0deg;
+  position:relative;width:58px;height:66px;border-radius:10px;
+  transform-style:preserve-3d;transform:perspective(680px) rotateX(var(--rx)) rotateY(var(--ry));
+  border:1.5px solid color-mix(in srgb,var(--ce,#274a35) 40%,#0a100c);
+  background:
+    repeating-linear-gradient(118deg,transparent 0 2px,rgba(255,255,255,.018) 2px 3px,transparent 3px 7px),
+    linear-gradient(168deg,color-mix(in srgb,var(--ct,var(--bg2)) 88%,#fff 4%),var(--cb,var(--bg1)) 48%,color-mix(in srgb,var(--cb,var(--bg1)) 80%,#000 20%));
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.1),inset 0 -2px 4px rgba(0,0,0,.28),
+    0 3px 0 #0a0e0b,0 5px 0 #060806,0 7px 12px rgba(0,0,0,.4);
+  transition:transform .22s cubic-bezier(.25,.9,.35,1.2),border-color .15s,box-shadow .22s}
+.enh .kortkant{position:absolute;left:3px;right:3px;bottom:-4px;height:5px;border-radius:0 0 5px 5px;
+  background:linear-gradient(180deg,#1c1610,#060504);transform:translateZ(-3px);pointer-events:none;z-index:-1}
+.enh .kortface{position:relative;width:44px;height:44px;border-radius:7px;overflow:hidden;
+  background:radial-gradient(ellipse 90% 80% at 50% 28%,color-mix(in srgb,var(--ce,#5fe0a0) 18%,#173021),#0c1811);
+  border:1.5px solid color-mix(in srgb,var(--ce,#274a35) 55%,#000);
+  box-shadow:inset 0 3px 8px rgba(0,0,0,.55),inset 0 -1px 0 rgba(255,255,255,.06),0 2px 5px rgba(0,0,0,.32)}
+.enh .kortface::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:linear-gradient(145deg,rgba(255,255,255,.14) 0%,transparent 38%,transparent 62%,rgba(0,0,0,.22) 100%)}
+.enh .kortface .art{width:100%;height:100%}
+.enh.klar{border-color:var(--fos)!important;border-width:2px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 0 18px rgba(95,224,160,.5),0 3px 0 #0a0e0b,0 8px 16px rgba(0,0,0,.45)}
 .enh.klar::after{content:"⚔";position:absolute;top:-9px;right:-6px;font-size:14px;background:var(--fos);color:#0c1811;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 8px rgba(95,224,160,.8);z-index:4}
 .enh.leg{border-color:var(--guld)}
 .enh.sover{opacity:.72}
@@ -1098,12 +1146,24 @@ input:focus,select:focus{border-color:var(--cu)}
   z-index:40;padding:18px;backdrop-filter:blur(2px)}
 .ark{background:var(--bg1);border:1px solid var(--line);border-radius:16px;padding:18px;width:100%;max-width:360px;
   max-height:85dvh;overflow-y:auto}
-.storkort{border:1px solid var(--line);border-radius:14px;padding:14px;background:linear-gradient(180deg,var(--bg2),var(--bg1));position:relative;overflow:hidden}
-.storkort.leg{border-color:var(--guld)}
+.storkort{border:1px solid color-mix(in srgb,var(--ce,#274a35) 45%,#0a100c);border-radius:14px;padding:14px;
+  background:
+    repeating-linear-gradient(118deg,transparent 0 2px,rgba(255,255,255,.02) 2px 3px,transparent 3px 7px),
+    linear-gradient(168deg,color-mix(in srgb,var(--ct,var(--bg2)) 90%,#fff 5%),var(--cb,var(--bg1)) 52%,color-mix(in srgb,var(--cb,var(--bg1)) 75%,#000 25%));
+  position:relative;overflow:hidden;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.1),inset 0 -3px 8px rgba(0,0,0,.3),0 6px 0 #0a0e0b,0 12px 28px rgba(0,0,0,.45)}
+.storkort.leg{border-color:var(--guld);box-shadow:inset 0 1px 0 rgba(255,240,180,.12),0 6px 0 #2a2010,0 12px 28px rgba(0,0,0,.45),0 0 24px rgba(255,209,102,.2)}
 .storkort::after{content:"";position:absolute;left:14px;right:14px;bottom:0;height:8px;border-radius:3px 3px 0 0;
-  background:repeating-linear-gradient(90deg,var(--guld) 0 6px,#3a2f12 6px 10px);opacity:.85}
+  background:repeating-linear-gradient(90deg,var(--guld) 0 6px,#3a2f12 6px 10px);opacity:.9;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.22)}
+.storkort::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:linear-gradient(125deg,rgba(255,255,255,.1) 0%,transparent 42%,transparent 58%,rgba(0,0,0,.15) 100%)}
 .storkort .top{display:flex;gap:10px;align-items:center}
-.storkort .art.storart{width:82px;height:82px;flex:none}
+.storkort .kortface.storart{width:82px;height:82px;flex:none;border-radius:10px;overflow:hidden;
+  background:radial-gradient(ellipse 90% 80% at 50% 28%,color-mix(in srgb,var(--ce,#5fe0a0) 20%,#173021),#0c1811);
+  border:2px solid color-mix(in srgb,var(--ce,#274a35) 55%,#000);
+  box-shadow:inset 0 4px 12px rgba(0,0,0,.55),0 3px 10px rgba(0,0,0,.35)}
+.storkort .kortface.storart .art{width:100%;height:100%}
 .storkort h3{font-family:var(--disp);letter-spacing:1px;font-size:20px;color:var(--cu2)}
 .storkort .meta{font-family:var(--mono);font-size:11px;color:var(--dim);margin-top:2px}
 .storkort .txt{margin:12px 0 14px;font-size:14px;line-height:1.45;color:var(--txt)}
@@ -1166,20 +1226,26 @@ p.rt{font-size:14px;line-height:1.55;color:var(--txt);margin:6px 0}
 .storkort.tema .top{background:color-mix(in srgb,var(--ct) 60%,#0c1811);border-color:color-mix(in srgb,var(--ce) 40%,transparent)}
 .storkort.tema.leg{border-color:var(--guld)}
 /* ---- dybde & liv ---- */
-.mkort{box-shadow:0 4px 10px rgba(0,0,0,.45)}
-.enh{box-shadow:0 3px 8px rgba(0,0,0,.4)}
-.ark{box-shadow:0 18px 50px rgba(0,0,0,.6)}
+.ark{box-shadow:0 18px 50px rgba(0,0,0,.6),0 4px 0 #0a0e0b}
 .knap{transition:transform .12s,border-color .15s,box-shadow .15s}
 .knap:hover{border-color:var(--cu);box-shadow:0 4px 14px rgba(0,0,0,.35)}
 button:active{transform:scale(.97)}
 .mkort.spil{animation:spilpuls 1.6s ease-in-out infinite}
-@keyframes spilpuls{0%,100%{box-shadow:0 0 16px rgba(95,224,160,.55),0 6px 12px rgba(0,0,0,.5)}50%{box-shadow:0 0 26px rgba(95,224,160,.9),0 6px 12px rgba(0,0,0,.5)}}
+@keyframes spilpuls{
+  0%,100%{box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 0 20px rgba(95,224,160,.45),0 4px 0 #0a0e0b,0 12px 22px rgba(0,0,0,.5),0 0 28px rgba(95,224,160,.35)}
+  50%{box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 0 32px rgba(95,224,160,.75),0 4px 0 #0a0e0b,0 14px 26px rgba(0,0,0,.55),0 0 42px rgba(95,224,160,.55)}}
 .enh.klar{animation:klarpuls 2s ease-in-out infinite}
-@keyframes klarpuls{0%,100%{box-shadow:0 0 15px rgba(95,224,160,.5)}50%{box-shadow:0 0 24px rgba(95,224,160,.85)}}
-.enh{animation:enhind calc(.38s * var(--tempo,1)) cubic-bezier(.2,1.5,.4,1)}
-@keyframes enhind{from{transform:scale(.3);opacity:0;filter:brightness(2.2)}}
+@keyframes klarpuls{
+  0%,100%{box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 0 16px rgba(95,224,160,.45),0 3px 0 #0a0e0b,0 8px 16px rgba(0,0,0,.45)}
+  50%{box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 0 28px rgba(95,224,160,.8),0 3px 0 #0a0e0b,0 10px 20px rgba(0,0,0,.5)}}
+.enh{animation:enhind calc(.48s * var(--tempo,1)) cubic-bezier(.18,1.35,.32,1)}
+@keyframes enhind{
+  0%{transform:perspective(680px) rotateX(72deg) rotateY(calc(var(--ry,0deg) + 18deg)) scale(.25) translateY(40px);opacity:0;filter:brightness(2.4)}
+  55%{transform:perspective(680px) rotateX(-8deg) rotateY(var(--ry,0deg)) scale(1.08) translateY(-6px);opacity:1;filter:brightness(1.3)}
+  78%{transform:perspective(680px) rotateX(4deg) rotateY(var(--ry,0deg)) scale(.97) translateY(2px);filter:brightness(1)}
+  100%{transform:perspective(680px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) scale(1) translateY(0);opacity:1;filter:brightness(1)}}
 .ryst{animation:ryst calc(.32s * var(--tempo,1)) ease-in-out !important}
-@keyframes ryst{20%{transform:translateX(-4px)}40%{transform:translateX(4px)}60%{transform:translateX(-3px)}80%{transform:translateX(2px)}}
+@keyframes ryst{20%{transform:perspective(680px) rotateX(var(--rx,0deg)) rotateY(calc(var(--ry,0deg) - 4deg)) translateX(-4px)}40%{transform:perspective(680px) rotateX(var(--rx,0deg)) rotateY(calc(var(--ry,0deg) + 4deg)) translateX(4px)}60%{transform:perspective(680px) rotateX(var(--rx,0deg)) rotateY(calc(var(--ry,0deg) - 3deg)) translateX(-3px)}80%{transform:perspective(680px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) translateX(2px)}}
 /* ---- FX-lag ---- */
 .fxlag{position:fixed;inset:0;pointer-events:none;z-index:60;overflow:hidden}
 .fxtal{position:fixed;transform:translate(-50%,-50%);font-family:var(--mono);font-weight:700;font-size:30px;
@@ -1199,29 +1265,44 @@ button:active{transform:scale(.97)}
 @keyframes zapfl{0%{opacity:1}45%{opacity:.3}60%{opacity:1}100%{opacity:0}}
 .fxflyv{position:fixed;font-size:42px;transform:translate(-50%,-50%);z-index:61;
   text-shadow:0 0 16px rgba(95,224,160,.9);animation:flyv calc(.55s * var(--tempo,1)) cubic-bezier(.3,.1,.55,1) forwards}
-@keyframes flyv{55%{opacity:1}100%{transform:translate(calc(-50% + var(--tx)),calc(-50% + var(--ty))) scale(.35);opacity:0}}
+@keyframes flyv{0%{opacity:0;transform:translate(-50%,-50%) perspective(600px) rotateX(24deg) rotateY(-18deg) scale(.5)}
+  12%{opacity:1}55%{opacity:1;transform:translate(calc(-50% + var(--tx)*.4),calc(-50% + var(--ty)*.4)) perspective(600px) rotateX(-8deg) rotateY(6deg) scale(.85)}
+  100%{opacity:0;transform:translate(calc(-50% + var(--tx)),calc(-50% + var(--ty))) perspective(600px) rotateX(16deg) rotateY(-12deg) scale(.32)}}
 .art{display:block;pointer-events:none}
 .art.dimart{opacity:.45}
 /* glans-sweep + legendarisk shimmer */
-.mkort::before{content:"";position:absolute;inset:0;pointer-events:none;
-  background:linear-gradient(115deg,transparent 32%,rgba(255,224,150,.26) 50%,transparent 68%);
+.mkort .kortglans{position:absolute;inset:0;pointer-events:none;border-radius:inherit;z-index:2;
+  background:linear-gradient(115deg,transparent 30%,rgba(255,224,150,.22) 48%,rgba(255,255,255,.08) 52%,transparent 70%);
   transform:translateX(-135%)}
-.mkort.leg::before{animation:skin 4.4s ease-in-out infinite}
+.mkort.leg .kortglans{animation:skin 4.4s ease-in-out infinite}
 .mkort.leg{animation:legpuls 3.2s ease-in-out infinite}
 @keyframes skin{14%{transform:translateX(135%)}100%{transform:translateX(135%)}}
-@keyframes legpuls{50%{box-shadow:0 0 16px rgba(255,209,102,.5),0 4px 10px rgba(0,0,0,.45)}}
-.enh.leg{animation:legpuls 3.2s ease-in-out infinite}
-@media (hover:hover){ .mkort:hover::before{animation:skin .75s ease-out 1} }
+@keyframes legpuls{50%{box-shadow:inset 0 1px 0 rgba(255,240,180,.14),0 3px 0 #2a2010,0 8px 14px rgba(0,0,0,.42),0 0 22px rgba(255,209,102,.45)}}
+.enh.leg{animation:legpuls 3.2s ease-in-out infinite,enhind calc(.48s * var(--tempo,1)) cubic-bezier(.18,1.35,.32,1)}
+@media (hover:hover){
+  .mkort:hover .kortglans{animation:skin .7s ease-out 1}
+  .mkort:hover,.enh:hover{filter:brightness(1.06)}
+  .enh:hover{transform:perspective(680px) rotateX(calc(var(--rx) - 5deg)) rotateY(var(--ry)) translateY(-4px) scale(1.04)}
+}
 .pip.gemt{animation:gemtpuls 1.9s ease-in-out infinite}
 @keyframes gemtpuls{50%{box-shadow:0 0 8px rgba(95,224,160,.8)}}
-.fxflyv{width:64px;height:78px;border-radius:10px;background:linear-gradient(180deg,var(--bg2),var(--bg1));
-  border:1.5px solid var(--fos);box-shadow:0 0 18px rgba(95,224,160,.55);
-  display:flex;align-items:center;justify-content:center;font-size:0}
-.fxflyv .art{width:44px;height:44px}
+.fxflyv{width:64px;height:78px;border-radius:10px;
+  border:1.5px solid color-mix(in srgb,var(--ce,#5fe0a0) 50%,#0a100c);
+  background:
+    repeating-linear-gradient(118deg,transparent 0 2px,rgba(255,255,255,.02) 2px 3px),
+    linear-gradient(168deg,var(--bg2),var(--bg1));
+  box-shadow:0 4px 0 #0a0e0b,0 0 22px rgba(95,224,160,.55),0 14px 24px rgba(0,0,0,.45);
+  display:flex;align-items:center;justify-content:center;font-size:0;
+  transform-style:preserve-3d}
+.fxflyv .kortface{width:48px;height:48px;border-radius:7px;overflow:hidden;
+  box-shadow:inset 0 3px 8px rgba(0,0,0,.5)}
+.fxflyv .kortface .art{width:100%;height:100%}
 .fxflyv.kurve{left:0;top:0;transform:none;offset-rotate:0deg;offset-anchor:50% 50%;
   animation:flyvk calc(.62s * var(--tempo,1)) cubic-bezier(.32,.08,.55,1) forwards}
-@keyframes flyvk{0%{offset-distance:0%;opacity:0}10%{opacity:1}
-  100%{offset-distance:100%;opacity:0;transform:scale(.42)}}
+@keyframes flyvk{0%{offset-distance:0%;opacity:0;transform:perspective(700px) rotateX(30deg) rotateY(-20deg) scale(.4)}
+  10%{opacity:1}
+  55%{transform:perspective(700px) rotateX(-6deg) rotateY(8deg) scale(.9)}
+  100%{offset-distance:100%;opacity:0;transform:perspective(700px) rotateX(12deg) rotateY(-10deg) scale(.38)}}
 .mkort.hastip:hover{overflow:visible;z-index:70}
 .haand:hover{overflow:visible}
 .enh.hastip:hover{overflow:visible;z-index:70}
@@ -1233,12 +1314,16 @@ button:active{transform:scale(.97)}
 /* ---- træk-og-slip ---- */
 .haand .mkort{touch-action:none}
 .braet .enh{touch-action:none}
-.dragkort{position:fixed;z-index:75;pointer-events:none;transform:translate(-50%,-50%) rotate(-4deg) scale(1.15);
-  filter:drop-shadow(0 12px 24px rgba(0,0,0,.6));opacity:.97;
-  transition:transform .12s cubic-bezier(.3,1.3,.5,1),filter .12s;animation:dragpop .16s ease-out}
-@keyframes dragpop{0%{transform:translate(-50%,-50%) rotate(0) scale(.85);opacity:.5}100%{transform:translate(-50%,-50%) rotate(-4deg) scale(1.15);opacity:.97}}
-.dragkort.over{transform:translate(-50%,-50%) rotate(0deg) scale(1.28);
-  filter:drop-shadow(0 0 22px rgba(95,224,160,.9)) drop-shadow(0 12px 24px rgba(0,0,0,.6))}
+.dragkort{position:fixed;z-index:75;pointer-events:none;
+  transform:perspective(900px) translate(-50%,-50%) rotateX(-12deg) rotateY(6deg) rotateZ(-3deg) scale(1.18);
+  filter:drop-shadow(0 18px 28px rgba(0,0,0,.65)) drop-shadow(0 4px 8px rgba(0,0,0,.4));
+  opacity:.98;transition:transform .14s cubic-bezier(.25,1.1,.4,1),filter .14s;animation:dragpop .2s cubic-bezier(.2,1.4,.35,1)}
+@keyframes dragpop{
+  0%{transform:perspective(900px) translate(-50%,-50%) rotateX(20deg) rotateY(-10deg) rotateZ(8deg) scale(.7);opacity:.4}
+  70%{transform:perspective(900px) translate(-50%,-50%) rotateX(-16deg) rotateY(4deg) rotateZ(-5deg) scale(1.22)}
+  100%{transform:perspective(900px) translate(-50%,-50%) rotateX(-12deg) rotateY(6deg) rotateZ(-3deg) scale(1.18);opacity:.98}}
+.dragkort.over{transform:perspective(900px) translate(-50%,-50%) rotateX(-4deg) rotateY(0deg) rotateZ(0deg) scale(1.32);
+  filter:drop-shadow(0 0 28px rgba(95,224,160,.85)) drop-shadow(0 20px 32px rgba(0,0,0,.7))}
 .braet.dropzone{outline:2.5px dashed var(--fos);outline-offset:4px;border-radius:12px;
   background:rgba(95,224,160,.08);animation:dropz 1s ease-in-out infinite}
 @keyframes dropz{50%{background:rgba(95,224,160,.16);outline-color:#8effc0}}
@@ -1426,30 +1511,30 @@ button:active{transform:scale(.97)}
 @media (min-width:820px){ .coach{bottom:206px} }
 /* ---- store skærme / landscape ---- */
 @media (min-width:700px){
-  .mkort{width:74px;height:104px}.mkort .art{width:46px;height:46px}.mkort .nv{font-size:9.5px}
-  .enh{width:68px;height:76px}.enh .art{width:46px;height:46px}
+  .mkort{width:74px;height:104px}.mkort .kortface{width:52px;height:52px}.mkort .nv{font-size:9.5px}
+  .enh{width:68px;height:76px}.enh .kortface{width:48px;height:48px}
 }
 @media (min-width:820px){
   .spilflade{max-width:1080px;width:100%;margin:0 auto}
-  .mkort{width:92px;height:129px}.mkort .art{width:60px;height:60px}.mkort .nv{font-size:11px;max-height:24px}
+  .mkort{width:92px;height:129px}.mkort .kortface{width:64px;height:64px}.mkort .nv{font-size:11px;max-height:24px}
   .mkort .stat{font-size:15px}.pris{font-size:15px;min-width:24px;height:24px}
-  .enh{width:96px;height:108px}.enh .art{width:64px;height:64px}.enh .stat{font-size:17px}
+  .enh{width:96px;height:108px}.enh .kortface{width:68px;height:68px}.enh .stat{font-size:17px}
   .enh .ikoner{font-size:11px}
   .braet{gap:14px;min-height:150px}
   .bar{font-size:17px;padding:14px 28px}
   .midt{padding:6px 24px;font-size:13px}
-  .haand{justify-content:center;overflow:visible;padding-top:26px;min-height:186px;gap:0}
+  .haand{justify-content:center;overflow:visible;padding-top:26px;min-height:186px;gap:0;perspective:1100px;perspective-origin:50% 130%}
   .haand .mkort{margin:0 -6px;transform-origin:50% 135%;
-    transform:rotate(calc(var(--o,0)*3.5deg)) translateY(calc(var(--a,0)*7px))}
-  .haand .mkort.spil{transform:rotate(calc(var(--o,0)*3.5deg)) translateY(calc(var(--a,0)*7px - 8px))}
-  .haand .mkort:hover{transform:rotate(0deg) translateY(-34px) scale(1.16);z-index:6}
+    transform:perspective(720px) rotateX(var(--rx)) rotateY(var(--ry)) rotate(calc(var(--o,0)*3.5deg)) translateY(calc(var(--a,0)*7px)) translateZ(calc(var(--a,0)*-2px))}
+  .haand .mkort.spil{transform:perspective(720px) rotateX(calc(var(--rx) - 8deg)) rotateY(var(--ry)) rotate(calc(var(--o,0)*3.5deg)) translateY(calc(var(--a,0)*7px - 14px)) scale(1.08) translateZ(12px)}
+  .haand .mkort:hover{transform:perspective(720px) rotateX(calc(var(--rx) - 10deg)) rotateY(var(--ry)) rotate(0deg) translateY(-38px) scale(1.18) translateZ(28px);z-index:6}
   .kraft{width:58px;height:58px;font-size:26px}
   .logpanel{bottom:190px}.logknap{bottom:190px}
 }
 @media (min-width:1200px){
   .spilflade{max-width:1240px}
-  .mkort{width:104px;height:146px}.mkort .art{width:68px;height:68px}
-  .enh{width:108px;height:120px}.enh .art{width:72px;height:72px}
+  .mkort{width:104px;height:146px}.mkort .kortface{width:72px;height:72px}
+  .enh{width:108px;height:120px}.enh .kortface{width:72px;height:72px}
   .braet{gap:18px;min-height:172px}
   .haand .mkort{margin:0 -5px}
 }
@@ -1529,14 +1614,32 @@ function CardTip({id,live}){
     </div>
   );
 }
+function useCardTilt(){
+  const ref=useRef(null);
+  const reset=()=>{ const el=ref.current; if(el){ el.style.setProperty("--rx","0deg"); el.style.setProperty("--ry","0deg"); } };
+  const onPointerMove=(e)=>{
+    const el=ref.current; if(!el) return;
+    const r=el.getBoundingClientRect();
+    const x=((e.clientX-r.left)/r.width-.5)*2, y=((e.clientY-r.top)/r.height-.5)*2;
+    el.style.setProperty("--ry",`${(x*11).toFixed(2)}deg`);
+    el.style.setProperty("--rx",`${(-y*11).toFixed(2)}deg`);
+  };
+  return {ref,onPointerMove,onPointerLeave:reset,onPointerDown:reset};
+}
 function MiniCard({id,onClick,glow,count,style,dfx,xcls,tip,onPointerDown}){
   const d=CARDS[id];
+  const tilt=useCardTilt();
   return (
-    <button className={"mkort tema"+(d.r==="L"?" leg":"")+(glow?" spil":"")+(xcls?" "+xcls:"")+(tip?" hastip":"")} onClick={onClick} onPointerDown={onPointerDown} style={{...themeVars(d),...style}} data-fx={dfx}>
+    <button ref={tilt.ref} className={"mkort tema"+(d.r==="L"?" leg":"")+(glow?" spil":"")+(xcls?" "+xcls:"")+(tip?" hastip":"")}
+      onClick={onClick} onPointerDown={(e)=>{tilt.onPointerDown(); onPointerDown&&onPointerDown(e);}}
+      onPointerMove={tilt.onPointerMove} onPointerLeave={tilt.onPointerLeave}
+      style={{...themeVars(d),...style}} data-fx={dfx}>
+      <span className="kortkant" aria-hidden="true"/>
+      <span className="kortglans" aria-hidden="true"/>
       <span className="pris">{d.c}</span>
       {count!=null && <span className="antal">{count}×</span>}
       {d.cls&&CLASSES[d.cls]&&<span className="clsdot" style={{background:CLASSES[d.cls].col}}/>}
-      <CardArt id={id}/>
+      <span className="kortface"><CardArt id={id}/></span>
       <span className="nv">{d.n}</span>
       {d.t==="unit" && <><span className="stat a">{d.a}</span><span className="stat h">{d.h}</span></>}
       {tip && <CardTip id={id}/>}
@@ -1556,7 +1659,7 @@ function StorKort({id,unitInfo,g}){
   return (
     <div className={"storkort tema"+(d.r==="L"?" leg":"")} style={themeVars(d)}>
       <div className="top">
-        <CardArt id={id} pattern={true} className="storart"/>
+        <span className="kortface storart"><CardArt id={id} pattern={true}/></span>
         <div>
           <h3>{d.n}</h3>
           <div className="meta">{d.c}⚡ · {d.cls&&CLASSES[d.cls]?CLASSES[d.cls].n+" · ":""}{d.t==="unit"?"Unit":"Spell"}{d.tr?" · "+d.tr:""}{d.r==="L"?" · ★ Legendary":""}</div>
@@ -1662,12 +1765,15 @@ function UnitTile({g,s,u,mine,onClick,hilite,ready,shake,tuthi,onPointerDown,dra
   const sover=mine&&u.jp&&!hasKw(g,s,u,"turbo");
   const liveKws=kws(g,s,u).map(k=>KWINFO[k]?KWINFO[k].n:null).filter(Boolean);
   if(d.sig) liveKws.push("Signal Strength +"+d.sig);
+  const tilt=useCardTilt();
   return (
-    <button className={"enh tema hastip"+(d.r==="L"?" leg":"")+(hilite?" tgt":"")+(ready?" klar":"")+(u.sil?" sil":"")+(sover?" sover":"")+(shake?" ryst":"")+(tuthi?" tuthi":"")+(dragtgt?" dragtgt":"")}
-      onClick={onClick} onPointerDown={onPointerDown} data-fx={u.uid} style={themeVars(d)}>
+    <button ref={tilt.ref} className={"enh tema hastip"+(d.r==="L"?" leg":"")+(hilite?" tgt":"")+(ready?" klar":"")+(u.sil?" sil":"")+(sover?" sover":"")+(shake?" ryst":"")+(tuthi?" tuthi":"")+(dragtgt?" dragtgt":"")}
+      onClick={onClick} onPointerDown={(e)=>{tilt.onPointerDown(); onPointerDown&&onPointerDown(e);}}
+      onPointerMove={tilt.onPointerMove} onPointerLeave={tilt.onPointerLeave} data-fx={u.uid} style={themeVars(d)}>
+      <span className="kortkant" aria-hidden="true"/>
       {kwl.length>0 && <span className="ikoner">{kwl.map(k=><KwBadge key={k} k={k}/>)}</span>}
       {u.sh && <span className="skjold"/>}
-      <CardArt id={u.id} className={u.st?"dimart":undefined}/>
+      <span className="kortface"><CardArt id={u.id} className={u.st?"dimart":undefined}/></span>
       {sover && <span className="zz">z</span>}
       <span className="stat a">{effAtk(g,s,u)}</span>
       <span className={"stat h"+(hp<mx?" skadet":"")}>{hp}</span>
@@ -2577,8 +2683,8 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
               })}
             </div>);
           if(f.type==="flyv") return f.op
-            ? <div key={f.key} className="fxflyv kurve" style={{offsetPath:f.op}}><CardArt id={f.id}/></div>
-            : <div key={f.key} className="fxflyv" style={{left:f.x,top:f.y,"--tx":f.tx+"px","--ty":f.ty+"px"}}><CardArt id={f.id}/></div>;
+            ? <div key={f.key} className="fxflyv kurve" style={{offsetPath:f.op}}><span className="kortface"><CardArt id={f.id}/></span></div>
+            : <div key={f.key} className="fxflyv" style={{left:f.x,top:f.y,"--tx":f.tx+"px","--ty":f.ty+"px"}}><span className="kortface"><CardArt id={f.id}/></span></div>;
           if(f.type==="zap"){
             const Z=zigzag(f.p1,f.p2), c=f.art==="spell"?"var(--fos)":"var(--amber)";
             return (

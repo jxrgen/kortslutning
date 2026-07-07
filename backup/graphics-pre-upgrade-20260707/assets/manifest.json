@@ -1,0 +1,2850 @@
+{
+ "game": "KORTSLUTNING",
+ "version": "1.0",
+ "cardSize": {
+  "w": 750,
+  "h": 1050
+ },
+ "cardBack": {
+  "svg": "svg/_bagside.svg",
+  "png": "png/_bagside.png"
+ },
+ "atlas": "atlas/kort-atlas.json",
+ "cards": [
+  {
+   "id": "s_stod",
+   "name": "Static Shock",
+   "cost": 0,
+   "type": "spell",
+   "cls": null,
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Deal 1 damage.",
+   "files": {
+    "svg": "svg/s_stod.svg",
+    "png": "png/s_stod.png"
+   }
+  },
+  {
+   "id": "s_nodstrom",
+   "name": "Emergency Power",
+   "cost": 0,
+   "type": "spell",
+   "cls": null,
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Gain 2 energy this turn. Overheat (2).",
+   "files": {
+    "svg": "svg/s_nodstrom.svg",
+    "png": "png/s_nodstrom.png"
+   }
+  },
+  {
+   "id": "s_kortslut",
+   "name": "Short Circuit",
+   "cost": 1,
+   "type": "spell",
+   "cls": null,
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Deal 2 damage.",
+   "files": {
+    "svg": "svg/s_kortslut.svg",
+    "png": "png/s_kortslut.png"
+   }
+  },
+  {
+   "id": "s_loddetin",
+   "name": "Solder",
+   "cost": 1,
+   "type": "spell",
+   "cls": "tek",
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Give a friendly unit +0/+3.",
+   "files": {
+    "svg": "svg/s_loddetin.svg",
+    "png": "png/s_loddetin.png"
+   }
+  },
+  {
+   "id": "s_overclock",
+   "name": "Overclock",
+   "cost": 1,
+   "type": "spell",
+   "cls": null,
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Give a friendly unit +2/+0. It can attack immediately.",
+   "files": {
+    "svg": "svg/s_overclock.svg",
+    "png": "png/s_overclock.png"
+   }
+  },
+  {
+   "id": "s_stoj",
+   "name": "Signal Noise",
+   "cost": 1,
+   "type": "spell",
+   "cls": null,
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Give an enemy unit -2 Attack.",
+   "files": {
+    "svg": "svg/s_stoj.svg",
+    "png": "png/s_stoj.png"
+   }
+  },
+  {
+   "id": "s_datalak",
+   "name": "Data Leak",
+   "cost": 1,
+   "type": "spell",
+   "cls": null,
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Draw a card. Chain: Draw 2 instead.",
+   "files": {
+    "svg": "svg/s_datalak.svg",
+    "png": "png/s_datalak.png"
+   }
+  },
+  {
+   "id": "s_lynafleder",
+   "name": "Lightning Rod",
+   "cost": 2,
+   "type": "spell",
+   "cls": null,
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Give a friendly unit Grounded and +0/+2.",
+   "files": {
+    "svg": "svg/s_lynafleder.svg",
+    "png": "png/s_lynafleder.png"
+   }
+  },
+  {
+   "id": "s_genstart",
+   "name": "Reboot",
+   "cost": 2,
+   "type": "spell",
+   "cls": null,
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Return a unit to its owner’s hand.",
+   "files": {
+    "svg": "svg/s_genstart.svg",
+    "png": "png/s_genstart.png"
+   }
+  },
+  {
+   "id": "s_diag",
+   "name": "Diagnostics",
+   "cost": 2,
+   "type": "spell",
+   "cls": null,
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Draw 2 cards.",
+   "files": {
+    "svg": "svg/s_diag.svg",
+    "png": "png/s_diag.png"
+   }
+  },
+  {
+   "id": "s_nulstil",
+   "name": "Reset",
+   "cost": 2,
+   "type": "spell",
+   "cls": null,
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Reset a unit (removes all text and buffs).",
+   "files": {
+    "svg": "svg/s_nulstil.svg",
+    "png": "png/s_nulstil.png"
+   }
+  },
+  {
+   "id": "s_lysbue",
+   "name": "Arc Flash",
+   "cost": 2,
+   "type": "spell",
+   "cls": null,
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Deal 2 damage to an enemy unit and 1 to its neighbors.",
+   "files": {
+    "svg": "svg/s_lysbue.svg",
+    "png": "png/s_lysbue.png"
+   }
+  },
+  {
+   "id": "s_spids",
+   "name": "Voltage Spike",
+   "cost": 2,
+   "type": "spell",
+   "cls": null,
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Deal 3 damage. Overheat (1).",
+   "files": {
+    "svg": "svg/s_spids.svg",
+    "png": "png/s_spids.png"
+   }
+  },
+  {
+   "id": "s_kabels",
+   "name": "Cable Spaghetti",
+   "cost": 2,
+   "type": "spell",
+   "cls": "tek",
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Swap a unit’s Attack and Health.",
+   "files": {
+    "svg": "svg/s_kabels.svg",
+    "png": "png/s_kabels.png"
+   }
+  },
+  {
+   "id": "s_reserve",
+   "name": "Spare Parts",
+   "cost": 2,
+   "type": "spell",
+   "cls": "tek",
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Add 2 random Components to your hand.",
+   "files": {
+    "svg": "svg/s_reserve.svg",
+    "png": "png/s_reserve.png"
+   }
+  },
+  {
+   "id": "s_firmware",
+   "name": "Firmware Update",
+   "cost": 3,
+   "type": "spell",
+   "cls": "tek",
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Give all your units +1/+1.",
+   "files": {
+    "svg": "svg/s_firmware.svg",
+    "png": "png/s_firmware.png"
+   }
+  },
+  {
+   "id": "s_genoplad",
+   "name": "Recharge",
+   "cost": 3,
+   "type": "spell",
+   "cls": "tek",
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Repair your hero and all friendly units for 3.",
+   "files": {
+    "svg": "svg/s_genoplad.svg",
+    "png": "png/s_genoplad.png"
+   }
+  },
+  {
+   "id": "s_hack",
+   "name": "Hack",
+   "cost": 3,
+   "type": "spell",
+   "cls": null,
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Take control of an enemy unit with 2 or less Attack.",
+   "files": {
+    "svg": "svg/s_hack.svg",
+    "png": "png/s_hack.png"
+   }
+  },
+  {
+   "id": "s_induk",
+   "name": "Induction",
+   "cost": 3,
+   "type": "spell",
+   "cls": null,
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Gain 1 energy this turn. Draw a card.",
+   "files": {
+    "svg": "svg/s_induk.svg",
+    "png": "png/s_induk.png"
+   }
+  },
+  {
+   "id": "s_backup",
+   "name": "Backup",
+   "cost": 3,
+   "type": "spell",
+   "cls": "tek",
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Add a copy of a friendly unit to your hand.",
+   "files": {
+    "svg": "svg/s_backup.svg",
+    "png": "png/s_backup.png"
+   }
+  },
+  {
+   "id": "s_kompil",
+   "name": "Compile",
+   "cost": 3,
+   "type": "spell",
+   "cls": null,
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Draw a random Spell from your deck.",
+   "files": {
+    "svg": "svg/s_kompil.svg",
+    "png": "png/s_kompil.png"
+   }
+  },
+  {
+   "id": "s_kadelyn",
+   "name": "Chain Lightning",
+   "cost": 4,
+   "type": "spell",
+   "cls": null,
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Deal 3 damage to an enemy unit and 2 to its neighbors.",
+   "files": {
+    "svg": "svg/s_kadelyn.svg",
+    "png": "png/s_kadelyn.png"
+   }
+  },
+  {
+   "id": "s_magnet",
+   "name": "Magnetic Field",
+   "cost": 4,
+   "type": "spell",
+   "cls": null,
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Deal 2 damage to all enemy units.",
+   "files": {
+    "svg": "svg/s_magnet.svg",
+    "png": "png/s_magnet.png"
+   }
+  },
+  {
+   "id": "s_forstark",
+   "name": "Power Amplifier",
+   "cost": 4,
+   "type": "spell",
+   "cls": null,
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Double a friendly unit’s Attack.",
+   "files": {
+    "svg": "svg/s_forstark.svg",
+    "png": "png/s_forstark.png"
+   }
+  },
+  {
+   "id": "s_gendan",
+   "name": "System Restore",
+   "cost": 4,
+   "type": "spell",
+   "cls": "tek",
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Repair your hero for 8.",
+   "files": {
+    "svg": "svg/s_gendan.svg",
+    "png": "png/s_gendan.png"
+   }
+  },
+  {
+   "id": "s_overbel",
+   "name": "Overload",
+   "cost": 4,
+   "type": "spell",
+   "cls": null,
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Deal 5 damage. Overheat (2).",
+   "files": {
+    "svg": "svg/s_overbel.svg",
+    "png": "png/s_overbel.png"
+   }
+  },
+  {
+   "id": "s_ransom",
+   "name": "Ransomware",
+   "cost": 5,
+   "type": "spell",
+   "cls": null,
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Destroy an enemy unit. Your opponent draws a card.",
+   "files": {
+    "svg": "svg/s_ransom.svg",
+    "png": "png/s_ransom.png"
+   }
+  },
+  {
+   "id": "s_printer",
+   "name": "3D Printer",
+   "cost": 5,
+   "type": "spell",
+   "cls": "tek",
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Summon a copy of a friendly unit (base version).",
+   "files": {
+    "svg": "svg/s_printer.svg",
+    "png": "png/s_printer.png"
+   }
+  },
+  {
+   "id": "s_uvejr",
+   "name": "Server Room Storm",
+   "cost": 5,
+   "type": "spell",
+   "cls": null,
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Deal 2 damage to a random enemy, 4 times.",
+   "files": {
+    "svg": "svg/s_uvejr.svg",
+    "png": "png/s_uvejr.png"
+   }
+  },
+  {
+   "id": "s_oversp",
+   "name": "Power Surge",
+   "cost": 6,
+   "type": "spell",
+   "cls": null,
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Deal 4 damage to all enemy units.",
+   "files": {
+    "svg": "svg/s_oversp.svg",
+    "png": "png/s_oversp.png"
+   }
+  },
+  {
+   "id": "s_massep",
+   "name": "Mass Production",
+   "cost": 6,
+   "type": "spell",
+   "cls": null,
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Fill your board with 1/1 Microbots.",
+   "files": {
+    "svg": "svg/s_massep.svg",
+    "png": "png/s_massep.png"
+   }
+  },
+  {
+   "id": "s_emp",
+   "name": "EMP",
+   "cost": 7,
+   "type": "spell",
+   "cls": null,
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Destroy all units.",
+   "files": {
+    "svg": "svg/s_emp.svg",
+    "png": "png/s_emp.png"
+   }
+  },
+  {
+   "id": "s_nedsmelt",
+   "name": "Total Meltdown",
+   "cost": 8,
+   "type": "spell",
+   "cls": null,
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Deal 4 damage to all heroes and units.",
+   "files": {
+    "svg": "svg/s_nedsmelt.svg",
+    "png": "png/s_nedsmelt.png"
+   }
+  },
+  {
+   "id": "u_modstand",
+   "name": "Resistor",
+   "cost": 1,
+   "type": "unit",
+   "cls": null,
+   "tribe": "Component",
+   "rarity": null,
+   "attack": 0,
+   "health": 3,
+   "keywords": [
+    "jord"
+   ],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Grounded.",
+   "files": {
+    "svg": "svg/u_modstand.svg",
+    "png": "png/u_modstand.png"
+   }
+  },
+  {
+   "id": "u_led",
+   "name": "LED",
+   "cost": 1,
+   "type": "unit",
+   "cls": null,
+   "tribe": "Component",
+   "rarity": null,
+   "attack": 1,
+   "health": 1,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Breakdown: Give a random friendly unit +1/+0.",
+   "files": {
+    "svg": "svg/u_led.svg",
+    "png": "png/u_led.png"
+   }
+  },
+  {
+   "id": "u_kontakt",
+   "name": "Switch",
+   "cost": 1,
+   "type": "unit",
+   "cls": null,
+   "tribe": "Component",
+   "rarity": null,
+   "attack": 1,
+   "health": 2,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Install — Chain: Draw a card.",
+   "files": {
+    "svg": "svg/u_kontakt.svg",
+    "png": "png/u_kontakt.png"
+   }
+  },
+  {
+   "id": "u_sikring",
+   "name": "Fuse",
+   "cost": 1,
+   "type": "unit",
+   "cls": null,
+   "tribe": "Component",
+   "rarity": null,
+   "attack": 0,
+   "health": 2,
+   "keywords": [
+    "jord"
+   ],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Grounded. Breakdown: Repair your hero for 2.",
+   "files": {
+    "svg": "svg/u_sikring.svg",
+    "png": "png/u_sikring.png"
+   }
+  },
+  {
+   "id": "u_piezo",
+   "name": "Piezo Buzzer",
+   "cost": 1,
+   "type": "unit",
+   "cls": null,
+   "tribe": "Component",
+   "rarity": null,
+   "attack": 1,
+   "health": 1,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Breakdown: Deal 1 damage to a random enemy unit.",
+   "files": {
+    "svg": "svg/u_piezo.svg",
+    "png": "png/u_piezo.png"
+   }
+  },
+  {
+   "id": "u_transistor",
+   "name": "Transistor",
+   "cost": 2,
+   "type": "unit",
+   "cls": null,
+   "tribe": "Component",
+   "rarity": null,
+   "attack": 2,
+   "health": 2,
+   "keywords": [],
+   "spellDamage": 1,
+   "token": false,
+   "collectible": true,
+   "text": "Signal Strength +1 (your Spells deal +1 damage).",
+   "files": {
+    "svg": "svg/u_transistor.svg",
+    "png": "png/u_transistor.png"
+   }
+  },
+  {
+   "id": "u_diode",
+   "name": "Diode",
+   "cost": 2,
+   "type": "unit",
+   "cls": null,
+   "tribe": "Component",
+   "rarity": null,
+   "attack": 3,
+   "health": 2,
+   "keywords": [
+    "noHero"
+   ],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Can’t attack heroes.",
+   "files": {
+    "svg": "svg/u_diode.svg",
+    "png": "png/u_diode.png"
+   }
+  },
+  {
+   "id": "u_kondens",
+   "name": "Capacitor",
+   "cost": 2,
+   "type": "unit",
+   "cls": null,
+   "tribe": "Component",
+   "rarity": null,
+   "attack": 1,
+   "health": 3,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Breakdown: Store 1 energy in the capacitor bank.",
+   "files": {
+    "svg": "svg/u_kondens.svg",
+    "png": "png/u_kondens.png"
+   }
+  },
+  {
+   "id": "u_koleleg",
+   "name": "Heat Sink",
+   "cost": 2,
+   "type": "unit",
+   "cls": null,
+   "tribe": "Component",
+   "rarity": null,
+   "attack": 0,
+   "health": 5,
+   "keywords": [
+    "jord"
+   ],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Grounded.",
+   "files": {
+    "svg": "svg/u_koleleg.svg",
+    "png": "png/u_koleleg.png"
+   }
+  },
+  {
+   "id": "u_spole",
+   "name": "Coil",
+   "cost": 2,
+   "type": "unit",
+   "cls": null,
+   "tribe": "Component",
+   "rarity": null,
+   "attack": 2,
+   "health": 3,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "“Hums a bit, but it holds.”",
+   "files": {
+    "svg": "svg/u_spole.svg",
+    "png": "png/u_spole.png"
+   }
+  },
+  {
+   "id": "u_potmeter",
+   "name": "Potentiometer",
+   "cost": 2,
+   "type": "unit",
+   "cls": null,
+   "tribe": "Component",
+   "rarity": null,
+   "attack": 1,
+   "health": 1,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Install: Give another friendly unit +1/+1.",
+   "files": {
+    "svg": "svg/u_potmeter.svg",
+    "png": "png/u_potmeter.png"
+   }
+  },
+  {
+   "id": "u_krystal",
+   "name": "Crystal Oscillator",
+   "cost": 3,
+   "type": "unit",
+   "cls": null,
+   "tribe": "Component",
+   "rarity": null,
+   "attack": 2,
+   "health": 2,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "At the start of your turn: +1 Attack.",
+   "files": {
+    "svg": "svg/u_krystal.svg",
+    "png": "png/u_krystal.png"
+   }
+  },
+  {
+   "id": "u_printplade",
+   "name": "Circuit Board",
+   "cost": 3,
+   "type": "unit",
+   "cls": null,
+   "tribe": "Component",
+   "rarity": null,
+   "attack": 0,
+   "health": 4,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Your other Components have +1/+1.",
+   "files": {
+    "svg": "svg/u_printplade.svg",
+    "png": "png/u_printplade.png"
+   }
+  },
+  {
+   "id": "u_transform",
+   "name": "Transformer",
+   "cost": 3,
+   "type": "unit",
+   "cls": null,
+   "tribe": "Component",
+   "rarity": null,
+   "attack": 2,
+   "health": 4,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Install: Give another friendly unit +2/+0.",
+   "files": {
+    "svg": "svg/u_transform.svg",
+    "png": "png/u_transform.png"
+   }
+  },
+  {
+   "id": "u_relae",
+   "name": "Relay",
+   "cost": 3,
+   "type": "unit",
+   "cls": "tek",
+   "tribe": "Component",
+   "rarity": null,
+   "attack": 2,
+   "health": 3,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Install: Another friendly unit can attack immediately.",
+   "files": {
+    "svg": "svg/u_relae.svg",
+    "png": "png/u_relae.png"
+   }
+  },
+  {
+   "id": "u_solpanel",
+   "name": "Solar Panel",
+   "cost": 4,
+   "type": "unit",
+   "cls": null,
+   "tribe": "Component",
+   "rarity": null,
+   "attack": 1,
+   "health": 5,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "At the start of your turn: Gain 1 energy this turn.",
+   "files": {
+    "svg": "svg/u_solpanel.svg",
+    "png": "png/u_solpanel.png"
+   }
+  },
+  {
+   "id": "u_psu",
+   "name": "Power Supply",
+   "cost": 4,
+   "type": "unit",
+   "cls": null,
+   "tribe": "Component",
+   "rarity": null,
+   "attack": 2,
+   "health": 5,
+   "keywords": [
+    "jord"
+   ],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Grounded. Breakdown: Store 1 energy.",
+   "files": {
+    "svg": "svg/u_psu.svg",
+    "png": "png/u_psu.png"
+   }
+  },
+  {
+   "id": "u_superkond",
+   "name": "Supercapacitor",
+   "cost": 5,
+   "type": "unit",
+   "cls": null,
+   "tribe": "Component",
+   "rarity": null,
+   "attack": 3,
+   "health": 5,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Install: Store 2 energy in the capacitor bank.",
+   "files": {
+    "svg": "svg/u_superkond.svg",
+    "png": "png/u_superkond.png"
+   }
+  },
+  {
+   "id": "u_skruebot",
+   "name": "Screwbot",
+   "cost": 1,
+   "type": "unit",
+   "cls": null,
+   "tribe": "Robot",
+   "rarity": null,
+   "attack": 1,
+   "health": 1,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Install: Give another friendly Robot +1/+1.",
+   "files": {
+    "svg": "svg/u_skruebot.svg",
+    "png": "png/u_skruebot.png"
+   }
+  },
+  {
+   "id": "u_loddebot",
+   "name": "Solderbot",
+   "cost": 2,
+   "type": "unit",
+   "cls": "tek",
+   "tribe": "Robot",
+   "rarity": null,
+   "attack": 2,
+   "health": 1,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Install: Deal 1 damage.",
+   "files": {
+    "svg": "svg/u_loddebot.svg",
+    "png": "png/u_loddebot.png"
+   }
+  },
+  {
+   "id": "u_skraldebot",
+   "name": "Garbagebot",
+   "cost": 2,
+   "type": "unit",
+   "cls": null,
+   "tribe": "Robot",
+   "rarity": null,
+   "attack": 2,
+   "health": 3,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Breakdown: Add a random Component to your hand.",
+   "files": {
+    "svg": "svg/u_skraldebot.svg",
+    "png": "png/u_skraldebot.png"
+   }
+  },
+  {
+   "id": "u_vagtbot",
+   "name": "Guardbot",
+   "cost": 3,
+   "type": "unit",
+   "cls": null,
+   "tribe": "Robot",
+   "rarity": null,
+   "attack": 2,
+   "health": 4,
+   "keywords": [
+    "jord"
+   ],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Grounded.",
+   "files": {
+    "svg": "svg/u_vagtbot.svg",
+    "png": "png/u_vagtbot.png"
+   }
+  },
+  {
+   "id": "u_byggebot",
+   "name": "Builderbot",
+   "cost": 3,
+   "type": "unit",
+   "cls": null,
+   "tribe": "Robot",
+   "rarity": null,
+   "attack": 2,
+   "health": 2,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Install: Summon a 1/1 Microbot.",
+   "files": {
+    "svg": "svg/u_byggebot.svg",
+    "png": "png/u_byggebot.png"
+   }
+  },
+  {
+   "id": "u_speederbot",
+   "name": "Speedbot",
+   "cost": 3,
+   "type": "unit",
+   "cls": null,
+   "tribe": "Robot",
+   "rarity": null,
+   "attack": 3,
+   "health": 2,
+   "keywords": [
+    "turbo"
+   ],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Turbo.",
+   "files": {
+    "svg": "svg/u_speederbot.svg",
+    "png": "png/u_speederbot.png"
+   }
+  },
+  {
+   "id": "u_sumobot",
+   "name": "Sumobot",
+   "cost": 4,
+   "type": "unit",
+   "cls": null,
+   "tribe": "Robot",
+   "rarity": null,
+   "attack": 3,
+   "health": 5,
+   "keywords": [
+    "jord"
+   ],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Grounded.",
+   "files": {
+    "svg": "svg/u_sumobot.svg",
+    "png": "png/u_sumobot.png"
+   }
+  },
+  {
+   "id": "u_svejsebot",
+   "name": "Weldbot",
+   "cost": 4,
+   "type": "unit",
+   "cls": null,
+   "tribe": "Robot",
+   "rarity": null,
+   "attack": 3,
+   "health": 4,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Install: Deal 2 damage. Chain: Deal 4 instead.",
+   "files": {
+    "svg": "svg/u_svejsebot.svg",
+    "png": "png/u_svejsebot.png"
+   }
+  },
+  {
+   "id": "u_sergent",
+   "name": "Robo-Sergeant",
+   "cost": 4,
+   "type": "unit",
+   "cls": null,
+   "tribe": "Robot",
+   "rarity": null,
+   "attack": 3,
+   "health": 3,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Your other Robots have +1 Attack.",
+   "files": {
+    "svg": "svg/u_sergent.svg",
+    "png": "png/u_sergent.png"
+   }
+  },
+  {
+   "id": "u_repbot",
+   "name": "Repairbot",
+   "cost": 4,
+   "type": "unit",
+   "cls": "tek",
+   "tribe": "Robot",
+   "rarity": null,
+   "attack": 2,
+   "health": 5,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "At the end of your turn: Repair a random damaged friendly unit for 2.",
+   "files": {
+    "svg": "svg/u_repbot.svg",
+    "png": "png/u_repbot.png"
+   }
+  },
+  {
+   "id": "u_boksebot",
+   "name": "Boxerbot",
+   "cost": 5,
+   "type": "unit",
+   "cls": null,
+   "tribe": "Robot",
+   "rarity": null,
+   "attack": 3,
+   "health": 5,
+   "keywords": [
+    "dob"
+   ],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Dual Core.",
+   "files": {
+    "svg": "svg/u_boksebot.svg",
+    "png": "png/u_boksebot.png"
+   }
+  },
+  {
+   "id": "u_fabrik",
+   "name": "Robot Factory",
+   "cost": 5,
+   "type": "unit",
+   "cls": null,
+   "tribe": "Robot",
+   "rarity": null,
+   "attack": 0,
+   "health": 6,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "At the end of your turn: Summon a 1/1 Microbot.",
+   "files": {
+    "svg": "svg/u_fabrik.svg",
+    "png": "png/u_fabrik.png"
+   }
+  },
+  {
+   "id": "u_kranbot",
+   "name": "Cranebot",
+   "cost": 5,
+   "type": "unit",
+   "cls": null,
+   "tribe": "Robot",
+   "rarity": null,
+   "attack": 4,
+   "health": 5,
+   "keywords": [
+    "jord"
+   ],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Grounded.",
+   "files": {
+    "svg": "svg/u_kranbot.svg",
+    "png": "png/u_kranbot.png"
+   }
+  },
+  {
+   "id": "u_nedriver",
+   "name": "Demolition Bot",
+   "cost": 6,
+   "type": "unit",
+   "cls": null,
+   "tribe": "Robot",
+   "rarity": null,
+   "attack": 5,
+   "health": 5,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Install: Deal 2 damage to all other units.",
+   "files": {
+    "svg": "svg/u_nedriver.svg",
+    "png": "png/u_nedriver.png"
+   }
+  },
+  {
+   "id": "u_panserbot",
+   "name": "Armorbot",
+   "cost": 6,
+   "type": "unit",
+   "cls": null,
+   "tribe": "Robot",
+   "rarity": null,
+   "attack": 4,
+   "health": 6,
+   "keywords": [
+    "jord",
+    "iso"
+   ],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Grounded. Insulated.",
+   "files": {
+    "svg": "svg/u_panserbot.svg",
+    "png": "png/u_panserbot.png"
+   }
+  },
+  {
+   "id": "u_kolos",
+   "name": "Mech Colossus",
+   "cost": 7,
+   "type": "unit",
+   "cls": null,
+   "tribe": "Robot",
+   "rarity": null,
+   "attack": 7,
+   "health": 7,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Overheat (1).",
+   "files": {
+    "svg": "svg/u_kolos.svg",
+    "png": "png/u_kolos.png"
+   }
+  },
+  {
+   "id": "u_nano",
+   "name": "Nanodrone",
+   "cost": 1,
+   "type": "unit",
+   "cls": null,
+   "tribe": "Drone",
+   "rarity": null,
+   "attack": 1,
+   "health": 1,
+   "keywords": [
+    "turbo"
+   ],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Turbo.",
+   "files": {
+    "svg": "svg/u_nano.svg",
+    "png": "png/u_nano.png"
+   }
+  },
+  {
+   "id": "u_spejder",
+   "name": "Scout Drone",
+   "cost": 1,
+   "type": "unit",
+   "cls": null,
+   "tribe": "Drone",
+   "rarity": null,
+   "attack": 1,
+   "health": 2,
+   "keywords": [
+    "skjul"
+   ],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Cloaked.",
+   "files": {
+    "svg": "svg/u_spejder.svg",
+    "png": "png/u_spejder.png"
+   }
+  },
+  {
+   "id": "u_kampdrone",
+   "name": "Combat Drone",
+   "cost": 2,
+   "type": "unit",
+   "cls": null,
+   "tribe": "Drone",
+   "rarity": null,
+   "attack": 2,
+   "health": 1,
+   "keywords": [
+    "turbo"
+   ],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Turbo.",
+   "files": {
+    "svg": "svg/u_kampdrone.svg",
+    "png": "png/u_kampdrone.png"
+   }
+  },
+  {
+   "id": "u_svarm",
+   "name": "Swarm Drone",
+   "cost": 2,
+   "type": "unit",
+   "cls": null,
+   "tribe": "Drone",
+   "rarity": null,
+   "attack": 1,
+   "health": 1,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Install: Summon a 1/1 Nanodrone with Turbo.",
+   "files": {
+    "svg": "svg/u_svarm.svg",
+    "png": "png/u_svarm.png"
+   }
+  },
+  {
+   "id": "u_kamikaze",
+   "name": "Kamikaze Drone",
+   "cost": 2,
+   "type": "unit",
+   "cls": null,
+   "tribe": "Drone",
+   "rarity": null,
+   "attack": 2,
+   "health": 1,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Breakdown: Deal 2 damage to a random enemy unit.",
+   "files": {
+    "svg": "svg/u_kamikaze.svg",
+    "png": "png/u_kamikaze.png"
+   }
+  },
+  {
+   "id": "u_levering",
+   "name": "Delivery Drone",
+   "cost": 3,
+   "type": "unit",
+   "cls": null,
+   "tribe": "Drone",
+   "rarity": null,
+   "attack": 2,
+   "health": 2,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Install: Draw a card.",
+   "files": {
+    "svg": "svg/u_levering.svg",
+    "png": "png/u_levering.png"
+   }
+  },
+  {
+   "id": "u_forer",
+   "name": "Drone Pilot",
+   "cost": 3,
+   "type": "unit",
+   "cls": null,
+   "tribe": "Drone",
+   "rarity": null,
+   "attack": 2,
+   "health": 3,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Your other Drones have Turbo.",
+   "files": {
+    "svg": "svg/u_forer.svg",
+    "png": "png/u_forer.png"
+   }
+  },
+  {
+   "id": "u_jager",
+   "name": "Fighter Drone",
+   "cost": 4,
+   "type": "unit",
+   "cls": null,
+   "tribe": "Drone",
+   "rarity": null,
+   "attack": 4,
+   "health": 3,
+   "keywords": [
+    "turbo"
+   ],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Turbo.",
+   "files": {
+    "svg": "svg/u_jager.svg",
+    "png": "png/u_jager.png"
+   }
+  },
+  {
+   "id": "u_dronebase",
+   "name": "Drone Base",
+   "cost": 4,
+   "type": "unit",
+   "cls": null,
+   "tribe": "Drone",
+   "rarity": null,
+   "attack": 1,
+   "health": 5,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Your other Drones have +1 Attack.",
+   "files": {
+    "svg": "svg/u_dronebase.svg",
+    "png": "png/u_dronebase.png"
+   }
+  },
+  {
+   "id": "u_fragt",
+   "name": "Cargo Drone",
+   "cost": 5,
+   "type": "unit",
+   "cls": null,
+   "tribe": "Drone",
+   "rarity": null,
+   "attack": 3,
+   "health": 4,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Install: Summon two 1/1 Nanodrones with Turbo.",
+   "files": {
+    "svg": "svg/u_fragt.svg",
+    "png": "png/u_fragt.png"
+   }
+  },
+  {
+   "id": "u_stealthdrone",
+   "name": "Stealth Drone",
+   "cost": 5,
+   "type": "unit",
+   "cls": null,
+   "tribe": "Drone",
+   "rarity": null,
+   "attack": 4,
+   "health": 4,
+   "keywords": [
+    "skjul"
+   ],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Cloaked.",
+   "files": {
+    "svg": "svg/u_stealthdrone.svg",
+    "png": "png/u_stealthdrone.png"
+   }
+  },
+  {
+   "id": "u_hyper",
+   "name": "Hyperdrone",
+   "cost": 6,
+   "type": "unit",
+   "cls": null,
+   "tribe": "Drone",
+   "rarity": null,
+   "attack": 3,
+   "health": 4,
+   "keywords": [
+    "turbo",
+    "dob"
+   ],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Turbo. Dual Core.",
+   "files": {
+    "svg": "svg/u_hyper.svg",
+    "png": "png/u_hyper.png"
+   }
+  },
+  {
+   "id": "u_datamide",
+   "name": "Data Mite",
+   "cost": 1,
+   "type": "unit",
+   "cls": null,
+   "tribe": "Virus",
+   "rarity": null,
+   "attack": 1,
+   "health": 1,
+   "keywords": [
+    "hoj"
+   ],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "High Voltage.",
+   "files": {
+    "svg": "svg/u_datamide.svg",
+    "png": "png/u_datamide.png"
+   }
+  },
+  {
+   "id": "u_glitch",
+   "name": "Glitch",
+   "cost": 1,
+   "type": "unit",
+   "cls": null,
+   "tribe": "Virus",
+   "rarity": null,
+   "attack": 2,
+   "health": 1,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "“Have you tried turning it off and on again?”",
+   "files": {
+    "svg": "svg/u_glitch.svg",
+    "png": "png/u_glitch.png"
+   }
+  },
+  {
+   "id": "u_adware",
+   "name": "Adware",
+   "cost": 2,
+   "type": "unit",
+   "cls": null,
+   "tribe": "Virus",
+   "rarity": null,
+   "attack": 3,
+   "health": 2,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Breakdown: Your opponent draws a card.",
+   "files": {
+    "svg": "svg/u_adware.svg",
+    "png": "png/u_adware.png"
+   }
+  },
+  {
+   "id": "u_spion",
+   "name": "Spyware",
+   "cost": 2,
+   "type": "unit",
+   "cls": null,
+   "tribe": "Virus",
+   "rarity": null,
+   "attack": 1,
+   "health": 3,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Install: Copy a random card from your opponent’s hand to yours.",
+   "files": {
+    "svg": "svg/u_spion.svg",
+    "png": "png/u_spion.png"
+   }
+  },
+  {
+   "id": "u_snylter",
+   "name": "Data Leech",
+   "cost": 3,
+   "type": "unit",
+   "cls": null,
+   "tribe": "Virus",
+   "rarity": null,
+   "attack": 3,
+   "health": 3,
+   "keywords": [
+    "host"
+   ],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Energy Harvest.",
+   "files": {
+    "svg": "svg/u_snylter.svg",
+    "png": "png/u_snylter.png"
+   }
+  },
+  {
+   "id": "u_logikbombe",
+   "name": "Logic Bomb",
+   "cost": 3,
+   "type": "unit",
+   "cls": null,
+   "tribe": "Virus",
+   "rarity": null,
+   "attack": 0,
+   "health": 4,
+   "keywords": [
+    "jord"
+   ],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Grounded. Breakdown: Deal 2 damage to all enemy units.",
+   "files": {
+    "svg": "svg/u_logikbombe.svg",
+    "png": "png/u_logikbombe.png"
+   }
+  },
+  {
+   "id": "u_trojan",
+   "name": "Trojan Horse",
+   "cost": 4,
+   "type": "unit",
+   "cls": null,
+   "tribe": "Virus",
+   "rarity": null,
+   "attack": 4,
+   "health": 4,
+   "keywords": [
+    "skjul"
+   ],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Cloaked.",
+   "files": {
+    "svg": "svg/u_trojan.svg",
+    "png": "png/u_trojan.png"
+   }
+  },
+  {
+   "id": "u_replikator",
+   "name": "Replicator",
+   "cost": 4,
+   "type": "unit",
+   "cls": null,
+   "tribe": "Virus",
+   "rarity": null,
+   "attack": 3,
+   "health": 3,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Breakdown: Summon two 1/1 Bugs.",
+   "files": {
+    "svg": "svg/u_replikator.svg",
+    "png": "png/u_replikator.png"
+   }
+  },
+  {
+   "id": "u_ormen",
+   "name": "The Worm",
+   "cost": 5,
+   "type": "unit",
+   "cls": null,
+   "tribe": "Virus",
+   "rarity": null,
+   "attack": 4,
+   "health": 4,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "At the end of your turn: +1/+1.",
+   "files": {
+    "svg": "svg/u_ormen.svg",
+    "png": "png/u_ormen.png"
+   }
+  },
+  {
+   "id": "u_rootkit",
+   "name": "Rootkit",
+   "cost": 5,
+   "type": "unit",
+   "cls": null,
+   "tribe": "Virus",
+   "rarity": null,
+   "attack": 4,
+   "health": 5,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Install: Reset an enemy unit.",
+   "files": {
+    "svg": "svg/u_rootkit.svg",
+    "png": "png/u_rootkit.png"
+   }
+  },
+  {
+   "id": "u_botnet",
+   "name": "Botnet Brain",
+   "cost": 6,
+   "type": "unit",
+   "cls": null,
+   "tribe": "Virus",
+   "rarity": null,
+   "attack": 4,
+   "health": 6,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "At the end of your turn: Summon a 1/1 Bug.",
+   "files": {
+    "svg": "svg/u_botnet.svg",
+    "png": "png/u_botnet.png"
+   }
+  },
+  {
+   "id": "l_praktikant",
+   "name": "The Intern",
+   "cost": 2,
+   "type": "unit",
+   "cls": null,
+   "tribe": null,
+   "rarity": "L",
+   "attack": 2,
+   "health": 3,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Install: Deal 2 damage to a COMPLETELY random target (anything can be hit).",
+   "files": {
+    "svg": "svg/l_praktikant.svg",
+    "png": "png/l_praktikant.png"
+   }
+  },
+  {
+   "id": "l_roomba",
+   "name": "ROOMBA PRIME",
+   "cost": 5,
+   "type": "unit",
+   "cls": null,
+   "tribe": "Robot",
+   "rarity": "L",
+   "attack": 3,
+   "health": 3,
+   "keywords": [
+    "turbo",
+    "hoj"
+   ],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Turbo. High Voltage. Vacuums up everything.",
+   "files": {
+    "svg": "svg/l_roomba.svg",
+    "png": "png/l_roomba.png"
+   }
+  },
+  {
+   "id": "l_gdpr",
+   "name": "GDPR Bot",
+   "cost": 6,
+   "type": "unit",
+   "cls": null,
+   "tribe": "Robot",
+   "rarity": "L",
+   "attack": 4,
+   "health": 5,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Install: Both players delete their hands and draw that many cards.",
+   "files": {
+    "svg": "svg/l_gdpr.svg",
+    "png": "png/l_gdpr.png"
+   }
+  },
+  {
+   "id": "l_moderkort",
+   "name": "THE MOTHERBOARD",
+   "cost": 6,
+   "type": "unit",
+   "cls": null,
+   "tribe": "Component",
+   "rarity": "L",
+   "attack": 0,
+   "health": 8,
+   "keywords": [
+    "jord"
+   ],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Grounded. Your other units have +1/+1.",
+   "files": {
+    "svg": "svg/l_moderkort.svg",
+    "png": "png/l_moderkort.png"
+   }
+  },
+  {
+   "id": "l_tesla",
+   "name": "TESLA COIL",
+   "cost": 7,
+   "type": "unit",
+   "cls": null,
+   "tribe": "Component",
+   "rarity": "L",
+   "attack": 4,
+   "health": 6,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "At the end of your turn: Deal 3 damage to a random enemy.",
+   "files": {
+    "svg": "svg/l_tesla.svg",
+    "png": "png/l_tesla.png"
+   }
+  },
+  {
+   "id": "l_virusx",
+   "name": "VIRUS X",
+   "cost": 7,
+   "type": "unit",
+   "cls": null,
+   "tribe": "Virus",
+   "rarity": "L",
+   "attack": 5,
+   "health": 5,
+   "keywords": [
+    "hoj",
+    "host"
+   ],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "High Voltage. Energy Harvest.",
+   "files": {
+    "svg": "svg/l_virusx.svg",
+    "png": "png/l_virusx.png"
+   }
+  },
+  {
+   "id": "l_alan",
+   "name": "A.L.A.N.",
+   "cost": 8,
+   "type": "unit",
+   "cls": null,
+   "tribe": "Robot",
+   "rarity": "L",
+   "attack": 6,
+   "health": 6,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Install: Draw 3 cards. (“I’m afraid I can’t do that, Dave.”)",
+   "files": {
+    "svg": "svg/l_alan.svg",
+    "png": "png/l_alan.png"
+   }
+  },
+  {
+   "id": "l_kvante",
+   "name": "THE QUANTUM BOX",
+   "cost": 8,
+   "type": "unit",
+   "cls": null,
+   "tribe": "Component",
+   "rarity": "L",
+   "attack": 5,
+   "health": 7,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "At the end of your turn: Add a random Spell to your hand.",
+   "files": {
+    "svg": "svg/l_kvante.svg",
+    "png": "png/l_kvante.png"
+   }
+  },
+  {
+   "id": "l_titan",
+   "name": "TITAN-9000",
+   "cost": 9,
+   "type": "unit",
+   "cls": null,
+   "tribe": "Robot",
+   "rarity": "L",
+   "attack": 8,
+   "health": 8,
+   "keywords": [
+    "jord"
+   ],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Grounded. Install: Destroy the enemy unit with the highest Attack.",
+   "files": {
+    "svg": "svg/l_titan.svg",
+    "png": "png/l_titan.png"
+   }
+  },
+  {
+   "id": "l_overtek",
+   "name": "THE OVERTECHNICIAN",
+   "cost": 9,
+   "type": "unit",
+   "cls": "tek",
+   "tribe": null,
+   "rarity": "L",
+   "attack": 6,
+   "health": 6,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Install: Give all your other units +2/+2.",
+   "files": {
+    "svg": "svg/l_overtek.svg",
+    "png": "png/l_overtek.png"
+   }
+  },
+  {
+   "id": "hk_spoof",
+   "name": "Spoof",
+   "cost": 1,
+   "type": "spell",
+   "cls": "hack",
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Give a friendly unit Cloaked.",
+   "files": {
+    "svg": "svg/hk_spoof.svg",
+    "png": "png/hk_spoof.png"
+   }
+  },
+  {
+   "id": "hk_phish",
+   "name": "Phishing",
+   "cost": 1,
+   "type": "spell",
+   "cls": "hack",
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Copy a random card from your opponent’s hand to yours.",
+   "files": {
+    "svg": "svg/hk_phish.svg",
+    "png": "png/hk_phish.png"
+   }
+  },
+  {
+   "id": "hk_bugswarm",
+   "name": "Bug Swarm",
+   "cost": 2,
+   "type": "spell",
+   "cls": "hack",
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Summon two 1/1 Bugs. Chain: Three instead.",
+   "files": {
+    "svg": "svg/hk_bugswarm.svg",
+    "png": "png/hk_bugswarm.png"
+   }
+  },
+  {
+   "id": "hk_keylog",
+   "name": "Keylogger",
+   "cost": 2,
+   "type": "unit",
+   "cls": "hack",
+   "tribe": "Virus",
+   "rarity": null,
+   "attack": 1,
+   "health": 3,
+   "keywords": [
+    "skjul"
+   ],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Cloaked. Breakdown: Draw a card.",
+   "files": {
+    "svg": "svg/hk_keylog.svg",
+    "png": "png/hk_keylog.png"
+   }
+  },
+  {
+   "id": "hk_ddos",
+   "name": "DDoS",
+   "cost": 3,
+   "type": "spell",
+   "cls": "hack",
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Give all enemy units -2 Attack.",
+   "files": {
+    "svg": "svg/hk_ddos.svg",
+    "png": "png/hk_ddos.png"
+   }
+  },
+  {
+   "id": "hk_crypto",
+   "name": "Cryptojacker",
+   "cost": 3,
+   "type": "unit",
+   "cls": "hack",
+   "tribe": "Virus",
+   "rarity": null,
+   "attack": 2,
+   "health": 3,
+   "keywords": [
+    "host"
+   ],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Energy Harvest. Install: Store 1 energy.",
+   "files": {
+    "svg": "svg/hk_crypto.svg",
+    "png": "png/hk_crypto.png"
+   }
+  },
+  {
+   "id": "hk_mitm",
+   "name": "Man in the Middle",
+   "cost": 4,
+   "type": "unit",
+   "cls": "hack",
+   "tribe": "Virus",
+   "rarity": null,
+   "attack": 3,
+   "health": 4,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Install: Return an enemy unit to its owner’s hand.",
+   "files": {
+    "svg": "svg/hk_mitm.svg",
+    "png": "png/hk_mitm.png"
+   }
+  },
+  {
+   "id": "hk_glitchstorm",
+   "name": "Glitch Storm",
+   "cost": 4,
+   "type": "spell",
+   "cls": "hack",
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Deal 1 damage to all enemy units, twice.",
+   "files": {
+    "svg": "svg/hk_glitchstorm.svg",
+    "png": "png/hk_glitchstorm.png"
+   }
+  },
+  {
+   "id": "hk_payload",
+   "name": "Payload",
+   "cost": 5,
+   "type": "unit",
+   "cls": "hack",
+   "tribe": "Virus",
+   "rarity": null,
+   "attack": 4,
+   "health": 4,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Breakdown: Deal 3 damage to the enemy hero.",
+   "files": {
+    "svg": "svg/hk_payload.svg",
+    "png": "png/hk_payload.png"
+   }
+  },
+  {
+   "id": "hk_zeroday",
+   "name": "Zero-Day",
+   "cost": 5,
+   "type": "spell",
+   "cls": "hack",
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Destroy a damaged enemy unit.",
+   "files": {
+    "svg": "svg/hk_zeroday.svg",
+    "png": "png/hk_zeroday.png"
+   }
+  },
+  {
+   "id": "hk_root",
+   "name": "Root Access",
+   "cost": 6,
+   "type": "spell",
+   "cls": "hack",
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Take control of an enemy unit.",
+   "files": {
+    "svg": "svg/hk_root.svg",
+    "png": "png/hk_root.png"
+   }
+  },
+  {
+   "id": "hk_mirror",
+   "name": "M1RR0R",
+   "cost": 7,
+   "type": "unit",
+   "cls": "hack",
+   "tribe": "Virus",
+   "rarity": "L",
+   "attack": 5,
+   "health": 5,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Install: Summon a base copy of an enemy unit.",
+   "files": {
+    "svg": "svg/hk_mirror.svg",
+    "png": "png/hk_mirror.png"
+   }
+  },
+  {
+   "id": "ov_jolt",
+   "name": "Jolt",
+   "cost": 1,
+   "type": "spell",
+   "cls": "over",
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Deal 2 damage. Overheat (1).",
+   "files": {
+    "svg": "svg/ov_jolt.svg",
+    "png": "png/ov_jolt.png"
+   }
+  },
+  {
+   "id": "ov_boost",
+   "name": "Turbo Boost",
+   "cost": 2,
+   "type": "spell",
+   "cls": "over",
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Give a friendly unit Turbo and +1/+0.",
+   "files": {
+    "svg": "svg/ov_boost.svg",
+    "png": "png/ov_boost.png"
+   }
+  },
+  {
+   "id": "ov_coolant",
+   "name": "Coolant Flush",
+   "cost": 2,
+   "type": "spell",
+   "cls": "over",
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Unlock all your overheated energy (this turn and pending).",
+   "files": {
+    "svg": "svg/ov_coolant.svg",
+    "png": "png/ov_coolant.png"
+   }
+  },
+  {
+   "id": "ov_reactor",
+   "name": "Micro Reactor",
+   "cost": 3,
+   "type": "unit",
+   "cls": "over",
+   "tribe": "Component",
+   "rarity": null,
+   "attack": 0,
+   "health": 6,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "At the start of your turn: Store 1 energy.",
+   "files": {
+    "svg": "svg/ov_reactor.svg",
+    "png": "png/ov_reactor.png"
+   }
+  },
+  {
+   "id": "ov_amped",
+   "name": "Amped Up",
+   "cost": 3,
+   "type": "spell",
+   "cls": "over",
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Give a friendly unit +3/+3. Overheat (1).",
+   "files": {
+    "svg": "svg/ov_amped.svg",
+    "png": "png/ov_amped.png"
+   }
+  },
+  {
+   "id": "ov_press",
+   "name": "Hydraulic Press",
+   "cost": 4,
+   "type": "unit",
+   "cls": "over",
+   "tribe": "Robot",
+   "rarity": null,
+   "attack": 5,
+   "health": 2,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Overheat (1).",
+   "files": {
+    "svg": "svg/ov_press.svg",
+    "png": "png/ov_press.png"
+   }
+  },
+  {
+   "id": "ov_flux",
+   "name": "Flux Capacitor",
+   "cost": 4,
+   "type": "unit",
+   "cls": "over",
+   "tribe": "Component",
+   "rarity": null,
+   "attack": 1,
+   "health": 5,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Install: Store 2 energy.",
+   "files": {
+    "svg": "svg/ov_flux.svg",
+    "png": "png/ov_flux.png"
+   }
+  },
+  {
+   "id": "ov_heatwave",
+   "name": "Heat Wave",
+   "cost": 5,
+   "type": "spell",
+   "cls": "over",
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Deal 3 damage to all enemy units. Overheat (2).",
+   "files": {
+    "svg": "svg/ov_heatwave.svg",
+    "png": "png/ov_heatwave.png"
+   }
+  },
+  {
+   "id": "ov_dynamo",
+   "name": "Dynamo",
+   "cost": 5,
+   "type": "unit",
+   "cls": "over",
+   "tribe": "Component",
+   "rarity": null,
+   "attack": 4,
+   "health": 5,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "At the end of your turn: Deal 1 damage to the enemy hero for each stored energy.",
+   "files": {
+    "svg": "svg/ov_dynamo.svg",
+    "png": "png/ov_dynamo.png"
+   }
+  },
+  {
+   "id": "ov_golem",
+   "name": "Scrap Golem",
+   "cost": 6,
+   "type": "unit",
+   "cls": "over",
+   "tribe": "Robot",
+   "rarity": null,
+   "attack": 7,
+   "health": 7,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Overheat (2).",
+   "files": {
+    "svg": "svg/ov_golem.svg",
+    "png": "png/ov_golem.png"
+   }
+  },
+  {
+   "id": "ov_core",
+   "name": "Fission Core",
+   "cost": 7,
+   "type": "unit",
+   "cls": "over",
+   "tribe": "Component",
+   "rarity": null,
+   "attack": 6,
+   "health": 6,
+   "keywords": [
+    "jord"
+   ],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Grounded. Breakdown: Deal 3 damage to all other units and both heroes.",
+   "files": {
+    "svg": "svg/ov_core.svg",
+    "png": "png/ov_core.png"
+   }
+  },
+  {
+   "id": "ov_giga",
+   "name": "GIGAWATT",
+   "cost": 10,
+   "type": "unit",
+   "cls": "over",
+   "tribe": "Robot",
+   "rarity": "L",
+   "attack": 10,
+   "health": 10,
+   "keywords": [
+    "turbo"
+   ],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Turbo. Overheat (3).",
+   "files": {
+    "svg": "svg/ov_giga.svg",
+    "png": "png/ov_giga.png"
+   }
+  },
+  {
+   "id": "n_jumper",
+   "name": "Jumper Wires",
+   "cost": 0,
+   "type": "spell",
+   "cls": null,
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Give a friendly unit +1/+1.",
+   "files": {
+    "svg": "svg/n_jumper.svg",
+    "png": "png/n_jumper.png"
+   }
+  },
+  {
+   "id": "n_multimeter",
+   "name": "Multimeter",
+   "cost": 1,
+   "type": "unit",
+   "cls": null,
+   "tribe": "Component",
+   "rarity": null,
+   "attack": 1,
+   "health": 2,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Install: Draw a card. Overheat (1).",
+   "files": {
+    "svg": "svg/n_multimeter.svg",
+    "png": "png/n_multimeter.png"
+   }
+  },
+  {
+   "id": "n_fan",
+   "name": "Cooling Fan",
+   "cost": 2,
+   "type": "unit",
+   "cls": null,
+   "tribe": "Component",
+   "rarity": null,
+   "attack": 1,
+   "health": 4,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Install: Unlock 1 overheated energy.",
+   "files": {
+    "svg": "svg/n_fan.svg",
+    "png": "png/n_fan.png"
+   }
+  },
+  {
+   "id": "n_breadboard",
+   "name": "Breadboard",
+   "cost": 2,
+   "type": "unit",
+   "cls": null,
+   "tribe": "Component",
+   "rarity": null,
+   "attack": 2,
+   "health": 3,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Install: Give your other Components +0/+1.",
+   "files": {
+    "svg": "svg/n_breadboard.svg",
+    "png": "png/n_breadboard.png"
+   }
+  },
+  {
+   "id": "n_oscillo",
+   "name": "Oscilloscope",
+   "cost": 3,
+   "type": "unit",
+   "cls": null,
+   "tribe": "Component",
+   "rarity": null,
+   "attack": 2,
+   "health": 4,
+   "keywords": [],
+   "spellDamage": 1,
+   "token": false,
+   "collectible": true,
+   "text": "Signal Strength +1 (your Spells deal +1 damage).",
+   "files": {
+    "svg": "svg/n_oscillo.svg",
+    "png": "png/n_oscillo.png"
+   }
+  },
+  {
+   "id": "n_surgeprot",
+   "name": "Surge Protector",
+   "cost": 3,
+   "type": "unit",
+   "cls": null,
+   "tribe": "Component",
+   "rarity": null,
+   "attack": 2,
+   "health": 5,
+   "keywords": [
+    "jord",
+    "iso"
+   ],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Grounded. Insulated.",
+   "files": {
+    "svg": "svg/n_surgeprot.svg",
+    "png": "png/n_surgeprot.png"
+   }
+  },
+  {
+   "id": "n_ball",
+   "name": "Ball Lightning",
+   "cost": 4,
+   "type": "unit",
+   "cls": null,
+   "tribe": null,
+   "rarity": null,
+   "attack": 4,
+   "health": 3,
+   "keywords": [
+    "turbo"
+   ],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Turbo. Overheat (1).",
+   "files": {
+    "svg": "svg/n_ball.svg",
+    "png": "png/n_ball.png"
+   }
+  },
+  {
+   "id": "n_scrapyard",
+   "name": "Scrapyard",
+   "cost": 4,
+   "type": "unit",
+   "cls": null,
+   "tribe": null,
+   "rarity": null,
+   "attack": 0,
+   "health": 8,
+   "keywords": [
+    "jord"
+   ],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Grounded. Breakdown: Add a random Component to your hand.",
+   "files": {
+    "svg": "svg/n_scrapyard.svg",
+    "png": "png/n_scrapyard.png"
+   }
+  },
+  {
+   "id": "n_datacenter",
+   "name": "Data Center",
+   "cost": 5,
+   "type": "unit",
+   "cls": null,
+   "tribe": null,
+   "rarity": null,
+   "attack": 3,
+   "health": 7,
+   "keywords": [
+    "jord"
+   ],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Grounded. Breakdown: Store 2 energy.",
+   "files": {
+    "svg": "svg/n_datacenter.svg",
+    "png": "png/n_datacenter.png"
+   }
+  },
+  {
+   "id": "n_mainframe",
+   "name": "THE MAINFRAME",
+   "cost": 8,
+   "type": "unit",
+   "cls": null,
+   "tribe": null,
+   "rarity": "L",
+   "attack": 6,
+   "health": 8,
+   "keywords": [
+    "jord"
+   ],
+   "spellDamage": 0,
+   "token": false,
+   "collectible": true,
+   "text": "Grounded. At the end of your turn: Draw a card.",
+   "files": {
+    "svg": "svg/n_mainframe.svg",
+    "png": "png/n_mainframe.png"
+   }
+  },
+  {
+   "id": "t_mikrobot",
+   "name": "Microbot",
+   "cost": 1,
+   "type": "unit",
+   "cls": null,
+   "tribe": "Robot",
+   "rarity": null,
+   "attack": 1,
+   "health": 1,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": true,
+   "collectible": false,
+   "text": "",
+   "files": {
+    "svg": "svg/t_mikrobot.svg",
+    "png": "png/t_mikrobot.png"
+   }
+  },
+  {
+   "id": "t_bug",
+   "name": "Bug",
+   "cost": 1,
+   "type": "unit",
+   "cls": null,
+   "tribe": "Virus",
+   "rarity": null,
+   "attack": 1,
+   "health": 1,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": true,
+   "collectible": false,
+   "text": "",
+   "files": {
+    "svg": "svg/t_bug.svg",
+    "png": "png/t_bug.png"
+   }
+  },
+  {
+   "id": "t_server",
+   "name": "Server",
+   "cost": 3,
+   "type": "unit",
+   "cls": null,
+   "tribe": "Component",
+   "rarity": null,
+   "attack": 3,
+   "health": 3,
+   "keywords": [
+    "jord"
+   ],
+   "spellDamage": 0,
+   "token": true,
+   "collectible": false,
+   "text": "Grounded.",
+   "files": {
+    "svg": "svg/t_server.svg",
+    "png": "png/t_server.png"
+   }
+  },
+  {
+   "id": "t_powerbank",
+   "name": "Powerbank",
+   "cost": 0,
+   "type": "spell",
+   "cls": null,
+   "tribe": null,
+   "rarity": null,
+   "attack": null,
+   "health": null,
+   "keywords": [],
+   "spellDamage": 0,
+   "token": true,
+   "collectible": false,
+   "text": "Gain 1 energy this turn.",
+   "files": {
+    "svg": "svg/t_powerbank.svg",
+    "png": "png/t_powerbank.png"
+   }
+  }
+ ]
+}

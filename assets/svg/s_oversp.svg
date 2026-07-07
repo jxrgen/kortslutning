@@ -1,37 +1,117 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="750" height="1050" viewBox="0 0 750 1050">
 <defs>
+  <filter id="cardDrop" x="-6%" y="-3%" width="112%" height="110%" color-interpolation-filters="sRGB">
+    <feDropShadow dx="0" dy="10" stdDeviation="14" flood-color="#000" flood-opacity="0.5"/>
+    <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#000" flood-opacity="0.35"/>
+  </filter>
+  <filter id="paperGrain" x="0" y="0" width="100%" height="100%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.72" numOctaves="4" seed="17" result="n"/>
+    <feColorMatrix in="n" type="matrix" values="0 0 0 0 0.48  0 0 0 0 0.42  0 0 0 0 0.36  0 0 0 0.07 0" result="g"/>
+    <feBlend in="SourceGraphic" in2="g" mode="multiply"/>
+  </filter>
+  <filter id="artDepth" x="-8%" y="-8%" width="116%" height="116%">
+    <feGaussianBlur in="SourceAlpha" stdDeviation="6" result="blur"/>
+    <feOffset dy="4" result="off"/><feFlood flood-color="#000" flood-opacity="0.45"/>
+    <feComposite in2="off" operator="in" result="sh"/>
+    <feMerge><feMergeNode in="sh"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
   <linearGradient id="bggrad" x1="0" y1="0" x2="0" y2="1">
-    <stop offset="0" stop-color="#4a4708"/><stop offset="0.5" stop-color="#2b2905"/><stop offset="1" stop-color="#131202"/>
+    <stop offset="0" stop-color="#555217"/>
+    <stop offset="0.45" stop-color="#2b2905"/>
+    <stop offset="1" stop-color="#100f02"/>
   </linearGradient>
-  <radialGradient id="artgrad" cx="0.5" cy="0.42" r="0.75">
-    <stop offset="0" stop-color="#403d0b"/><stop offset="1" stop-color="#232103"/>
+  <linearGradient id="bevelHi" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#fff" stop-opacity="0.22"/>
+    <stop offset="0.35" stop-color="#fff" stop-opacity="0"/>
+    <stop offset="1" stop-color="#000" stop-opacity="0.28"/>
+  </linearGradient>
+  <radialGradient id="artgrad" cx="0.5" cy="0.38" r="0.82">
+    <stop offset="0" stop-color="#514d0f"/>
+    <stop offset="0.7" stop-color="#232103"/>
+    <stop offset="1" stop-color="#1715NaN"/>
   </radialGradient>
-  <linearGradient id="guldgrad" x1="0" y1="0" x2="0" y2="1">
-    <stop offset="0" stop-color="#ffd166"/><stop offset="1" stop-color="#9a7422"/>
+  <linearGradient id="artInset" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#000" stop-opacity="0.38"/>
+    <stop offset="0.12" stop-color="#000" stop-opacity="0"/>
+    <stop offset="0.88" stop-color="#000" stop-opacity="0"/>
+    <stop offset="1" stop-color="#000" stop-opacity="0.42"/>
   </linearGradient>
+  <linearGradient id="guldgrad" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#ffe9a0"/>
+    <stop offset="0.45" stop-color="#ffd166"/>
+    <stop offset="1" stop-color="#6a5018"/>
+  </linearGradient>
+  <linearGradient id="guldShine" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#fff" stop-opacity="0"/>
+    <stop offset="0.5" stop-color="#fff" stop-opacity="0.45"/>
+    <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+  </linearGradient>
+  <linearGradient id="gloss" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0.28" stop-color="#fff" stop-opacity="0"/>
+    <stop offset="0.46" stop-color="#fff" stop-opacity="0.16"/>
+    <stop offset="0.54" stop-color="#fff" stop-opacity="0.06"/>
+    <stop offset="0.72" stop-color="#fff" stop-opacity="0"/>
+  </linearGradient>
+  <pattern id="fiber" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(12)">
+    <line x1="0" y1="0" x2="0" y2="6" stroke="#fff" stroke-width="0.6" opacity="0.04"/>
+    <line x1="3" y1="0" x2="3" y2="6" stroke="#000" stroke-width="0.5" opacity="0.06"/>
+  </pattern>
   <clipPath id="artclip"><rect x="52" y="150" width="646" height="410" rx="14"/></clipPath>
-</defs>
+  <clipPath id="cardclip"><rect x="6" y="6" width="738" height="1038" rx="36"/></clipPath>
+  </defs>
+
+  <rect x="10" y="1042" width="730" height="7" rx="3" fill="#080604" opacity="0.85"/>
+  <rect x="10" y="1042" width="730" height="3" rx="2" fill="#6e69NaN" opacity="0.5"/>
+<g filter="url(#cardDrop)">
+<g filter="url(#paperGrain)" clip-path="url(#cardclip)">
 <rect x="6" y="6" width="738" height="1038" rx="36" fill="url(#bggrad)" stroke="#f5ea3a" stroke-width="6"/>
-<rect x="22" y="22" width="706" height="1006" rx="26" fill="none" stroke="#f5ea3a" stroke-width="2" opacity="0.7"/>
+<rect x="6" y="6" width="738" height="1038" rx="36" fill="url(#fiber)"/>
+<rect x="22" y="22" width="706" height="1006" rx="26" fill="none" stroke="#f5ea3a" stroke-width="2" opacity="0.75"/>
+<rect x="14" y="14" width="722" height="1022" rx="32" fill="none" stroke="url(#bevelHi)" stroke-width="3" opacity="0.55"/>
 <circle cx="500" cy="850" r="7" fill="none" stroke="#c9814a" stroke-width="4" opacity="0.1"/><path d="M 500 850 L 625 975 L 475 825 L 475 975" fill="none" stroke="#c9814a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.1"/><rect x="467" y="967" width="16" height="16" fill="#c9814a" opacity="0.1"/><circle cx="250" cy="850" r="7" fill="none" stroke="#c9814a" stroke-width="4" opacity="0.1"/><path d="M 250 850 L 175 775" fill="none" stroke="#c9814a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.1"/><rect x="167" y="767" width="16" height="16" fill="#c9814a" opacity="0.1"/><circle cx="350" cy="875" r="7" fill="none" stroke="#c9814a" stroke-width="4" opacity="0.1"/><path d="M 350 875 L 350 725 L 250 725 L 250 620" fill="none" stroke="#c9814a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.1"/><circle cx="250" cy="620" r="9" fill="#122419" stroke="#c9814a" stroke-width="4" opacity="0.1"/><circle cx="250" cy="975" r="7" fill="none" stroke="#c9814a" stroke-width="4" opacity="0.1"/><path d="M 250 975 L 100 980 L 40 980 L 40 880" fill="none" stroke="#c9814a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.1"/><rect x="32" y="872" width="16" height="16" fill="#c9814a" opacity="0.1"/><circle cx="400" cy="775" r="7" fill="none" stroke="#c9814a" stroke-width="4" opacity="0.1"/><path d="M 400 775 L 350 725" fill="none" stroke="#c9814a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.1"/><circle cx="350" cy="725" r="9" fill="#122419" stroke="#c9814a" stroke-width="4" opacity="0.1"/><rect x="400" y="725" width="14" height="20" fill="#c9814a" opacity="0.09000000000000001"/><rect x="422" y="725" width="14" height="20" fill="#c9814a" opacity="0.09000000000000001"/><rect x="444" y="725" width="14" height="20" fill="#c9814a" opacity="0.09000000000000001"/><rect x="466" y="725" width="14" height="20" fill="#c9814a" opacity="0.09000000000000001"/>
-<g clip-path="url(#artclip)">
+<g clip-path="url(#artclip)" filter="url(#artDepth)">
   <rect x="52" y="150" width="646" height="410" fill="url(#artgrad)"/>
   <circle cx="350" cy="450" r="7" fill="none" stroke="#c9814a" stroke-width="4" opacity="0.3"/><path d="M 350 450 L 350 325 L 500 325 L 500 400" fill="none" stroke="#c9814a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.3"/><rect x="492" y="392" width="16" height="16" fill="#c9814a" opacity="0.3"/><circle cx="600" cy="425" r="7" fill="none" stroke="#c9814a" stroke-width="4" opacity="0.3"/><path d="M 600 425 L 600 550 L 650 550" fill="none" stroke="#c9814a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.3"/><circle cx="650" cy="550" r="9" fill="#122419" stroke="#c9814a" stroke-width="4" opacity="0.3"/><circle cx="100" cy="475" r="7" fill="none" stroke="#c9814a" stroke-width="4" opacity="0.3"/><path d="M 100 475 L 200 550 L 200 450 L 125 450" fill="none" stroke="#c9814a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.3"/><circle cx="125" cy="450" r="9" fill="#122419" stroke="#c9814a" stroke-width="4" opacity="0.3"/><circle cx="275" cy="375" r="7" fill="none" stroke="#c9814a" stroke-width="4" opacity="0.3"/><path d="M 275 375 L 225 325" fill="none" stroke="#c9814a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.3"/><circle cx="225" cy="325" r="9" fill="#122419" stroke="#c9814a" stroke-width="4" opacity="0.3"/><circle cx="425" cy="300" r="7" fill="none" stroke="#c9814a" stroke-width="4" opacity="0.3"/><path d="M 425 300 L 275 300 L 425 160" fill="none" stroke="#c9814a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.3"/><circle cx="425" cy="160" r="9" fill="#122419" stroke="#c9814a" stroke-width="4" opacity="0.3"/><circle cx="175" cy="550" r="7" fill="none" stroke="#c9814a" stroke-width="4" opacity="0.3"/><path d="M 175 550 L 275 450 L 200 450 L 200 350" fill="none" stroke="#c9814a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.3"/><circle cx="200" cy="350" r="9" fill="#122419" stroke="#c9814a" stroke-width="4" opacity="0.3"/><circle cx="675" cy="200" r="7" fill="none" stroke="#c9814a" stroke-width="4" opacity="0.3"/><path d="M 675 200 L 525 200" fill="none" stroke="#c9814a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.3"/><rect x="517" y="192" width="16" height="16" fill="#c9814a" opacity="0.3"/><circle cx="350" cy="300" r="7" fill="none" stroke="#c9814a" stroke-width="4" opacity="0.3"/><path d="M 350 300 L 250 400 L 250 350 L 300 400" fill="none" stroke="#c9814a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.3"/><rect x="292" y="392" width="16" height="16" fill="#c9814a" opacity="0.3"/><circle cx="525" cy="500" r="7" fill="none" stroke="#c9814a" stroke-width="4" opacity="0.3"/><path d="M 525 500 L 450 500 L 450 450 L 550 350" fill="none" stroke="#c9814a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.3"/><circle cx="550" cy="350" r="9" fill="#122419" stroke="#c9814a" stroke-width="4" opacity="0.3"/><rect x="325" y="275" width="14" height="20" fill="#c9814a" opacity="0.27"/><rect x="347" y="275" width="14" height="20" fill="#c9814a" opacity="0.27"/><rect x="369" y="275" width="14" height="20" fill="#c9814a" opacity="0.27"/><rect x="391" y="275" width="14" height="20" fill="#c9814a" opacity="0.27"/>
   <circle cx="350" cy="325" r="7" fill="none" stroke="undefined" stroke-width="4" opacity="0.22"/><path d="M 350 325 L 225 450" fill="none" stroke="undefined" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.22"/><circle cx="225" cy="450" r="9" fill="#122419" stroke="undefined" stroke-width="4" opacity="0.22"/><circle cx="675" cy="250" r="7" fill="none" stroke="undefined" stroke-width="4" opacity="0.22"/><path d="M 675 250 L 600 175 L 600 160 L 690 160" fill="none" stroke="undefined" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.22"/><rect x="682" y="152" width="16" height="16" fill="undefined" opacity="0.22"/><circle cx="500" cy="225" r="7" fill="none" stroke="undefined" stroke-width="4" opacity="0.22"/><path d="M 500 225 L 350 160" fill="none" stroke="undefined" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.22"/><circle cx="350" cy="160" r="9" fill="#122419" stroke="undefined" stroke-width="4" opacity="0.22"/><rect x="50" y="350" width="14" height="20" fill="undefined" opacity="0.198"/><rect x="72" y="350" width="14" height="20" fill="undefined" opacity="0.198"/><rect x="94" y="350" width="14" height="20" fill="undefined" opacity="0.198"/><rect x="116" y="350" width="14" height="20" fill="undefined" opacity="0.198"/>
   <g transform="translate(375 345) scale(1.012) translate(-375 -345)"><polygon points="511.8,266.0 511.8,424.0 375.0,503.0 238.2,424.0 238.2,266.0 375.0,187.0" fill="none" stroke="undefined" stroke-width="10" stroke-linejoin="round"/><polygon points="511.8,266.0 511.8,424.0 375.0,503.0 238.2,424.0 238.2,266.0 375.0,187.0" fill="undefined" opacity="0.07"/><path d="M 402 232 L 322 372 L 372 372 L 344 462 L 434 318 L 380 318 Z" fill="undefined" stroke="#0c1811" stroke-width="5" stroke-linejoin="round"/></g>
+  <rect x="52" y="150" width="646" height="410" fill="url(#artInset)"/>
 </g>
-<rect x="52" y="150" width="646" height="410" rx="14" fill="none" stroke="#274a35" stroke-width="3"/>
+<rect x="52" y="150" width="646" height="410" rx="14" fill="none" stroke="#b8b0NaN" stroke-width="4"/>
+<rect x="56" y="154" width="638" height="402" rx="12" fill="none" stroke="#fff" stroke-width="1.5" opacity="0.08"/>
 <text x="200" y="102" font-family="DejaVu Sans Condensed" font-weight="bold" font-size="46"
   letter-spacing="2" fill="#dbe7de">POWER SURGE</text>
 <polygon points="95,28 152,61 152,127 95,160 38,127 38,61" fill="#f0b23e" stroke="#1c1405" stroke-width="4"/>
+<polygon points="95,32 146,61 146,123 95,152 44,123 44,61" fill="none" stroke="#fff" stroke-width="2" opacity="0.2"/>
 <text x="95" y="118" text-anchor="middle" font-family="DejaVu Sans" font-weight="bold" font-size="74" fill="#1c1405">6</text>
 <text x="375" y="608" text-anchor="middle" font-family="DejaVu Sans Mono" font-size="26" letter-spacing="3"
   fill="#87a693">SPELL</text>
 <line x1="80" y1="626" x2="670" y2="626" stroke="#f5ea3a" stroke-width="2" opacity="0.5"/>
-<rect x="46" y="640" width="658" height="346" rx="16" fill="#3a3806" opacity="0.55"/>
+<rect x="46" y="640" width="658" height="346" rx="16" fill="#3a3806" opacity="0.62"/>
+<rect x="50" y="644" width="650" height="324" rx="14" fill="url(#fiber)" opacity="0.35"/>
 <text x="375" y="818.3" text-anchor="middle" font-family="DejaVu Sans" font-size="30"
        fill="#dbe7de">Deal 4 damage to all enemy units.</text>
 
-<rect x="70" y="1004" width="22" height="30" fill="url(#guldgrad)"/><rect x="104" y="1004" width="22" height="30" fill="url(#guldgrad)"/><rect x="138" y="1004" width="22" height="30" fill="url(#guldgrad)"/><rect x="172" y="1004" width="22" height="30" fill="url(#guldgrad)"/><rect x="206" y="1004" width="22" height="30" fill="url(#guldgrad)"/><rect x="240" y="1004" width="22" height="30" fill="url(#guldgrad)"/><rect x="274" y="1004" width="22" height="30" fill="url(#guldgrad)"/><rect x="308" y="1004" width="22" height="30" fill="url(#guldgrad)"/><rect x="342" y="1004" width="22" height="30" fill="url(#guldgrad)"/><rect x="376" y="1004" width="22" height="30" fill="url(#guldgrad)"/><rect x="410" y="1004" width="22" height="30" fill="url(#guldgrad)"/><rect x="444" y="1004" width="22" height="30" fill="url(#guldgrad)"/><rect x="478" y="1004" width="22" height="30" fill="url(#guldgrad)"/><rect x="512" y="1004" width="22" height="30" fill="url(#guldgrad)"/><rect x="546" y="1004" width="22" height="30" fill="url(#guldgrad)"/><rect x="580" y="1004" width="22" height="30" fill="url(#guldgrad)"/><rect x="614" y="1004" width="22" height="30" fill="url(#guldgrad)"/><rect x="648" y="1004" width="22" height="30" fill="url(#guldgrad)"/>
-<rect x="60" y="1000" width="630" height="4" fill="#c9814a" opacity="0.5"/>
+<rect x="70" y="1004" width="22" height="30" rx="2" fill="url(#guldgrad)" stroke="#4a3810" stroke-width="1"/>
+      <rect x="72" y="1006" width="18" height="8" rx="1" fill="url(#guldShine)" opacity="0.55"/><rect x="104" y="1004" width="22" height="30" rx="2" fill="url(#guldgrad)" stroke="#4a3810" stroke-width="1"/>
+      <rect x="106" y="1006" width="18" height="8" rx="1" fill="url(#guldShine)" opacity="0.55"/><rect x="138" y="1004" width="22" height="30" rx="2" fill="url(#guldgrad)" stroke="#4a3810" stroke-width="1"/>
+      <rect x="140" y="1006" width="18" height="8" rx="1" fill="url(#guldShine)" opacity="0.55"/><rect x="172" y="1004" width="22" height="30" rx="2" fill="url(#guldgrad)" stroke="#4a3810" stroke-width="1"/>
+      <rect x="174" y="1006" width="18" height="8" rx="1" fill="url(#guldShine)" opacity="0.55"/><rect x="206" y="1004" width="22" height="30" rx="2" fill="url(#guldgrad)" stroke="#4a3810" stroke-width="1"/>
+      <rect x="208" y="1006" width="18" height="8" rx="1" fill="url(#guldShine)" opacity="0.55"/><rect x="240" y="1004" width="22" height="30" rx="2" fill="url(#guldgrad)" stroke="#4a3810" stroke-width="1"/>
+      <rect x="242" y="1006" width="18" height="8" rx="1" fill="url(#guldShine)" opacity="0.55"/><rect x="274" y="1004" width="22" height="30" rx="2" fill="url(#guldgrad)" stroke="#4a3810" stroke-width="1"/>
+      <rect x="276" y="1006" width="18" height="8" rx="1" fill="url(#guldShine)" opacity="0.55"/><rect x="308" y="1004" width="22" height="30" rx="2" fill="url(#guldgrad)" stroke="#4a3810" stroke-width="1"/>
+      <rect x="310" y="1006" width="18" height="8" rx="1" fill="url(#guldShine)" opacity="0.55"/><rect x="342" y="1004" width="22" height="30" rx="2" fill="url(#guldgrad)" stroke="#4a3810" stroke-width="1"/>
+      <rect x="344" y="1006" width="18" height="8" rx="1" fill="url(#guldShine)" opacity="0.55"/><rect x="376" y="1004" width="22" height="30" rx="2" fill="url(#guldgrad)" stroke="#4a3810" stroke-width="1"/>
+      <rect x="378" y="1006" width="18" height="8" rx="1" fill="url(#guldShine)" opacity="0.55"/><rect x="410" y="1004" width="22" height="30" rx="2" fill="url(#guldgrad)" stroke="#4a3810" stroke-width="1"/>
+      <rect x="412" y="1006" width="18" height="8" rx="1" fill="url(#guldShine)" opacity="0.55"/><rect x="444" y="1004" width="22" height="30" rx="2" fill="url(#guldgrad)" stroke="#4a3810" stroke-width="1"/>
+      <rect x="446" y="1006" width="18" height="8" rx="1" fill="url(#guldShine)" opacity="0.55"/><rect x="478" y="1004" width="22" height="30" rx="2" fill="url(#guldgrad)" stroke="#4a3810" stroke-width="1"/>
+      <rect x="480" y="1006" width="18" height="8" rx="1" fill="url(#guldShine)" opacity="0.55"/><rect x="512" y="1004" width="22" height="30" rx="2" fill="url(#guldgrad)" stroke="#4a3810" stroke-width="1"/>
+      <rect x="514" y="1006" width="18" height="8" rx="1" fill="url(#guldShine)" opacity="0.55"/><rect x="546" y="1004" width="22" height="30" rx="2" fill="url(#guldgrad)" stroke="#4a3810" stroke-width="1"/>
+      <rect x="548" y="1006" width="18" height="8" rx="1" fill="url(#guldShine)" opacity="0.55"/><rect x="580" y="1004" width="22" height="30" rx="2" fill="url(#guldgrad)" stroke="#4a3810" stroke-width="1"/>
+      <rect x="582" y="1006" width="18" height="8" rx="1" fill="url(#guldShine)" opacity="0.55"/><rect x="614" y="1004" width="22" height="30" rx="2" fill="url(#guldgrad)" stroke="#4a3810" stroke-width="1"/>
+      <rect x="616" y="1006" width="18" height="8" rx="1" fill="url(#guldShine)" opacity="0.55"/><rect x="648" y="1004" width="22" height="30" rx="2" fill="url(#guldgrad)" stroke="#4a3810" stroke-width="1"/>
+      <rect x="650" y="1006" width="18" height="8" rx="1" fill="url(#guldShine)" opacity="0.55"/>
+<rect x="60" y="1000" width="630" height="4" fill="#c9814a" opacity="0.55"/>
+<rect x="6" y="6" width="738" height="1038" rx="36" fill="url(#gloss)" opacity="0.85"/>
+
+</g></g>
 </svg>

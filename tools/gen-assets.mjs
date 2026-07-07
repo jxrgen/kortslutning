@@ -107,8 +107,85 @@ function wrapText(t, maxChars){
   return lines;
 }
 
-// ---------- kort-SVG ----------
+// ---------- 3D-kort: filtre, tekstur, bevel ----------
 const W=750, H=1050;
+function cardDefs(th, leg, ramme, artY0, artY1){
+  const foil = leg ? `
+  <linearGradient id="foil" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0%" stop-color="#ffd166" stop-opacity="0"/>
+    <stop offset="38%" stop-color="#fff4d0" stop-opacity="0.42"/>
+    <stop offset="48%" stop-color="#c07bff" stop-opacity="0.32"/>
+    <stop offset="58%" stop-color="#5fe0a0" stop-opacity="0.28"/>
+    <stop offset="72%" stop-color="#ffd166" stop-opacity="0"/>
+  </linearGradient>` : "";
+  return `
+  <filter id="cardDrop" x="-6%" y="-3%" width="112%" height="110%" color-interpolation-filters="sRGB">
+    <feDropShadow dx="0" dy="10" stdDeviation="14" flood-color="#000" flood-opacity="0.5"/>
+    <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#000" flood-opacity="0.35"/>
+  </filter>
+  <filter id="paperGrain" x="0" y="0" width="100%" height="100%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.72" numOctaves="4" seed="17" result="n"/>
+    <feColorMatrix in="n" type="matrix" values="0 0 0 0 0.48  0 0 0 0 0.42  0 0 0 0 0.36  0 0 0 0.07 0" result="g"/>
+    <feBlend in="SourceGraphic" in2="g" mode="multiply"/>
+  </filter>
+  <filter id="artDepth" x="-8%" y="-8%" width="116%" height="116%">
+    <feGaussianBlur in="SourceAlpha" stdDeviation="6" result="blur"/>
+    <feOffset dy="4" result="off"/><feFlood flood-color="#000" flood-opacity="0.45"/>
+    <feComposite in2="off" operator="in" result="sh"/>
+    <feMerge><feMergeNode in="sh"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <linearGradient id="bggrad" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="${mix(th.top,"#ffffff",0.06)}"/>
+    <stop offset="0.45" stop-color="${th.mid}"/>
+    <stop offset="1" stop-color="${mix(th.bot,"#000000",0.18)}"/>
+  </linearGradient>
+  <linearGradient id="bevelHi" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#fff" stop-opacity="0.22"/>
+    <stop offset="0.35" stop-color="#fff" stop-opacity="0"/>
+    <stop offset="1" stop-color="#000" stop-opacity="0.28"/>
+  </linearGradient>
+  <radialGradient id="artgrad" cx="0.5" cy="0.38" r="0.82">
+    <stop offset="0" stop-color="${mix(th.art,th.edge,0.22)}"/>
+    <stop offset="0.7" stop-color="${th.art}"/>
+    <stop offset="1" stop-color="${mix(th.art,"#000",0.35)}"/>
+  </radialGradient>
+  <linearGradient id="artInset" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#000" stop-opacity="0.38"/>
+    <stop offset="0.12" stop-color="#000" stop-opacity="0"/>
+    <stop offset="0.88" stop-color="#000" stop-opacity="0"/>
+    <stop offset="1" stop-color="#000" stop-opacity="0.42"/>
+  </linearGradient>
+  <linearGradient id="guldgrad" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#ffe9a0"/>
+    <stop offset="0.45" stop-color="${P.guld}"/>
+    <stop offset="1" stop-color="#6a5018"/>
+  </linearGradient>
+  <linearGradient id="guldShine" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#fff" stop-opacity="0"/>
+    <stop offset="0.5" stop-color="#fff" stop-opacity="0.45"/>
+    <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+  </linearGradient>
+  <linearGradient id="gloss" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0.28" stop-color="#fff" stop-opacity="0"/>
+    <stop offset="0.46" stop-color="#fff" stop-opacity="0.16"/>
+    <stop offset="0.54" stop-color="#fff" stop-opacity="0.06"/>
+    <stop offset="0.72" stop-color="#fff" stop-opacity="0"/>
+  </linearGradient>
+  <pattern id="fiber" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(12)">
+    <line x1="0" y1="0" x2="0" y2="6" stroke="#fff" stroke-width="0.6" opacity="0.04"/>
+    <line x1="3" y1="0" x2="3" y2="6" stroke="#000" stroke-width="0.5" opacity="0.06"/>
+  </pattern>
+  <clipPath id="artclip"><rect x="52" y="${artY0}" width="${W-104}" height="${artY1-artY0}" rx="14"/></clipPath>
+  <clipPath id="cardclip"><rect x="6" y="6" width="${W-12}" height="${H-12}" rx="36"/></clipPath>
+  ${foil}`;
+}
+function cardEdge3D(ramme){
+  return `
+  <rect x="10" y="${H-8}" width="${W-20}" height="7" rx="3" fill="#080604" opacity="0.85"/>
+  <rect x="10" y="${H-8}" width="${W-20}" height="3" rx="2" fill="${mix(ramme,"#000",0.55)}" opacity="0.5"/>`;
+}
+
+// ---------- kort-SVG ----------
 function cardSVG(id){
   const d=CARDS[id], ac=accentFor(d), rnd=mulberry(seedOf(id));
   const th=themeOf(d);
@@ -137,81 +214,88 @@ function cardSVG(id){
   const typeTxt = (leg?"\u2605 LEGENDARY \u00B7 ":"") + (kc?CLASSES[d.cls].n.toUpperCase()+" \u00B7 ":"")
     + (d.t==="spell"?"SPELL":"UNIT"+(d.tr?" \u00B7 "+d.tr.toUpperCase():"")) + (d.tok?" \u00B7 TOKEN":"");
 
-  // gold fingers
+  // gold fingers med metallisk dybde
   let fingers="";
   for(let x=70; x<=650; x+=34)
-    fingers+=`<rect x="${x}" y="${H-46}" width="22" height="30" fill="url(#guldgrad)"/>`;
+    fingers+=`<rect x="${x}" y="${H-46}" width="22" height="30" rx="2" fill="url(#guldgrad)" stroke="#4a3810" stroke-width="1"/>
+      <rect x="${x+2}" y="${H-44}" width="18" height="8" rx="1" fill="url(#guldShine)" opacity="0.55"/>`;
 
-  // stats
+  // stats med emboss
   const stats = d.t==="unit" ? `
-    <circle cx="95" cy="${H-115}" r="56" fill="${P.bg0}" stroke="${P.amber}" stroke-width="7"/>
-    <text x="95" y="${H-96}" text-anchor="middle" font-family="DejaVu Sans" font-weight="bold" font-size="56" fill="${P.amber}">${d.a}</text>
-    <circle cx="${W-95}" cy="${H-115}" r="56" fill="${P.bg0}" stroke="${P.fos}" stroke-width="7"/>
-    <text x="${W-95}" y="${H-96}" text-anchor="middle" font-family="DejaVu Sans" font-weight="bold" font-size="56" fill="${P.fos}">${d.h}</text>` : "";
+    <g filter="url(#cardDrop)">
+      <circle cx="95" cy="${H-115}" r="56" fill="${mix(P.bg0,th.plate,0.3)}" stroke="${P.amber}" stroke-width="7"/>
+      <circle cx="95" cy="${H-118}" r="48" fill="none" stroke="#fff" stroke-width="2" opacity="0.12"/>
+      <text x="95" y="${H-96}" text-anchor="middle" font-family="DejaVu Sans" font-weight="bold" font-size="56" fill="${P.amber}">${d.a}</text>
+      <circle cx="${W-95}" cy="${H-115}" r="56" fill="${mix(P.bg0,th.plate,0.3)}" stroke="${P.fos}" stroke-width="7"/>
+      <circle cx="${W-95}" cy="${H-118}" r="48" fill="none" stroke="#fff" stroke-width="2" opacity="0.12"/>
+      <text x="${W-95}" y="${H-96}" text-anchor="middle" font-family="DejaVu Sans" font-weight="bold" font-size="56" fill="${P.fos}">${d.h}</text>
+    </g>` : "";
 
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
-<defs>
-  <linearGradient id="bggrad" x1="0" y1="0" x2="0" y2="1">
-    <stop offset="0" stop-color="${th.top}"/><stop offset="0.5" stop-color="${th.mid}"/><stop offset="1" stop-color="${th.bot}"/>
-  </linearGradient>
-  <radialGradient id="artgrad" cx="0.5" cy="0.42" r="0.75">
-    <stop offset="0" stop-color="${mix(th.art,th.edge,0.14)}"/><stop offset="1" stop-color="${th.art}"/>
-  </radialGradient>
-  <linearGradient id="guldgrad" x1="0" y1="0" x2="0" y2="1">
-    <stop offset="0" stop-color="${P.guld}"/><stop offset="1" stop-color="#9a7422"/>
-  </linearGradient>
-  <clipPath id="artclip"><rect x="52" y="${artY0}" width="${W-104}" height="${artY1-artY0}" rx="14"/></clipPath>
-</defs>
+<defs>${cardDefs(th, leg, ramme, artY0, artY1)}</defs>
+${cardEdge3D(ramme)}
+<g filter="url(#cardDrop)">
+<g filter="url(#paperGrain)" clip-path="url(#cardclip)">
 <rect x="6" y="6" width="${W-12}" height="${H-12}" rx="36" fill="url(#bggrad)" stroke="${ramme}" stroke-width="${leg?9:6}"/>
-<rect x="22" y="22" width="${W-44}" height="${H-44}" rx="26" fill="none" stroke="${th.edge}" stroke-width="${leg?3:2}" opacity="0.7"/>
+<rect x="6" y="6" width="${W-12}" height="${H-12}" rx="36" fill="url(#fiber)"/>
+<rect x="22" y="22" width="${W-44}" height="${H-44}" rx="26" fill="none" stroke="${th.edge}" stroke-width="${leg?3:2}" opacity="0.75"/>
+<rect x="14" y="14" width="${W-28}" height="${H-28}" rx="32" fill="none" stroke="url(#bevelHi)" stroke-width="3" opacity="0.55"/>
 ${circuitPattern(mulberry(seedOf(id+"bg")), 40, 620, W-40, H-70, P.cu, 5, 0.10)}
-<g clip-path="url(#artclip)">
+<g clip-path="url(#artclip)" filter="url(#artDepth)">
   <rect x="52" y="${artY0}" width="${W-104}" height="${artY1-artY0}" fill="url(#artgrad)"/>
   ${circuitPattern(rnd, 60, artY0+10, W-60, artY1-10, P.cu, 9, 0.30)}
   ${circuitPattern(rnd, 60, artY0+10, W-60, artY1-10, ac, 3, 0.22)}
   ${motif(d, ac, rnd, id)}
+  <rect x="52" y="${artY0}" width="${W-104}" height="${artY1-artY0}" fill="url(#artInset)"/>
 </g>
-<rect x="52" y="${artY0}" width="${W-104}" height="${artY1-artY0}" rx="14" fill="none" stroke="${leg?P.guld:P.line}" stroke-width="3"/>
+<rect x="52" y="${artY0}" width="${W-104}" height="${artY1-artY0}" rx="14" fill="none" stroke="${leg?P.guld:mix(th.edge,"#000",0.25)}" stroke-width="4"/>
+<rect x="56" y="${artY0+4}" width="${W-112}" height="${artY1-artY0-8}" rx="12" fill="none" stroke="#fff" stroke-width="1.5" opacity="0.08"/>
 <text x="200" y="${102}" font-family="DejaVu Sans Condensed" font-weight="bold" font-size="${nameSize}"
   letter-spacing="2" fill="${leg?P.guld:P.txt}">${esc(d.n.toUpperCase())}</text>
 <polygon points="95,28 152,61 152,127 95,160 38,127 38,61" fill="${P.amber}" stroke="${P.mork}" stroke-width="4"/>
+<polygon points="95,32 146,61 146,123 95,152 44,123 44,61" fill="none" stroke="#fff" stroke-width="2" opacity="0.2"/>
 <text x="95" y="118" text-anchor="middle" font-family="DejaVu Sans" font-weight="bold" font-size="74" fill="${P.mork}">${d.c}</text>
 <text x="375" y="608" text-anchor="middle" font-family="DejaVu Sans Mono" font-size="26" letter-spacing="3"
   fill="${kc?kc:(leg?P.guld:P.dim)}">${esc(typeTxt)}</text>
 <line x1="80" y1="626" x2="${W-80}" y2="626" stroke="${th.edge}" stroke-width="2" opacity="0.5"/>
-<rect x="46" y="640" width="${W-92}" height="${(d.t==="unit"?862:972)-640+14}" rx="16" fill="${th.plate}" opacity="0.55"/>
+<rect x="46" y="640" width="${W-92}" height="${(d.t==="unit"?862:972)-640+14}" rx="16" fill="${th.plate}" opacity="0.62"/>
+<rect x="50" y="644" width="${W-100}" height="${(d.t==="unit"?858:968)-644}" rx="14" fill="url(#fiber)" opacity="0.35"/>
 ${textSvg}
 ${stats}
 ${fingers}
-<rect x="60" y="${H-50}" width="${W-120}" height="4" fill="${P.cu}" opacity="0.5"/>
+<rect x="60" y="${H-50}" width="${W-120}" height="4" fill="${P.cu}" opacity="0.55"/>
+<rect x="6" y="6" width="${W-12}" height="${H-12}" rx="36" fill="url(#gloss)" opacity="0.85"/>
+${leg?`<rect x="6" y="6" width="${W-12}" height="${H-12}" rx="36" fill="url(#foil)" opacity="0.55" style="mix-blend-mode:overlay"/>`:""}
+</g></g>
 </svg>`;
 }
 
 // ---------- kortbagside ----------
 function backSVG(){
   const rnd=mulberry(seedOf("KORTSLUTNING-RYG"));
+  const th=THEME.none;
   const hex=[...Array(6)].map((_,i)=>{const a=Math.PI/3*i-Math.PI/6;
     return `${375+190*Math.cos(a)},${505+190*Math.sin(a)}`;}).join(" ");
   let fingers="";
-  for(let x=70;x<=650;x+=34) fingers+=`<rect x="${x}" y="${H-46}" width="22" height="30" fill="url(#guldgrad)"/>`
-    +`<rect x="${x}" y="16" width="22" height="30" fill="url(#guldgrad)"/>`;
+  for(let x=70;x<=650;x+=34) fingers+=`<rect x="${x}" y="${H-46}" width="22" height="30" rx="2" fill="url(#guldgrad)" stroke="#4a3810" stroke-width="1"/>`
+    +`<rect x="${x}" y="16" width="22" height="30" rx="2" fill="url(#guldgrad)" stroke="#4a3810" stroke-width="1"/>`;
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
-<defs>
-  <linearGradient id="bggrad" x1="0" y1="0" x2="0" y2="1">
-    <stop offset="0" stop-color="#1a3423"/><stop offset="1" stop-color="${P.bg0}"/>
-  </linearGradient>
-  <linearGradient id="guldgrad" x1="0" y1="0" x2="0" y2="1">
-    <stop offset="0" stop-color="${P.guld}"/><stop offset="1" stop-color="#9a7422"/>
-  </linearGradient>
-</defs>
+<defs>${cardDefs(th, false, P.cu, 200, 600)}</defs>
+${cardEdge3D(P.cu)}
+<g filter="url(#cardDrop)">
+<g filter="url(#paperGrain)" clip-path="url(#cardclip)">
 <rect x="6" y="6" width="${W-12}" height="${H-12}" rx="36" fill="url(#bggrad)" stroke="${P.cu}" stroke-width="7"/>
+<rect x="6" y="6" width="${W-12}" height="${H-12}" rx="36" fill="url(#fiber)"/>
+<rect x="14" y="14" width="${W-28}" height="${H-28}" rx="32" fill="none" stroke="url(#bevelHi)" stroke-width="3" opacity="0.5"/>
 ${circuitPattern(rnd, 40, 60, W-40, H-70, P.cu, 16, 0.22)}
 ${circuitPattern(mulberry(seedOf("ryg2")), 40, 60, W-40, H-70, P.fos, 5, 0.10)}
-<polygon points="${hex}" fill="${P.bg0}" stroke="${P.cu2}" stroke-width="9"/>
+<polygon points="${hex}" fill="${P.bg0}" stroke="${P.cu2}" stroke-width="9" filter="url(#cardDrop)"/>
 <path d="M 408 350 L 318 545 L 372 545 L 340 660 L 448 470 L 386 470 Z" fill="${P.amber}" stroke="${P.bg0}" stroke-width="6"/>
 <text x="375" y="810" text-anchor="middle" font-family="DejaVu Sans Condensed" font-weight="bold" font-size="72" letter-spacing="8" fill="${P.cu2}">KORTSLUTNING</text>
 <text x="375" y="860" text-anchor="middle" font-family="DejaVu Sans Mono" font-size="26" letter-spacing="6" fill="${P.dim}">// THE TECHNICIAN</text>
 ${fingers}
+<rect x="6" y="6" width="${W-12}" height="${H-12}" rx="36" fill="url(#gloss)" opacity="0.7"/>
+</g></g>
 </svg>`;
 }
 

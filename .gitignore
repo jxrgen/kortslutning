@@ -10,3 +10,9 @@ desktop/app/
 desktop/release/
 desktop/node_modules/
 .github/workflows/release.yml
+backup/png/
+backup/svg/
+backup/atlas/
+backup/**/assets/png/
+backup/**/assets/svg/
+backup/**/assets/atlas/*.png

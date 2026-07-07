@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>⚡ CARDWARE CRASH — electronics card game</title>
+<meta name="description" content="A free 2-player electronics deckbuilder. 134 cards, 3 classes, capacitor banks and overheat. Play in your browser — no install.">
+<meta property="og:title" content="CARDWARE CRASH — electronics card game">
+<meta property="og:description" content="Build your deck. Manage the heat. Short-circuit your rival. Free in your browser.">
+<meta property="og:image" content="og.png">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%230c1811'/%3E%3Cpolygon points='32,6 54,19 54,45 32,58 10,45 10,19' fill='none' stroke='%235fe0a0' stroke-width='4'/%3E%3Cpath d='M36 14 L24 34 L31 34 L27 50 L41 28 L33 28 Z' fill='%23f0b23e'/%3E%3C/svg%3E">
+<style>
+:root{--bg0:#0c1811;--bg1:#11221a;--bg2:#173021;--line:#274a35;--cu:#c9814a;--fos:#5fe0a0;
+  --amber:#f0b23e;--guld:#ffd166;--dim:#7fa38c;--hack:#c76bd9;--over:#ff8c5a;
+  --mono:"DejaVu Sans Mono",ui-monospace,Menlo,Consolas,monospace}
+html,body{margin:0;height:100%;background:var(--bg0)}
+#root{height:100%}
+#landing{position:fixed;inset:0;z-index:100;overflow-y:auto;overflow-x:hidden;color:#dff0e4;
+  font-family:system-ui,-apple-system,"Segoe UI",sans-serif;background:
+  radial-gradient(140% 100% at 50% 30%,transparent 52%,rgba(0,0,0,.5) 100%),
+  radial-gradient(1100px 520px at 50% -8%,#16301f 0%,transparent 60%),
+  repeating-linear-gradient(0deg,transparent 0 34px,rgba(201,129,74,.05) 34px 35px),
+  repeating-linear-gradient(90deg,transparent 0 34px,rgba(201,129,74,.05) 34px 35px),
+  var(--bg0);
+  transition:opacity .6s ease,transform .6s ease}
+#landing.bye{opacity:0;transform:scale(1.05);pointer-events:none}
+.hero{position:relative;min-height:100svh;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;text-align:center;padding:22px;overflow:hidden}
+.flyfelt{position:absolute;inset:0;perspective:850px;pointer-events:none}
+.flyv{position:absolute;left:50%;top:42%;width:104px;margin-left:-52px;opacity:0;
+  will-change:transform,opacity;filter:drop-shadow(0 10px 26px rgba(0,0,0,.6));
+  animation:flyud var(--du,6s) linear infinite;animation-delay:var(--dl,0s)}
+@keyframes flyud{
+  0%{transform:translate3d(0px,20px,-640px) rotateZ(var(--rz,0deg));opacity:0}
+  10%{opacity:1}
+  82%{opacity:1}
+  100%{transform:translate3d(var(--tx,0px),var(--ty,-10vh),440px) rotateZ(calc(var(--rz,0deg)*1.7));opacity:0}
+}
+.heroind{position:relative;z-index:2;max-width:640px}
+.heroind::before{content:"";position:absolute;inset:-60px -80px;z-index:-1;
+  background:radial-gradient(closest-side,rgba(12,24,17,.88),rgba(12,24,17,.45) 62%,transparent);border-radius:50%}
+.biglogo{font-family:var(--mono);font-weight:700;letter-spacing:.04em;margin:0;line-height:.94;
+  position:relative;display:flex;flex-direction:column;align-items:center;gap:2px}
+.biglogo .ln1,.biglogo .ln2{display:block;font-size:clamp(40px,11vw,92px);color:var(--fos);
+  text-shadow:0 0 22px rgba(95,224,160,.55),0 0 42px rgba(95,224,160,.25)}
+.biglogo .ln1 b{color:var(--amber);text-shadow:0 0 22px rgba(240,178,62,.6),0 0 42px rgba(240,178,62,.3)}
+.biglogo .ln2{color:#ff5a4d;text-shadow:0 0 22px rgba(255,90,77,.6),0 0 46px rgba(255,90,77,.35);
+  letter-spacing:.14em;font-size:clamp(46px,13vw,104px)}
+.biglogo{animation:logoflick 5s steps(1) infinite}
+@keyframes logoflick{0%,100%{opacity:1}2%{opacity:.6}2.5%{opacity:1}52%{opacity:1}52.4%{opacity:.4}52.9%{opacity:1}53.3%{opacity:.7}53.7%{opacity:1}}
+/* glitch: to farvede kopier der forskyder sig */
+.biglogo.glitch::before,.biglogo.glitch::after{content:attr(data-txt);position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;font-size:clamp(40px,11vw,92px);
+  letter-spacing:.04em;opacity:.55;pointer-events:none;mix-blend-mode:screen}
+.biglogo.glitch::before{color:#26e0ff;animation:glx1 3.6s infinite steps(1)}
+.biglogo.glitch::after{color:#ff3bd0;animation:glx2 4.3s infinite steps(1)}
+@keyframes glx1{0%,100%{transform:translate(0,0);opacity:0}48%{opacity:0}49%{transform:translate(-3px,2px);opacity:.5}50%{transform:translate(3px,-1px)}51%{transform:translate(0,0);opacity:0}}
+@keyframes glx2{0%,100%{transform:translate(0,0);opacity:0}70%{opacity:0}71%{transform:translate(3px,-2px);opacity:.5}72%{transform:translate(-2px,2px)}73%{transform:translate(0,0);opacity:0}}
+/* scanlines over hele hero */
+.scanlines{position:absolute;inset:0;pointer-events:none;z-index:3;mix-blend-mode:overlay;opacity:.5;
+  background:repeating-linear-gradient(0deg,rgba(0,0,0,.32) 0 1px,transparent 1px 3px);
+  animation:scanroll 8s linear infinite}
+@keyframes scanroll{to{background-position:0 12px}}
+.scanlines::after{content:"";position:absolute;left:0;right:0;height:120px;
+  background:linear-gradient(180deg,transparent,rgba(95,224,160,.12),transparent);
+  animation:sweep 6s ease-in-out infinite}
+@keyframes sweep{0%{top:-120px}100%{top:100%}}
+/* gnister/sparks-lag (JS-genereret) */
+.sparklayer{position:absolute;inset:0;z-index:2;pointer-events:none;overflow:hidden}
+.spark{position:absolute;width:3px;height:3px;border-radius:50%;background:var(--fos);
+  box-shadow:0 0 8px 2px var(--fos);animation:sparkfly linear forwards}
+@keyframes sparkfly{0%{transform:translate(0,0) scale(1);opacity:1}100%{transform:translate(var(--sdx),var(--sdy)) scale(0);opacity:0}}
+.pun{font-family:var(--mono);color:var(--dim);font-size:12.5px;margin:14px 0 0}
+.tag{font-size:clamp(16px,3.4vw,21px);color:#eaf6ee;margin:18px 0 6px;font-weight:600}
+.sub{font-family:var(--mono);color:var(--dim);font-size:13px;margin-bottom:26px}
+.playbtn{display:inline-block;font-family:var(--mono);font-weight:700;font-size:clamp(18px,4vw,24px);
+  letter-spacing:.08em;color:#0c1811;background:linear-gradient(180deg,var(--fos),#3fbf82);
+  border:none;border-radius:16px;padding:16px 44px;cursor:pointer;
+  box-shadow:0 8px 30px rgba(95,224,160,.35),inset 0 1px 0 rgba(255,255,255,.35);
+  animation:knappuls 2.2s ease-in-out infinite;transition:transform .12s}
+.playbtn:active{transform:scale(.96)}
+@keyframes knappuls{50%{box-shadow:0 8px 42px rgba(95,224,160,.6),inset 0 1px 0 rgba(255,255,255,.35)}}
+.scrollhint{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);color:var(--dim);
+  font-size:18px;animation:hop 1.8s ease-in-out infinite;z-index:2}
+@keyframes hop{50%{transform:translateX(-50%) translateY(7px)}}
+section{padding:54px 20px;max-width:980px;margin:0 auto}
+h2{font-family:var(--mono);color:var(--cu);letter-spacing:.14em;font-size:15px;text-transform:uppercase;
+  text-align:center;margin:0 0 26px}
+.feats{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px}
+.feat{background:linear-gradient(180deg,var(--bg2),var(--bg1));border:1px solid var(--line);
+  border-radius:16px;padding:18px 16px;box-shadow:0 6px 20px rgba(0,0,0,.35)}
+.feat .fi{font-size:26px}
+.feat h3{margin:8px 0 6px;font-size:15.5px;color:#eaf6ee}
+.feat p{margin:0;font-size:13.5px;color:var(--dim);line-height:1.5}
+.klasser{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+.klas{border-radius:16px;padding:18px 16px;background:linear-gradient(180deg,var(--bg2),var(--bg1));
+  border:1px solid var(--line);border-top:3px solid var(--kc);box-shadow:0 6px 20px rgba(0,0,0,.35)}
+.klas .ki{font-size:30px}
+.klas h3{margin:8px 0 4px;color:var(--kc);font-size:17px}
+.klas .kp{font-family:var(--mono);font-size:12.5px;color:#eaf6ee;margin:0 0 6px}
+.klas p{margin:0;font-size:13.5px;color:var(--dim);line-height:1.5}
+.fan{display:flex;justify-content:center;align-items:flex-end;min-height:250px;margin-top:8px}
+.fan img{width:150px;margin:0 -34px;border-radius:10px;transform:rotate(var(--r)) translateY(var(--y));
+  box-shadow:0 14px 34px rgba(0,0,0,.55);transition:transform .18s;position:relative}
+.fan img:hover{transform:rotate(0deg) translateY(-26px) scale(1.12);z-index:5}
+.fancap{text-align:center;color:var(--dim);font-size:13.5px;margin-top:20px;font-family:var(--mono)}
+.cta2{text-align:center}
+.cta2 .playbtn{animation:none}
+.links{margin-top:22px;font-family:var(--mono);font-size:13px;color:var(--dim)}
+.links a{color:var(--fos);text-decoration:none}
+footer{padding:30px 20px 46px;text-align:center;color:var(--dim);font-size:12.5px;font-family:var(--mono)}
+@media (prefers-reduced-motion:reduce){
+  .flyv{animation:none;opacity:.85;transform:translate3d(var(--sx,0px),var(--sy,0px),0) rotateZ(var(--rz,0deg)) scale(.9)}
+  .biglogo,.playbtn,.scrollhint{animation:none}
+  .biglogo.glitch::before,.biglogo.glitch::after{display:none}
+  .scanlines,.sparklayer{display:none}
+  #landing{transition:none}
+}
+@media (max-width:520px){ .flyv{width:82px;margin-left:-41px} .fan img{width:118px;margin:0 -28px} }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<div id="landing">
+  <div class="hero">
+    <div class="flyfelt"><!--SPLASH--></div>
+    <div class="sparklayer" id="sparklayer"></div>
+    <div class="heroind">
+      <h1 class="biglogo glitch" data-txt="CARDWARE CRASH">
+        <span class="ln1">CARD<b>WARE</b></span><span class="ln2">CRASH</span>
+      </h1>
+      <p class="pun">// where your deck meets the redline</p>
+      <p class="tag">Build your deck. Manage the heat. Crash your rival's system.</p>
+      <p class="sub">Free in your browser · 134 cards · 3 classes · no install</p>
+      <button class="playbtn" onclick="startSpil()">⚡ PLAY NOW</button>
+    </div>
+    <div class="scanlines"></div>
+    <div class="scrollhint">▼</div>
+  </div>
+  <section>
+    <h2>What you're plugging into</h2>
+    <div class="feats">
+      <div class="feat"><div class="fi">🃏</div><h3>134 hand-tuned cards</h3>
+        <p>Units, spells and legendaries across Components, Robots, Drones and Viruses — every card vector-drawn.</p></div>
+      <div class="feat"><div class="fi">🔋</div><h3>The capacitor bank</h3>
+        <p>Unspent energy isn't wasted — it's stored (up to 3) and paid out next turn. Plan your curve.</p></div>
+      <div class="feat"><div class="fi">🔥</div><h3>Overheat</h3>
+        <p>The strongest plays lock part of your energy next turn. Push past the redline — and pay for it.</p></div>
+      <div class="feat"><div class="fi">🎓</div><h3>Interactive tutorial</h3>
+        <p>Five guided turns against TUTOR-9000 teach you everything. Then face the built-in bot or a friend.</p></div>
+    </div>
+  </section>
+  <section>
+    <h2>Pick your class</h2>
+    <div class="klasser">
+      <div class="klas" style="--kc:#e8a96a"><div class="ki">🧑‍🔧</div><h3>The Technician</h3>
+        <p class="kp">🔧 Soldering Iron — 1 damage / repair 2</p>
+        <p>Steady value. Repair, refit and outlast while the workshop hums.</p></div>
+      <div class="klas" style="--kc:#c76bd9"><div class="ki">🧑‍💻</div><h3>The Hacker</h3>
+        <p class="kp">🐛 Breach — summon a 1/1 Bug</p>
+        <p>Swarm, steal and dismantle. Their board is just another attack surface.</p></div>
+      <div class="klas" style="--kc:#ff8c5a"><div class="ki">🧑‍🏭</div><h3>The Overclocker</h3>
+        <p class="kp">🔋 Charge — store 2 energy</p>
+        <p>Raw output beyond spec. Overheat is not a bug — it's the price.</p></div>
+    </div>
+  </section>
+  <section>
+    <h2>Real cards from the game</h2>
+    <div class="fan"><!--FAN--></div>
+    <p class="fancap">Tap a card in-game for full rules text, keywords and tribe synergies.</p>
+  </section>
+  <section class="cta2">
+    <h2>Ready, technician?</h2>
+    <button class="playbtn" onclick="startSpil()">⚡ ENTER THE LAB</button>
+    <div class="links">
+      <a href="https://github.com/jxrgen/kortslutning">Source on GitHub</a> ·
+      online multiplayer lives in the Claude artifact edition
+    </div>
+  </section>
+  <footer>CARDWARE CRASH · solo vs bot · local 2-player · interactive tutorial · works offline-ish once loaded</footer>
+</div>
+<script>
+(function(){
+  var l=document.getElementById('landing');
+  if(navigator.userAgent.indexOf('Electron')>-1||new URLSearchParams(location.search).has('play')){
+    l.remove(); return;
+  }
+  window.startSpil=function(){
+    l.classList.add('bye');
+    setTimeout(function(){ l.remove(); },650);
+    try{ history.replaceState(null,'','?play'); }catch(e){}
+  };
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var layer = document.getElementById('sparklayer');
+  var cols = ['#5fe0a0','#f0b23e','#26e0ff','#ff5a4d'];
+  function burst(x,y,n){
+    if(!layer) return;
+    for(var i=0;i<n;i++){
+      var s=document.createElement('i'); s.className='spark';
+      var a=Math.random()*Math.PI*2, d=20+Math.random()*70;
+      var c=cols[(Math.random()*cols.length)|0];
+      s.style.left=x+'px'; s.style.top=y+'px';
+      s.style.background=c; s.style.boxShadow='0 0 8px 2px '+c;
+      s.style.setProperty('--sdx',(Math.cos(a)*d).toFixed(0)+'px');
+      s.style.setProperty('--sdy',(Math.sin(a)*d).toFixed(0)+'px');
+      s.style.animationDuration=(0.5+Math.random()*0.5).toFixed(2)+'s';
+      layer.appendChild(s);
+      setTimeout((function(el){return function(){el.remove();};})(s),1000);
+    }
+  }
+  if(!reduce && layer){
+    setInterval(function(){
+      if(document.hidden || l.classList.contains('bye')) return;
+      var r=layer.getBoundingClientRect();
+      burst(Math.random()*r.width, r.height*(0.15+Math.random()*0.5), 3+((Math.random()*4)|0));
+    },520);
+    var logo=document.querySelector('.biglogo');
+    if(logo) logo.addEventListener('pointerenter',function(e){
+      var r=layer.getBoundingClientRect();
+      burst(e.clientX-r.left, e.clientY-r.top, 14);
+    });
+  }
+})();
+</script>
+<script src="storage-shim.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
