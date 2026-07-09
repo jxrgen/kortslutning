@@ -15,6 +15,24 @@ function clone(o){ return JSON.parse(JSON.stringify(o)); }
 
 const MAXBOARD = 6, MAXHAND = 9, DECKSIZE = 25, MAXSTORED = 3;
 
+// forklaringer på alle mekanik-termer der optræder i korttekster + keywords.
+const GLOSSARY = {
+  "Grounded":       "Enemies must attack your Grounded units before they can hit other units or your hero.",
+  "Turbo":          "Can attack the same turn it is played (no summoning sickness).",
+  "Insulated":      "Ignores the very first instance of damage it would take.",
+  "High Voltage":   "Destroys any unit it damages, no matter how much health that unit had.",
+  "Dual Core":      "Can attack twice per turn instead of once.",
+  "Energy Harvest": "Whenever this unit deals damage, your hero is repaired for the same amount.",
+  "Cloaked":        "Can’t be targeted by attacks or effects until it attacks for the first time.",
+  "Units only":     "This unit can attack enemy units, but not the enemy hero.",
+  "Signal Strength":"Boosts the power of your Spells while this unit is in play.",
+  "Install":        "A one-time effect that triggers the moment the unit is played.",
+  "Breakdown":      "A one-time effect that triggers when the unit is defeated (destroyed).",
+  "Overheat":       "Playing this deals the shown amount of damage to your own hero.",
+  "Backup":         "Leaves behind a smaller token unit when it is defeated.",
+  "Chain":          "A bonus effect that triggers if you already played another card this turn.",
+};
+
 const KWINFO = {
   jord:   { n:"Grounded",      ico:"⏚",  d:"Enemies must attack Grounded units first." },
   turbo:  { n:"Turbo",         ico:"»",  d:"Can attack units the turn it is played." },
@@ -589,7 +607,7 @@ function unitAttack(g,s,uid,tref){
 const CLASSES={
   tek:{
     n:"The Technician", ico:"🧑‍🔧", col:"#e8a96a",
-    power:{ n:"Soldering Iron", ico:"🔧", c:2, txt:"Enemy: 1 damage · Friendly: repair 2." },
+    power:{ n:"Soldering Iron", ico:"🔥", svg:"loddekolbe", c:2, txt:"Enemy: 1 damage · Friendly: repair 2." },
     powerTargets(g,s){
       const out=[{s:0,u:null},{s:1,u:null}];
       for(const ps of [0,1]) for(const u of g.players[ps].board){
@@ -871,6 +889,7 @@ function codeGen(){ const A="ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; let c=""; for(le
 // langsomhed: 0 = normal fart, 1 = maks langsom. Skalerer ALLE animationers varighed.
 const DEFAULT_SETTINGS = {
   slowness: 0.4,             // 40% langsommere som udgangspunkt — mere læsbart
+  cardRevealMs: 900,         // hvor længe et spillet kort vises midt på skærmen før effekten sker
   sound: true,              // lydeffekter
   music: true,              // 8-bit baggrundsmusik
   musicVol: 0.4,
@@ -940,6 +959,8 @@ const Audio8 = (() => {
     win(){ resume(); if(!SETTINGS.sound)return; [523,659,784,1047].forEach((f,i)=>tone(f,0.18,"square",i*0.11,0.45)); },
     lose(){ resume(); if(!SETTINGS.sound)return; [392,330,262,196].forEach((f,i)=>tone(f,0.2,"sawtooth",i*0.13,0.4)); },
     click(){ resume(); if(!SETTINGS.sound)return; tone(660,0.04,"square",0,0.25); },
+    tik(){ resume(); if(!SETTINGS.sound)return; tone(1400,0.03,"square",0,0.3); },
+    tok(){ resume(); if(!SETTINGS.sound)return; tone(900,0.045,"square",0,0.3); },
     error(){ resume(); if(!SETTINGS.sound)return; tone(140,0.12,"square",0,0.4); tone(120,0.14,"square",0.09,0.4); },
   };
   // baggrundsmusik: enkel loopende 8-bit basgang + melodi
@@ -1041,8 +1062,8 @@ input:focus,select:focus{border-color:var(--cu)}
   background:radial-gradient(circle at 38% 30%, color-mix(in srgb, var(--kf) 35%, #1a2b20), #0d1811);
   border:2px solid var(--kf);box-shadow:0 0 12px color-mix(in srgb, var(--kf) 55%, transparent), inset 0 0 8px rgba(0,0,0,.5)}
 .heltinfo{display:flex;flex-direction:column;gap:1px;line-height:1.15;text-align:left}
-.helt .nm{max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
-  color:#f2f7f3;font-size:17px;font-weight:800;letter-spacing:.02em;
+.helt .nm{max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  color:#f2f7f3;font-size:19px;font-weight:800;letter-spacing:.02em;
   text-shadow:0 0 10px color-mix(in srgb, var(--kf) 40%, transparent)}
 .heltklasse{font-size:10px;color:var(--kf);font-family:var(--mono);letter-spacing:.06em;text-transform:uppercase;opacity:.85}
 .helt .hp{font-weight:800;font-size:17px;color:var(--fos)} .helt .hp.lav{color:var(--rod)}
@@ -1061,7 +1082,7 @@ input:focus,select:focus{border-color:var(--cu)}
 .enh .ikoner{position:absolute;top:-15px;left:50%;transform:translateX(-50%);display:flex;gap:3px;
   white-space:nowrap;z-index:5}
 .kwb{display:inline-flex;align-items:center;justify-content:center;line-height:0;
-  border-radius:50%;border:1.5px solid;padding:2px;
+  border-radius:50%;border:1.5px solid;padding:2px;background:#0d1b13;
   filter:drop-shadow(0 1px 3px rgba(0,0,0,.6))}
 .kwb svg{display:block}
 .enh .stat{bottom:1px;font-size:13px}
@@ -1095,9 +1116,11 @@ input:focus,select:focus{border-color:var(--cu)}
   border:1px solid var(--cu);margin-left:-14px}
 /* ---- overlays ---- */
 .slor{position:fixed;inset:0;background:rgba(5,10,7,.82);display:flex;align-items:center;justify-content:center;
-  z-index:40;padding:18px;backdrop-filter:blur(2px)}
+  z-index:40;padding:18px;backdrop-filter:blur(2px);animation:slorind .12s ease-out}
+@keyframes slorind{from{opacity:0}}
 .ark{background:var(--bg1);border:1px solid var(--line);border-radius:16px;padding:18px;width:100%;max-width:360px;
-  max-height:85dvh;overflow-y:auto}
+  max-height:85dvh;overflow-y:auto;animation:arkind .16s cubic-bezier(.3,1.3,.5,1)}
+@keyframes arkind{from{opacity:0;transform:scale(.9) translateY(10px)}}
 .storkort{border:1px solid var(--line);border-radius:14px;padding:14px;background:linear-gradient(180deg,var(--bg2),var(--bg1));position:relative;overflow:hidden}
 .storkort.leg{border-color:var(--guld)}
 .storkort::after{content:"";position:absolute;left:14px;right:14px;bottom:0;height:8px;border-radius:3px 3px 0 0;
@@ -1127,7 +1150,7 @@ input:focus,select:focus{border-color:var(--cu)}
   background:var(--bg1);border:1px solid var(--line);font-size:16px}
 .turban{position:fixed;top:38%;left:0;right:0;z-index:30;text-align:center;font-family:var(--disp);
   font-size:38px;letter-spacing:4px;color:var(--fos);text-shadow:0 0 24px rgba(95,224,160,.6);
-  animation:tur 1.6s forwards;pointer-events:none}
+  animation:tur calc(1.6s * var(--tempo,1)) forwards;pointer-events:none}
 @keyframes tur{0%{opacity:0;transform:scale(.8)}10%{opacity:1;transform:scale(1)}14%{opacity:.35}18%{opacity:1}22%{opacity:.5}26%{opacity:1;text-shadow:0 0 34px rgba(95,224,160,.9)}78%{opacity:1}100%{opacity:0}}
 /* ---- deckbygger ---- */
 .faner{display:flex;gap:8px;margin:10px 0}
@@ -1193,7 +1216,7 @@ button:active{transform:scale(.97)}
 .fxring{position:fixed;width:26px;height:26px;margin:-13px 0 0 -13px;border:3px solid;border-radius:50%;
   animation:fxring calc(.6s * var(--tempo,1)) ease-out forwards;box-shadow:0 0 12px currentColor}
 @keyframes fxring{to{transform:scale(3.6);opacity:0}}
-.fxzap{position:fixed;inset:0;width:100vw;height:100vh;animation:zapfl calc(.32s * var(--tempo,1)) ease-out forwards;
+.fxzap{position:fixed;left:0;top:0;width:100%;height:100%;animation:zapfl calc(.32s * var(--tempo,1)) ease-out forwards;
   filter:drop-shadow(0 0 7px rgba(240,178,62,.9))}
 .fxzap.spell{filter:drop-shadow(0 0 7px rgba(95,224,160,.9))}
 @keyframes zapfl{0%{opacity:1}45%{opacity:.3}60%{opacity:1}100%{opacity:0}}
@@ -1326,6 +1349,38 @@ button:active{transform:scale(.97)}
   transition:transform .12s,filter .12s}
 .chatsend:hover{transform:scale(1.06);filter:brightness(1.1)}
 @media (max-width:560px){ .chatbox{bottom:78px} }
+/* håndkort toner ind når de trækkes (rører ikke transform, så viften bevares) */
+.haand .mkort{animation:handind calc(.4s * var(--tempo,1)) ease-out backwards}
+@keyframes handind{from{opacity:0;filter:brightness(2.2) blur(2px)}60%{opacity:1}}
+/* ---- spillet kort vises midtfor før effekten ---- */
+.revealwrap{position:fixed;inset:0;z-index:62;display:flex;align-items:center;justify-content:center;
+  pointer-events:none;animation:revwrap var(--rms,900ms) ease-out forwards}
+@keyframes revwrap{0%{background:rgba(5,10,7,0)}18%{background:rgba(5,10,7,.45)}78%{background:rgba(5,10,7,.45)}100%{background:rgba(5,10,7,0)}}
+.revealkort{display:flex;flex-direction:column;align-items:center;gap:12px;
+  animation:revkort var(--rms,900ms) cubic-bezier(.2,1.2,.4,1) forwards}
+@keyframes revkort{
+  0%{transform:scale(.35) rotate(-10deg);opacity:0;filter:brightness(2.4)}
+  16%{transform:scale(1.5) rotate(0deg);opacity:1;filter:brightness(1.15)}
+  76%{transform:scale(1.5) rotate(0deg);opacity:1;filter:brightness(1)}
+  100%{transform:scale(1.1) rotate(0deg);opacity:0;filter:brightness(1)}
+}
+.revealkort .mkort{box-shadow:0 0 40px rgba(95,224,160,.5),0 18px 50px rgba(0,0,0,.7);cursor:default}
+.revealkort .mkort .ctip{display:none}
+.revealnavn{font-family:var(--disp);font-size:26px;letter-spacing:2px;color:var(--fos);
+  text-shadow:0 0 20px rgba(95,224,160,.8);white-space:nowrap}
+@media (prefers-reduced-motion:reduce){ .revealwrap{display:none} }
+/* ---- glossar sub-popup ---- */
+.mkwrow{position:absolute;top:2px;left:50%;transform:translateX(-50%) scale(.72);display:flex;gap:2px;z-index:3;transform-origin:top center}
+.ark.setingame{max-width:600px}
+.glossterm{position:relative;color:var(--fos);border-bottom:1px dotted var(--fos);cursor:help;font-weight:600}
+.glosspop{position:absolute;left:50%;bottom:calc(100% + 8px);transform:translateX(-50%) translateY(4px);
+  width:220px;background:#0a140e;border:1.5px solid var(--fos);border-radius:10px;padding:9px 11px;
+  font-size:12px;font-weight:400;color:#dbe7de;line-height:1.4;text-align:left;
+  box-shadow:0 8px 26px rgba(0,0,0,.7);opacity:0;pointer-events:none;transition:opacity .12s,transform .12s;z-index:90}
+.glosspop b{display:block;color:var(--fos);font-size:12.5px;margin-bottom:3px}
+.glosspop::after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);
+  border:6px solid transparent;border-top-color:var(--fos)}
+.glossterm:hover .glosspop{opacity:1;transform:translateX(-50%) translateY(0)}
 /* ---- settings ---- */
 .setwrap{max-width:100%;text-align:left;max-height:none;overflow-y:visible}
 .setsec{margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--line)}
@@ -1480,11 +1535,40 @@ const KWSVG = {
   sig: {c:"#5fe0a0", t:"Signal Strength — your Spells hit harder",
     svg:'<path d="M4 20 v-4 M9 20 v-8 M14 20 v-12 M19 20 v-16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>'},
 };
+// SVG-ikoner til hero powers hvor emoji ikke findes/passer
+const POWERSVG = {
+  loddekolbe: '<svg viewBox="0 0 24 24" width="1em" height="1em" style="vertical-align:-0.12em"><path d="M20 4 L14 10" stroke="#c9814a" stroke-width="2.4" stroke-linecap="round"/><path d="M13 11 L9 15" stroke="#9aa7a0" stroke-width="3.2" stroke-linecap="round"/><path d="M9 15 L5 19 L4 20" stroke="#8b6cff" stroke-width="2" stroke-linecap="round" fill="none"/><path d="M6 18 c-1 1 -2 1 -2 2 c1 0 1 -1 2 -2" fill="#ffb347"/><circle cx="6.5" cy="17.5" r="1.6" fill="#ff8c3a"/></svg>',
+};
+function PowerIcon({p}){
+  if(p&&p.svg&&POWERSVG[p.svg]) return <span className="pwsvg" dangerouslySetInnerHTML={{__html:POWERSVG[p.svg]}}/>;
+  return <span>{p?p.ico:""}</span>;
+}
+// splitter en korttekst op og gør kendte mekanik-termer til hover-bare chips
+function GlossText({txt}){
+  if(!txt) return null;
+  const terms=Object.keys(GLOSSARY).sort((a,b)=>b.length-a.length); // længste først
+  const re=new RegExp("("+terms.map(t=>t.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")).join("|")+")","g");
+  const parts=[]; let last=0, m, i=0;
+  while((m=re.exec(txt))){
+    if(m.index>last) parts.push(txt.slice(last,m.index));
+    parts.push(<GlossTerm key={i++} term={m[0]}/>);
+    last=m.index+m[0].length;
+  }
+  if(last<txt.length) parts.push(txt.slice(last));
+  return <>{parts}</>;
+}
+function GlossTerm({term}){
+  return (
+    <span className="glossterm">{term}
+      <span className="glosspop"><b>{term}</b>{GLOSSARY[term]}</span>
+    </span>
+  );
+}
 function KwBadge({k,live,big}){
   const info=KWSVG[k]; if(!info) return null;
   const sz=big?26:22;
   return (
-    <span className={"kwb"+(big?" big":"")} style={{color:info.c,background:info.c+"22",borderColor:info.c}} title={info.t}
+    <span className={"kwb"+(big?" big":"")} style={{color:info.c,borderColor:info.c}} title={info.t}
       dangerouslySetInnerHTML={{__html:'<svg viewBox="0 0 24 24" width="'+sz+'" height="'+sz+'">'+info.svg+'</svg>'}}/>
   );
 }
@@ -1531,11 +1615,13 @@ function CardTip({id,live}){
 }
 function MiniCard({id,onClick,glow,count,style,dfx,xcls,tip,onPointerDown}){
   const d=CARDS[id];
+  const kwl=[]; if(d.kw) for(const k of d.kw){ if(KWSVG[k]) kwl.push(k); } if(d.sig) kwl.push("sig");
   return (
     <button className={"mkort tema"+(d.r==="L"?" leg":"")+(glow?" spil":"")+(xcls?" "+xcls:"")+(tip?" hastip":"")} onClick={onClick} onPointerDown={onPointerDown} style={{...themeVars(d),...style}} data-fx={dfx}>
       <span className="pris">{d.c}</span>
       {count!=null && <span className="antal">{count}×</span>}
       {d.cls&&CLASSES[d.cls]&&<span className="clsdot" style={{background:CLASSES[d.cls].col}}/>}
+      {kwl.length>0 && <span className="mkwrow">{kwl.map(k=><KwBadge key={k} k={k}/>)}</span>}
       <CardArt id={id}/>
       <span className="nv">{d.n}</span>
       {d.t==="unit" && <><span className="stat a">{d.a}</span><span className="stat h">{d.h}</span></>}
@@ -1562,10 +1648,11 @@ function StorKort({id,unitInfo,g}){
           <div className="meta">{d.c}⚡ · {d.cls&&CLASSES[d.cls]?CLASSES[d.cls].n+" · ":""}{d.t==="unit"?"Unit":"Spell"}{d.tr?" · "+d.tr:""}{d.r==="L"?" · ★ Legendary":""}</div>
         </div>
       </div>
-      <div className="txt">{live&&live.sil?<i>Reset — all text removed.</i>:(d.txt||"—")}</div>
+      <div className="txt">{live&&live.sil?<i>Reset — all text removed.</i>:(d.txt?<GlossText txt={d.txt}/>:"—")}</div>
       {kwl.length>0 && (
         <div className="kwlegend">
-          {kwl.map(k=>(<span key={k} className="kwleg"><KwBadge k={k}/><span>{k==="sig"?"Signal Strength":KWINFO[k].n}</span></span>))}
+          {kwl.map(k=>{ const navn=k==="sig"?"Signal Strength":KWINFO[k].n;
+            return <span key={k} className="kwleg"><KwBadge k={k}/><GlossTerm term={navn}/></span>; })}
         </div>
       )}
       {d.t==="unit" && (
@@ -2014,7 +2101,7 @@ function ClassPick({value,onChange}){
             </button>);
         })}
       </div>
-      <div className="kinfo">{K.power.ico} <b>{K.power.n}</b> ({K.power.c}⚡): {K.power.txt}</div>
+      <div className="kinfo"><PowerIcon p={K.power}/> <b>{K.power.n}</b> ({K.power.c}⚡): {K.power.txt}</div>
     </div>
   );
 }
@@ -2147,6 +2234,7 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
   const [bekraeft,setBekraeft]=useState(false);
   const [ptoast,setPt]=useState(null);
   const [sparks,setSparks]=useState([]);
+  const [reveal,setReveal]=useState(null); // kort vist stort midtfor før effekt
   const [shake,setShake]=useState(new Set());
   const fxDone=useRef(g.fxk||0);
   const lastK=useRef(g.last?g.last.k:0);
@@ -2171,18 +2259,31 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
       &&window.matchMedia("(prefers-reduced-motion: reduce)").matches)||!SETTINGS.fxMotion;
     const T=tempo(); // langsomhed-faktor
     const gap=0.14*T; // afstand mellem sekventielle fx (før: 0.06)
+    // Er der spillet et kort i denne batch? Så vis det stort midtfor først,
+    // og udskyd de øvrige effekter så man når at læse hvad der blev spillet.
+    const spilEv=nye.find(e=>e.t==="spil");
+    let hold=0;
+    if(spilEv && !redMo && SETTINGS.cardRevealMs>0){
+      const ms=SETTINGS.cardRevealMs;
+      hold=ms/1000;
+      setReveal({id:spilEv.id,k:spilEv.k,ms});
+      setTimeout(()=>setReveal(r=>(r&&r.k===spilEv.k)?null:r),ms);
+    }
+    // lyde skal følge den forsinkede effekt, ikke fyre med det samme
+    const lyd=(fn,extra=0)=>{ const ms=(hold+extra)*1000; if(ms<=0) fn(); else setTimeout(fn,ms); };
     const add=[], sh=[];
     for(const e of nye){
-      const d=add.length*gap, kk=e.k;
+      // "spil"-eventet selv skal ikke forsinkes (det ER showcasen); resten venter
+      const d=(e.t==="spil"?0:hold)+add.length*gap, kk=e.k;
       if(e.t==="dmg"){ const P=posOf(e.s,e.u!==undefined?e.u:null); if(!P) continue;
         add.push({key:"t"+kk,type:"tal",x:P.x,y:P.y,txt:"−"+e.n,c:"var(--rod)",d});
         add.push({key:"b"+kk,type:"burst",x:P.x,y:P.y,n:7,c:"var(--amber)",d});
-        sh.push(e.u!=null?e.u:"h"+e.s); Audio8.sfx.hit(); }
+        sh.push(e.u!=null?e.u:"h"+e.s); lyd(Audio8.sfx.hit); }
       else if(e.t==="heal"){ const P=posOf(e.s,e.u); if(!P) continue;
         add.push({key:"t"+kk,type:"tal",x:P.x,y:P.y,txt:"+"+e.n,c:"var(--fos)",d});
-        add.push({key:"r"+kk,type:"ring",x:P.x,y:P.y,c:"var(--fos)",d}); Audio8.sfx.heal(); }
+        add.push({key:"r"+kk,type:"ring",x:P.x,y:P.y,c:"var(--fos)",d}); lyd(Audio8.sfx.heal); }
       else if(e.t==="boom"){ const P=posOf(e.s,e.u); if(!P) continue;
-        add.push({key:"b"+kk,type:"burst",x:P.x,y:P.y,n:14,c:"var(--cu2)",stor:true,d}); Audio8.sfx.death();
+        add.push({key:"b"+kk,type:"burst",x:P.x,y:P.y,n:14,c:"var(--cu2)",stor:true,d}); lyd(Audio8.sfx.death);
         if(!redMo){ const fl=document.querySelector(".spilflade");
           if(fl&&fl.animate) fl.animate(
             [{transform:"translate(0,0)"},{transform:"translate(-5px,2px)"},{transform:"translate(4px,-2px)"},{transform:"translate(-2px,1px)"},{transform:"translate(0,0)"}],
@@ -2190,12 +2291,12 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
       else if(e.t==="skjold"){ const P=posOf(e.s,e.u); if(!P) continue;
         add.push({key:"r"+kk,type:"ring",x:P.x,y:P.y,c:"var(--guld)",d}); }
       else if(e.t==="pop"){ const P=posOf(e.s,e.u); if(!P) continue;
-        add.push({key:"b"+kk,type:"burst",x:P.x,y:P.y,n:6,c:"var(--fos)",d}); Audio8.sfx.unit(); }
+        add.push({key:"b"+kk,type:"burst",x:P.x,y:P.y,n:6,c:"var(--fos)",d}); lyd(Audio8.sfx.unit); }
       else if(e.t==="cast"){ const P=posOf(e.s,null); if(!P) continue;
-        add.push({key:"r"+kk,type:"ring",x:P.x,y:P.y,c:"var(--amber)",d}); Audio8.sfx.spell(); }
+        add.push({key:"r"+kk,type:"ring",x:P.x,y:P.y,c:"var(--amber)",d}); lyd(Audio8.sfx.spell); }
       else if(e.t==="zap"&&e.art==="melee"){
         const P1=posOf(e.fs,e.fu), P2=posOf(e.ts,e.tu); if(!P1||!P2) continue;
-        Audio8.sfx.attack();
+        lyd(Audio8.sfx.attack);
         if(!redMo){ const el=document.querySelector('[data-fx="'+e.fu+'"]');
           if(el&&el.animate){ const lx=(P2.x-P1.x)*0.7, ly=(P2.y-P1.y)*0.7;
             el.animate([{transform:"translate(0,0)"},
@@ -2204,7 +2305,7 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
               {duration:slowMs(330),easing:"cubic-bezier(.34,.65,.3,1)",delay:d*1000}); } }
         add.push({key:"b"+kk,type:"burst",x:P2.x,y:P2.y,n:8,c:"var(--amber)",d:d+0.13*T}); }
       else if(e.t==="zap"){ const P1=posOf(e.fs,e.fu), P2=posOf(e.ts,e.tu); if(!P1||!P2) continue;
-        add.push({key:"z"+kk,type:"zap",p1:P1,p2:P2,art:e.art,d}); Audio8.sfx.zap(); }
+        add.push({key:"z"+kk,type:"zap",p1:P1,p2:P2,art:e.art,d}); lyd(Audio8.sfx.zap); }
       else if(e.t==="flyt"){
         // mind control: kortet er allerede flyttet i state; animer det fra
         // modstanderens side ned til din side med et glimt
@@ -2212,7 +2313,7 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
         const fraY=posOf(e.fra,null);
         const startY=fraY?fraY.y:P.y-220;
         add.push({key:"mcr"+kk,type:"ring",x:P.x,y:P.y,c:"#c07bff",d:d+0.3*T});
-        Audio8.sfx.zap();
+        lyd(Audio8.sfx.zap);
         if(!redMo){ const el=document.querySelector('[data-fx="'+e.uid+'"]');
           if(el&&el.animate){
             el.animate([
@@ -2224,7 +2325,8 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
         const til=e.ts!=null?posOf(e.ts,e.tu):null;
         const cx=(typeof window!=="undefined"?window.innerWidth/2:400);
         const cy=(typeof window!=="undefined"?window.innerHeight/2:400);
-        const mx=til?til.x:cx, my=til?til.y:cy;
+        // med showcase flyver kortet ind midtfor; uden flyver det direkte mod målet
+        const mx=hold>0?cx:(til?til.x:cx), my=hold>0?cy:(til?til.y:cy);
         const kurve=typeof CSS!=="undefined"&&CSS.supports&&CSS.supports("offset-path",'path("M0 0 L1 1")');
         add.push({key:"f"+kk,type:"flyv",x:fra.x,y:fra.y,tx:mx-fra.x,ty:my-fra.y,id:e.id,d,
           op:kurve?('path("M '+fra.x.toFixed(0)+' '+fra.y.toFixed(0)+' Q '+((fra.x+mx)/2).toFixed(0)+' '
@@ -2233,9 +2335,9 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
     if(add.length){
       setSparks(x=>[...x,...add]);
       const keys=add.map(a=>a.key);
-      setTimeout(()=>setSparks(x=>x.filter(f=>!keys.includes(f.key))),slowMs(1400));
+      setTimeout(()=>setSparks(x=>x.filter(f=>!keys.includes(f.key))),slowMs(1400)+hold*1000);
     }
-    if(sh.length){ setShake(new Set(sh)); setTimeout(()=>setShake(new Set()),slowMs(380)); }
+    if(sh.length){ setTimeout(()=>{ setShake(new Set(sh)); setTimeout(()=>setShake(new Set()),slowMs(380)); }, hold*1000); }
   },[g]);
 
   useEffect(()=>{ const L=g.last;
@@ -2437,7 +2539,7 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
       if(e.target&&/input|textarea|select/i.test(e.target.tagName)) return;
       const K=SETTINGS.keys, key=e.key;
       if(key===K.end){ e.preventDefault(); if(myTurn&&!slut&&tOK("end")){ Audio8.sfx.endturn(); act(x=>endTurn(x,seat)); } return; }
-      if(key===K.cancel){ if(tmode){ setT(null); } else if(sel){ setSel(null); } return; }
+      if(key===K.cancel){ if(tmode){ setT(null); } else if(sel){ setSel(null); } else { setVisSettings(v=>!v); } return; }
       if(key===K.power||key===(K.power||"").toUpperCase()){ if(kanKraft){ kraft(); } return; }
       // kort 1-10
       for(let i=1;i<=10;i++){
@@ -2464,22 +2566,25 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
   const kanSpilleKort=myTurn&&!slut&&me.hand.some(c=>canPlay(g,seat,c.id));
   const kanIntet=myTurn&&!slut&&!tmode&&!kanSpilleKort&&!kanAngribe&&!kanKraft;
 
-  // nedtælling: når man intet kan gøre, tæl 5 sek ned og auto-slut turen
+  // nedtælling: når man intet kan gøre, tæl 5 sek ned og auto-slut turen.
+  // TIK/TOK-lyd hvert halve sekund som et ur.
   const [nedtael,setNedtael]=useState(null);
+  const [visSettings,setVisSettings]=useState(false);
   const nedRef=useRef(null);
   useEffect(()=>{
     if(kanIntet){
       setNedtael(5);
+      let halve=10; // 10 halve sekunder = 5 sek
+      let veksel=false;
       nedRef.current=setInterval(()=>{
-        setNedtael(n=>{
-          if(n<=1){ clearInterval(nedRef.current);
-            // slut turen automatisk
-            setTimeout(()=>{ if(tOK("end")){ Audio8.sfx.endturn(); act(x=>endTurn(x,seat)); } },0);
-            return null;
-          }
-          return n-1;
-        });
-      },1000);
+        halve--;
+        (veksel?Audio8.sfx.tok:Audio8.sfx.tik)(); veksel=!veksel;
+        setNedtael(Math.ceil(halve/2));
+        if(halve<=0){ clearInterval(nedRef.current);
+          setTimeout(()=>{ if(tOK("end")){ Audio8.sfx.endturn(); act(x=>endTurn(x,seat)); } },0);
+          setNedtael(null);
+        }
+      },500);
     } else {
       setNedtael(null);
       if(nedRef.current) clearInterval(nedRef.current);
@@ -2542,7 +2647,7 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
       <div className="bar min">
         <HeltPlade g={g} s={seat} me={true} hilite={isTgt({s:seat,u:null})} shake={shake.has("h"+seat)} dragtgt={isDragTgt({s:seat,u:null})} onClick={()=>klikHelt(seat)}/>
         <Pips p={me}/>
-        <button className={"kraft"+(hiB("kraft")?" tuthi":"")} disabled={!kanKraft} onClick={kraft} title={K.power.n+" ("+K.power.c+"⚡)"}>{K.power.ico}</button>
+        <button className={"kraft"+(hiB("kraft")?" tuthi":"")} disabled={!kanKraft} onClick={kraft} title={K.power.n+" ("+K.power.c+"⚡)"}><PowerIcon p={K.power}/></button>
         <span style={{marginLeft:"auto",color:"var(--dim)"}}>🂠{me.deck.length}</span>
         <button style={{color:"var(--dim)",fontSize:16,padding:"0 4px"}} onClick={()=>setBekraeft(true)}>🏳</button>
       </div>
@@ -2564,6 +2669,14 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
         </div>)}
       {drag && drag.kind==="play" && <div className={"dragkort"+((drag.over||drag.tgt)?" over":"")} style={{left:drag.x,top:drag.y}}><MiniCard id={drag.id}/></div>}
       {drag && drag.kind==="atk" && <div className={"dragatk"+(drag.tgt?" hit":"")} style={{left:drag.x,top:drag.y}}>⚔</div>}
+      {reveal && (
+        <div className="revealwrap" key={reveal.k} style={{"--rms":reveal.ms+"ms"}}>
+          <div className="revealkort">
+            <MiniCard id={reveal.id}/>
+            <div className="revealnavn">{CARDS[reveal.id]?CARDS[reveal.id].n:""}</div>
+          </div>
+        </div>
+      )}
       <div className="fxlag">
         {sparks.map(f=>{
           const ds={animationDelay:f.d+"s"};
@@ -2581,8 +2694,11 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
             : <div key={f.key} className="fxflyv" style={{left:f.x,top:f.y,"--tx":f.tx+"px","--ty":f.ty+"px"}}><CardArt id={f.id}/></div>;
           if(f.type==="zap"){
             const Z=zigzag(f.p1,f.p2), c=f.art==="spell"?"var(--fos)":"var(--amber)";
+            const vw=(typeof window!=="undefined"?window.innerWidth:1000);
+            const vh=(typeof window!=="undefined"?window.innerHeight:800);
             return (
-              <svg key={f.key} className={"fxzap"+(f.art==="spell"?" spell":"")} style={ds}>
+              <svg key={f.key} className={"fxzap"+(f.art==="spell"?" spell":"")} style={ds}
+                viewBox={"0 0 "+vw+" "+vh} preserveAspectRatio="none">
                 <polyline points={Z.main} fill="none" stroke={c} strokeWidth="3.5" strokeLinejoin="round"/>
                 {Z.br.map((b,i)=><polyline key={i} points={b} fill="none" stroke={c} strokeWidth="2" opacity="0.7" strokeLinejoin="round"/>)}
                 <polyline points={Z.main} fill="none" stroke="#ffffff" strokeWidth="1.3" opacity="0.9" strokeLinejoin="round"/>
@@ -2603,6 +2719,14 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
       )}
 
       {ptoast && <div className="optoast"><MiniCard id={ptoast.id}/><span style={{fontFamily:"var(--mono)",fontSize:12,color:"var(--dim)"}}><b style={{color:"var(--rod)"}}>{op.name} plays</b><br/><span style={{color:"var(--txt)",fontSize:14}}>{CARDS[ptoast.id]?CARDS[ptoast.id].n:"a card"}</span></span></div>}
+
+      {visSettings && (
+        <div className="slor" onClick={()=>setVisSettings(false)}>
+          <div className="ark setingame" onClick={e=>e.stopPropagation()}>
+            <SettingsScreen onBack={()=>setVisSettings(false)}/>
+          </div>
+        </div>
+      )}
 
       {sel && (
         <div className="slor" onClick={()=>setSel(null)}>
@@ -2696,6 +2820,12 @@ function SettingsScreen({onBack}){
           {[0,25,50,75,100].map(v=>(
             <button key={v} className={"minknap"+(pct===v?" aktiv":"")} onClick={()=>upd({slowness:v/100})}>{v}%</button>
           ))}
+        </div>
+        <p className="setnote" style={{marginTop:14}}>How long a played card is shown in the centre of the screen before its effect happens. Set to 0 to turn it off.</p>
+        <div className="setrow">
+          <input type="range" min="0" max="2500" step="100" value={s.cardRevealMs}
+            onChange={e=>upd({cardRevealMs:+e.target.value})} className="slider"/>
+          <span className="setval">{s.cardRevealMs===0?"off":(s.cardRevealMs/1000).toFixed(1)+"s"}</span>
         </div>
       </div>
 
@@ -2879,7 +3009,7 @@ function Regler({onBack}){
       <h2 className="ov">Classes</h2>
       <p className="rt">Each player picks a class. Class cards (marked with a colored dot) can only go in that class’s decks; all other cards are neutral.</p>
       {CLS_LIST.map(c=>{const k=CLASSES[c];return (
-        <p className="rt" key={c}><b style={{color:k.col}}>{k.ico} {k.n}</b> — {k.power.ico} {k.power.n} ({k.power.c}⚡): {k.power.txt}</p>);})}
+        <p className="rt" key={c}><b style={{color:k.col}}>{k.ico} {k.n}</b> — <PowerIcon p={k.power}/> {k.power.n} ({k.power.c}⚡): {k.power.txt}</p>);})}
       <h2 className="ov">Keywords</h2>
       <table className="kwtab"><tbody>
         {Object.values(KWINFO).map(k=><tr key={k.n}><td>{k.ico} {k.n}</td><td>{k.d}</td></tr>)}
