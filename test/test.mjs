@@ -12,7 +12,7 @@ const E = new Function(code)();
 
 // --- 1) antal kort ---
 console.log("Samlingskort:", E.COLL.length, "· klasser:", Object.keys(E.CLASSES).length);
-if (E.COLL.length !== 134) throw new Error("Forventede 134 kort, fandt " + E.COLL.length);
+if (E.COLL.length !== 144) throw new Error("Forventede 144 kort, fandt " + E.COLL.length);
 const leg = E.COLL.filter(id => E.CARDS[id].r === "L").length;
 console.log("Legendariske:", leg);
 

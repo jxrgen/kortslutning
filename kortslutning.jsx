@@ -28,7 +28,7 @@ const GLOSSARY = {
   "Signal Strength":"Boosts the power of your Spells while this unit is in play.",
   "Install":        "A one-time effect that triggers the moment the unit is played.",
   "Breakdown":      "A one-time effect that triggers when the unit is defeated (destroyed).",
-  "Overheat":       "Playing this deals the shown amount of damage to your own hero.",
+  "Overheat":       "Locks the shown amount of your energy on your NEXT turn (it can’t be spent).",
   "Backup":         "Leaves behind a smaller token unit when it is defeated.",
   "Chain":          "A bonus effect that triggers if you already played another card this turn.",
 };
@@ -245,6 +245,43 @@ l_titan:{ n:"TITAN-9000", e:"🗿", c:9, t:"unit", tr:"Robot", r:"L", a:8, h:8, 
   bc(g,s){ const b=g.players[1-s].board; if(!b.length) return; let m=b[0]; for(const x of b) if(effAtk(g,1-s,x)>effAtk(g,1-s,m)) m=x; m.dmg=999; sweep(g); } },
 l_overtek:{ cls:"tek", n:"THE OVERTECHNICIAN", e:"🧙", c:9, t:"unit", tr:null, r:"L", a:6, h:6, txt:"Install: Give all your other units +2/+2.",
   bc(g,s,u){ for(const x of g.players[s].board) if(x.uid!==u.uid){ x.a+=2; x.hM+=2; } } },
+
+// ===== RARE (◆) — stærkere end commons, findes sjældnere =====
+r_fluxkond:{ n:"Flux Capacitor", e:"⏳", c:3, t:"unit", tr:"Component", r:"R", a:2, h:3,
+  txt:"Install: Store 2 energy in your capacitor bank.",
+  bc(g,s,u){ addStored(g,s,2); } },
+r_brandmur:{ n:"Firewall Tower", e:"🧱", c:5, t:"unit", tr:"Component", r:"R", a:2, h:7, kw:["jord","iso"],
+  txt:"Grounded. Insulated." },
+r_stoedbolge:{ n:"Surge Wave", e:"🌊", c:4, t:"spell", r:"R",
+  txt:"Deal 2 damage to ALL enemy units.",
+  fx(g,s){ const n=2+sig(g,s); for(const u of [...g.players[1-s].board]) dmg(g,{s:1-s,u:u.uid},n,null); } },
+r_cachelaeser:{ n:"Cache Reader", e:"📖", c:3, t:"spell", r:"R",
+  txt:"Draw 2 cards.",
+  fx(g,s){ draw(g,s,2); } },
+r_magnetfelt:{ n:"Magnet Field", e:"🧲", c:3, t:"spell", r:"R", tgt:"eunit",
+  txt:"Return an enemy unit to its owner’s hand.",
+  fx(g,s,t){ bounce(g,t); } },
+r_turbolader:{ n:"Turbo Charger", e:"🏎️", c:2, t:"spell", r:"R", tgt:"funit",
+  txt:"Give a friendly unit +2 Attack and Turbo.",
+  fx(g,s,t){ buff(g,t,2,0); const u=refUnit(g,t); if(u){ u.akw.push("turbo"); u.jp=false; } } },
+
+// ===== FLERE LEGENDARIES (★) =====
+l_spejlserver:{ n:"MIRROR SERVER", e:"🪞", c:6, t:"unit", tr:"Robot", r:"L", a:3, h:4,
+  txt:"Install: Summon a fresh copy of a random enemy unit. If there are none, summon a 1/1 Bug.",
+  bc(g,s,u){ if(g.players[s].board.length>=MAXBOARD) return;
+    const eb=g.players[1-s].board;
+    if(eb.length){ summon(g,s,pick(eb).id); } else { summon(g,s,"t_bug"); } } },
+l_singularitet:{ n:"THE SINGULARITY", e:"🕳️", c:9, t:"unit", tr:null, r:"L", a:6, h:6, kw:["turbo"],
+  txt:"Turbo. Install: Gains +1/+1 for every other unit in play.",
+  bc(g,s,u){ let n=0; for(const p of [0,1]) for(const x of g.players[p].board) if(x.uid!==u.uid) n++;
+    if(n>0){ u.a+=n; u.hM+=n; } } },
+l_hovedafbryder:{ n:"MASTER BREAKER", e:"🎛️", c:8, t:"spell", r:"L",
+  txt:"Destroy ALL units. Both heroes repair 4.",
+  fx(g,s){ for(const p of [0,1]) for(const u of [...g.players[p].board]) dmg(g,{s:p,u:u.uid},99,null);
+    healHero(g,0,4); healHero(g,1,4); } },
+l_thorexe:{ n:"THOR.EXE", e:"🔨", c:7, t:"unit", tr:"Robot", r:"L", a:4, h:5, kw:["hoj"],
+  txt:"High Voltage. Install: Deal 1 damage to all enemy units.",
+  bc(g,s,u){ for(const x of [...g.players[1-s].board]) dmg(g,{s:1-s,u:x.uid},1,null); } },
 
 // ===== TOKENS (ikke i samlingen) =====
 
@@ -728,9 +765,10 @@ function validateDeck(list,cls){
   }
   return null;
 }
-function autoDeck(cls){
+function autoDeck(cls,allowed){
   cls=cls||"tek";
-  const pool=COLL.filter(id=>!CARDS[id].cls||CARDS[id].cls===cls);
+  const base=allowed&&allowed.length?COLL.filter(id=>allowed.includes(id)):COLL;
+  const pool=base.filter(id=>!CARDS[id].cls||CARDS[id].cls===cls);
   const list=[]; const cnt={};
   let guard=0;
   while(list.length<DECKSIZE && guard++<2000){
@@ -889,7 +927,7 @@ function codeGen(){ const A="ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; let c=""; for(le
 // langsomhed: 0 = normal fart, 1 = maks langsom. Skalerer ALLE animationers varighed.
 const DEFAULT_SETTINGS = {
   slowness: 0.4,             // 40% langsommere som udgangspunkt — mere læsbart
-  cardRevealMs: 900,         // hvor længe et spillet kort vises midt på skærmen før effekten sker
+  cardRevealMs: 1800,         // hvor længe et spillet kort vises midt på skærmen før effekten sker
   sound: true,              // lydeffekter
   music: true,              // 8-bit baggrundsmusik
   musicVol: 0.4,
@@ -906,6 +944,24 @@ function onSettings(fn){ _slisteners.add(fn); return ()=>_slisteners.delete(fn);
 // tempo-faktor: 1.0 ved 0% langsomhed, større = langsommere
 function tempo(){ return 1 + SETTINGS.slowness*1.5; }
 function slowMs(ms){ return Math.round(ms*tempo()); }
+
+// ---------- spillerprofil & kort-oplåsning ----------
+// Gemmes lokalt pr. spiller (window.storage). Commons er altid åbne;
+// Rare (◆) og Legendary (★) låses op ved at vinde kampe.
+const DEFAULT_PROFIL = { wins:0, games:0, unlocked:[] };
+function unlockedSetAf(profil){
+  const s=new Set();
+  for(const id of COLL) if(!CARDS[id].r) s.add(id);       // commons altid åbne
+  for(const id of (profil&&profil.unlocked)||[]) s.add(id);
+  return s;
+}
+function pickUnlock(uSet){
+  const lockedR=COLL.filter(id=>CARDS[id].r==="R"&&!uSet.has(id));
+  const lockedL=COLL.filter(id=>CARDS[id].r==="L"&&!uSet.has(id));
+  if(!lockedR.length&&!lockedL.length) return null;
+  const brugL = lockedL.length && (!lockedR.length || Math.random()<0.3);
+  return pick(brugL?lockedL:lockedR);
+}
 // ---------- lyd: 8-bit SFX + baggrundsmusik (syntetiseret, ingen filer) ----------
 const Audio8 = (() => {
   let ctx=null, master=null, musicGain=null, sfxGain=null, musicTimer=null, musicOn=false;
@@ -1029,9 +1085,11 @@ input:focus,select:focus{border-color:var(--cu)}
 /* ---- kort ---- */
 .haand .mkort:not(.spil){opacity:.62;filter:saturate(.7)}
 .mkort{position:relative;width:66px;height:92px;border-radius:9px;flex:none;
-  background:linear-gradient(180deg,var(--bg2),var(--bg1));border:1px solid var(--line);
+  background:url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'140'%20height%3D'140'%3E%3Cfilter%20id%3D'n'%3E%3CfeTurbulence%20type%3D'fractalNoise'%20baseFrequency%3D'0.85'%20numOctaves%3D'2'%20stitchTiles%3D'stitch'%2F%3E%3CfeColorMatrix%20values%3D'0%200%200%200%200.85%200%200%200%200%200.95%200%200%200%200%200.88%200%200%200%200.055%200'%2F%3E%3C%2Ffilter%3E%3Crect%20width%3D'140'%20height%3D'140'%20filter%3D'url(%23n)'%2F%3E%3C%2Fsvg%3E"),linear-gradient(180deg,var(--bg2),var(--bg1));
+  background-blend-mode:overlay,normal;border:1px solid var(--line);
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
-  padding-bottom:7px;overflow:hidden;transition:transform .12s,border-color .12s,box-shadow .12s}
+  padding-bottom:7px;overflow:hidden;transition:transform .12s,border-color .12s,box-shadow .12s;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.07),inset 0 -2px 4px rgba(0,0,0,.35),0 3px 8px rgba(0,0,0,.4)}
 .mkort::after{content:"";position:absolute;left:8px;right:8px;bottom:0;height:6px;border-radius:2px 2px 0 0;
   background:repeating-linear-gradient(90deg,var(--guld) 0 4px,#3a2f12 4px 7px);opacity:.85}
 .mkort.leg{border-color:var(--guld)}
@@ -1069,8 +1127,10 @@ input:focus,select:focus{border-color:var(--cu)}
 .helt .hp{font-weight:800;font-size:17px;color:var(--fos)} .helt .hp.lav{color:var(--rod)}
 .braet{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;padding:6px 8px;min-height:74px;position:relative}
 .braet.op{border-bottom:1px dashed var(--line)}
-.enh{position:relative;width:58px;height:66px;border-radius:10px;background:linear-gradient(180deg,var(--bg2),var(--bg1));
-  border:1.5px solid var(--line);display:flex;align-items:center;justify-content:center;transition:border-color .12s,box-shadow .12s}
+.enh{position:relative;width:58px;height:66px;border-radius:10px;
+  background:url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'140'%20height%3D'140'%3E%3Cfilter%20id%3D'n'%3E%3CfeTurbulence%20type%3D'fractalNoise'%20baseFrequency%3D'0.85'%20numOctaves%3D'2'%20stitchTiles%3D'stitch'%2F%3E%3CfeColorMatrix%20values%3D'0%200%200%200%200.85%200%200%200%200%200.95%200%200%200%200%200.88%200%200%200%200.055%200'%2F%3E%3C%2Ffilter%3E%3Crect%20width%3D'140'%20height%3D'140'%20filter%3D'url(%23n)'%2F%3E%3C%2Fsvg%3E"),linear-gradient(180deg,var(--bg2),var(--bg1));background-blend-mode:overlay,normal;
+  border:1.5px solid var(--line);display:flex;align-items:center;justify-content:center;transition:border-color .12s,box-shadow .12s;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08),inset 0 -3px 5px rgba(0,0,0,.4),0 4px 10px rgba(0,0,0,.45)}
 .enh .art{width:40px;height:40px}
 .enh.klar{border-color:var(--fos)!important;border-width:2px;box-shadow:0 0 15px rgba(95,224,160,.55)}
 .enh.klar::after{content:"⚔";position:absolute;top:-9px;right:-6px;font-size:14px;background:var(--fos);color:#0c1811;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 8px rgba(95,224,160,.8);z-index:4}
@@ -1121,7 +1181,10 @@ input:focus,select:focus{border-color:var(--cu)}
 .ark{background:var(--bg1);border:1px solid var(--line);border-radius:16px;padding:18px;width:100%;max-width:360px;
   max-height:85dvh;overflow-y:auto;animation:arkind .16s cubic-bezier(.3,1.3,.5,1)}
 @keyframes arkind{from{opacity:0;transform:scale(.9) translateY(10px)}}
-.storkort{border:1px solid var(--line);border-radius:14px;padding:14px;background:linear-gradient(180deg,var(--bg2),var(--bg1));position:relative;overflow:hidden}
+.storkort{border:1px solid var(--line);border-radius:14px;padding:14px;
+  background:url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'140'%20height%3D'140'%3E%3Cfilter%20id%3D'n'%3E%3CfeTurbulence%20type%3D'fractalNoise'%20baseFrequency%3D'0.85'%20numOctaves%3D'2'%20stitchTiles%3D'stitch'%2F%3E%3CfeColorMatrix%20values%3D'0%200%200%200%200.85%200%200%200%200%200.95%200%200%200%200%200.88%200%200%200%200.055%200'%2F%3E%3C%2Ffilter%3E%3Crect%20width%3D'140'%20height%3D'140'%20filter%3D'url(%23n)'%2F%3E%3C%2Fsvg%3E"),linear-gradient(180deg,var(--bg2),var(--bg1));background-blend-mode:overlay,normal;
+  position:relative;overflow:hidden;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06),inset 0 -3px 6px rgba(0,0,0,.35)}
 .storkort.leg{border-color:var(--guld)}
 .storkort::after{content:"";position:absolute;left:14px;right:14px;bottom:0;height:8px;border-radius:3px 3px 0 0;
   background:repeating-linear-gradient(90deg,var(--guld) 0 6px,#3a2f12 6px 10px);opacity:.85}
@@ -1250,8 +1313,8 @@ button:active{transform:scale(.97)}
 .enh.hastip:hover{overflow:visible;z-index:70}
 .braet{overflow:visible}
 /* modstanderens (øverste) enheder: tooltip nedad så den ikke ryger ud over toppen */
-.braet.op .enh .ctip{bottom:auto;top:calc(100% + 10px);transform:translateX(-50%) translateY(-6px)}
-.braet.op .enh:hover .ctip{transform:translateX(-50%) translateY(0)}
+.braet.op .enh .ctipwrap{bottom:auto;top:calc(100% + 10px);transform:translateX(-50%) translateY(-6px)}
+.braet.op .enh:hover .ctipwrap{transform:translateX(-50%) translateY(0)}
 .braet.op .enh .ctip::after{top:auto;bottom:100%;border-top-color:transparent;border-bottom-color:var(--ce,#5fe0a0)}
 /* ---- træk-og-slip ---- */
 .haand .mkort{touch-action:none}
@@ -1359,16 +1422,46 @@ button:active{transform:scale(.97)}
 .revealkort{display:flex;flex-direction:column;align-items:center;gap:12px;
   animation:revkort var(--rms,900ms) cubic-bezier(.2,1.2,.4,1) forwards}
 @keyframes revkort{
-  0%{transform:scale(.35) rotate(-10deg);opacity:0;filter:brightness(2.4)}
-  16%{transform:scale(1.5) rotate(0deg);opacity:1;filter:brightness(1.15)}
-  76%{transform:scale(1.5) rotate(0deg);opacity:1;filter:brightness(1)}
-  100%{transform:scale(1.1) rotate(0deg);opacity:0;filter:brightness(1)}
+  0%{transform:scale(.6) rotate(-6deg);opacity:0;filter:brightness(1.8) blur(3px)}
+  14%{transform:scale(1.5) rotate(0deg);opacity:1;filter:brightness(1.1) blur(0)}
+  82%{transform:scale(1.52) rotate(0deg);opacity:1;filter:brightness(1)}
+  100%{transform:scale(1.35) rotate(0deg);opacity:0;filter:brightness(1) blur(2px)}
 }
 .revealkort .mkort{box-shadow:0 0 40px rgba(95,224,160,.5),0 18px 50px rgba(0,0,0,.7);cursor:default}
-.revealkort .mkort .ctip{display:none}
+.revealkort .mkort .ctipwrap{display:none}
 .revealnavn{font-family:var(--disp);font-size:26px;letter-spacing:2px;color:var(--fos);
   text-shadow:0 0 20px rgba(95,224,160,.8);white-space:nowrap}
 @media (prefers-reduced-motion:reduce){ .revealwrap{display:none} }
+/* ---- 3D-dybde på kort-art ---- */
+.mkort .art,.enh .art{filter:drop-shadow(0 3px 4px rgba(0,0,0,.55)) drop-shadow(0 0 6px color-mix(in srgb, var(--ce,#5fe0a0) 25%, transparent))}
+.storart{filter:drop-shadow(0 5px 8px rgba(0,0,0,.6)) drop-shadow(0 0 10px color-mix(in srgb, var(--ce,#5fe0a0) 30%, transparent))}
+/* ---- legendariske/sjældne kort: diskret elektrisk liv ---- */
+.mkort.leg::before,.enh.leg::before{content:"";position:absolute;inset:-1px;border-radius:inherit;pointer-events:none;z-index:2;
+  background:linear-gradient(115deg,transparent 42%,rgba(255,215,130,.28) 50%,transparent 58%);
+  background-size:280% 280%;animation:legsheen 5.5s ease-in-out infinite;mix-blend-mode:screen}
+@keyframes legsheen{0%,60%{background-position:120% 120%}90%,100%{background-position:-40% -40%}}
+.mkort.leg,.enh.leg{animation:leggloed 3.4s ease-in-out infinite}
+@keyframes leggloed{50%{box-shadow:inset 0 1px 0 rgba(255,255,255,.07),inset 0 -2px 4px rgba(0,0,0,.35),0 3px 10px rgba(0,0,0,.4),0 0 16px rgba(240,196,90,.4)}}
+.mkort.rare,.enh.rare{border-color:#4db4ff}
+.mkort.rare::before,.enh.rare::before{content:"";position:absolute;inset:-1px;border-radius:inherit;pointer-events:none;z-index:2;
+  background:linear-gradient(115deg,transparent 44%,rgba(120,190,255,.18) 50%,transparent 56%);
+  background-size:280% 280%;animation:legsheen 7s ease-in-out infinite;mix-blend-mode:screen}
+@media (prefers-reduced-motion:reduce){.mkort.leg::before,.enh.leg::before,.mkort.rare::before,.enh.rare::before{animation:none;display:none}.mkort.leg,.enh.leg{animation:none}}
+/* ---- bane-dekoration ---- */
+.boarddecor{position:absolute;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.spilflade{position:relative}
+.bd-screw{position:absolute;opacity:.8;filter:drop-shadow(0 2px 3px rgba(0,0,0,.5))}
+.bd-screw.tl{top:8px;left:8px}.bd-screw.tr{top:8px;right:8px;transform:rotate(40deg)}
+.bd-screw.bl{bottom:8px;left:8px;transform:rotate(70deg)}.bd-screw.br{bottom:8px;right:8px;transform:rotate(15deg)}
+.bd-rail{position:absolute;top:6%;height:64%;width:26px;opacity:0;display:none}
+.bd-rail.left{left:4px}.bd-rail.right{right:4px}
+.bd-cpu{position:absolute;left:50%;transform:translateX(-50%);top:calc(50% - 20px);opacity:.5;display:none;
+  filter:drop-shadow(0 0 8px rgba(63,168,120,.3))}
+@media (min-width:820px){
+  .bd-rail{display:block;opacity:.75;animation:railfade 1s ease-out}
+  .bd-cpu{display:block}
+}
+@keyframes railfade{from{opacity:0}}
 /* ---- glossar sub-popup ---- */
 .mkwrow{position:absolute;top:2px;left:50%;transform:translateX(-50%) scale(.72);display:flex;gap:2px;z-index:3;transform-origin:top center}
 .ark.setingame{max-width:600px}
@@ -1381,6 +1474,17 @@ button:active{transform:scale(.97)}
 .glosspop::after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);
   border:6px solid transparent;border-top-color:var(--fos)}
 .glossterm:hover .glosspop{opacity:1;transform:translateX(-50%) translateY(0)}
+.unlocktitel{font-family:var(--disp);font-size:24px;letter-spacing:2px;color:var(--guld);
+  text-shadow:0 0 18px rgba(240,196,90,.7);margin-bottom:12px;animation:vpulse 1.6s ease-in-out infinite}
+.unlockkort{animation:unlockflip calc(.7s * var(--tempo,1)) cubic-bezier(.3,1.3,.5,1) both}
+@keyframes unlockflip{0%{transform:rotateY(90deg) scale(.7);opacity:0}100%{transform:rotateY(0) scale(1);opacity:1}}
+.bibkort{position:relative;display:inline-block}
+.bibkort.laast .mkort{filter:grayscale(.85) brightness(.55)}
+.bibkort .laas{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:20px;
+  pointer-events:none;filter:drop-shadow(0 2px 4px rgba(0,0,0,.8))}
+.samling{margin-top:10px;font-family:var(--mono);font-size:12px;color:var(--dim);text-align:center}
+.samling b{color:var(--fos)}
+.samlinghint{color:var(--amber);opacity:.8}
 /* ---- settings ---- */
 .setwrap{max-width:100%;text-align:left;max-height:none;overflow-y:visible}
 .setsec{margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--line)}
@@ -1440,14 +1544,26 @@ button:active{transform:scale(.97)}
   .vlogo,.vbadge,.slor.sejr .ark{animation:none}
 }
 /* ---- hover-tooltip ---- */
-.ctip{position:absolute;bottom:calc(100% + 10px);left:50%;transform:translateX(-50%) translateY(6px);
-  width:210px;background:linear-gradient(180deg,#14251b,#0b160f);border:1.5px solid var(--ce,#5fe0a0);
-  border-radius:12px;padding:10px 12px;text-align:left;z-index:80;pointer-events:none;
-  opacity:0;transition:opacity .12s,transform .12s;box-shadow:0 12px 30px rgba(0,0,0,.6);
-  font-family:system-ui,-apple-system,"Segoe UI",sans-serif;white-space:normal}
-.mkort.hastip:hover .ctip,.enh.hastip:hover .ctip{opacity:1;transform:translateX(-50%) translateY(0)}
+.ctipwrap{position:absolute;bottom:calc(100% + 10px);left:50%;transform:translateX(-50%) translateY(6px);
+  z-index:80;pointer-events:none;
+  opacity:0;transition:opacity .12s,transform .12s;white-space:normal}
+.mkort.hastip:hover .ctipwrap,.enh.hastip:hover .ctipwrap{opacity:1;transform:translateX(-50%) translateY(0)}
+.ctip{width:210px;flex:none;background:linear-gradient(180deg,#14251b,#0b160f);border:1.5px solid var(--ce,#5fe0a0);
+  border-radius:12px;padding:10px 12px;text-align:left;position:relative;
+  box-shadow:0 12px 30px rgba(0,0,0,.6);
+  font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
 .ctip::after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);
   border:7px solid transparent;border-top-color:var(--ce,#5fe0a0)}
+/* keyword-forklaringsbokse ved siden af tooltippen — én pr. keyword */
+.ctipkws{position:absolute;left:calc(100% + 8px);top:0;display:flex;flex-direction:column;gap:6px;width:190px}
+.ctipkw{display:flex;align-items:flex-start;gap:8px;background:linear-gradient(180deg,#12211a,#0a140e);
+  border:1.2px solid var(--line);border-radius:10px;padding:7px 9px;text-align:left;
+  box-shadow:0 8px 20px rgba(0,0,0,.5);
+  font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+.ctipkw .kwb{flex:none;margin-top:1px}
+.ctipkwtxt{display:flex;flex-direction:column;gap:1px}
+.ctipkwtxt b{font-size:11.5px;color:var(--fos)}
+.ctipkwtxt span{font-size:10.5px;color:#c3d6c9;line-height:1.35}
 .ctip-h{display:flex;align-items:baseline;gap:7px;margin-bottom:3px}
 .ctip-c{font-family:var(--mono);font-weight:700;color:var(--amber);font-size:13px}
 .ctip-n{font-weight:700;color:#eaf6ee;font-size:14px;line-height:1.15}
@@ -1455,7 +1571,7 @@ button:active{transform:scale(.97)}
 .ctip-s{font-family:var(--mono);font-size:13px;color:#eaf6ee;margin-bottom:5px}
 .ctip-k{font-family:var(--mono);font-size:11px;color:var(--fos);margin-bottom:5px;line-height:1.3}
 .ctip-x{font-size:12px;color:#cfe6d6;line-height:1.4}
-@media (hover:none){ .ctip{display:none} }
+@media (hover:none){ .ctipwrap{display:none} }
 /* ---- angreb/targeting ---- */
 .spilflade.targeting .enh:not(.tgt),.spilflade.targeting .helt:not(.tgt){opacity:.4;filter:saturate(.5)}
 .spilflade.targeting .mkort{opacity:.4}
@@ -1488,9 +1604,14 @@ button:active{transform:scale(.97)}
   .spilflade{max-width:1080px;width:100%;margin:0 auto}
   .mkort{width:92px;height:129px}.mkort .art{width:60px;height:60px}.mkort .nv{font-size:11px;max-height:24px}
   .mkort .stat{font-size:15px}.pris{font-size:15px;min-width:24px;height:24px}
-  .enh{width:96px;height:108px}.enh .art{width:64px;height:64px}.enh .stat{font-size:17px}
+  .enh{width:118px;height:132px;border-radius:13px}.enh .art{width:80px;height:80px}.enh .stat{font-size:20px}
+  .heltikon{width:64px;height:64px;font-size:36px}
+  .helt .nm{font-size:23px;max-width:340px}
+  .heltklasse{font-size:12px}
+  .helt .hp{font-size:21px}
+  .helt{padding:9px 22px 9px 10px;gap:14px}
   .enh .ikoner{font-size:11px}
-  .braet{gap:14px;min-height:150px}
+  .braet{gap:16px;min-height:170px}
   .bar{font-size:17px;padding:14px 28px}
   .midt{padding:6px 24px;font-size:13px}
   .haand{justify-content:center;overflow:visible;padding-top:26px;min-height:186px;gap:0}
@@ -1504,8 +1625,10 @@ button:active{transform:scale(.97)}
 @media (min-width:1200px){
   .spilflade{max-width:1240px}
   .mkort{width:104px;height:146px}.mkort .art{width:68px;height:68px}
-  .enh{width:108px;height:120px}.enh .art{width:72px;height:72px}
-  .braet{gap:18px;min-height:172px}
+  .enh{width:132px;height:148px}.enh .art{width:92px;height:92px}
+  .heltikon{width:72px;height:72px;font-size:40px}
+  .helt .nm{font-size:26px;max-width:420px}
+  .braet{gap:20px;min-height:192px}
   .haand .mkort{margin:0 -5px}
 }
 @media (prefers-reduced-motion:reduce){
@@ -1566,7 +1689,7 @@ function GlossTerm({term}){
 }
 function KwBadge({k,live,big}){
   const info=KWSVG[k]; if(!info) return null;
-  const sz=big?26:22;
+  const sz=big?31:26;
   return (
     <span className={"kwb"+(big?" big":"")} style={{color:info.c,borderColor:info.c}} title={info.t}
       dangerouslySetInnerHTML={{__html:'<svg viewBox="0 0 24 24" width="'+sz+'" height="'+sz+'">'+info.svg+'</svg>'}}/>
@@ -1597,19 +1720,36 @@ function cardKws(d){
 }
 function CardTip({id,live}){
   const d=CARDS[id];
-  // live = {atk,hp,kws} for en enhed på brættet (viser aktuelle værdier efter buffs/skade)
-  const kws=live?live.kws:cardKws(d);
+  // codes = keyword-koder (jord/turbo/...) — live fra brættet eller basiskortet
+  const codes = live&&live.codes ? live.codes
+    : (()=>{ const o=[]; if(d.kw) for(const k of d.kw){ if(KWSVG[k]) o.push(k); } if(d.sig) o.push("sig"); return o; })();
+  const names = codes.map(k=> k==="sig" ? ("Signal Strength"+(d.sig?" +"+d.sig:"")) : (KWINFO[k]?KWINFO[k].n:k));
   const atk=live?live.atk:d.a, hp=live?live.hp:d.h;
   return (
-    <div className="ctip">
-      <div className="ctip-h">
-        <span className="ctip-c">{d.c}⚡</span>
-        <span className="ctip-n">{d.n}</span>
+    <div className="ctipwrap">
+      <div className="ctip">
+        <div className="ctip-h">
+          <span className="ctip-c">{d.c}⚡</span>
+          <span className="ctip-n">{d.n}</span>
+        </div>
+        <div className="ctip-t">{d.t==="unit"?"Unit":"Spell"}{d.tr?" · "+d.tr:""}{d.cls&&CLASSES[d.cls]?" · "+CLASSES[d.cls].n:""}{d.r==="L"?" · ★ Legendary":""}{d.r==="R"?" · ◆ Rare":""}</div>
+        {d.t==="unit" && <div className="ctip-s">⚔ {atk} &nbsp; ❤ {hp}</div>}
+        {names.length>0 && <div className="ctip-k">{names.join(" · ")}</div>}
+        {d.txt && <div className="ctip-x">{d.txt}</div>}
       </div>
-      <div className="ctip-t">{d.t==="unit"?"Unit":"Spell"}{d.tr?" · "+d.tr:""}{d.cls&&CLASSES[d.cls]?" · "+CLASSES[d.cls].n:""}{d.r==="L"?" · ★ Legendary":""}</div>
-      {d.t==="unit" && <div className="ctip-s">⚔ {atk} &nbsp; ❤ {hp}</div>}
-      {kws.length>0 && <div className="ctip-k">{kws.join(" · ")}</div>}
-      {d.txt && <div className="ctip-x">{d.txt}</div>}
+      {codes.length>0 && (
+        <div className="ctipkws">
+          {codes.map(k=>{
+            const navn=k==="sig"?"Signal Strength":(KWINFO[k]?KWINFO[k].n:k);
+            return (
+              <div key={k} className="ctipkw">
+                <KwBadge k={k}/>
+                <div className="ctipkwtxt"><b>{navn}</b><span>{GLOSSARY[navn]||""}</span></div>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
@@ -1617,7 +1757,7 @@ function MiniCard({id,onClick,glow,count,style,dfx,xcls,tip,onPointerDown}){
   const d=CARDS[id];
   const kwl=[]; if(d.kw) for(const k of d.kw){ if(KWSVG[k]) kwl.push(k); } if(d.sig) kwl.push("sig");
   return (
-    <button className={"mkort tema"+(d.r==="L"?" leg":"")+(glow?" spil":"")+(xcls?" "+xcls:"")+(tip?" hastip":"")} onClick={onClick} onPointerDown={onPointerDown} style={{...themeVars(d),...style}} data-fx={dfx}>
+    <button className={"mkort tema"+(d.r==="L"?" leg":d.r==="R"?" rare":"")+(glow?" spil":"")+(xcls?" "+xcls:"")+(tip?" hastip":"")} onClick={onClick} onPointerDown={onPointerDown} style={{...themeVars(d),...style}} data-fx={dfx}>
       <span className="pris">{d.c}</span>
       {count!=null && <span className="antal">{count}×</span>}
       {d.cls&&CLASSES[d.cls]&&<span className="clsdot" style={{background:CLASSES[d.cls].col}}/>}
@@ -1640,7 +1780,7 @@ function StorKort({id,unitInfo,g}){
     if(d.sig) kwl.push("sig");
   }
   return (
-    <div className={"storkort tema"+(d.r==="L"?" leg":"")} style={themeVars(d)}>
+    <div className={"storkort tema"+(d.r==="L"?" leg":d.r==="R"?" rare":"")} style={themeVars(d)}>
       <div className="top">
         <CardArt id={id} pattern={true} className="storart"/>
         <div>
@@ -1747,10 +1887,8 @@ function UnitTile({g,s,u,mine,onClick,hilite,ready,shake,tuthi,onPointerDown,dra
   const hp=effHp(g,s,u), mx=effMax(g,s,u);
   const kwl=kwList(g,s,u);
   const sover=mine&&u.jp&&!hasKw(g,s,u,"turbo");
-  const liveKws=kws(g,s,u).map(k=>KWINFO[k]?KWINFO[k].n:null).filter(Boolean);
-  if(d.sig) liveKws.push("Signal Strength +"+d.sig);
   return (
-    <button className={"enh tema hastip"+(d.r==="L"?" leg":"")+(hilite?" tgt":"")+(ready?" klar":"")+(u.sil?" sil":"")+(sover?" sover":"")+(shake?" ryst":"")+(tuthi?" tuthi":"")+(dragtgt?" dragtgt":"")}
+    <button className={"enh tema hastip"+(d.r==="L"?" leg":d.r==="R"?" rare":"")+(hilite?" tgt":"")+(ready?" klar":"")+(u.sil?" sil":"")+(sover?" sover":"")+(shake?" ryst":"")+(tuthi?" tuthi":"")+(dragtgt?" dragtgt":"")}
       onClick={onClick} onPointerDown={onPointerDown} data-fx={u.uid} style={themeVars(d)}>
       {kwl.length>0 && <span className="ikoner">{kwl.map(k=><KwBadge key={k} k={k}/>)}</span>}
       {u.sh && <span className="skjold"/>}
@@ -1758,7 +1896,7 @@ function UnitTile({g,s,u,mine,onClick,hilite,ready,shake,tuthi,onPointerDown,dra
       {sover && <span className="zz">z</span>}
       <span className="stat a">{effAtk(g,s,u)}</span>
       <span className={"stat h"+(hp<mx?" skadet":"")}>{hp}</span>
-      <CardTip id={u.id} live={{atk:effAtk(g,s,u),hp,kws:liveKws}}/>
+      <CardTip id={u.id} live={{atk:effAtk(g,s,u),hp,codes:kwl}}/>
     </button>
   );
 }
@@ -2132,6 +2270,46 @@ function zigzag(a,b){
 }
 
 // ---------- spilskærm ----------
+// dekorativt lag rundt om banen (skruer, side-lister, CPU-emblem) — ren pynt
+function BoardDecor(){
+  const screw=(cls)=>(
+    <svg className={"bd-screw "+cls} viewBox="0 0 30 30" width="26" height="26" aria-hidden="true">
+      <circle cx="15" cy="15" r="13" fill="url(#bdscrew)" stroke="#3a5443" strokeWidth="1.5"/>
+      <circle cx="15" cy="15" r="13" fill="none" stroke="rgba(255,255,255,.15)" strokeWidth="1" strokeDasharray="2 4"/>
+      <path d="M8 15 H22 M15 8 V22" stroke="#20301f" strokeWidth="2.6" strokeLinecap="round"/>
+      <defs><radialGradient id="bdscrew" cx="35%" cy="30%"><stop offset="0%" stopColor="#7d947f"/><stop offset="70%" stopColor="#44584a"/><stop offset="100%" stopColor="#2c3d32"/></radialGradient></defs>
+    </svg>
+  );
+  return (
+    <div className="boarddecor" aria-hidden="true">
+      {screw("tl")}{screw("tr")}{screw("bl")}{screw("br")}
+      <svg className="bd-rail left" viewBox="0 0 26 400" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M13 0 V400" stroke="#c9814a" strokeOpacity=".25" strokeWidth="2.5"/>
+        <rect x="6" y="60" width="14" height="34" rx="3" fill="#173021" stroke="#3fa878" strokeOpacity=".5" strokeWidth="1.5"/>
+        <path d="M9 68 h8 M9 76 h8 M9 84 h8" stroke="#3fa878" strokeOpacity=".55" strokeWidth="1.5"/>
+        <circle cx="13" cy="150" r="4.5" fill="#0d1b13" stroke="#c9814a" strokeOpacity=".6" strokeWidth="1.5"/>
+        <rect x="8" y="220" width="10" height="26" rx="5" fill="#20301f" stroke="#f0b23e" strokeOpacity=".45" strokeWidth="1.5"/>
+        <path d="M13 226 v14" stroke="#f0b23e" strokeOpacity=".5" strokeWidth="1.5"/>
+        <circle cx="13" cy="310" r="4.5" fill="#0d1b13" stroke="#3fa878" strokeOpacity=".55" strokeWidth="1.5"/>
+      </svg>
+      <svg className="bd-rail right" viewBox="0 0 26 400" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M13 0 V400" stroke="#3fa878" strokeOpacity=".22" strokeWidth="2.5"/>
+        <circle cx="13" cy="90" r="4.5" fill="#0d1b13" stroke="#3fa878" strokeOpacity=".55" strokeWidth="1.5"/>
+        <rect x="6" y="170" width="14" height="34" rx="3" fill="#173021" stroke="#c9814a" strokeOpacity=".5" strokeWidth="1.5"/>
+        <path d="M9 178 h8 M9 186 h8 M9 194 h8" stroke="#c9814a" strokeOpacity=".55" strokeWidth="1.5"/>
+        <rect x="8" y="270" width="10" height="26" rx="5" fill="#20301f" stroke="#8b6cff" strokeOpacity=".4" strokeWidth="1.5"/>
+        <circle cx="13" cy="350" r="4.5" fill="#0d1b13" stroke="#f0b23e" strokeOpacity=".5" strokeWidth="1.5"/>
+      </svg>
+      <svg className="bd-cpu" viewBox="0 0 60 40" width="58" height="38" aria-hidden="true">
+        <rect x="14" y="8" width="32" height="24" rx="4" fill="#12241a" stroke="#3fa878" strokeOpacity=".7" strokeWidth="1.6"/>
+        <rect x="21" y="14" width="18" height="12" rx="2" fill="none" stroke="#3fa878" strokeOpacity=".45" strokeWidth="1.2"/>
+        <circle cx="30" cy="20" r="2.4" fill="#5fe0a0" fillOpacity=".8"/>
+        <path d="M18 4 v4 M26 4 v4 M34 4 v4 M42 4 v4 M18 32 v4 M26 32 v4 M34 32 v4 M42 32 v4 M10 14 h4 M10 22 h4 M46 14 h4 M46 22 h4"
+          stroke="#c9814a" strokeOpacity=".6" strokeWidth="1.8" strokeLinecap="round"/>
+      </svg>
+    </div>
+  );
+}
 function ChatBox({kode,seat,navn,opNavn}){
   const [beskeder,setBeskeder]=useState([]);
   const [tekst,setTekst]=useState("");
@@ -2598,6 +2776,7 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
 
   return (
     <div className={"spilflade"+(tmode?" targeting":"")+(tmode&&tmode.atk?" atkmode":"")} style={{"--tempo":tempoVar}}>
+      <BoardDecor/>
       {mode==="online" && kode && <ChatBox kode={kode} seat={seat} navn={me.name} opNavn={op.name}/>}
       {tmode && <button className={"banner"+(tmode.atk?" atk":"")} onClick={()=>setT(null)}>{tmode.label}<span className="bx">· tap here to cancel</span></button>}
       {turban>0 && myTurn && !slut && <div key={turban} className="turban">YOUR TURN</div>}
@@ -2823,7 +3002,7 @@ function SettingsScreen({onBack}){
         </div>
         <p className="setnote" style={{marginTop:14}}>How long a played card is shown in the centre of the screen before its effect happens. Set to 0 to turn it off.</p>
         <div className="setrow">
-          <input type="range" min="0" max="2500" step="100" value={s.cardRevealMs}
+          <input type="range" min="0" max="4000" step="100" value={s.cardRevealMs}
             onChange={e=>upd({cardRevealMs:+e.target.value})} className="slider"/>
           <span className="setval">{s.cardRevealMs===0?"off":(s.cardRevealMs/1000).toFixed(1)+"s"}</span>
         </div>
@@ -2873,7 +3052,7 @@ function SettingsScreen({onBack}){
     </div>
   );
 }
-function DeckBuilder({decks,gemDecks,onBack,flash}){
+function DeckBuilder({decks,gemDecks,onBack,flash,unlocked}){
   const [cards,setCards]=useState([]);
   const [navn,setNavn]=useState("My deck");
   const [dbCls,setDbCls]=useState("tek");
@@ -2892,6 +3071,7 @@ function DeckBuilder({decks,gemDecks,onBack,flash}){
     return true;
   });
   const add=id=>{
+    if(unlocked && !unlocked.has(id)) return flash("🔒 "+CARDS[id].n+" is locked — win games to unlock it!");
     const max=CARDS[id].r==="L"?1:2;
     if((cnt[id]||0)>=max) return flash("Max "+max+"× "+CARDS[id].n+".");
     if(cards.length>=DECKSIZE) return flash("The deck is full ("+DECKSIZE+").");
@@ -2932,7 +3112,12 @@ function DeckBuilder({decks,gemDecks,onBack,flash}){
           <button className={"fknap"+(fT==="spell"?" aktiv":"")} onClick={()=>setFT(fT==="spell"?null:"spell")}>Spells</button>
         </div>
         <div className="gitter">
-          {filt.map(id=><MiniCard key={id} id={id} count={cnt[id]||null} onClick={()=>setSel(id)}/>)}
+          {filt.map(id=>{
+            const laast=unlocked&&!unlocked.has(id);
+            return <div key={id} className={"bibkort"+(laast?" laast":"")}>
+              <MiniCard id={id} count={cnt[id]||null} onClick={()=>setSel(id)}/>
+              {laast&&<span className="laas">🔒</span>}
+            </div>;})}
         </div>
       </>}
 
@@ -3028,10 +3213,27 @@ function Regler({onBack}){
 }
 
 // ---------- hovedapp ----------
+function UnlockPop({id,onClose}){
+  const d=CARDS[id];
+  return (
+    <div className="slor sejr" onClick={onClose}>
+      <VictoryFX/>
+      <div className="ark" style={{textAlign:"center"}} onClick={e=>e.stopPropagation()}>
+        <div className="unlocktitel">{d.r==="L"?"★ LEGENDARY UNLOCKED":"◆ NEW CARD UNLOCKED"}</div>
+        <div className="unlockkort"><StorKort id={id}/></div>
+        <p className="rt" style={{color:"var(--dim)",marginTop:8}}>Added to your collection — build it into a deck!</p>
+        <button className="knap cu" onClick={onClose}>Nice!</button>
+      </div>
+    </div>
+  );
+}
 export default function App(){
   const [skaerm,setSkaerm]=useState("indlaeser");
   const [navn,setNavn]=useState("Technician");
   const [decks,setDecks]=useState([]);
+  const [profil,setProfil]=useState(null);
+  const [unlockPop,setUnlockPop]=useState(null); // nyligt oplåst kort-id
+  const prevStatus=useRef(null);
   const [g,setG]=useState(null);
   const [mode,setMode]=useState(null);
   const [seat,setSeat]=useState(0);
@@ -3069,12 +3271,44 @@ export default function App(){
     await loadSettings();
     const n=await stGet("ks-navn",false); if(n) setNavn(n);
     const d=await stGet("ks-decks",false); if(Array.isArray(d)) setDecks(d);
+    // spillerprofil: indlæs eller opret. Migrering: kort der allerede ligger i
+    // gemte decks forbliver oplåste (så gamle decks ikke går i stykker), og
+    // nye spillere får 2 gratis Rares som velkomst.
+    let pf=await stGet("ks-profil",false);
+    if(!pf){
+      pf={...DEFAULT_PROFIL, unlocked:[]};
+      const fraDecks=new Set();
+      if(Array.isArray(d)) for(const dk of d) for(const id of (dk.cards||[])) if(CARDS[id]&&CARDS[id].r) fraDecks.add(id);
+      pf.unlocked=[...fraDecks];
+      const u=unlockedSetAf(pf);
+      for(let i=0;i<2;i++){ const nyt=pickUnlock(u); if(nyt){ pf.unlocked.push(nyt); u.add(nyt); } }
+      await stSet("ks-profil",pf,false);
+    }
+    setProfil(pf);
     const k=await stGet("ks-cls",false); if(k&&CLASSES[k]) setClsS(k);
     let c=await stGet("ks-cid",false);
     if(!c){ c="c"+Math.random().toString(36).slice(2,10); await stSet("ks-cid",c,false); }
     cid.current=c;
     setSkaerm("menu");
   })(); },[]);
+
+  // kort-oplåsning: vind en kamp (solo/online) → lås et nyt kort op
+  useEffect(()=>{
+    const st=g?g.status:null;
+    const foer=prevStatus.current; prevStatus.current=st;
+    if(st!=="slut"||foer!=="igang") return;
+    if(mode!=="solo"&&mode!=="online") return;
+    const minSeat=mode==="solo"?0:seatRef.current;
+    if(!profil) return;
+    const pf={...profil, games:(profil.games||0)+1};
+    if(g.winner===minSeat){
+      pf.wins=(pf.wins||0)+1;
+      const u=unlockedSetAf(pf);
+      const nyt=pickUnlock(u);
+      if(nyt){ pf.unlocked=[...(pf.unlocked||[]),nyt]; setUnlockPop(nyt); Audio8.sfx.win(); }
+    }
+    setProfil(pf); stSet("ks-profil",pf,false);
+  },[g&&g.status]);
 
   const gemNavn=v=>{ setNavn(v); stSet("ks-navn",v,false); };
   const setCls=v=>{ setClsS(v); setDeckValg("auto"); stSet("ks-cls",v,false); };
@@ -3137,10 +3371,11 @@ export default function App(){
     }
   },[g,mode,seat]);
 
-  const findDeck=(valg,k)=>{
-    if(valg==="auto") return autoDeck(k);
+  const findDeck=(valg,k,fri)=>{
+    const pool=fri?null:(profil?[...unlockedSetAf(profil)]:null);
+    if(valg==="auto") return autoDeck(k,pool);
     const d=decks.find(x=>x.name===valg&&(x.cls||"tek")===k);
-    return d?d.cards.slice():autoDeck(k);
+    return d?d.cards.slice():autoDeck(k,pool);
   };
 
   const opretOnline=async()=>{
@@ -3213,7 +3448,7 @@ export default function App(){
     setG(ng); if(mode==="lokal") setHandoff(true);
   };
   const startSolo=()=>{
-    const d1=findDeck(deckValg,cls), d2=findDeck(deckValg2,cls2);
+    const d1=findDeck(deckValg,cls), d2=findDeck(deckValg2,cls2,true);
     let err=validateDeck(d1,cls)||validateDeck(d2,cls2); if(err) return flash(err);
     const ng=mkState({mode:"solo",names:[(navn||"Technician").trim()||"Technician","🤖 The Bot"],
       cids:[cid.current||"p1","bot"],decks:[d1,d2],classes:[cls,cls2]});
@@ -3295,11 +3530,14 @@ export default function App(){
         <button className="knap" onClick={()=>setSkaerm("deck")}>🃏 Card library & deck builder</button>
         <button className="knap" onClick={()=>setSkaerm("regler")}>📖 Rules</button>
         <button className="knap" onClick={()=>setSkaerm("settings")}>⚙️ Settings</button>
+        {profil && (()=>{ const u=unlockedSetAf(profil);
+          return <div className="samling">🃏 Collection: <b>{u.size}</b>/{COLL.length} cards · 🏆 {profil.wins||0} wins
+            {u.size<COLL.length && <span className="samlinghint"> — win games to unlock more!</span>}</div>; })()}
       </div>
     );
   }
   else if(skaerm==="deck"){
-    indhold=<DeckBuilder decks={decks} gemDecks={gemDecks} onBack={()=>setSkaerm("menu")} flash={flash}/>;
+    indhold=<DeckBuilder decks={decks} gemDecks={gemDecks} onBack={()=>setSkaerm("menu")} flash={flash} unlocked={profil?unlockedSetAf(profil):null}/>;
   }
   else if(skaerm==="regler"){
     indhold=<Regler onBack={()=>setSkaerm("menu")}/>;
@@ -3344,6 +3582,7 @@ export default function App(){
     <div className="app">
       <style>{CSS}</style>
       {indhold}
+      {unlockPop&&<UnlockPop id={unlockPop} onClose={()=>setUnlockPop(null)}/>}
       {toast&&<div className="toast">{toast}</div>}
     </div>
   );
