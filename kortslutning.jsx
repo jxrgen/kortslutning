@@ -950,10 +950,14 @@ async function stDel(k,sh){ if(!store) return; try{ await store.delete(k,sh); }c
 function codeGen(){ const A="ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; let c=""; for(let i=0;i<4;i++) c+=A[rnd(A.length)]; return c; }
 
 // ---------- indstillinger ----------
-// langsomhed: 0 = normal fart, 1 = maks langsom. Skalerer ALLE animationers varighed.
+// animMult: ganges på grund-tempoet 1.6 (den hidtidige standardfart).
+// 1.0 = som nu, 2.0 = dobbelt så langsomt, 0.5 = dobbelt så hurtigt.
+const ANIM_BASE = 1.6;
+const ANIM_SNAPS = [0.5,0.75,1,1.5,2];
+const REVEAL_SNAPS = [1000,2000,3000,4000,5000];
 const DEFAULT_SETTINGS = {
-  slowness: 0.4,             // 40% langsommere som udgangspunkt — mere læsbart
-  cardRevealMs: 1800,         // hvor længe et spillet kort vises midt på skærmen før effekten sker
+  animMult: 1,               // ×1 = nuværende animationsfart (snaps: ½× ¾× 1× 1½× 2×)
+  cardRevealMs: 3000,        // hvor længe et spillet kort vises midt på skærmen (1–5 s snaps)
   sound: true,              // lydeffekter
   music: true,              // 8-bit baggrundsmusik
   musicVol: 0.4,
@@ -962,13 +966,24 @@ const DEFAULT_SETTINGS = {
   showEnemyBanner: true,    // vis tydeligt hvad modstanderen gør
   keys: { end:" ", power:"q", cancel:"Escape", card1:"1",card2:"2",card3:"3",card4:"4",card5:"5",card6:"6",card7:"7",card8:"8",card9:"9",card10:"0" },
 };
+function snapTo(v,arr){ let best=arr[0]; for(const a of arr) if(Math.abs(a-v)<Math.abs(best-v)) best=a; return best; }
 let SETTINGS = { ...DEFAULT_SETTINGS };
 const _slisteners = new Set();
 function applySettings(next){ SETTINGS = { ...SETTINGS, ...next }; for(const f of _slisteners) f(SETTINGS); stSet("settings", SETTINGS); }
-async function loadSettings(){ const s=await stGet("settings"); if(s) SETTINGS={ ...DEFAULT_SETTINGS, ...s, keys:{ ...DEFAULT_SETTINGS.keys, ...(s.keys||{}) } }; for(const f of _slisteners) f(SETTINGS); return SETTINGS; }
+async function loadSettings(){ const s=await stGet("settings"); if(s){
+  // migration fra ældre gemte settings:
+  if(s.animMult==null){
+    const t = s.slowness!=null ? 1+s.slowness*1.5 : ANIM_BASE;   // gammel slowness → tempo
+    s.animMult = snapTo(t/ANIM_BASE, ANIM_SNAPS);
+  }
+  delete s.slowness;
+  if(s.cardRevealMs==null || s.cardRevealMs===1800) s.cardRevealMs=3000; // gammel default → ny (+1 s)
+  else if(s.cardRevealMs>0) s.cardRevealMs=snapTo(s.cardRevealMs, REVEAL_SNAPS); // 0 = slået fra, bevares
+  SETTINGS={ ...DEFAULT_SETTINGS, ...s, keys:{ ...DEFAULT_SETTINGS.keys, ...(s.keys||{}) } };
+} for(const f of _slisteners) f(SETTINGS); return SETTINGS; }
 function onSettings(fn){ _slisteners.add(fn); return ()=>_slisteners.delete(fn); }
-// tempo-faktor: 1.0 ved 0% langsomhed, større = langsommere
-function tempo(){ return 1 + SETTINGS.slowness*1.5; }
+// tempo-faktor: ANIM_BASE × animMult. ×1 = den hidtidige fart, ×2 = dobbelt tid.
+function tempo(){ return ANIM_BASE*(SETTINGS.animMult!=null?SETTINGS.animMult:1); }
 function slowMs(ms){ return Math.round(ms*tempo()); }
 
 // ---------- spillerprofil & kort-oplåsning ----------
@@ -1079,6 +1094,10 @@ const CSS = `
   --rod:#ff6d5a; --guld:#ffd166; --txt:#dbe7de; --dim:#87a693;
   --mono:ui-monospace,'Cascadia Mono','JetBrains Mono',Menlo,Consolas,monospace;
   --disp:'Impact','Haettenschweiler','Arial Narrow Bold',system-ui,sans-serif;
+  /* papirtekstur: lag 1 = fint korn, lag 2 = vandrette fibre (anisotropisk turbulence) */
+  --paper:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='180'%20height='180'%3E%3Cfilter%20id='g'%3E%3CfeTurbulence%20type='fractalNoise'%20baseFrequency='0.9'%20numOctaves='3'%20stitchTiles='stitch'/%3E%3CfeColorMatrix%20values='0%200%200%200%200.9%200%200%200%200%200.96%200%200%200%200%200.88%200%200%200%200.12%200'/%3E%3C/filter%3E%3Cfilter%20id='f'%3E%3CfeTurbulence%20type='turbulence'%20baseFrequency='0.014%200.09'%20numOctaves='2'%20seed='7'%20stitchTiles='stitch'/%3E%3CfeColorMatrix%20values='0%200%200%200%200.05%200%200%200%200%200.09%200%200%200%200%200.06%200%200%200%200.11%200'/%3E%3C/filter%3E%3Crect%20width='180'%20height='180'%20filter='url(%23g)'/%3E%3Crect%20width='180'%20height='180'%20filter='url(%23f)'/%3E%3C/svg%3E");
+  /* diskret top-belysning der giver kortfladen en let hvælvet fornemmelse */
+  --sheen:linear-gradient(170deg,rgba(255,255,255,.07),rgba(255,255,255,.02) 34%,rgba(0,0,0,.16) 82%);
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body,#root{height:100%}
@@ -1111,11 +1130,12 @@ input:focus,select:focus{border-color:var(--cu)}
 /* ---- kort ---- */
 .haand .mkort:not(.spil){opacity:.62;filter:saturate(.7)}
 .mkort{position:relative;width:66px;height:92px;border-radius:9px;flex:none;
-  background:url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'140'%20height%3D'140'%3E%3Cfilter%20id%3D'n'%3E%3CfeTurbulence%20type%3D'fractalNoise'%20baseFrequency%3D'0.85'%20numOctaves%3D'2'%20stitchTiles%3D'stitch'%2F%3E%3CfeColorMatrix%20values%3D'0%200%200%200%200.85%200%200%200%200%200.95%200%200%200%200%200.88%200%200%200%200.055%200'%2F%3E%3C%2Ffilter%3E%3Crect%20width%3D'140'%20height%3D'140'%20filter%3D'url(%23n)'%2F%3E%3C%2Fsvg%3E"),linear-gradient(180deg,var(--bg2),var(--bg1));
-  background-blend-mode:overlay,normal;border:1px solid var(--line);
+  background:var(--paper),var(--sheen),linear-gradient(180deg,var(--bg2),var(--bg1));
+  background-blend-mode:overlay,normal,normal;border:1px solid var(--line);
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
   padding-bottom:7px;overflow:hidden;transition:transform .12s,border-color .12s,box-shadow .12s;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.07),inset 0 -2px 4px rgba(0,0,0,.35),0 3px 8px rgba(0,0,0,.4)}
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.13),inset 0 -3px 6px rgba(0,0,0,.5),
+    0 1px 2px rgba(0,0,0,.55),0 7px 14px rgba(0,0,0,.42)}
 .mkort::after{content:"";position:absolute;left:8px;right:8px;bottom:0;height:6px;border-radius:2px 2px 0 0;
   background:repeating-linear-gradient(90deg,var(--guld) 0 4px,#3a2f12 4px 7px);opacity:.85}
 .mkort.leg{border-color:var(--guld)}
@@ -1154,9 +1174,10 @@ input:focus,select:focus{border-color:var(--cu)}
 .braet{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;padding:6px 8px;min-height:74px;position:relative}
 .braet.op{border-bottom:1px dashed var(--line)}
 .enh{position:relative;width:58px;height:66px;border-radius:10px;
-  background:url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'140'%20height%3D'140'%3E%3Cfilter%20id%3D'n'%3E%3CfeTurbulence%20type%3D'fractalNoise'%20baseFrequency%3D'0.85'%20numOctaves%3D'2'%20stitchTiles%3D'stitch'%2F%3E%3CfeColorMatrix%20values%3D'0%200%200%200%200.85%200%200%200%200%200.95%200%200%200%200%200.88%200%200%200%200.055%200'%2F%3E%3C%2Ffilter%3E%3Crect%20width%3D'140'%20height%3D'140'%20filter%3D'url(%23n)'%2F%3E%3C%2Fsvg%3E"),linear-gradient(180deg,var(--bg2),var(--bg1));background-blend-mode:overlay,normal;
+  background:var(--paper),var(--sheen),linear-gradient(180deg,var(--bg2),var(--bg1));background-blend-mode:overlay,normal,normal;
   border:1.5px solid var(--line);display:flex;align-items:center;justify-content:center;transition:border-color .12s,box-shadow .12s;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.08),inset 0 -3px 5px rgba(0,0,0,.4),0 4px 10px rgba(0,0,0,.45)}
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.12),inset 0 -3px 6px rgba(0,0,0,.5),
+    0 1px 2px rgba(0,0,0,.5),0 6px 12px rgba(0,0,0,.45)}
 .enh .art{width:40px;height:40px}
 .enh.klar{border-color:var(--fos)!important;border-width:2px;box-shadow:0 0 15px rgba(95,224,160,.55)}
 .enh.klar::after{content:"⚔";position:absolute;top:-9px;right:-6px;font-size:14px;background:var(--fos);color:#0c1811;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 8px rgba(95,224,160,.8);z-index:4}
@@ -1219,9 +1240,9 @@ input:focus,select:focus{border-color:var(--cu)}
   max-height:85dvh;overflow-y:auto;animation:arkind .16s cubic-bezier(.3,1.3,.5,1)}
 @keyframes arkind{from{opacity:0;transform:scale(.9) translateY(10px)}}
 .storkort{border:1px solid var(--line);border-radius:14px;padding:14px;
-  background:url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'140'%20height%3D'140'%3E%3Cfilter%20id%3D'n'%3E%3CfeTurbulence%20type%3D'fractalNoise'%20baseFrequency%3D'0.85'%20numOctaves%3D'2'%20stitchTiles%3D'stitch'%2F%3E%3CfeColorMatrix%20values%3D'0%200%200%200%200.85%200%200%200%200%200.95%200%200%200%200%200.88%200%200%200%200.055%200'%2F%3E%3C%2Ffilter%3E%3Crect%20width%3D'140'%20height%3D'140'%20filter%3D'url(%23n)'%2F%3E%3C%2Fsvg%3E"),linear-gradient(180deg,var(--bg2),var(--bg1));background-blend-mode:overlay,normal;
+  background:var(--paper),var(--sheen),linear-gradient(180deg,var(--bg2),var(--bg1));background-blend-mode:overlay,normal,normal;
   position:relative;overflow:hidden;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.06),inset 0 -3px 6px rgba(0,0,0,.35)}
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.1),inset 0 -4px 8px rgba(0,0,0,.42),0 10px 26px rgba(0,0,0,.5)}
 .storkort.leg{border-color:var(--guld)}
 .storkort::after{content:"";position:absolute;left:14px;right:14px;bottom:0;height:8px;border-radius:3px 3px 0 0;
   background:repeating-linear-gradient(90deg,var(--guld) 0 6px,#3a2f12 6px 10px);opacity:.85}
@@ -1249,21 +1270,33 @@ input:focus,select:focus{border-color:var(--cu)}
 .logknap{position:fixed;left:10px;bottom:calc(138px + env(safe-area-inset-bottom));z-index:36;width:38px;height:38px;border-radius:50%;
   background:var(--bg1);border:1px solid var(--line);font-size:16px}
 /* ---- historik-skinne (spillede kort) ---- */
-.histknap{position:fixed;right:10px;bottom:calc(138px + env(safe-area-inset-bottom));z-index:36;width:38px;height:38px;border-radius:50%;
+.histknap{position:fixed;left:10px;bottom:calc(184px + env(safe-area-inset-bottom));z-index:36;width:38px;height:38px;border-radius:50%;
   background:var(--bg1);border:1px solid var(--line);font-size:15px}
 .histknap.aktiv{border-color:var(--fos);color:var(--fos)}
-.histrail{position:fixed;right:6px;top:70px;bottom:calc(150px + env(safe-area-inset-bottom));z-index:35;
-  width:62px;display:flex;flex-direction:column;align-items:center;gap:6px;
+/* rækken der holder skinne + brætter */
+.spilmidt{flex:1;display:flex;min-height:0;position:relative}
+.braetwrap{flex:1;display:flex;flex-direction:column;min-height:0;min-width:0}
+.histrail{flex:none;align-self:stretch;width:62px;margin:6px 0 6px 6px;
+  display:flex;flex-direction:column;align-items:center;gap:6px;
   overflow-y:auto;overflow-x:hidden;scrollbar-width:none;
-  padding:6px 4px;border-radius:12px;background:rgba(8,14,10,.72);border:1px solid var(--line)}
+  padding:6px 4px;border-radius:12px;background:rgba(8,14,10,.72);border:1px solid var(--line);
+  box-shadow:inset 0 2px 6px rgba(0,0,0,.5),inset 0 -1px 0 rgba(255,255,255,.04)}
+/* på smalle skærme overlejrer skinnen brættet i stedet for at klemme det */
+@media (max-width:819px){
+  .histrail{position:absolute;left:4px;top:4px;bottom:4px;z-index:20;margin:0;
+    background:rgba(8,14,10,.93)}
+}
 .histrail::-webkit-scrollbar{display:none}
 .histrail .htop{position:sticky;top:-6px;z-index:2;width:100%;padding:2px 0 4px;text-align:center;
   background:rgba(8,14,10,.95);font-family:var(--mono);font-size:8.5px;letter-spacing:1px;color:var(--dim)}
 .histrail .htom{font-family:var(--mono);font-size:9px;color:var(--dim);text-align:center;padding:10px 2px;line-height:1.4}
 .hkort{position:relative;flex:none;width:50px;height:52px;border-radius:7px;cursor:pointer;
   display:flex;align-items:center;justify-content:center;
-  background:linear-gradient(180deg,var(--ct),var(--cb));border:1px solid color-mix(in srgb,var(--ce) 45%,transparent);
+  background:var(--paper),var(--sheen),linear-gradient(180deg,var(--ct),var(--cb));
+  background-blend-mode:overlay,normal,normal;
+  border:1px solid color-mix(in srgb,var(--ce) 45%,transparent);
   border-left:3px solid var(--dim);overflow:hidden;transition:transform .12s,box-shadow .12s;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 2px 5px rgba(0,0,0,.5);
   animation:histind .28s cubic-bezier(.3,1.3,.5,1)}
 @keyframes histind{from{opacity:0;transform:translateX(14px) scale(.85)}}
 .hkort.mig{border-left-color:var(--fos)}
@@ -1294,9 +1327,9 @@ input:focus,select:focus{border-color:var(--cu)}
   border-top:1px solid var(--line);padding-top:5px}
 .histtip .htintet{font-family:var(--mono);font-size:10px;color:var(--dim)}
 @media (min-width:820px){
-  .histrail{width:74px;top:84px;bottom:214px}
+  .histrail{width:74px;margin:8px 0 8px 8px}
   .hkort{width:60px;height:62px}.hkort .art{width:42px;height:42px}
-  .histknap{bottom:204px}
+  .histknap{bottom:250px}
 }
 .turban{position:fixed;top:38%;left:0;right:0;z-index:30;text-align:center;font-family:var(--disp);
   font-size:38px;letter-spacing:4px;color:var(--fos);text-shadow:0 0 24px rgba(95,224,160,.6);
@@ -1332,15 +1365,16 @@ p.rt{font-size:14px;line-height:1.55;color:var(--txt);margin:6px 0}
 .kknap{flex:1;text-align:center;padding:9px 4px;border-radius:12px;border:1px solid var(--line);
   background:var(--bg1);font-family:var(--mono);font-size:11.5px;color:var(--dim);line-height:1.5}
 .kinfo{font-size:12.5px;color:var(--dim);margin-top:7px;font-family:var(--mono)}
-.mkort.tema{background:linear-gradient(180deg,var(--ct),var(--cb));border-color:color-mix(in srgb,var(--ce) 55%,transparent)}
+.mkort.tema{background:var(--paper),var(--sheen),linear-gradient(180deg,var(--ct),var(--cb));
+  background-blend-mode:overlay,normal,normal;border-color:color-mix(in srgb,var(--ce) 55%,transparent)}
 .mkort.tema::after{background:var(--ce)}
-.enh.tema{background:linear-gradient(180deg,var(--ct),var(--cb));border-color:color-mix(in srgb,var(--ce) 55%,transparent)}
-.storkort.tema{background:linear-gradient(180deg,var(--ct),var(--cb));border-color:color-mix(in srgb,var(--ce) 60%,transparent)}
+.enh.tema{background:var(--paper),var(--sheen),linear-gradient(180deg,var(--ct),var(--cb));
+  background-blend-mode:overlay,normal,normal;border-color:color-mix(in srgb,var(--ce) 55%,transparent)}
+.storkort.tema{background:var(--paper),var(--sheen),linear-gradient(180deg,var(--ct),var(--cb));
+  background-blend-mode:overlay,normal,normal;border-color:color-mix(in srgb,var(--ce) 60%,transparent)}
 .storkort.tema .top{background:color-mix(in srgb,var(--ct) 60%,#0c1811);border-color:color-mix(in srgb,var(--ce) 40%,transparent)}
 .storkort.tema.leg{border-color:var(--guld)}
 /* ---- dybde & liv ---- */
-.mkort{box-shadow:0 4px 10px rgba(0,0,0,.45)}
-.enh{box-shadow:0 3px 8px rgba(0,0,0,.4)}
 .ark{box-shadow:0 18px 50px rgba(0,0,0,.6)}
 .knap{transition:transform .12s,border-color .15s,box-shadow .15s}
 .knap:hover{border-color:var(--cu);box-shadow:0 4px 14px rgba(0,0,0,.35)}
@@ -1706,7 +1740,8 @@ button:active{transform:scale(.97)}
   .haand .mkort{transform-origin:50% 135%;
     transform:rotate(calc(var(--o,0)*3.5deg)) translateY(calc(var(--a,0)*7px))}
   .haand .mkort.spil{transform:rotate(calc(var(--o,0)*3.5deg)) translateY(calc(var(--a,0)*7px - 8px))}
-  .haand .mkort:hover{transform:rotate(0deg) translateY(-34px) scale(1.16);z-index:6}
+  .haand .mkort:hover{transform:rotate(0deg) translateY(-34px) scale(1.16);z-index:6;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 4px 8px rgba(0,0,0,.5),0 24px 38px rgba(0,0,0,.62)}
   .hotkey{width:25px;height:25px;font-size:13px;margin-top:-11px}
   .kraft{width:58px;height:58px;font-size:26px}
   .logpanel{bottom:204px}.logknap{bottom:204px}
@@ -1896,7 +1931,7 @@ function HistTip({rec,pos,navne}){
   const linjer=rec.lines.filter(l=>!l.startsWith("✕ "));
   const tomt = chips.length===0 && linjer.length===0;
   return (
-    <div className="histtip" style={{...themeVars(d),top:pos.top,right:pos.right}}>
+    <div className="histtip" style={{...themeVars(d),top:pos.top,left:pos.left}}>
       <div className="hth"><b>{d.n}</b><span>{d.c}⚡</span></div>
       <div className="htmeta">{navne[rec.s]} · round {rec.r} · {d.t==="unit"?"unit":"spell"}</div>
       {chips.length>0 && <div className="htchips">{chips}</div>}
@@ -1914,7 +1949,8 @@ function HistRail({g,seat,navne}){
     const vh=(typeof window!=="undefined"?window.innerHeight:800);
     const vw=(typeof window!=="undefined"?window.innerWidth:1000);
     const top=Math.max(8,Math.min(b.top-6,vh-230));
-    setTip({rec,pos:{top,right:vw-b.left+10}});
+    const left=Math.min(b.right+10, vw-224);
+    setTip({rec,pos:{top,left}});
   };
   return (
     <>
@@ -2932,9 +2968,9 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
     return ()=>{ if(nedRef.current) clearInterval(nedRef.current); };
   },[kanIntet]);
 
-  const [slowUI,setSlowUI]=useState(SETTINGS.slowness);
-  useEffect(()=>onSettings(s=>setSlowUI(s.slowness)),[]);
-  const tempoVar=1+slowUI*1.5;
+  const [animUI,setAnimUI]=useState(SETTINGS.animMult!=null?SETTINGS.animMult:1);
+  useEffect(()=>onSettings(s=>setAnimUI(s.animMult!=null?s.animMult:1)),[]);
+  const tempoVar=ANIM_BASE*animUI;
   const [keys,setKeys]=useState(SETTINGS.keys);
   useEffect(()=>onSettings(s=>setKeys(s.keys)),[]);
   // historik-skinnen: åben som udgangspunkt på brede skærme, ellers via knappen
@@ -2958,36 +2994,40 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
           <span style={{marginLeft:8,color:"var(--dim)"}}>🂠{op.deck.length}</span>
         </span>
       </div>
-      <div className="braet op" ref={opAreaRef}>
-        {op.board.length===0&&<span style={{color:"var(--dim)",fontFamily:"var(--mono)",fontSize:11}}>— empty board —</span>}
-        {op.board.map(u=>
-          <UnitTile key={u.uid} g={g} s={1-seat} u={u} mine={false} tuthi={hiB("eunit:"+u.id)} shake={shake.has(u.uid)}
-            dragtgt={isDragTgt({s:1-seat,u:u.uid})}
-            hilite={isTgt({s:1-seat,u:u.uid})} onClick={()=>klikEnhed(1-seat,u)}/>)}
-      </div>
+      <div className="spilmidt">
+        {visHist && <HistRail g={g} seat={seat} navne={[g.players[0].name,g.players[1].name]}/>}
+        <div className="braetwrap">
+          <div className="braet op" ref={opAreaRef}>
+            {op.board.length===0&&<span style={{color:"var(--dim)",fontFamily:"var(--mono)",fontSize:11}}>— empty board —</span>}
+            {op.board.map(u=>
+              <UnitTile key={u.uid} g={g} s={1-seat} u={u} mine={false} tuthi={hiB("eunit:"+u.id)} shake={shake.has(u.uid)}
+                dragtgt={isDragTgt({s:1-seat,u:u.uid})}
+                hilite={isTgt({s:1-seat,u:u.uid})} onClick={()=>klikEnhed(1-seat,u)}/>)}
+          </div>
 
-      <div className="midt">
-        <span>Round {Math.max(1,Math.ceil(g.turn/2))}</span>
-        <span style={{color:myTurn?"var(--fos)":"var(--dim)"}}>{slut?"Game over":(myTurn?"⚡ Your turn":"Waiting for "+op.name+"…")}</span>
-        <button className={"slutknap"+(hiB("end")?" tuthi":"")+(nedtael!=null?" haster":"")} disabled={!myTurn||slut}
-          onClick={()=>{ if(!tOK("end")){nope();return;} Audio8.sfx.endturn(); act(x=>endTurn(x,seat)); }}>
-          END TURN
-          {nedtael!=null && <span className="nedtael">{nedtael}</span>}
-        </button>
-      </div>
+          <div className="midt">
+            <span>Round {Math.max(1,Math.ceil(g.turn/2))}</span>
+            <span style={{color:myTurn?"var(--fos)":"var(--dim)"}}>{slut?"Game over":(myTurn?"⚡ Your turn":"Waiting for "+op.name+"…")}</span>
+            <button className={"slutknap"+(hiB("end")?" tuthi":"")+(nedtael!=null?" haster":"")} disabled={!myTurn||slut}
+              onClick={()=>{ if(!tOK("end")){nope();return;} Audio8.sfx.endturn(); act(x=>endTurn(x,seat)); }}>
+              END TURN
+              {nedtael!=null && <span className="nedtael">{nedtael}</span>}
+            </button>
+          </div>
 
-      {kanAngribe>0 && mode!=="tutorial" &&
-        <div className="atkhint">⚔ Tap a unit with a sword badge, then tap what you want to attack</div>}
-      <div className={"braet"+(drag&&drag.over?" dropzone":"")} ref={braetRef}>
-        {me.board.length===0&&<span style={{color:"var(--dim)",fontFamily:"var(--mono)",fontSize:11}}>— empty board —</span>}
-        {me.board.map(u=>
-          <UnitTile key={u.uid} g={g} s={seat} u={u} mine={true} tuthi={hiB("unit:"+u.id)} shake={shake.has(u.uid)}
-            ready={myTurn&&attackTargets(g,seat,u.uid).length>0}
-            onPointerDown={(e)=>startAttackDrag(u,e)}
-            dragtgt={isDragTgt({s:seat,u:u.uid})}
-            hilite={isTgt({s:seat,u:u.uid})} onClick={()=>klikEnhed(seat,u)}/>)}
+          {kanAngribe>0 && mode!=="tutorial" &&
+            <div className="atkhint">⚔ Tap a unit with a sword badge, then tap what you want to attack</div>}
+          <div className={"braet"+(drag&&drag.over?" dropzone":"")} ref={braetRef}>
+            {me.board.length===0&&<span style={{color:"var(--dim)",fontFamily:"var(--mono)",fontSize:11}}>— empty board —</span>}
+            {me.board.map(u=>
+              <UnitTile key={u.uid} g={g} s={seat} u={u} mine={true} tuthi={hiB("unit:"+u.id)} shake={shake.has(u.uid)}
+                ready={myTurn&&attackTargets(g,seat,u.uid).length>0}
+                onPointerDown={(e)=>startAttackDrag(u,e)}
+                dragtgt={isDragTgt({s:seat,u:u.uid})}
+                hilite={isTgt({s:seat,u:u.uid})} onClick={()=>klikEnhed(seat,u)}/>)}
+          </div>
+        </div>
       </div>
-
       {/* mig */}
       <div className="bar min">
         <HeltPlade g={g} s={seat} me={true} hilite={isTgt({s:seat,u:null})} shake={shake.has("h"+seat)} dragtgt={isDragTgt({s:seat,u:null})} onClick={()=>klikHelt(seat)}/>
@@ -3059,7 +3099,6 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
           return null;
         })}
       </div>
-      {visHist && <HistRail g={g} seat={seat} navne={[g.players[0].name,g.players[1].name]}/>}
       <button className={"histknap"+(visHist?" aktiv":"")} onClick={()=>setVisHist(v=>!v)}
         title="Played cards">🃏</button>
       <button className="logknap" onClick={()=>setVisLog(v=>!v)}>{visLog?"✕":"📜"}</button>
@@ -3152,7 +3191,9 @@ function SettingsScreen({onBack}){
     window.addEventListener("keydown",onKey,{once:true});
     return ()=>window.removeEventListener("keydown",onKey);
   },[rebind]);
-  const pct=Math.round(s.slowness*100);
+  const animIdx=Math.max(0,ANIM_SNAPS.indexOf(snapTo(s.animMult!=null?s.animMult:1,ANIM_SNAPS)));
+  const revIdx=Math.max(0,REVEAL_SNAPS.indexOf(snapTo(s.cardRevealMs||3000,REVEAL_SNAPS)));
+  const multTxt=m=>(m===0.5?"½×":m===0.75?"¾×":m===1.5?"1½×":m+"×");
   const keyName=(k)=> k===" "?"Space": k==="Escape"?"Esc": (k||"").length===1?k.toUpperCase():k;
   const shortcuts=[
     ["end","End turn"],["power","Hero power"],["cancel","Cancel / deselect"],
@@ -3165,22 +3206,27 @@ function SettingsScreen({onBack}){
 
       <div className="setsec">
         <div className="seth">Game speed</div>
-        <p className="setnote">How slow and readable the animations play. Higher = slower, easier to follow what happens.</p>
+        <p className="setnote">Length of all animations. ×1 is the standard pace, ×2 takes twice as long — slower is easier to follow.</p>
         <div className="setrow">
-          <input type="range" min="0" max="100" value={pct}
-            onChange={e=>upd({slowness:(+e.target.value)/100})} className="slider"/>
-          <span className="setval">{pct}% slow</span>
+          <input type="range" min="0" max={ANIM_SNAPS.length-1} step="1" value={animIdx}
+            onChange={e=>upd({animMult:ANIM_SNAPS[+e.target.value]})} className="slider snaps"/>
+          <span className="setval">{multTxt(ANIM_SNAPS[animIdx])}</span>
         </div>
         <div className="setpreset">
-          {[0,25,50,75,100].map(v=>(
-            <button key={v} className={"minknap"+(pct===v?" aktiv":"")} onClick={()=>upd({slowness:v/100})}>{v}%</button>
+          {ANIM_SNAPS.map((m,i)=>(
+            <button key={m} className={"minknap"+(animIdx===i?" aktiv":"")} onClick={()=>upd({animMult:m})}>{multTxt(m)}</button>
           ))}
         </div>
-        <p className="setnote" style={{marginTop:14}}>How long a played card is shown in the centre of the screen before its effect happens. Set to 0 to turn it off.</p>
+        <p className="setnote" style={{marginTop:14}}>How long a played card is shown in the centre of the screen before its effect happens.</p>
         <div className="setrow">
-          <input type="range" min="0" max="4000" step="100" value={s.cardRevealMs}
-            onChange={e=>upd({cardRevealMs:+e.target.value})} className="slider"/>
-          <span className="setval">{s.cardRevealMs===0?"off":(s.cardRevealMs/1000).toFixed(1)+"s"}</span>
+          <input type="range" min="0" max={REVEAL_SNAPS.length-1} step="1" value={revIdx}
+            onChange={e=>upd({cardRevealMs:REVEAL_SNAPS[+e.target.value]})} className="slider snaps"/>
+          <span className="setval">{(REVEAL_SNAPS[revIdx]/1000)+"s"}</span>
+        </div>
+        <div className="setpreset">
+          {REVEAL_SNAPS.map((ms,i)=>(
+            <button key={ms} className={"minknap"+(revIdx===i?" aktiv":"")} onClick={()=>upd({cardRevealMs:ms})}>{ms/1000}s</button>
+          ))}
         </div>
       </div>
 
