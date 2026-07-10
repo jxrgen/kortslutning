@@ -403,7 +403,29 @@ function sig(g,s){ let n=0; for(const u of g.players[s].board){ if(!u.sil) n+=CA
 
 // ---------- grundhandlinger ----------
 function nuid(g){ return "u"+(g.n++); }
-function log(g,m){ g.log.push(m); if(g.log.length>60) g.log.shift(); }
+function log(g,m){
+  if(g._rec && g._rec.lines.length<8) g._rec.lines.push(m);
+  g.log.push(m); if(g.log.length>60) g.log.shift();
+}
+/* ---------- historik ----------
+   Hvert spillet kort optages som en post i g.hist: hvilke log-linjer der opstod
+   mens kortet blev afviklet, hvilke enheder der døde, hvad der blev tilkaldt, og
+   hvordan begge heltes HP ændrede sig. g._rec peger på den post der optages lige
+   nu (kun sat inde i playCard) — log/sweep/summon skriver til den. */
+const MAXHIST = 24;
+function recStart(g,s,id){
+  const rec={ k:(g.hk=(g.hk||0)+1), s, id, r:Math.max(1,Math.ceil(g.turn/2)),
+    _hp:[g.players[0].hp,g.players[1].hp], kills:[], sum:[], lines:[] };
+  g._rec=rec; return rec;
+}
+function recEnd(g,rec){
+  g._rec=null;
+  rec.dhp=[g.players[0].hp-rec._hp[0], g.players[1].hp-rec._hp[1]];
+  delete rec._hp;
+  if(!g.hist) g.hist=[];
+  g.hist.push(rec);
+  if(g.hist.length>MAXHIST) g.hist.shift();
+}
 function refUnit(g,r){ if(!r||r.u==null) return null; return g.players[r.s].board.find(x=>x.uid===r.u)||null; }
 function checkWin(g){
   if(g.status!=="igang") return;
@@ -444,6 +466,7 @@ function sweep(g){
     const b=g.players[ds].board; b.splice(b.indexOf(dead),1);
     g.players[ds].grave++;
     fxPush(g,{t:"boom",s:ds,u:dead.uid});
+    if(g._rec) g._rec.kills.push({id:dead.id,s:ds});
     log(g,"✕ "+CARDS[dead.id].n+" breaks down.");
     const def=CARDS[dead.id];
     if(!dead.sil && def.dr) def.dr(g,ds,dead);
@@ -485,6 +508,7 @@ function summon(g,s,id){
   if(g.players[s].board.length>=MAXBOARD) return null;
   const u=mkUnit(g,id); g.players[s].board.push(u);
   fxPush(g,{t:"pop",s,u:u.uid});
+  if(g._rec) g._rec.sum.push({id,s});
   return u;
 }
 function buff(g,ref,a,h){ const u=refUnit(g,ref); if(u){ u.a+=a; u.hM+=h; } }
@@ -584,6 +608,7 @@ function playCard(g,s,handUid,tref){
   if(d.t==="spell"&&tref) fxPush(g,{t:"zap",fs:s,fu:null,ts:tref.s,tu:tref.u,art:"spell"});
   else if(d.t==="spell") fxPush(g,{t:"cast",s});
   log(g,"▶ "+p.name+" plays "+d.n+".");
+  const rec=recStart(g,s,id);
   if(d.t==="unit"){
     const u=mkUnit(g,id); p.board.push(u);
     if(d.bcTgt){
@@ -595,6 +620,7 @@ function playCard(g,s,handUid,tref){
     d.fx(g,s,tref||null,combo);
   }
   sweep(g); checkWin(g);
+  recEnd(g,rec);
   return null;
 }
 function attackTargets(g,s,uid){
@@ -741,7 +767,7 @@ function mkPlayer(name,cid,deckIds,cls){
 function mkState(cfg){
   const starter=cfg.starter!=null?cfg.starter:rnd(2);
   const g={ v:1, seq:1, mode:cfg.mode, code:cfg.code||null, status:"igang", winner:null,
-    turn:0, active:starter, n:1, last:null, log:[], fx:[], fxk:0, rematch:[false,false],
+    turn:0, active:starter, n:1, last:null, log:[], fx:[], fxk:0, hist:[], hk:0, rematch:[false,false],
     players:[ mkPlayer(cfg.names[0],cfg.cids[0],cfg.decks[0],cfg.classes&&cfg.classes[0]),
               mkPlayer(cfg.names[1],cfg.cids[1],cfg.decks[1],cfg.classes&&cfg.classes[1]) ] };
   log(g,"⚡ CARDWARE CRASH — "+g.players[0].name+" vs "+g.players[1].name+".");
@@ -1168,7 +1194,18 @@ input:focus,select:focus{border-color:var(--cu)}
 .pip.laast{background:#3a1410;border-color:var(--rod)}
 .pip.gemt{background:var(--fos);border-color:var(--fos)}
 .haand{display:flex;gap:7px;padding:9px 10px calc(10px + env(safe-area-inset-bottom));overflow-x:auto;
-  background:rgba(9,16,11,.75);border-top:1px solid var(--line);min-height:116px}
+  background:rgba(9,16,11,.75);border-top:1px solid var(--line);min-height:128px}
+/* ---- håndplads: kort + tastetal nedenunder ---- */
+.hslot{position:relative;flex:none;display:flex;flex-direction:column;align-items:center}
+.hotkey{margin-top:-9px;z-index:4;width:20px;height:20px;border-radius:50%;flex:none;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:11px;font-weight:700;line-height:1;
+  color:#0a140e;background:var(--cu2);border:1.5px solid #0a140e;
+  box-shadow:0 2px 5px rgba(0,0,0,.6);text-transform:uppercase;pointer-events:none;
+  transition:background .12s,color .12s,transform .12s}
+.hslot.kan .hotkey{background:var(--fos);box-shadow:0 0 9px rgba(95,224,160,.7),0 2px 5px rgba(0,0,0,.6)}
+.hslot.valgt .hotkey{transform:scale(1.18);background:#fff}
+.hslot:not(.kan) .hotkey{background:#4d5a51;color:#0a140e}
 .kraft{width:44px;height:44px;border-radius:50%;border:1.5px solid var(--cu);background:radial-gradient(circle at 35% 30%,#3a2415,#20140a);
   font-size:19px;display:flex;align-items:center;justify-content:center;flex:none}
 .kraft:disabled{opacity:.4;border-color:var(--line)}
@@ -1202,15 +1239,65 @@ input:focus,select:focus{border-color:var(--cu)}
 @keyframes ind{from{opacity:0;transform:translateX(-50%) translateY(8px)}}
 .optoast{position:fixed;top:64px;left:50%;transform:translateX(-50%);z-index:38;display:flex;gap:10px;align-items:center;
   background:#0a140e;border:1px solid var(--line);border-radius:14px;padding:8px 12px;animation:ind .2s}
-.logpanel{position:fixed;left:8px;bottom:130px;z-index:36;width:min(320px,86vw);max-height:44dvh;overflow-y:auto;
+.logpanel{position:fixed;left:8px;bottom:142px;z-index:36;width:min(320px,86vw);max-height:44dvh;overflow-y:auto;
   background:rgba(8,14,10,.96);border:1px solid var(--line);border-radius:12px;padding:0;
   font-family:var(--mono);font-size:11.5px;line-height:1.5;color:var(--dim)}
 .logpanel .lhoved{position:sticky;top:0;display:flex;align-items:center;justify-content:space-between;
   background:rgba(8,14,10,.98);border-bottom:1px solid var(--line);padding:8px 10px;font-weight:700;color:var(--cu2)}
 .logpanel .lluk{font-size:16px;line-height:1;padding:2px 6px;color:var(--dim)}
 .logpanel .lkrop{padding:8px 10px}
-.logknap{position:fixed;left:10px;bottom:calc(126px + env(safe-area-inset-bottom));z-index:36;width:38px;height:38px;border-radius:50%;
+.logknap{position:fixed;left:10px;bottom:calc(138px + env(safe-area-inset-bottom));z-index:36;width:38px;height:38px;border-radius:50%;
   background:var(--bg1);border:1px solid var(--line);font-size:16px}
+/* ---- historik-skinne (spillede kort) ---- */
+.histknap{position:fixed;right:10px;bottom:calc(138px + env(safe-area-inset-bottom));z-index:36;width:38px;height:38px;border-radius:50%;
+  background:var(--bg1);border:1px solid var(--line);font-size:15px}
+.histknap.aktiv{border-color:var(--fos);color:var(--fos)}
+.histrail{position:fixed;right:6px;top:70px;bottom:calc(150px + env(safe-area-inset-bottom));z-index:35;
+  width:62px;display:flex;flex-direction:column;align-items:center;gap:6px;
+  overflow-y:auto;overflow-x:hidden;scrollbar-width:none;
+  padding:6px 4px;border-radius:12px;background:rgba(8,14,10,.72);border:1px solid var(--line)}
+.histrail::-webkit-scrollbar{display:none}
+.histrail .htop{position:sticky;top:-6px;z-index:2;width:100%;padding:2px 0 4px;text-align:center;
+  background:rgba(8,14,10,.95);font-family:var(--mono);font-size:8.5px;letter-spacing:1px;color:var(--dim)}
+.histrail .htom{font-family:var(--mono);font-size:9px;color:var(--dim);text-align:center;padding:10px 2px;line-height:1.4}
+.hkort{position:relative;flex:none;width:50px;height:52px;border-radius:7px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(180deg,var(--ct),var(--cb));border:1px solid color-mix(in srgb,var(--ce) 45%,transparent);
+  border-left:3px solid var(--dim);overflow:hidden;transition:transform .12s,box-shadow .12s;
+  animation:histind .28s cubic-bezier(.3,1.3,.5,1)}
+@keyframes histind{from{opacity:0;transform:translateX(14px) scale(.85)}}
+.hkort.mig{border-left-color:var(--fos)}
+.hkort.dem{border-left-color:var(--rod)}
+.hkort:hover,.hkort.aaben{transform:scale(1.08);box-shadow:0 0 0 1px var(--cu2),0 4px 12px rgba(0,0,0,.6);z-index:2}
+.hkort .art{width:34px;height:34px}
+.hkort .hpris{position:absolute;top:-1px;right:-1px;min-width:14px;height:14px;padding:0 2px;border-radius:0 6px 0 6px;
+  background:var(--amber);color:#1c1405;font-family:var(--mono);font-size:9px;font-weight:700;
+  display:flex;align-items:center;justify-content:center}
+.hkort .hdoed{position:absolute;bottom:1px;right:2px;font-size:9px;line-height:1;color:var(--rod);text-shadow:0 0 3px #000}
+.hkort .hhit{position:absolute;bottom:1px;left:2px;font-family:var(--mono);font-size:9px;font-weight:700;
+  line-height:1;color:var(--rod);text-shadow:0 0 3px #000}
+.histtip{position:fixed;z-index:70;width:214px;pointer-events:none;
+  background:linear-gradient(180deg,#14251b,#0b160f);border:1.5px solid var(--ce,#5fe0a0);border-radius:10px;
+  padding:8px 10px;box-shadow:0 10px 26px rgba(0,0,0,.65);animation:ind .12s}
+.histtip .hth{display:flex;align-items:baseline;gap:6px}
+.histtip .hth b{font-family:var(--disp);letter-spacing:.5px;font-size:14px;color:var(--cu2)}
+.histtip .hth span{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--amber)}
+.histtip .htmeta{font-family:var(--mono);font-size:10px;color:var(--dim);margin-bottom:6px}
+.histtip .htchips{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px}
+.histtip .chip{font-family:var(--mono);font-size:9.5px;padding:2px 5px;border-radius:5px;
+  border:1px solid var(--line);background:rgba(0,0,0,.3);color:#c3d6c9}
+.histtip .chip.skade{border-color:var(--rod);color:#ffb0a4}
+.histtip .chip.heal{border-color:var(--fos);color:var(--fos)}
+.histtip .chip.doed{border-color:var(--rod);background:rgba(120,20,20,.35);color:#ffd2cb}
+.histtip .chip.doed.selv{border-color:var(--dim);background:rgba(0,0,0,.3);color:#9fb3a6}
+.histtip .htlinjer{font-family:var(--mono);font-size:10px;line-height:1.45;color:#a8bdb0;
+  border-top:1px solid var(--line);padding-top:5px}
+.histtip .htintet{font-family:var(--mono);font-size:10px;color:var(--dim)}
+@media (min-width:820px){
+  .histrail{width:74px;top:84px;bottom:214px}
+  .hkort{width:60px;height:62px}.hkort .art{width:42px;height:42px}
+  .histknap{bottom:204px}
+}
 .turban{position:fixed;top:38%;left:0;right:0;z-index:30;text-align:center;font-family:var(--disp);
   font-size:38px;letter-spacing:4px;color:var(--fos);text-shadow:0 0 24px rgba(95,224,160,.6);
   animation:tur calc(1.6s * var(--tempo,1)) forwards;pointer-events:none}
@@ -1614,13 +1701,15 @@ button:active{transform:scale(.97)}
   .braet{gap:16px;min-height:170px}
   .bar{font-size:17px;padding:14px 28px}
   .midt{padding:6px 24px;font-size:13px}
-  .haand{justify-content:center;overflow:visible;padding-top:26px;min-height:186px;gap:0}
-  .haand .mkort{margin:0 -6px;transform-origin:50% 135%;
+  .haand{justify-content:center;overflow:visible;padding-top:26px;min-height:200px;gap:0}
+  .haand .hslot{margin:0 -6px}
+  .haand .mkort{transform-origin:50% 135%;
     transform:rotate(calc(var(--o,0)*3.5deg)) translateY(calc(var(--a,0)*7px))}
   .haand .mkort.spil{transform:rotate(calc(var(--o,0)*3.5deg)) translateY(calc(var(--a,0)*7px - 8px))}
   .haand .mkort:hover{transform:rotate(0deg) translateY(-34px) scale(1.16);z-index:6}
+  .hotkey{width:25px;height:25px;font-size:13px;margin-top:-11px}
   .kraft{width:58px;height:58px;font-size:26px}
-  .logpanel{bottom:190px}.logknap{bottom:190px}
+  .logpanel{bottom:204px}.logknap{bottom:204px}
 }
 @media (min-width:1200px){
   .spilflade{max-width:1240px}
@@ -1629,7 +1718,7 @@ button:active{transform:scale(.97)}
   .heltikon{width:72px;height:72px;font-size:40px}
   .helt .nm{font-size:26px;max-width:420px}
   .braet{gap:20px;min-height:192px}
-  .haand .mkort{margin:0 -5px}
+  .haand .hslot{margin:0 -5px}
 }
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important}
@@ -1767,6 +1856,79 @@ function MiniCard({id,onClick,glow,count,style,dfx,xcls,tip,onPointerDown}){
       {d.t==="unit" && <><span className="stat a">{d.a}</span><span className="stat h">{d.h}</span></>}
       {tip && <CardTip id={id}/>}
     </button>
+  );
+}
+/* ---------- historik-skinne ----------
+   Viser hvert spillet kort som en lille brik i en lodret liste. Hold musen over
+   (eller tap) for at se hvad kortet gjorde: skade på helte, dræbte enheder,
+   tilkaldte enheder og de log-linjer effekten producerede. */
+function histSkade(rec,side){ const d=rec.dhp?rec.dhp[side]:0; return d<0?-d:0; }
+function histHeal(rec,side){ const d=rec.dhp?rec.dhp[side]:0; return d>0?d:0; }
+function HistCard({rec,aaben,onEnter,onLeave,onClick}){
+  const d=CARDS[rec.id]; if(!d) return null;
+  const mine=rec.mine;
+  const hit=histSkade(rec,1-rec.s); // skade taget af den helt kortet blev spillet imod
+  return (
+    <div className={"hkort tema"+(mine?" mig":" dem")+(aaben?" aaben":"")} style={themeVars(d)}
+      onMouseEnter={onEnter} onMouseLeave={onLeave} onClick={onClick}>
+      <span className="hpris">{d.c}</span>
+      <CardArt id={rec.id}/>
+      {hit>0 && <span className="hhit">−{hit}</span>}
+      {rec.kills.length>0 && <span className="hdoed">☠{rec.kills.length>1?rec.kills.length:""}</span>}
+    </div>
+  );
+}
+function HistTip({rec,pos,navne}){
+  const d=CARDS[rec.id]; if(!d) return null;
+  const opS=1-rec.s;
+  const chips=[];
+  const sMod=histSkade(rec,opS), sSelv=histSkade(rec,rec.s);
+  const hMod=histHeal(rec,opS), hSelv=histHeal(rec,rec.s);
+  if(sMod>0) chips.push(<span key="sm" className="chip skade">−{sMod} ❤ {navne[opS]}</span>);
+  if(sSelv>0) chips.push(<span key="ss" className="chip skade">−{sSelv} ❤ {navne[rec.s]}</span>);
+  if(hMod>0) chips.push(<span key="hm" className="chip heal">+{hMod} ❤ {navne[opS]}</span>);
+  if(hSelv>0) chips.push(<span key="hs" className="chip heal">+{hSelv} ❤ {navne[rec.s]}</span>);
+  for(const k of rec.kills) chips.push(
+    <span key={"k"+chips.length} className={"chip doed"+(k.s===rec.s?" selv":"")}>
+      ☠ {CARDS[k.id]?CARDS[k.id].n:"?"}{k.s===rec.s?" (own)":""}</span>);
+  for(const u of rec.sum) chips.push(<span key={"s"+chips.length} className="chip">✦ {CARDS[u.id]?CARDS[u.id].n:"?"}</span>);
+  // dødsfald står allerede som chips — undgå dobbeltinfo i log-linjerne
+  const linjer=rec.lines.filter(l=>!l.startsWith("✕ "));
+  const tomt = chips.length===0 && linjer.length===0;
+  return (
+    <div className="histtip" style={{...themeVars(d),top:pos.top,right:pos.right}}>
+      <div className="hth"><b>{d.n}</b><span>{d.c}⚡</span></div>
+      <div className="htmeta">{navne[rec.s]} · round {rec.r} · {d.t==="unit"?"unit":"spell"}</div>
+      {chips.length>0 && <div className="htchips">{chips}</div>}
+      {linjer.length>0 && <div className="htlinjer">{linjer.map((l,i)=><div key={i}>{l}</div>)}</div>}
+      {tomt && <div className="htintet">No visible effect — it just hit the board.</div>}
+    </div>
+  );
+}
+function HistRail({g,seat,navne}){
+  const [tip,setTip]=useState(null);
+  const poster=(g.hist||[]).map(r=>({...r,mine:r.s===seat})).slice().reverse();
+  const vis=(rec,el)=>{
+    if(!el) return;
+    const b=el.getBoundingClientRect();
+    const vh=(typeof window!=="undefined"?window.innerHeight:800);
+    const vw=(typeof window!=="undefined"?window.innerWidth:1000);
+    const top=Math.max(8,Math.min(b.top-6,vh-230));
+    setTip({rec,pos:{top,right:vw-b.left+10}});
+  };
+  return (
+    <>
+      <div className="histrail" onMouseLeave={()=>setTip(null)}>
+        <div className="htop">PLAYED</div>
+        {poster.length===0 && <div className="htom">no cards<br/>played yet</div>}
+        {poster.map(r=>
+          <HistCard key={r.k} rec={r} aaben={!!tip&&tip.rec.k===r.k}
+            onEnter={e=>vis(r,e.currentTarget)}
+            onLeave={()=>setTip(null)}
+            onClick={e=>{ if(tip&&tip.rec.k===r.k) setTip(null); else vis(r,e.currentTarget); }}/>)}
+      </div>
+      {tip && <HistTip rec={tip.rec} pos={tip.pos} navne={navne}/>}
+    </>
   );
 }
 function StorKort({id,unitInfo,g}){
@@ -2773,6 +2935,10 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
   const [slowUI,setSlowUI]=useState(SETTINGS.slowness);
   useEffect(()=>onSettings(s=>setSlowUI(s.slowness)),[]);
   const tempoVar=1+slowUI*1.5;
+  const [keys,setKeys]=useState(SETTINGS.keys);
+  useEffect(()=>onSettings(s=>setKeys(s.keys)),[]);
+  // historik-skinnen: åben som udgangspunkt på brede skærme, ellers via knappen
+  const [visHist,setVisHist]=useState(()=>typeof window!=="undefined" && window.innerWidth>=820);
 
   return (
     <div className={"spilflade"+(tmode?" targeting":"")+(tmode&&tmode.atk?" atkmode":"")} style={{"--tempo":tempoVar}}>
@@ -2834,10 +3000,17 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
         {me.hand.length===0&&<span style={{color:"var(--dim)",fontFamily:"var(--mono)",fontSize:11,alignSelf:"center"}}>hand is empty</span>}
         {me.hand.map((c,i)=>{
           const o=i-(me.hand.length-1)/2;
-          return <MiniCard key={c.uid} id={c.id} dfx={c.uid} tip={true} xcls={hiB("hand:"+c.id)?"tuthi":""} glow={myTurn&&canPlay(g,seat,c.id)}
-            style={{"--o":o,"--a":Math.abs(o),opacity:drag&&drag.uid===c.uid?0.3:undefined}}
-            onPointerDown={(e)=>startDrag(c,e)}
-            onClick={()=>{ if(justDragged.current){justDragged.current=false;return;} if(tmode){setT(null);return;} setSel({kind:"hand",id:c.id,uid:c.uid}); }}/>;})}
+          const kan=myTurn&&canPlay(g,seat,c.id);
+          const tast=i<10?(keys["card"+(i+1)]||""):"";
+          const valgt=!!(sel&&sel.kind==="hand"&&sel.uid===c.uid);
+          return (
+            <div key={c.uid} className={"hslot"+(kan?" kan":"")+(valgt?" valgt":"")}>
+              <MiniCard id={c.id} dfx={c.uid} tip={true} xcls={hiB("hand:"+c.id)?"tuthi":""} glow={kan}
+                style={{"--o":o,"--a":Math.abs(o),opacity:drag&&drag.uid===c.uid?0.3:undefined}}
+                onPointerDown={(e)=>startDrag(c,e)}
+                onClick={()=>{ if(justDragged.current){justDragged.current=false;return;} if(tmode){setT(null);return;} setSel({kind:"hand",id:c.id,uid:c.uid}); }}/>
+              {tast && <span className="hotkey" aria-hidden="true">{tast===" "?"␣":tast}</span>}
+            </div>);})}
       </div>
 
       {step&&(
@@ -2886,6 +3059,9 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
           return null;
         })}
       </div>
+      {visHist && <HistRail g={g} seat={seat} navne={[g.players[0].name,g.players[1].name]}/>}
+      <button className={"histknap"+(visHist?" aktiv":"")} onClick={()=>setVisHist(v=>!v)}
+        title="Played cards">🃏</button>
       <button className="logknap" onClick={()=>setVisLog(v=>!v)}>{visLog?"✕":"📜"}</button>
       {visLog && (
         <div className="logpanel">

@@ -31,7 +31,7 @@ const { createRoot } = await import("react-dom/client");
 
 const src = readFileSync("kortslutning.jsx", "utf8");
 const end = src.indexOf("/* __ENGINE_END__ */");
-let code = src.slice(0, end).split("\n").filter(l => !l.startsWith("import ")).join("\n") + ";return{mkState,autoDeck,summon,endTurn};";
+let code = src.slice(0, end).split("\n").filter(l => !l.startsWith("import ")).join("\n") + ";return{mkState,autoDeck,summon,endTurn,playCard,botAction};";
 const E = new Function(code)();
 
 function baseProps(g, extra) {
@@ -86,6 +86,25 @@ async function mount(name, props) {
 {
   const g = E.mkState({ mode: "online", code: "TEST", names: ["A", "B"], cids: ["a", "b"], decks: [E.autoDeck("tek"), E.autoDeck("tek")], classes: ["tek", "tek"], starter: 0 });
   await mount("GameView (online + chat)", baseProps(g, { mode: "online", kode: "TEST" }));
+}
+// 7) historik-skinne med spillede kort + tastetal-cirkler i hånden
+{
+  const g = E.mkState({ mode: "lokal", names: ["A", "B"], cids: ["a", "b"], decks: [E.autoDeck("tek"), E.autoDeck("tek")], classes: ["tek", "tek"], starter: 0 });
+  for (let t = 0; t < 14 && g.status === "igang"; t++) { while (E.botAction(g, g.active)) {} E.endTurn(g, g.active); }
+  if (!g.hist || !g.hist.length) { failed++; console.log("✗ hist er tom efter 14 ture"); }
+  const el = document.createElement("div");
+  const root = createRoot(el);
+  try {
+    await act(async () => { root.render(React.createElement(M.GameView, baseProps(g))); });
+    const html = el.innerHTML;
+    const hkort = (html.match(/class="hkort/g) || []).length;
+    const hotkeys = (html.match(/class="hotkey"/g) || []).length;
+    if (!html.includes("histrail")) { failed++; console.log("✗ historik-skinnen mangler"); }
+    if (hkort === 0) { failed++; console.log("✗ ingen historik-kort renderet"); }
+    if (hotkeys !== g.players[0].hand.length) { failed++; console.log("✗ tastetal: " + hotkeys + " badges vs " + g.players[0].hand.length + " kort"); }
+    await act(async () => { root.unmount(); });
+    console.log("mount OK: GameView (historik " + hkort + " kort · " + hotkeys + " tastetal)");
+  } catch (e) { failed++; console.log("✗ MOUNT-CRASH (historik): " + e.message); }
 }
 
 execSync("rm -f ./_m.jsx ./_m.mjs");
