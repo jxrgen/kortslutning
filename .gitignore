@@ -10,3 +10,10 @@ desktop/app/
 desktop/release/
 desktop/node_modules/
 .github/workflows/release.yml
+
+# lokale hemmeligheder — MAA ALDRIG committes
+.secrets
+.secrets.*
+*.token
+.env
+.env.local
