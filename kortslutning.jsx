@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback, memo } from "react";
 
 /* ============================================================
    KORTSLUTNING — dansk elektronik-kortspil (Hearthstone-stil)
@@ -1412,7 +1412,25 @@ input:focus,select:focus{border-color:var(--cu)}
 .fane{flex:1;text-align:center;padding:9px;border-radius:10px;border:1px solid var(--line);background:var(--bg1);
   font-family:var(--mono);font-size:12.5px}
 .fane.aktiv{border-color:var(--cu);color:var(--cu2)}
-.gitter{display:grid;grid-template-columns:repeat(auto-fill,minmax(66px,1fr));gap:8px;justify-items:center;padding-bottom:14px}
+.gitter{display:grid;grid-template-columns:repeat(auto-fill,minmax(70px,1fr));gap:10px;justify-items:center;padding-bottom:14px}
+/* ---- kortbibliotek ---- */
+.pane.bred{max-width:1080px}
+.hint{font-family:var(--mono);font-size:11px;color:var(--dim);margin:6px 0 10px}
+.kostgruppe{margin-bottom:6px}
+.kosthd{display:flex;align-items:center;gap:6px;margin:14px 0 8px;color:var(--amber);
+  font-family:var(--mono);font-size:12px}
+.kosthd::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--line),transparent)}
+.kosthd .kostpip{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;
+  border-radius:50%;background:var(--bg2);border:1px solid var(--line);font-weight:700;font-size:11px;color:var(--amber)}
+.kosthd i{font-style:normal;color:var(--dim);font-size:10.5px;order:3}
+.bibkort.ideck .mkort{border-color:var(--fos);box-shadow:inset 0 1px 0 rgba(255,255,255,.13),
+  0 0 0 1px var(--fos),0 0 12px rgba(95,224,160,.35),0 7px 14px rgba(0,0,0,.42)}
+.bibkort .idmark{position:absolute;top:-5px;left:-5px;z-index:3;min-width:19px;height:19px;padding:0 4px;
+  border-radius:10px;background:var(--fos);color:#0a140e;font-family:var(--mono);font-size:11px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;box-shadow:0 2px 5px rgba(0,0,0,.6);pointer-events:none}
+.fknap.ryd{border-color:var(--cu);color:var(--cu2)}
+.hovpop{position:fixed;z-index:80;width:252px;pointer-events:none;animation:ind .1s ease-out}
+.hovpop .storkort{box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 14px 40px rgba(0,0,0,.7)}
 .filterraek{display:flex;gap:5px;flex-wrap:wrap;margin:8px 0}
 .fknap{padding:5px 9px;border-radius:8px;border:1px solid var(--line);background:var(--bg1);font-family:var(--mono);font-size:11.5px;color:var(--dim)}
 .fknap.aktiv{border-color:var(--amber);color:var(--amber)}
@@ -1862,13 +1880,29 @@ const KWSVG = {
 // SVG-ikoner til hero powers hvor emoji ikke findes/passer
 
 // <Ico n="bolt"/> — inline SVG i tekststørrelse, arver farven fra teksten.
-function Ico({n,size,cls,style}){
-  const p=ICONS[n];
-  if(!p) return null;
-  const s=size||"1em";
-  return <span className={"ico"+(cls?" "+cls:"")} style={style} aria-hidden="true"
-    dangerouslySetInnerHTML={{__html:'<svg viewBox="0 0 512 512" width="'+s+'" height="'+s+'" fill="currentColor">'+p+'</svg>'}}/>;
+const _icoCache=new Map();
+function icoHtml(n,s){
+  const k=n+"|"+s;
+  let v=_icoCache.get(k);
+  if(v===undefined){
+    const p=ICONS[n];
+    v = p ? '<svg viewBox="0 0 512 512" width="'+s+'" height="'+s+'" fill="currentColor">'+p+'</svg>' : null;
+    _icoCache.set(k,v);
+  }
+  return v;
 }
+// dangerouslySetInnerHTML får samme objekt-reference ved samme (n,size), så React
+// springer DOM-skrivningen over ved gen-render. Uden det skrives hvert ikon om
+// hver gang forælderen rendrer — det var det, der fik biblioteket til at hakke.
+const _icoProps=new Map();
+const Ico = memo(function Ico({n,size,cls,style}){
+  const sz=size||"1em", k=n+"|"+sz;
+  let props=_icoProps.get(k);
+  if(props===undefined){ const h=icoHtml(n,sz); props = h?{__html:h}:null; _icoProps.set(k,props); }
+  if(!props) return null;
+  return <span className={"ico"+(cls?" "+cls:"")} style={style} aria-hidden="true"
+    dangerouslySetInnerHTML={props}/>;
+});
 // Log-linjer gemmes som ren tekst med ikon-tokens: "§bolt§ Foo wins!".
 // Det holder spiltilstanden serialiserbar (online-spil) og fri for emoji.
 // §kw_jord§ osv. slår op i de håndtegnede keyword-badges i stedet.
@@ -1913,14 +1947,17 @@ function GlossTerm({term}){
     </span>
   );
 }
-function KwBadge({k,live,big}){
+const _kwProps=new Map();
+const KwBadge = memo(function KwBadge({k,big}){
   const info=KWSVG[k]; if(!info) return null;
-  const sz=big?31:26;
+  const sz=big?31:26, key=k+"|"+sz;
+  let props=_kwProps.get(key);
+  if(props===undefined){ props={__html:'<svg viewBox="0 0 24 24" width="'+sz+'" height="'+sz+'">'+info.svg+'</svg>'}; _kwProps.set(key,props); }
   return (
     <span className={"kwb"+(big?" big":"")} style={{color:info.c,borderColor:info.c}} title={info.t}
-      dangerouslySetInnerHTML={{__html:'<svg viewBox="0 0 24 24" width="'+sz+'" height="'+sz+'">'+info.svg+'</svg>'}}/>
+      dangerouslySetInnerHTML={props}/>
   );
-}
+});
 function kwList(g,s,u){
   const out=[];
   for(const k of kws(g,s,u)){ if(KWSVG[k]) out.push(k); }
@@ -1979,7 +2016,7 @@ function CardTip({id,live}){
     </div>
   );
 }
-function MiniCard({id,onClick,glow,count,style,dfx,xcls,tip,onPointerDown}){
+const MiniCard = memo(function MiniCard({id,onClick,glow,count,style,dfx,xcls,tip,onPointerDown}){
   const d=CARDS[id];
   const kwl=[]; if(d.kw) for(const k of d.kw){ if(KWSVG[k]) kwl.push(k); } if(d.sig) kwl.push("sig");
   return (
@@ -1994,7 +2031,7 @@ function MiniCard({id,onClick,glow,count,style,dfx,xcls,tip,onPointerDown}){
       {tip && <CardTip id={id}/>}
     </button>
   );
-}
+});
 /* ---------- historik-skinne ----------
    Viser hvert spillet kort som en lille brik i en lodret liste. Hold musen over
    (eller tap) for at se hvad kortet gjorde: skade på helte, dræbte enheder,
@@ -2510,18 +2547,27 @@ function motifArt(d,ac,rnd,id){
   const wrap=inner=>'<g transform="translate(375 345) scale('+sc+') translate(-375 -345)">'+inner+"</g>";
   return wrap(iconFor(id,d,ac,ARTC.bg,ARTC.bg2,rnd));
 }
-function CardArt({id,pattern,className}){
-  const inner=useMemo(()=>{
+// Kortkunsten er deterministisk (seed = kort-id), så den kan caches globalt i
+// stedet for pr. komponent-instans. Ellers regenereres 144 SVG'er hver gang
+// biblioteksfanen mountes.
+const _artProps=new Map();
+function artProps(id,pattern){
+  const k=id+"|"+(pattern?1:0);
+  let v=_artProps.get(k);
+  if(v===undefined){
     const d=CARDS[id], ac=artAccent(d), rnd=mulberry(seedOf(id));
     let out="";
     if(pattern) out+=circuitArt(mulberry(seedOf(id+"p")),190,165,560,535,ARTC.cu,7,0.3)
                     +circuitArt(mulberry(seedOf(id+"q")),190,165,560,535,ac,3,0.2);
     out+=motifArt(d,ac,rnd,id);
-    return out;
-  },[id,pattern]);
-  return <svg className={"art"+(className?" "+className:"")} viewBox="172 148 406 414"
-    dangerouslySetInnerHTML={{__html:inner}}/>;
+    v={__html:out}; _artProps.set(k,v);
+  }
+  return v;
 }
+const CardArt = memo(function CardArt({id,pattern,className}){
+  return <svg className={"art"+(className?" "+className:"")} viewBox="172 148 406 414"
+    dangerouslySetInnerHTML={artProps(id,pattern)}/>;
+});
 
 const CLS_LIST=["tek","hack","over"];
 function ClassPick({value,onChange}){
@@ -3376,6 +3422,30 @@ function SettingsScreen({onBack}){
     </div>
   );
 }
+// Ét kort i gitteret. memo + primitive props => et klik på ét kort rendrer kun
+// dét kort om, ikke alle 144. Uden det blev hvert klik til ~150 SVG-genskrivninger.
+const BibKort = memo(function BibKort({id,count,laast,onAdd,onRem,onInfo,kanHover}){
+  const ind=e=>{ if(kanHover) onInfo(id,e.currentTarget); };
+  const ud=()=>{ if(kanHover) onInfo(null,null); };
+  return (
+    <div className={"bibkort"+(laast?" laast":"")+(count?" ideck":"")}
+      onMouseEnter={ind} onMouseLeave={ud}
+      onContextMenu={e=>{ e.preventDefault(); if(count) onRem(id); }}>
+      <MiniCard id={id} count={count||null}
+        onClick={()=>{ if(kanHover) onAdd(id); else onInfo(id,null); }}/>
+      {laast && <span className="laas"><Ico n="lock"/></span>}
+      {count>0 && <span className="idmark">{count}</span>}
+    </div>
+  );
+});
+
+// Svævende infopanel. Ligger position:fixed uden for gitteret, så det aldrig
+// klippes af scroll-containeren.
+function HoverKort({id,pos}){
+  if(!id||!pos) return null;
+  return <div className="hovpop" style={{top:pos.top,left:pos.left}}><StorKort id={id}/></div>;
+}
+
 function DeckBuilder({decks,gemDecks,onBack,flash,unlocked}){
   const [cards,setCards]=useState([]);
   const [navn,setNavn]=useState("My deck");
@@ -3384,38 +3454,81 @@ function DeckBuilder({decks,gemDecks,onBack,flash,unlocked}){
   const [fC,setFC]=useState(null);
   const [fT,setFT]=useState(null);
   const [q,setQ]=useState("");
-  const [sel,setSel]=useState(null);
+  const [sel,setSel]=useState(null);     // detaljeark (touch)
+  const [hov,setHov]=useState(null);     // {id,pos} svævepanel (mus)
+  const kanHover=useMemo(()=>typeof window!=="undefined"
+    && window.matchMedia && window.matchMedia("(hover: hover)").matches,[]);
+
   const cnt=useMemo(()=>{ const m={}; for(const id of cards) m[id]=(m[id]||0)+1; return m; },[cards]);
-  const filt=COLL.filter(id=>{
-    const d=CARDS[id];
-    if(d.cls&&d.cls!==dbCls) return false;
-    if(fC!=null && (fC===7?d.c<7:d.c!==fC)) return false;
-    if(fT && d.t!==fT) return false;
-    if(q && !d.n.toLowerCase().includes(q.toLowerCase())) return false;
-    return true;
-  });
-  const add=id=>{
+
+  const filt=useMemo(()=>{
+    const ql=q.trim().toLowerCase();
+    return COLL.filter(id=>{
+      const d=CARDS[id];
+      if(d.cls&&d.cls!==dbCls) return false;
+      if(fC!=null && (fC===7?d.c<7:d.c!==fC)) return false;
+      if(fT && d.t!==fT) return false;
+      if(ql && !(d.n.toLowerCase().includes(ql) || (d.txt||"").toLowerCase().includes(ql))) return false;
+      return true;
+    }).sort((a,b)=>CARDS[a].c-CARDS[b].c||CARDS[a].n.localeCompare(CARDS[b].n,"en"));
+  },[dbCls,fC,fT,q]);
+
+  // grupperet efter energipris — langt nemmere at overskue end én lang strøm
+  const grupper=useMemo(()=>{
+    const g=new Map();
+    for(const id of filt){ const c=CARDS[id].c; if(!g.has(c)) g.set(c,[]); g.get(c).push(id); }
+    return [...g.entries()];
+  },[filt]);
+
+  // handlerne holdes stabile via ref, så BibKort ikke gen-rendrer på hver ændring
+  const R=useRef({});
+  R.current.add=id=>{
     if(unlocked && !unlocked.has(id)) return flash("§lock§ "+CARDS[id].n+" is locked — win games to unlock it!");
     const max=CARDS[id].r==="L"?1:2;
     if((cnt[id]||0)>=max) return flash("Max "+max+"× "+CARDS[id].n+".");
     if(cards.length>=DECKSIZE) return flash("The deck is full ("+DECKSIZE+").");
     setCards(c=>[...c,id]);
   };
-  const rem=id=>setCards(c=>{ const i=c.indexOf(id); if(i<0) return c; const n=c.slice(); n.splice(i,1); return n; });
+  R.current.rem=id=>setCards(c=>{ const i=c.indexOf(id); if(i<0) return c; const n=c.slice(); n.splice(i,1); return n; });
+  R.current.info=(id,el)=>{
+    if(!kanHover){ setSel(id); return; }
+    if(!id||!el) return setHov(null);
+    const b=el.getBoundingClientRect();
+    const vw=window.innerWidth, vh=window.innerHeight, W=252, H=330;
+    const left = b.right+12+W<vw ? b.right+12 : Math.max(8,b.left-12-W);
+    setHov({id,pos:{left,top:Math.max(8,Math.min(b.top-40,vh-H-8))}});
+  };
+  const onAdd =useCallback(id=>R.current.add(id),[]);
+  const onRem =useCallback(id=>R.current.rem(id),[]);
+  const onInfo=useCallback((id,el)=>R.current.info(id,el),[]);
+
+  const add=id=>R.current.add(id), rem=id=>R.current.rem(id);
   const gem=()=>{
     const err=validateDeck(cards,dbCls); if(err) return flash(err);
     const n=navn.trim()||"My deck";
     const nx=decks.filter(d=>d.name!==n).concat([{name:n,cls:dbCls,cards:cards.slice()}]);
     gemDecks(nx); flash("§save§ “"+n+"” saved.");
   };
-  const unik=Object.keys(cnt).sort((a,b)=>CARDS[a].c-CARDS[b].c||CARDS[a].n.localeCompare(CARDS[b].n,"en"));
+  const autofyld=()=>{
+    const c=cards.slice(); const t={...cnt};
+    const pool=COLL.filter(id=>(!CARDS[id].cls||CARDS[id].cls===dbCls) && (!unlocked||unlocked.has(id)));
+    let guard=0;
+    while(c.length<DECKSIZE&&guard++<4000){
+      const id=pick(pool); const max=CARDS[id].r==="L"?1:2;
+      if((t[id]||0)>=max) continue; t[id]=(t[id]||0)+1; c.push(id);
+    }
+    setCards(c);
+  };
+  const unik=useMemo(()=>Object.keys(cnt).sort((a,b)=>CARDS[a].c-CARDS[b].c||CARDS[a].n.localeCompare(CARDS[b].n,"en")),[cnt]);
   const kurve=[0,1,2,3,4,5,6,7].map(c=>cards.filter(id=>c===7?CARDS[id].c>=7:CARDS[id].c===c).length);
   const kMax=Math.max(1,...kurve);
+  const fejl=cards.length===DECKSIZE?validateDeck(cards,dbCls):null;
+
   return (
-    <div className="pane">
+    <div className="pane bred" onScroll={()=>hov&&setHov(null)}>
       <button className="tilbage" onClick={onBack}>← Back</button>
       <div className="logo" style={{fontSize:26}}>CARD LIBRARY</div>
-      <div className="ulinie">{COLL.length} cards · deck: {cards.length}/{DECKSIZE}</div>
+      <div className="ulinie">{COLL.length} cards{unlocked?" · "+unlocked.size+" unlocked":""} · deck: {cards.length}/{DECKSIZE}</div>
       <ClassPick value={dbCls} onChange={c=>{
         if(c===dbCls) return;
         setDbCls(c);
@@ -3423,52 +3536,54 @@ function DeckBuilder({decks,gemDecks,onBack,flash,unlocked}){
         if(rest.length!==cards.length){ setCards(rest); flash("Removed cards from another class."); }
       }}/>
       <div className="faner">
-        <button className={"fane"+(tab==="bib"?" aktiv":"")} onClick={()=>setTab("bib")}>Library</button>
-        <button className={"fane"+(tab==="deck"?" aktiv":"")} onClick={()=>setTab("deck")}>Your deck ({cards.length}/{DECKSIZE})</button>
+        <button className={"fane"+(tab==="bib"?" aktiv":"")} onClick={()=>{setTab("bib");setHov(null);}}>Library</button>
+        <button className={"fane"+(tab==="deck"?" aktiv":"")} onClick={()=>{setTab("deck");setHov(null);}}>
+          My Deck ({cards.length}/{DECKSIZE})</button>
       </div>
 
-      {tab==="bib" && <>
-        <input placeholder="Search cards…" value={q} onChange={e=>setQ(e.target.value)}/>
+      {/* begge faner bliver monteret — at unmounte 120 kort ved hvert tab-skift
+          kostede ~160 ms. Nu er skiftet en ren display-toggle. */}
+      <div className="fanepane" style={{display:tab==="bib"?"block":"none"}}>
+        <input placeholder="Search name or text…" value={q} onChange={e=>setQ(e.target.value)}/>
         <div className="filterraek">
           {[0,1,2,3,4,5,6,7].map(c=>
             <button key={c} className={"fknap"+(fC===c?" aktiv":"")} onClick={()=>setFC(fC===c?null:c)}>{c===7?"7+":c}<Ico n="bolt"/></button>)}
           <button className={"fknap"+(fT==="unit"?" aktiv":"")} onClick={()=>setFT(fT==="unit"?null:"unit")}>Units</button>
           <button className={"fknap"+(fT==="spell"?" aktiv":"")} onClick={()=>setFT(fT==="spell"?null:"spell")}>Spells</button>
+          {(fC!=null||fT||q) && <button className="fknap ryd" onClick={()=>{setFC(null);setFT(null);setQ("");}}>Clear filters</button>}
         </div>
-        <div className="gitter">
-          {filt.map(id=>{
-            const laast=unlocked&&!unlocked.has(id);
-            return <div key={id} className={"bibkort"+(laast?" laast":"")}>
-              <MiniCard id={id} count={cnt[id]||null} onClick={()=>setSel(id)}/>
-              {laast&&<span className="laas"><Ico n="lock"/></span>}
-            </div>;})}
-        </div>
-      </>}
+        <p className="hint">{kanHover?"Hover for details · click to add · right-click to remove":"Tap a card for details"}</p>
+        {grupper.length===0 && <p className="rt" style={{color:"var(--dim)"}}>No cards match those filters.</p>}
+        {grupper.map(([c,ids])=>
+          <div key={c} className="kostgruppe">
+            <div className="kosthd"><span className="kostpip">{c}</span><Ico n="bolt"/><i>{ids.length}</i></div>
+            <div className="gitter">
+              {ids.map(id=>
+                <BibKort key={id} id={id} count={cnt[id]||0} laast={!!(unlocked&&!unlocked.has(id))}
+                  onAdd={onAdd} onRem={onRem} onInfo={onInfo} kanHover={kanHover}/>)}
+            </div>
+          </div>)}
+      </div>
 
-      {tab==="deck" && <>
+      <div className="fanepane" style={{display:tab==="deck"?"block":"none"}}>
         <div className="kurve">
           {kurve.map((v,i)=>
             <div key={i} className="soejle" style={{height:(v/kMax*100)+"%"}}><i>{v||""}</i><b>{i===7?"7+":i}</b></div>)}
         </div>
-        <div style={{height:16}}/>
-        {unik.length===0 && <p className="rt" style={{color:"var(--dim)"}}>The deck is empty. Add cards from the library, or tap Auto-fill.</p>}
-        {unik.map(id=>
-          <div key={id} className="dlinje">
-            <span className="c">{CARDS[id].c}</span>
-            <span><CardArt id={id} className="dart"/> {CARDS[id].n}{CARDS[id].r==="L"?<Ico n="legendary"/>:null} {cnt[id]>1?"×"+cnt[id]:""}</span>
-            <button className="x" onClick={()=>rem(id)}>−</button>
-          </div>)}
+        <div style={{height:18}}/>
+        {unik.length===0
+          ? <p className="rt" style={{color:"var(--dim)"}}>The deck is empty. Add cards from the library, or tap Auto-fill.</p>
+          : <>
+            <p className="hint">{kanHover?"Hover for details · click to remove one":"Tap a card for details"}</p>
+            <div className="gitter">
+              {unik.map(id=>
+                <BibKort key={id} id={id} count={cnt[id]} laast={false}
+                  onAdd={onRem} onRem={onRem} onInfo={onInfo} kanHover={kanHover}/>)}
+            </div>
+          </>}
+        {fejl && <p className="rt" style={{color:"var(--rod)"}}>{fejl}</p>}
         <div className="raek" style={{marginTop:14}}>
-          <button className="knap" style={{marginTop:0}} onClick={()=>{
-            const c=cards.slice(); const t={...cnt};
-            const pool=COLL.filter(id=>!CARDS[id].cls||CARDS[id].cls===dbCls);
-            let guard=0;
-            while(c.length<DECKSIZE&&guard++<2000){
-              const id=pick(pool); const max=CARDS[id].r==="L"?1:2;
-              if((t[id]||0)>=max) continue; t[id]=(t[id]||0)+1; c.push(id);
-            }
-            setCards(c);
-          }}><Ico n="dice"/> Auto-fill</button>
+          <button className="knap" style={{marginTop:0}} onClick={autofyld}><Ico n="dice"/> Auto-fill</button>
           <button className="knap" style={{marginTop:0}} onClick={()=>setCards([])}>Clear</button>
         </div>
         <div className="etiket">Save deck</div>
@@ -3485,7 +3600,9 @@ function DeckBuilder({decks,gemDecks,onBack,flash,unlocked}){
               <button className="x" onClick={()=>gemDecks(decks.filter((_,j)=>j!==i))}>Delete</button>
             </div>)}
         </>}
-      </>}
+      </div>
+
+      {hov && <HoverKort id={hov.id} pos={hov.pos}/>}
 
       {sel && (
         <div className="slor" onClick={()=>setSel(null)}>

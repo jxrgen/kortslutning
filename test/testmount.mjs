@@ -22,7 +22,7 @@ dom.window.AudioContext = class {
   resume() {}
 };
 
-writeFileSync("./_m.jsx", readFileSync("kortslutning.jsx", "utf8") + "\nexport { GameView };\n");
+writeFileSync("./_m.jsx", readFileSync("kortslutning.jsx", "utf8") + "\nexport { GameView, DeckBuilder, COLL };\n");
 execSync("npx esbuild _m.jsx --loader:.jsx=jsx --jsx=automatic --format=esm --bundle --external:react --external:react/jsx-runtime --outfile=./_m.mjs");
 const M = await import(process.cwd() + "/_m.mjs");
 const React = (await import("react")).default;
@@ -105,6 +105,29 @@ async function mount(name, props) {
     await act(async () => { root.unmount(); });
     console.log("mount OK: GameView (historik " + hkort + " kort · " + hotkeys + " tastetal)");
   } catch (e) { failed++; console.log("✗ MOUNT-CRASH (historik): " + e.message); }
+}
+
+// 8) deckbuilder: gitter i begge faner, gruppering, klik virker, "My Deck"
+{
+  const el = document.createElement("div");
+  const root = createRoot(el);
+  try {
+    await act(async () => {
+      root.render(React.createElement(M.DeckBuilder, { decks: [], gemDecks() {}, onBack() {}, flash() {}, unlocked: new Set(M.COLL) }));
+    });
+    const bib = el.querySelectorAll(".bibkort").length;
+    if (bib < 50) { failed++; console.log("✗ biblioteket viser kun " + bib + " kort"); }
+    if (el.querySelectorAll(".fanepane").length !== 2) { failed++; console.log("✗ begge faner skal være monteret (billigt tab-skift)"); }
+    if (!el.querySelector(".kosthd")) { failed++; console.log("✗ kortene er ikke grupperet efter energipris"); }
+    const faner = [...el.querySelectorAll(".fane")].map(b => b.textContent);
+    if (!faner.some(t => t.startsWith("My Deck"))) { failed++; console.log("✗ fanen hedder ikke 'My Deck': " + faner.join(" | ")); }
+    // matchMedia er stubbet til matches:false => touch-vej: klik åbner detaljearket
+    const kort = el.querySelector(".bibkort .mkort");
+    await act(async () => { kort.dispatchEvent(new window.MouseEvent("click", { bubbles: true })); });
+    if (!el.querySelector(".ark") && !el.querySelector(".idmark")) { failed++; console.log("✗ klik på et kort gjorde ingenting"); }
+    await act(async () => { root.unmount(); });
+    console.log("mount OK: DeckBuilder (" + bib + " kort i gitter, 2 faner monteret)");
+  } catch (e) { failed++; console.log("✗ MOUNT-CRASH (DeckBuilder): " + e.message); }
 }
 
 execSync("rm -f ./_m.jsx ./_m.mjs");
