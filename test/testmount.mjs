@@ -22,7 +22,7 @@ dom.window.AudioContext = class {
   resume() {}
 };
 
-writeFileSync("./_m.jsx", readFileSync("kortslutning.jsx", "utf8") + "\nexport { GameView, DeckBuilder, COLL };\n");
+writeFileSync("./_m.jsx", readFileSync("kortslutning.jsx", "utf8") + "\nexport { GameView, DeckBuilder, COLL, RunView, RunClassPick, runNyt, runTilfoej };\n");
 execSync("npx esbuild _m.jsx --loader:.jsx=jsx --jsx=automatic --format=esm --bundle --external:react --external:react/jsx-runtime --outfile=./_m.mjs");
 const M = await import(process.cwd() + "/_m.mjs");
 const React = (await import("react")).default;
@@ -128,6 +128,57 @@ async function mount(name, props) {
     await act(async () => { root.unmount(); });
     console.log("mount OK: DeckBuilder (" + bib + " kort i gitter, 2 faner monteret)");
   } catch (e) { failed++; console.log("✗ MOUNT-CRASH (DeckBuilder): " + e.message); }
+}
+
+// 9) Meltdown Run: klassevalg + alle faser renderer og reagerer
+{
+  const el = document.createElement("div");
+  const root = createRoot(el);
+  try {
+    // klassevalg
+    let valgt = null;
+    await act(async () => { root.render(React.createElement(M.RunClassPick, { onPick: (c) => { valgt = c; }, onBack() {} })); });
+    if (el.querySelectorAll(".rcls-card").length !== 3) { failed++; console.log("✗ run-klassevalg viser ikke 3 klasser"); }
+    await act(async () => { el.querySelector(".rcls-card").dispatchEvent(new window.MouseEvent("click", { bubbles: true })); });
+    if (!valgt) { failed++; console.log("✗ klik på klasse gav intet"); }
+
+    const run0 = M.runNyt("tek");
+    // fase "kort" (klar-til-kamp)
+    let startet = false;
+    await act(async () => { root.render(React.createElement(M.RunView, { run: run0, fase: "kort", navn: "T", onStartBattle: () => { startet = true; }, onPickCard() {}, onPickUpgrade() {}, onLeave() {}, onNewRun() {} })); });
+    if (!el.querySelector(".rmap")) { failed++; console.log("✗ run-kort (map) mangler"); }
+    if (el.querySelectorAll(".rnode").length !== 12) { failed++; console.log("✗ map har ikke 12 noder"); }
+    if (!el.querySelector(".bibkort")) { failed++; console.log("✗ run viser ikke deck-grid"); }
+    await act(async () => { el.querySelector(".knap.big").dispatchEvent(new window.MouseEvent("click", { bubbles: true })); });
+    if (!startet) { failed++; console.log("✗ 'Enter battle' udløste ikke kamp"); }
+
+    // fase "belon"
+    let valgtKort = null;
+    await act(async () => { root.render(React.createElement(M.RunView, { run: run0, fase: "belon", navn: "T", onStartBattle() {}, onPickCard: (id) => { valgtKort = id; }, onPickUpgrade() {}, onLeave() {}, onNewRun() {} })); });
+    const rcards = el.querySelectorAll(".rcard");
+    if (rcards.length < 2) { failed++; console.log("✗ belønning viser <2 kort"); }
+    await act(async () => { rcards[0].dispatchEvent(new window.MouseEvent("click", { bubbles: true })); });
+    await act(async () => { el.querySelector(".knap.cu.big").dispatchEvent(new window.MouseEvent("click", { bubbles: true })); });
+    if (!valgtKort) { failed++; console.log("✗ kunne ikke vælge belønningskort"); }
+
+    // fase "opgrad" (kræver et par upgrades i puljen)
+    let valgtUpg = null;
+    const runE = M.runNyt("tek");
+    await act(async () => { root.render(React.createElement(M.RunView, { run: runE, fase: "opgrad", navn: "T", onStartBattle() {}, onPickCard() {}, onPickUpgrade: (u) => { valgtUpg = u; }, onLeave() {}, onNewRun() {} })); });
+    const ucards = el.querySelectorAll(".ucard");
+    if (ucards.length < 2) { failed++; console.log("✗ opgraderingsvalg viser <2 kort"); }
+    await act(async () => { ucards[0].dispatchEvent(new window.MouseEvent("click", { bubbles: true })); });
+    await act(async () => { el.querySelector(".knap.cu.big").dispatchEvent(new window.MouseEvent("click", { bubbles: true })); });
+    if (!valgtUpg) { failed++; console.log("✗ kunne ikke vælge opgradering"); }
+
+    // sejr + tabt renderer uden crash
+    for (const f of ["sejr", "tabt"]) {
+      await act(async () => { root.render(React.createElement(M.RunView, { run: { ...run0, node: f === "sejr" ? 12 : 4 }, fase: f, navn: "T", onStartBattle() {}, onPickCard() {}, onPickUpgrade() {}, onLeave() {}, onNewRun() {} })); });
+      if (!el.querySelector(".rvhead")) { failed++; console.log("✗ run-fase " + f + " renderer ikke"); }
+    }
+    await act(async () => { root.unmount(); });
+    console.log("mount OK: Meltdown Run (klassevalg + kort/belon/opgrad/sejr/tabt)");
+  } catch (e) { failed++; console.log("✗ MOUNT-CRASH (run): " + e.message); }
 }
 
 execSync("rm -f ./_m.jsx ./_m.mjs");

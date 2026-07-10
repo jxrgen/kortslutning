@@ -399,7 +399,7 @@ function kws(g,s,u){
   return [...new Set([...base,...u.akw,...auraOn(g,s,u).kw])];
 }
 function hasKw(g,s,u,k){ return kws(g,s,u).includes(k); }
-function sig(g,s){ let n=0; for(const u of g.players[s].board){ if(!u.sil) n+=CARDS[u.id].sig||0; } return n; }
+function sig(g,s){ let n=g.players[s].sigB||0; for(const u of g.players[s].board){ if(!u.sil) n+=CARDS[u.id].sig||0; } return n; }
 
 // ---------- grundhandlinger ----------
 function nuid(g){ return "u"+(g.n++); }
@@ -452,7 +452,7 @@ function dmg(g,ref,n,src){
   if(src&&src.hoj) u.dmg=999;
   sweep(g);
 }
-function healHero(g,s,n){ const p=g.players[s]; const r=Math.min(30-p.hp,n);
+function healHero(g,s,n){ const p=g.players[s]; const r=Math.min((p.max||30)-p.hp,n);
   if(r>0){ p.hp+=r; fxPush(g,{t:"heal",s,u:null,n:r}); } }
 function sweep(g){
   if(g._sw) return; g._sw=true;
@@ -712,13 +712,15 @@ const CLASSES={
 };
 function clsOf(g,s){ return CLASSES[g.players[s].cls]||CLASSES.tek; }
 function heroTargets(g,s){ return clsOf(g,s).powerTargets(g,s); }
+// heltekraftens pris efter evt. run-rabat
+function powCost(g,s){ return Math.max(0, clsOf(g,s).power.c - (g.players[s].powD||0)); }
 function heroPower(g,s,tref){
   if(g.status!=="igang"||g.active!==s) return "Not your turn.";
-  const p=g.players[s], K=clsOf(g,s);
+  const p=g.players[s], K=clsOf(g,s), pris=powCost(g,s);
   if(p.heroUsed) return K.power.n+" has already been used.";
-  if(p.cur<K.power.c) return "Not enough energy.";
+  if(p.cur<pris) return "Not enough energy.";
   if(!heroTargets(g,s).some(r=>r.s===tref.s&&r.u===tref.u)) return "Invalid target.";
-  p.heroUsed=true; p.cur-=K.power.c;
+  p.heroUsed=true; p.cur-=pris;
   K.powerFx(g,s,tref);
   sweep(g); checkWin(g);
   return null;
@@ -728,7 +730,7 @@ function heroPower(g,s,tref){
 function startTurn(g){
   const s=g.active, p=g.players[s];
   g.turn++;
-  p.maxE=Math.min(10,p.maxE+1);
+  p.maxE=Math.min(p.eCap||10,p.maxE+1);
   p.ovlShown=p.ovlNext; p.ovlNext=0;
   p.cur=Math.max(0,p.maxE-p.ovlShown)+p.stored;
   p.stored=0; p.played=0; p.heroUsed=false;
@@ -752,6 +754,7 @@ function endTurn(g,s){
   if(g.status!=="igang") return null;
   const gem=Math.min(MAXSTORED,p.stored+p.cur)-p.stored;
   if(gem>0){ p.stored+=gem; log(g,"§battery§ "+p.name+" stores "+gem+" energy in the capacitor bank."); }
+  if(p.regen>0 && p.hp<p.max){ healHero(g,s,p.regen); log(g,"§wrench§ "+p.name+"’s self-repair restores "+p.regen+"."); }
   p.cur=0;
   g.active=1-s;
   startTurn(g);
@@ -760,7 +763,10 @@ function endTurn(g,s){
 
 // ---------- opsætning ----------
 function mkPlayer(name,cid,deckIds,cls){
-  return { name, cid, cls:cls||"tek", hp:30, maxE:0, cur:0, stored:0, ovlNext:0, ovlShown:0,
+  // max/eCap/sigB/powD/regen er 1:1 med normale regler i almindelige kampe.
+  // Roguelike-opgraderinger ændrer dem via applyMods() ved kampstart.
+  return { name, cid, cls:cls||"tek", hp:30, max:30, maxE:0, eCap:10, cur:0, stored:0,
+    sigB:0, powD:0, regen:0, ovlNext:0, ovlShown:0,
     heroUsed:false, played:0, fat:0, grave:0, list:deckIds.slice(),
     deck:shuffle(deckIds), hand:[], board:[] };
 }
@@ -791,13 +797,14 @@ function validateDeck(list,cls){
   }
   return null;
 }
-function autoDeck(cls,allowed){
+function autoDeck(cls,allowed,size){
   cls=cls||"tek";
+  const N=size||DECKSIZE;
   const base=allowed&&allowed.length?COLL.filter(id=>allowed.includes(id)):COLL;
   const pool=base.filter(id=>!CARDS[id].cls||CARDS[id].cls===cls);
   const list=[]; const cnt={};
   let guard=0;
-  while(list.length<DECKSIZE && guard++<2000){
+  while(list.length<N && guard++<2000){
     const id=pick(pool);
     const d=CARDS[id];
     const max=d.r==="L"?1:2;
@@ -806,7 +813,7 @@ function autoDeck(cls,allowed){
     if(Math.random()>w+0.15) continue;
     cnt[id]=(cnt[id]||0)+1; list.push(id);
   }
-  while(list.length<DECKSIZE){
+  while(list.length<N){
     const id=pick(pool); const max=CARDS[id].r==="L"?1:2;
     if((cnt[id]||0)<max){ cnt[id]=(cnt[id]||0)+1; list.push(id); }
   }
@@ -936,6 +943,140 @@ const TUT={
       hi:["unit:u_kampdrone","h1"], allow:{any:1}, done:g=>g.status==="slut" },
   ],
 };
+
+const CLS_LIST=["tek","hack","over"];
+
+/* ---------- MELTDOWN RUN (roguelike solo) ----------
+   En run er en kæde af kampe mod stadigt hårdere bots. Helte-HP bæres med
+   videre, decket vokser med belønningskort, og opgraderinger ("upgrades")
+   ændrer felterne på spillerobjektet ved kampstart. Selve kamp-motoren er
+   uændret — alt her bygger oven på mkState. */
+const RUN_LEN = 12;
+const RUN_DECK = 20;          // startdeck; vokser med én belønning pr. sejr
+const RUN_REWARDS = 3;        // kort at vælge imellem efter sejr
+const RUN_HEAL_WIN = 3;       // lidt HP tilbage efter hver almindelig sejr
+const RUN_HEAL_NODE = 12;     // værkstedsnoden
+
+const UPGRADES = {
+  // once: ændrer run-tilstanden når den vælges, ikke ved hver kampstart
+  chassis:  { n:"Reinforced Chassis", ico:"shield",  d:"+6 max HP, and repair 6 now.",
+              once:run=>{ run.max+=6; run.hp=Math.min(run.max,run.hp+6); } },
+  capbank:  { n:"Spare Capacitor",    ico:"battery", d:"Start every battle with 2 stored energy.",
+              fx:p=>{ p.stored+=2; } },
+  overflow: { n:"Overflow Bus",       ico:"bolt",    d:"Your energy can reach 12 instead of 10.",
+              fx:p=>{ p.eCap=12; } },
+  spool:    { n:"Prefetch Spool",     ico:"deck",    d:"Draw one extra card at the start of a battle.",
+              fx:null, draw:1 },
+  amp:      { n:"Signal Amplifier",   ico:"signal",  d:"Your spells deal 1 extra damage.",
+              fx:p=>{ p.sigB+=1; } },
+  flux:     { n:"Flux Regulator",     ico:"gear",    d:"Your hero power costs 1 less.",
+              fx:p=>{ p.powD+=1; } },
+  selfrep:  { n:"Self-Repair Loop",   ico:"wrench",  d:"Repair 2 at the end of each of your turns.",
+              fx:p=>{ p.regen+=2; } },
+};
+const UPG_LIST = Object.keys(UPGRADES);
+
+// nodetyper: kamp, elite (hårdere + opgradering), værksted (helbred/fjern kort), boss
+function runMap(){
+  const m=[];
+  for(let i=0;i<RUN_LEN;i++){
+    if(i===RUN_LEN-1) m.push("boss");
+    else if(i===3||i===8) m.push("elite");
+    else if(i===2||i===6||i===10) m.push("repair");
+    else m.push("battle");
+  }
+  return m;
+}
+function runNyt(cls){
+  const pool=COLL.filter(id=>(!CARDS[id].cls||CARDS[id].cls===cls) && !CARDS[id].r);  // kun commons
+  const deck=[]; const c={};
+  let guard=0;
+  while(deck.length<RUN_DECK && guard++<3000){
+    const id=pick(pool); if((c[id]||0)>=2) continue;
+    c[id]=(c[id]||0)+1; deck.push(id);
+  }
+  return { cls, deck, hp:30, max:30, upg:[], node:0, map:runMap(), wins:0, status:"kort" };
+}
+// modstanderens styrke vokser med dybden
+function runFjende(run){
+  const i=run.node, t=run.map[i];
+  const cls=pick(CLS_LIST);
+  const elite=t==="elite", boss=t==="boss";
+  const tilladt = i<2 ? COLL.filter(id=>!CARDS[id].r)
+                : i<6 ? COLL.filter(id=>CARDS[id].r!=="L")
+                : COLL;
+  return {
+    cls, elite, boss,
+    navn: boss ? "THE MELTDOWN" : elite ? "Elite: "+CLASSES[cls].n.replace("The ","") : CLASSES[cls].n.replace("The ",""),
+    // Balancetal fundet ved at lade botten spille spillerens side gennem hele
+    // runnen (tools/agents/agent-run.mjs). Sigtet er ~70% sejr tidligt, ~50% til bossen —
+    // en run kræver 9 sejre i træk, så per-kamp må ikke være en møntkast.
+    hp: boss ? 46 : 24 + Math.round(i*1.4) + (elite?6:0),
+    stored: Math.floor(i/4) + (boss?2:0),
+    deck: autoDeck(cls, tilladt, run.deck.length),   // samme decklængde => symmetrisk fatigue
+  };
+}
+// opsæt en kamp ud fra run-tilstanden. seat 0 = spilleren.
+function runKamp(run,navn){
+  const f=runFjende(run);
+  const g=mkState({ mode:"rogue", names:[navn||"Technician", f.navn], cids:["me","ai"],
+    decks:[run.deck.slice(), f.deck], classes:[run.cls, f.cls], starter:0 });
+  const p=g.players[0], o=g.players[1];
+  // spillerens opgraderinger
+  p.hp=run.hp; p.max=run.max;
+  let ekstra=0;
+  for(const u of run.upg){ const U=UPGRADES[u]; if(!U||U.once) continue; if(U.fx) U.fx(p); ekstra+=U.draw||0; }
+  // fjendens skalering
+  o.hp=f.hp; o.max=f.hp; o.stored=f.stored;
+  // mkState har allerede trukket kort og kørt startTurn for spilleren (starter:0),
+  // så ekstra kort trækkes bagefter og "stored" gives til den næste tur.
+  for(let i=0;i<ekstra;i++) draw(g,0,1);
+  if(p.stored>0) p.cur+=p.stored, p.stored=0;   // Spare Capacitor gælder allerede første tur
+  g.rogue={ node:run.node, type:run.map[run.node], elite:f.elite, boss:f.boss };
+  return g;
+}
+// tre kortbelønninger: klassens pulje, sjældnere jo dybere man er
+function runBelonning(run){
+  const i=run.node;
+  const pool=COLL.filter(id=>{
+    const d=CARDS[id];
+    if(d.cls && d.cls!==run.cls) return false;
+    if(d.r==="L") return i>=6;
+    if(d.r==="R") return i>=2;
+    return true;
+  });
+  const ud=[]; let guard=0;
+  while(ud.length<RUN_REWARDS && guard++<400){
+    const id=pick(pool);
+    if(ud.includes(id)) continue;
+    const antal=run.deck.filter(x=>x===id).length;
+    if(antal>=(CARDS[id].r==="L"?1:2)) continue;
+    ud.push(id);
+  }
+  return ud;
+}
+// tilføj en opgradering til run-tilstanden (håndterer engangs-effekter)
+function runTilfoej(run,u){
+  const U=UPGRADES[u]; if(!U) return run;
+  run.upg=run.upg.concat([u]);
+  if(U.once) U.once(run);
+  return run;
+}
+// efter en sejr: bær HP videre (aldrig under 1) plus en lille reparation, så to
+// hårde kampe i træk ikke er en dødsdom
+function runSejr(run,hpTilbage,elite){
+  run.hp=Math.max(1,Math.min(run.max, Math.max(1,hpTilbage) + (elite?0:RUN_HEAL_WIN)));
+  run.wins++;
+  return run;
+}
+function runRepair(run){ run.hp=Math.min(run.max, run.hp+RUN_HEAL_NODE); return run; }
+
+function runOpgraderinger(run){
+  const ledige=UPG_LIST.filter(u=>!run.upg.includes(u) || u==="chassis" || u==="capbank");
+  const ud=[]; let guard=0;
+  while(ud.length<2 && guard++<200){ const u=pick(ledige); if(!ud.includes(u)) ud.push(u); }
+  return ud;
+}
 
 /* __ENGINE_END__ */
 
@@ -1431,6 +1572,68 @@ input:focus,select:focus{border-color:var(--cu)}
 .fknap.ryd{border-color:var(--cu);color:var(--cu2)}
 .hovpop{position:fixed;z-index:80;width:252px;pointer-events:none;animation:ind .1s ease-out}
 .hovpop .storkort{box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 14px 40px rgba(0,0,0,.7)}
+/* ---- Meltdown Run ---- */
+.knap.rogueknap{background:linear-gradient(135deg,#3a1410,#1a0d0a);border-color:var(--rod);color:#ffd7cf}
+.knap.rogueknap:hover{border-color:var(--guld);box-shadow:0 0 16px rgba(255,109,90,.4)}
+.knap.rogueknap .ico{color:var(--rod)}
+.knap.big{padding:14px;font-size:16px;margin-top:16px}
+.runpane{max-width:940px}
+.rhud{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:12px 0 6px;
+  font-family:var(--mono);font-size:13px}
+.rhud>span{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:9px;
+  background:var(--bg1);border:1px solid var(--line)}
+.rhud .rhp{color:var(--fos)} .rhud .rhp.lav{color:var(--rod);border-color:var(--rod)}
+.rhud .rupg{gap:7px;color:var(--cu2)}
+.rmap{display:flex;align-items:center;overflow-x:auto;gap:0;padding:14px 4px;margin:6px 0 18px;
+  scrollbar-width:thin;scrollbar-color:var(--line) transparent}
+.rnode{position:relative;display:flex;flex-direction:column;align-items:center;gap:5px;flex:none;
+  min-width:74px;opacity:.5;transition:opacity .2s}
+.rnode.nu{opacity:1} .rnode.klaret{opacity:.75}
+.rn-ico{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:var(--bg2);border:2px solid var(--line);font-size:16px;z-index:2}
+.rnode.klaret .rn-ico{border-color:var(--fos);color:var(--fos)}
+.rnode.nu .rn-ico{border-color:var(--amber);color:var(--amber);box-shadow:0 0 14px rgba(240,178,62,.55);animation:nupuls 1.6s ease-in-out infinite}
+.rnode.elite .rn-ico{border-style:double;border-width:3px}
+.rnode.boss.nu .rn-ico,.rnode.boss .rn-ico{border-color:var(--rod);color:var(--rod)}
+.rnode.boss.nu .rn-ico{box-shadow:0 0 16px rgba(255,109,90,.7)}
+@keyframes nupuls{50%{transform:scale(1.1)}}
+.rn-lbl{font-family:var(--mono);font-size:9px;color:var(--dim);text-align:center;white-space:nowrap}
+.rnode.nu .rn-lbl{color:var(--amber)} .rnode.boss .rn-lbl{color:var(--rod)}
+.rn-line{position:absolute;top:19px;left:calc(50% + 19px);width:calc(100% - 38px);height:2px;
+  background:var(--line);z-index:1}
+.rnode.klaret .rn-line{background:var(--fos)}
+.rnbanner{display:flex;align-items:center;gap:12px;padding:14px;border-radius:12px;margin:6px 0;
+  background:var(--bg1);border:1px solid var(--line);border-left:4px solid var(--cu)}
+.rnbanner.elite{border-left-color:var(--amber)} .rnbanner.boss{border-left-color:var(--rod);background:linear-gradient(135deg,#2a1210,#12160f)}
+.rnbanner.repair{border-left-color:var(--fos)}
+.rnbanner b{display:block;font-family:var(--disp);letter-spacing:.5px;font-size:17px}
+.rnbanner small{display:block;color:var(--dim);font-size:12px;margin-top:2px;font-family:var(--mono)}
+.rnbanner .ico{color:var(--cu2)} .rnbanner.boss .ico{color:var(--rod)}
+.rvhead{display:flex;flex-direction:column;align-items:center;gap:6px;margin:18px 0 6px;text-align:center}
+.rvhead .ico{color:var(--guld)} .rvhead.tabt{margin:24px 0}
+.rvhead h2{font-family:var(--disp);letter-spacing:1px;font-size:28px;margin:0}
+.rvhead.sejr h2{color:var(--guld)}
+.rrewards{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin:14px 0;justify-items:center}
+.rcard{background:none;border:2px solid transparent;border-radius:16px;padding:0;cursor:pointer;
+  transition:transform .12s,border-color .12s;border-radius:16px}
+.rcard:hover{transform:translateY(-4px)}
+.rcard.valgt{border-color:var(--fos);box-shadow:0 0 20px rgba(95,224,160,.4)}
+.rupgrades{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:14px 0}
+.ucard{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;padding:18px 14px;
+  border-radius:14px;background:var(--bg1);border:2px solid var(--line);cursor:pointer;
+  transition:transform .12s,border-color .12s}
+.ucard:hover{transform:translateY(-3px);border-color:var(--cu)}
+.ucard.valgt{border-color:var(--fos);box-shadow:0 0 18px rgba(95,224,160,.35)}
+.ucard .u-ico{color:var(--cu2)} .ucard b{font-family:var(--disp);letter-spacing:.5px;font-size:16px}
+.ucard span{color:var(--dim);font-size:12.5px;font-family:var(--mono);line-height:1.4}
+.rclspick{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin:20px 0}
+.rcls-card{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;padding:20px 16px;
+  border-radius:16px;background:var(--bg1);border:2px solid var(--line);cursor:pointer;transition:transform .12s,box-shadow .12s}
+.rcls-card:hover{transform:translateY(-4px);box-shadow:0 8px 24px rgba(0,0,0,.5)}
+.rcls-card b{font-family:var(--disp);letter-spacing:1px;font-size:22px}
+.rcls-pow{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:12px;color:var(--cu2)}
+.rcls-card small{color:var(--dim);font-size:12px;font-family:var(--mono);line-height:1.4}
+.u-ico{display:inline-flex}
 .filterraek{display:flex;gap:5px;flex-wrap:wrap;margin:8px 0}
 .fknap{padding:5px 9px;border-radius:8px;border:1px solid var(--line);background:var(--bg1);font-family:var(--mono);font-size:11.5px;color:var(--dim)}
 .fknap.aktiv{border-color:var(--amber);color:var(--amber)}
@@ -2569,7 +2772,6 @@ const CardArt = memo(function CardArt({id,pattern,className}){
     dangerouslySetInnerHTML={artProps(id,pattern)}/>;
 });
 
-const CLS_LIST=["tek","hack","over"];
 function ClassPick({value,onChange}){
   const K=CLASSES[value];
   return (
@@ -3056,7 +3258,8 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
   };
 
   const slut=g.status==="slut";
-  const kanKraft=myTurn&&!me.heroUsed&&me.cur>=K.power.c;
+  const kraftPris=powCost(g,seat);
+  const kanKraft=myTurn&&!me.heroUsed&&me.cur>=kraftPris;
   // keyboard-shortcuts (konfigurerbare via settings)
   useEffect(()=>{
     const onKey=(e)=>{
@@ -3180,7 +3383,7 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
       <div className="bar min">
         <HeltPlade g={g} s={seat} me={true} hilite={isTgt({s:seat,u:null})} shake={shake.has("h"+seat)} dragtgt={isDragTgt({s:seat,u:null})} onClick={()=>klikHelt(seat)}/>
         <Pips p={me}/>
-        <button className={"kraft"+(hiB("kraft")?" tuthi":"")} disabled={!kanKraft} onClick={kraft} title={K.power.n+" ("+K.power.c+" energy)"}><PowerIcon p={K.power}/></button>
+        <button className={"kraft"+(hiB("kraft")?" tuthi":"")} disabled={!kanKraft} onClick={kraft} title={K.power.n+" ("+kraftPris+" energy)"}><PowerIcon p={K.power}/></button>
         <span style={{marginLeft:"auto",color:"var(--dim)"}}><Ico n="deck"/>{me.deck.length}</span>
         <button style={{color:"var(--dim)",fontSize:16,padding:"0 4px"}} onClick={()=>setBekraeft(true)}><Ico n="flag"/></button>
       </div>
@@ -3293,7 +3496,7 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
         </div>
       )}
 
-      {slut && (
+      {slut && mode!=="rogue" && (
         <div className={"slor"+(g.winner===seat?" sejr":"")}>
           {g.winner===seat && <VictoryFX/>}
           <div className="ark" style={{textAlign:"center"}}>
@@ -3679,6 +3882,163 @@ function UnlockPop({id,onClose}){
     </div>
   );
 }
+/* ---------- MELTDOWN RUN — skærm ---------- */
+function RunMap({run}){
+  if(!run||!run.map) return null;
+  const NAV={battle:"Battle",elite:"Elite",repair:"Repair bay",boss:"THE MELTDOWN"};
+  const ICO={battle:"sword",elite:"skull",repair:"wrench",boss:"fire"};
+  return (
+    <div className="rmap">
+      {run.map.map((t,i)=>{
+        const st = i<run.node?"klaret" : i===run.node?"nu" : "kommende";
+        return (
+          <div key={i} className={"rnode "+st+" "+t}>
+            <span className="rn-ico"><Ico n={i<run.node?"cross":ICO[t]}/></span>
+            <span className="rn-lbl">{NAV[t]}</span>
+            {i<run.map.length-1 && <span className="rn-line"/>}
+          </div>);
+      })}
+    </div>
+  );
+}
+function RunHUD({run}){
+  return (
+    <div className="rhud">
+      <span className={"rhp"+(run.hp<=10?" lav":"")}><Ico n="heart"/> {run.hp}/{run.max}</span>
+      <span className="rdeck"><Ico n="deck"/> {run.deck.length}</span>
+      <span className="rcls"><Ico n={CLASSES[run.cls].ico}/> {CLASSES[run.cls].n.replace("The ","")}</span>
+      <span className="rwins"><Ico n="trophy"/> {run.node}/{RUN_LEN}</span>
+      {run.upg.length>0 && <span className="rupg">
+        {run.upg.map((u,i)=><span key={i} title={UPGRADES[u].n}><Ico n={UPGRADES[u].ico}/></span>)}
+      </span>}
+    </div>
+  );
+}
+function RunView({run,fase,navn,onStartBattle,onPickCard,onPickUpgrade,onLeave,onNewRun}){
+  const [kort,setKort]=useState(null); // preview i grid
+  const [valgKort,setValgKort]=useState(null);  // valgt belønningskort
+  const [valgUpg,setValgUpg]=useState(null);     // valgt opgradering
+  const kanHover=useMemo(()=>typeof window!=="undefined" && window.matchMedia && window.matchMedia("(hover: hover)").matches,[]);
+  const belon=useMemo(()=>fase==="belon"?runBelonning(run):[],[fase,run]);
+  const opgrad=useMemo(()=>fase==="opgrad"?runOpgraderinger(run):[],[fase,run]);
+  useEffect(()=>{ setValgKort(null); setValgUpg(null); },[fase,run.node]);
+
+  const type=run.map[run.node];
+  const typeNavn={battle:"Battle",elite:"Elite battle",repair:"Repair bay",boss:"THE MELTDOWN"}[type];
+
+  return (
+    <div className="pane bred runpane">
+      <button className="tilbage" onClick={onLeave}>← Abandon run</button>
+      <div className="logo" style={{fontSize:30}}>MELTDOWN</div>
+      <RunHUD run={run}/>
+      <RunMap run={run}/>
+
+      {fase==="kort" && <>
+        <div className={"rnbanner "+type}>
+          <Ico n={type==="boss"?"fire":type==="elite"?"skull":type==="repair"?"wrench":"sword"} size="22px"/>
+          <div>
+            <b>{typeNavn}</b>
+            <small>{type==="boss"?"The final opponent. 46 HP, extra energy, full card pool."
+              : type==="elite"?"Tougher opponent — but victory grants an upgrade."
+              : type==="repair"?"You patched up between fights (+12 HP)."
+              : "A standard opponent. Win to draft a card."}</small>
+          </div>
+        </div>
+        <button className="knap cu big" onClick={onStartBattle}>
+          <Ico n="bolt"/> {type==="boss"?"Face the Meltdown":"Enter battle"} (node {run.node+1}/{RUN_LEN})</button>
+        <div className="etiket">Your deck ({run.deck.length})</div>
+        <div className="gitter">
+          {dedupSorted(run.deck).map(([id,n])=>
+            <div key={id} className="bibkort" onMouseEnter={e=>kanHover&&setKort({id,pos:hpos(e.currentTarget)})} onMouseLeave={()=>setKort(null)}
+              onClick={()=>!kanHover&&setKort({id,pos:null})}>
+              <MiniCard id={id} count={n>1?n:null} onClick={()=>{}}/>
+            </div>)}
+        </div>
+      </>}
+
+      {fase==="belon" && <>
+        <div className="rvhead"><Ico n="trophy" size="26px"/><h2>Victory — draft a card</h2></div>
+        <p className="hint">Pick one card to add to your deck.</p>
+        <div className="rrewards">
+          {belon.map(id=>
+            <button key={id} className={"rcard"+(valgKort===id?" valgt":"")} onClick={()=>setValgKort(id)}>
+              <StorKort id={id}/>
+            </button>)}
+        </div>
+        <button className="knap cu big" disabled={!valgKort} onClick={()=>onPickCard(valgKort)}>
+          {valgKort?<>Add “{CARDS[valgKort].n}” & continue</>:"Select a card"}</button>
+        <button className="knap" onClick={()=>onPickCard(belon[0])} style={{opacity:.7}}>Skip (take {CARDS[belon[0]]?.n})</button>
+      </>}
+
+      {fase==="opgrad" && <>
+        <div className="rvhead"><Ico n="gear" size="26px"/><h2>Choose an upgrade</h2></div>
+        <p className="hint">Permanent for the rest of this run.</p>
+        <div className="rupgrades">
+          {opgrad.map(u=>{
+            const U=UPGRADES[u];
+            return (
+              <button key={u} className={"ucard"+(valgUpg===u?" valgt":"")} onClick={()=>setValgUpg(u)}>
+                <span className="u-ico"><Ico n={U.ico} size="30px"/></span>
+                <b>{U.n}</b>
+                <span>{U.d}</span>
+              </button>);
+          })}
+        </div>
+        <button className="knap cu big" disabled={!valgUpg} onClick={()=>onPickUpgrade(valgUpg)}>
+          {valgUpg?<>Install {UPGRADES[valgUpg].n}</>:"Select an upgrade"}</button>
+      </>}
+
+      {fase==="sejr" && <>
+        <div className="rvhead sejr"><Ico n="trophy" size="40px"/><h2>RUN COMPLETE</h2></div>
+        <p className="rt" style={{textAlign:"center"}}>You survived all {RUN_LEN} nodes and shut down the Meltdown. Nicely done.</p>
+        <button className="knap cu big" onClick={onNewRun}><Ico n="cycle"/> New run</button>
+        <button className="knap" onClick={onLeave}>Back to menu</button>
+      </>}
+
+      {fase==="tabt" && <>
+        <div className="rvhead tabt"><BrokenNeon text="BREAKDOWN"/></div>
+        <p className="rt" style={{textAlign:"center"}}>Your circuits gave out at node {run.node+1} of {RUN_LEN}. {run.node>=6?"Deep run!":run.node>=3?"Not bad.":"Try a different draft."}</p>
+        <button className="knap cu big" onClick={onNewRun}><Ico n="cycle"/> New run</button>
+        <button className="knap" onClick={onLeave}>Back to menu</button>
+      </>}
+
+      {kort && <HoverKort id={kort.id} pos={kort.pos||{left:(typeof window!=="undefined"?window.innerWidth/2-126:120),top:80}}/>}
+    </div>
+  );
+}
+function dedupSorted(list){
+  const m={}; for(const id of list) m[id]=(m[id]||0)+1;
+  return Object.keys(m).sort((a,b)=>CARDS[a].c-CARDS[b].c||CARDS[a].n.localeCompare(CARDS[b].n,"en")).map(id=>[id,m[id]]);
+}
+function hpos(el){
+  const b=el.getBoundingClientRect(), vw=window.innerWidth, W=252;
+  const left=b.right+12+W<vw?b.right+12:Math.max(8,b.left-12-W);
+  return {left,top:Math.max(8,Math.min(b.top-40,window.innerHeight-338))};
+}
+
+function RunClassPick({onPick,onBack}){
+  return (
+    <div className="pane runpane">
+      <button className="tilbage" onClick={onBack}>← Back</button>
+      <div className="logo" style={{fontSize:30}}>MELTDOWN</div>
+      <p className="rt" style={{color:"var(--dim)",textAlign:"center"}}>
+        A roguelike gauntlet: {RUN_LEN} escalating battles, one life. Your HP carries between fights, your deck grows with every win, and elites hand out permanent upgrades. Pick a class to begin.</p>
+      <div className="rclspick">
+        {CLS_LIST.map(c=>{
+          const k=CLASSES[c];
+          return (
+            <button key={c} className="rcls-card" style={{borderColor:k.col}} onClick={()=>onPick(c)}>
+              <span className="u-ico" style={{color:k.col}}><Ico n={k.ico} size="34px"/></span>
+              <b style={{color:k.col}}>{k.n.replace("The ","")}</b>
+              <span className="rcls-pow"><PowerIcon p={k.power}/> {k.power.n}</span>
+              <small>{k.power.txt}</small>
+            </button>);
+        })}
+      </div>
+    </div>
+  );
+}
+
 export default function App(){
   const [skaerm,setSkaerm]=useState("indlaeser");
   const [navn,setNavn]=useState("Technician");
@@ -3698,6 +4058,8 @@ export default function App(){
   const [cls,setClsS]=useState("tek");
   const [cls2,setCls2]=useState("tek");
   const [tut,setTut]=useState(0);
+  const [run,setRun]=useState(null);       // aktiv roguelike-run (null = ingen)
+  const [runFase,setRunFase]=useState(null); // "kort" | "kamp" | "belon" | "opgrad" | "slut"
   const cid=useRef(null);
   const kode=useRef(null);
   const gRef=useRef(null); gRef.current=g;
@@ -3880,7 +4242,7 @@ export default function App(){
   };
   const tilMenu=()=>{ setG(null); setLobby(null); setMode(null); kode.current=null; setHandoff(false); setTut(0); setSkaerm("menu"); };
 
-  const seatNu = mode==="lokal" ? (g?g.active:0) : (mode==="tutorial" ? 0 : seat);
+  const seatNu = mode==="lokal" ? (g?g.active:0) : ((mode==="tutorial"||mode==="rogue") ? 0 : seat);
   const minTur = !!g && g.status==="igang" && g.active===seatNu && (mode!=="lokal"||!handoff);
 
   const doAct=fn=>{
@@ -3908,7 +4270,7 @@ export default function App(){
   };
   const botSteps=useRef(0);
   useEffect(()=>{
-    if(mode!=="solo"||!g||g.status!=="igang") return;
+    if((mode!=="solo"&&mode!=="rogue")||!g||g.status!=="igang") return;
     if(g.active!==1){ botSteps.current=0; return; }
     const t=setTimeout(()=>{
       doAct(x=>{
@@ -3919,6 +4281,64 @@ export default function App(){
     }, slowMs(botSteps.current===0?950:800));
     return ()=>clearTimeout(t);
   },[g,mode]);
+
+  // ---- Meltdown Run ----
+  const runStart=(rcls)=>{
+    const r=runNyt(rcls);
+    setRun(r); setMode(null); setG(null); setRunFase("kort"); setSkaerm("run");
+  };
+  const runStartKamp=()=>{
+    const ng=runKamp(run,(navn||"Technician").trim()||"Technician");
+    kode.current=null; setMode("rogue"); setSeat(0); setHandoff(false);
+    setRunFase("kamp"); applyG(ng); setSkaerm("spil");
+  };
+  // fanger kampens udfald i rogue-mode (kører før den generelle unlock-effekt pga. mode-tjek)
+  const runResult=useRef(-1);
+  useEffect(()=>{
+    if(mode!=="rogue"||!g) return;
+    if(g.status!=="slut") return;
+    if(runResult.current===g.seq) return; runResult.current=g.seq;
+    const vandt=g.winner===0;
+    const hp=g.players[0].hp;
+    setTimeout(()=>{
+      setRun(r=>{
+        if(!r) return r;
+        const nr={...r};
+        const t=r.map[r.node], sidste=t==="boss";
+        if(vandt){
+          runSejr(nr,hp,t==="elite"||sidste);
+          if(sidste){ setRunFase("sejr"); }
+          else setRunFase("belon");
+        } else {
+          nr.status="tabt";
+          setRunFase("tabt");
+        }
+        return nr;
+      });
+      setMode(null); setG(null); setSkaerm("run");
+    }, slowMs(1200));
+  },[g,mode]);
+  const runVaelgKort=(id)=>{
+    setRun(r=>({...r, deck:r.deck.concat([id])}));
+    const t=run.map[run.node];
+    if(t==="elite"||t==="boss") setRunFase("opgrad");
+    else runNaeste();
+  };
+  const runVaelgOpgrad=(u)=>{
+    setRun(r=>runTilfoej({...r,upg:r.upg.slice()},u));
+    runNaeste();
+  };
+  const runNaeste=()=>{
+    setRun(r=>{
+      const nr={...r, node:r.node+1};
+      if(nr.node>=RUN_LEN){ setRunFase("sejr"); return nr; }
+      if(nr.map[nr.node]==="repair"){ runRepair(nr); }
+      setRunFase("kort");   // næste node: vis kort-oversigt/klar-knap
+      return nr;
+    });
+  };
+  const runForlad=()=>{ setRun(null); setRunFase(null); setG(null); setMode(null); setSkaerm("menu"); };
+
   useEffect(()=>{
     if(mode!=="tutorial"||!g||g.status!=="igang"||g.active!==1) return;
     const t=setTimeout(()=>{
@@ -3961,6 +4381,8 @@ export default function App(){
         <div style={{height:8}}/>
         {deckMuligheder(deckValg2,setDeckValg2,cls2)}
         <div className="etiket">Solo</div>
+        <button className="knap rogueknap" onClick={()=>{ setRun(null); setRunFase(null); setSkaerm("run"); }}>
+          <Ico n="fire"/> Meltdown Run<small>Roguelike gauntlet — {RUN_LEN} escalating battles, upgrades, one life</small></button>
         <button className="knap cu" onClick={startSolo}><Ico n="robot"/> Play vs the bot<small>Built-in opponent — great for learning the cards</small></button>
         <button className="knap" onClick={startTutorial}><Ico n="graduate"/> Interactive tutorial<small>Learn the game in five guided turns</small></button>
         {onlineOK ? <>
@@ -3990,6 +4412,14 @@ export default function App(){
   }
   else if(skaerm==="deck"){
     indhold=<DeckBuilder decks={decks} gemDecks={gemDecks} onBack={()=>setSkaerm("menu")} flash={flash} unlocked={profil?unlockedSetAf(profil):null}/>;
+  }
+  else if(skaerm==="run"){
+    if(!run){ indhold=<RunClassPick onPick={runStart} onBack={()=>setSkaerm("menu")}/>; }
+    else{
+      indhold=<RunView run={run} fase={runFase} navn={navn}
+        onStartBattle={runStartKamp} onPickCard={runVaelgKort} onPickUpgrade={runVaelgOpgrad}
+        onLeave={runForlad} onNewRun={()=>{ setRun(null); setRunFase(null); }}/>;
+    }
   }
   else if(skaerm==="regler"){
     indhold=<Regler onBack={()=>setSkaerm("menu")}/>;

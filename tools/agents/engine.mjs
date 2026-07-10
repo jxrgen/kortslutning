@@ -7,6 +7,7 @@ code += `
 ;return { CARDS, COLL, KWINFO, CLASSES, mkState, playCard, unitAttack, heroPower, endTurn,
   targetsForCard, attackTargets, heroTargets, canPlay, validateDeck, autoDeck, clone,
   botAction, refUnit, effAtk, effHp, effMax, hasKw, kws, summon, draw, dmg, sweep,
+  runNyt, runKamp, runBelonning, runOpgraderinger, runTilfoej, runSejr, runRepair, RUN_LEN, UPG_LIST, UPGRADES, powCost, sig,
   MAXBOARD, MAXHAND, DECKSIZE, MAXSTORED };
 `;
 export const E = new Function(code)();
