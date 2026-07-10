@@ -26,3 +26,18 @@ npm run build:web     # bundle docs/ (GitHub Pages) and desktop/app/
 ```
 
 Architecture: pure-JS engine between `__ENGINE_START__`/`__ENGINE_END__` markers (headless-testable), React UI below, PCB-themed CSS injected via a style tag. Multiplayer sync is last-write-wins over the artifact's shared storage with sequence numbers. Adding a new class = one entry in the `CLASSES` table + cards with a `cls` field.
+
+## Icons
+
+Interface icons come from [game-icons.net](https://game-icons.net) and are used under
+[CC BY 3.0](https://creativecommons.org/licenses/by/3.0/). They are inlined into
+`kortslutning.jsx` by `tools/gen-icons.mjs`, which also regenerates
+[`ICONS-CREDITS.md`](ICONS-CREDITS.md).
+
+```sh
+node tools/gen-icons.mjs      # klon af game-icons hentes automatisk til .iconsrc/
+npm run test:icons            # tjekker slots, tokens og at krediteringen er intakt
+```
+
+Attribution is a licence requirement: don't remove `ICON_CREDITS` or the Credits
+section on the Rules screen.

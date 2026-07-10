@@ -17,3 +17,6 @@ desktop/node_modules/
 *.token
 .env
 .env.local
+
+# ikon-kilde til tools/gen-icons.mjs (klones ved behov)
+.iconsrc/

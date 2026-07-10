@@ -11,7 +11,8 @@
     "soak": "node tools/agents/soak.mjs",
     "build:assets": "node tools/gen-assets.mjs",
     "build:web": "node tools/build-web.mjs",
-    "test:mount": "node test/testmount.mjs"
+    "test:mount": "node test/testmount.mjs",
+    "test:icons": "node test/testicons.mjs"
   },
   "devDependencies": {
     "esbuild": "^0.28.1",

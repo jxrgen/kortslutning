@@ -34,13 +34,13 @@ const GLOSSARY = {
 };
 
 const KWINFO = {
-  jord:   { n:"Grounded",      ico:"⏚",  d:"Enemies must attack Grounded units first." },
+  jord:   { n:"Grounded",      d:"Enemies must attack Grounded units first." },
   turbo:  { n:"Turbo",         ico:"»",  d:"Can attack units the turn it is played." },
-  iso:    { n:"Insulated",     ico:"◈",  d:"Ignores the first damage it takes." },
-  hoj:    { n:"High Voltage",  ico:"☠",  d:"Destroys any unit it damages." },
+  iso:    { n:"Insulated",     d:"Ignores the first damage it takes." },
+  hoj:    { n:"High Voltage",  d:"Destroys any unit it damages." },
   dob:    { n:"Dual Core",     ico:"×2", d:"Can attack twice per turn." },
-  host:   { n:"Energy Harvest",ico:"♥+", d:"Damage dealt by this unit repairs your hero for the same amount." },
-  skjul:  { n:"Cloaked",       ico:"▒",  d:"Can’t be targeted until it attacks." },
+  host:   { n:"Energy Harvest",d:"Damage dealt by this unit repairs your hero for the same amount." },
+  skjul:  { n:"Cloaked",       d:"Can’t be targeted until it attacks." },
   noHero: { n:"Units only",    ico:"⊘",  d:"Can’t attack heroes." },
 };
 
@@ -52,325 +52,325 @@ const KWINFO = {
 const CARDS = {
 
 // ===== PROGRAMMER (33) =====
-s_stod:{ n:"Static Shock", e:"🖐️", c:0, t:"spell", txt:"Deal 1 damage.", tgt:"any",
+s_stod:{ n:"Static Shock", c:0, t:"spell", txt:"Deal 1 damage.", tgt:"any",
   fx(g,s,t){ dmg(g,t,1+sig(g,s),null); } },
-s_nodstrom:{ n:"Emergency Power", e:"🔌", c:0, t:"spell", txt:"Gain 2 energy this turn. Overheat (2).",
+s_nodstrom:{ n:"Emergency Power", c:0, t:"spell", txt:"Gain 2 energy this turn. Overheat (2).",
   fx(g,s){ g.players[s].cur+=2; g.players[s].ovlNext+=2; } },
-s_kortslut:{ n:"Short Circuit", e:"⚡", c:1, t:"spell", txt:"Deal 2 damage.", tgt:"any",
+s_kortslut:{ n:"Short Circuit", c:1, t:"spell", txt:"Deal 2 damage.", tgt:"any",
   fx(g,s,t){ dmg(g,t,2+sig(g,s),null); } },
-s_loddetin:{ cls:"tek", n:"Solder", e:"🔗", c:1, t:"spell", txt:"Give a friendly unit +0/+3.", tgt:"funit",
+s_loddetin:{ cls:"tek", n:"Solder", c:1, t:"spell", txt:"Give a friendly unit +0/+3.", tgt:"funit",
   fx(g,s,t){ buff(g,t,0,3); } },
-s_overclock:{ n:"Overclock", e:"🚀", c:1, t:"spell", txt:"Give a friendly unit +2/+0. It can attack immediately.", tgt:"funit",
+s_overclock:{ n:"Overclock", c:1, t:"spell", txt:"Give a friendly unit +2/+0. It can attack immediately.", tgt:"funit",
   fx(g,s,t){ buff(g,t,2,0); const u=refUnit(g,t); if(u){ u.jp=false; u.atk=Math.max(u.atk,1); } } },
-s_stoj:{ n:"Signal Noise", e:"📡", c:1, t:"spell", txt:"Give an enemy unit -2 Attack.", tgt:"eunit",
+s_stoj:{ n:"Signal Noise", c:1, t:"spell", txt:"Give an enemy unit -2 Attack.", tgt:"eunit",
   fx(g,s,t){ const u=refUnit(g,t); if(u) u.a=Math.max(0,u.a-2); } },
-s_datalak:{ n:"Data Leak", e:"💾", c:1, t:"spell", txt:"Draw a card. Chain: Draw 2 instead.",
+s_datalak:{ n:"Data Leak", c:1, t:"spell", txt:"Draw a card. Chain: Draw 2 instead.",
   fx(g,s,t,combo){ draw(g,s,combo?2:1); } },
-s_lynafleder:{ n:"Lightning Rod", e:"☂️", c:2, t:"spell", txt:"Give a friendly unit Grounded and +0/+2.", tgt:"funit",
+s_lynafleder:{ n:"Lightning Rod", c:2, t:"spell", txt:"Give a friendly unit Grounded and +0/+2.", tgt:"funit",
   fx(g,s,t){ buff(g,t,0,2); const u=refUnit(g,t); if(u&&!u.akw.includes("jord")) u.akw.push("jord"); } },
-s_genstart:{ n:"Reboot", e:"🔄", c:2, t:"spell", txt:"Return a unit to its owner’s hand.", tgt:"unit",
+s_genstart:{ n:"Reboot", c:2, t:"spell", txt:"Return a unit to its owner’s hand.", tgt:"unit",
   fx(g,s,t){ bounce(g,t); } },
-s_diag:{ n:"Diagnostics", e:"🩺", c:2, t:"spell", txt:"Draw 2 cards.",
+s_diag:{ n:"Diagnostics", c:2, t:"spell", txt:"Draw 2 cards.",
   fx(g,s){ draw(g,s,2); } },
-s_nulstil:{ n:"Reset", e:"🧽", c:2, t:"spell", txt:"Reset a unit (removes all text and buffs).", tgt:"unit",
+s_nulstil:{ n:"Reset", c:2, t:"spell", txt:"Reset a unit (removes all text and buffs).", tgt:"unit",
   fx(g,s,t){ const u=refUnit(g,t); if(u) silence(g,u); } },
-s_lysbue:{ n:"Arc Flash", e:"🔆", c:2, t:"spell", txt:"Deal 2 damage to an enemy unit and 1 to its neighbors.", tgt:"eunit",
+s_lysbue:{ n:"Arc Flash", c:2, t:"spell", txt:"Deal 2 damage to an enemy unit and 1 to its neighbors.", tgt:"eunit",
   fx(g,s,t){ const b=sig(g,s); const adj=neighbors(g,t); dmg(g,t,2+b,null); for(const r of adj) dmg(g,r,1+b,null); } },
-s_spids:{ n:"Voltage Spike", e:"📈", c:2, t:"spell", txt:"Deal 3 damage. Overheat (1).", tgt:"any",
+s_spids:{ n:"Voltage Spike", c:2, t:"spell", txt:"Deal 3 damage. Overheat (1).", tgt:"any",
   fx(g,s,t){ dmg(g,t,3+sig(g,s),null); g.players[s].ovlNext+=1; } },
-s_kabels:{ cls:"tek", n:"Cable Spaghetti", e:"🍝", c:2, t:"spell", txt:"Swap a unit’s Attack and Health.", tgt:"unit",
+s_kabels:{ cls:"tek", n:"Cable Spaghetti", c:2, t:"spell", txt:"Swap a unit’s Attack and Health.", tgt:"unit",
   fx(g,s,t){ const u=refUnit(g,t); if(!u) return; const hpNow=Math.max(0,u.hM-u.dmg); const oldA=u.a;
     u.a=hpNow; u.hM=oldA; u.dmg=0; if(u.hM<=0){ u.dmg=999; } } },
-s_reserve:{ cls:"tek", n:"Spare Parts", e:"📦", c:2, t:"spell", txt:"Add 2 random Components to your hand.",
+s_reserve:{ cls:"tek", n:"Spare Parts", c:2, t:"spell", txt:"Add 2 random Components to your hand.",
   fx(g,s){ for(let i=0;i<2;i++){ const id=pick(POOL_KOMP); if(id) addHand(g,s,id); } } },
-s_firmware:{ cls:"tek", n:"Firmware Update", e:"⬆️", c:3, t:"spell", txt:"Give all your units +1/+1.",
+s_firmware:{ cls:"tek", n:"Firmware Update", c:3, t:"spell", txt:"Give all your units +1/+1.",
   fx(g,s){ for(const u of g.players[s].board){ u.a+=1; u.hM+=1; } } },
-s_genoplad:{ cls:"tek", n:"Recharge", e:"🔋", c:3, t:"spell", txt:"Repair your hero and all friendly units for 3.",
+s_genoplad:{ cls:"tek", n:"Recharge", c:3, t:"spell", txt:"Repair your hero and all friendly units for 3.",
   fx(g,s){ healHero(g,s,3); for(const u of g.players[s].board) u.dmg=Math.max(0,u.dmg-3); } },
-s_hack:{ n:"Hack", e:"🥷", c:3, t:"spell", txt:"Take control of an enemy unit with 2 or less Attack.",
+s_hack:{ n:"Hack", c:3, t:"spell", txt:"Take control of an enemy unit with 2 or less Attack.",
   tgt:"eunit", f:(g,s,r,u)=>effAtk(g,r.s,u)<=2 && g.players[s].board.length<MAXBOARD,
   fx(g,s,t){ takeControl(g,s,t); } },
-s_induk:{ n:"Induction", e:"🧲", c:3, t:"spell", txt:"Gain 1 energy this turn. Draw a card.",
+s_induk:{ n:"Induction", c:3, t:"spell", txt:"Gain 1 energy this turn. Draw a card.",
   fx(g,s){ g.players[s].cur+=1; draw(g,s,1); } },
-s_backup:{ cls:"tek", n:"Backup", e:"🗄️", c:3, t:"spell", txt:"Add a copy of a friendly unit to your hand.", tgt:"funit",
+s_backup:{ cls:"tek", n:"Backup", c:3, t:"spell", txt:"Add a copy of a friendly unit to your hand.", tgt:"funit",
   fx(g,s,t){ const u=refUnit(g,t); if(u) addHand(g,s,u.id); } },
-s_kompil:{ n:"Compile", e:"⌨️", c:3, t:"spell", txt:"Draw a random Spell from your deck.",
+s_kompil:{ n:"Compile", c:3, t:"spell", txt:"Draw a random Spell from your deck.",
   fx(g,s){ tutor(g,s,id=>CARDS[id].t==="spell"); } },
-s_kadelyn:{ n:"Chain Lightning", e:"🌩️", c:4, t:"spell", txt:"Deal 3 damage to an enemy unit and 2 to its neighbors.", tgt:"eunit",
+s_kadelyn:{ n:"Chain Lightning", c:4, t:"spell", txt:"Deal 3 damage to an enemy unit and 2 to its neighbors.", tgt:"eunit",
   fx(g,s,t){ const b=sig(g,s); const adj=neighbors(g,t); dmg(g,t,3+b,null); for(const r of adj) dmg(g,r,2+b,null); } },
-s_magnet:{ n:"Magnetic Field", e:"🌀", c:4, t:"spell", txt:"Deal 2 damage to all enemy units.",
+s_magnet:{ n:"Magnetic Field", c:4, t:"spell", txt:"Deal 2 damage to all enemy units.",
   fx(g,s){ aoe(g,1-s,2+sig(g,s)); } },
-s_forstark:{ n:"Power Amplifier", e:"📢", c:4, t:"spell", txt:"Double a friendly unit’s Attack.", tgt:"funit",
+s_forstark:{ n:"Power Amplifier", c:4, t:"spell", txt:"Double a friendly unit’s Attack.", tgt:"funit",
   fx(g,s,t){ const u=refUnit(g,t); if(u) u.a*=2; } },
-s_gendan:{ cls:"tek", n:"System Restore", e:"💚", c:4, t:"spell", txt:"Repair your hero for 8.",
+s_gendan:{ cls:"tek", n:"System Restore", c:4, t:"spell", txt:"Repair your hero for 8.",
   fx(g,s){ healHero(g,s,8); } },
-s_overbel:{ n:"Overload", e:"🔥", c:4, t:"spell", txt:"Deal 5 damage. Overheat (2).", tgt:"any",
+s_overbel:{ n:"Overload", c:4, t:"spell", txt:"Deal 5 damage. Overheat (2).", tgt:"any",
   fx(g,s,t){ dmg(g,t,5+sig(g,s),null); g.players[s].ovlNext+=2; } },
-s_ransom:{ n:"Ransomware", e:"💰", c:5, t:"spell", txt:"Destroy an enemy unit. Your opponent draws a card.", tgt:"eunit",
+s_ransom:{ n:"Ransomware", c:5, t:"spell", txt:"Destroy an enemy unit. Your opponent draws a card.", tgt:"eunit",
   fx(g,s,t){ const u=refUnit(g,t); if(u){ u.dmg=999; sweep(g); draw(g,1-s,1); } } },
-s_printer:{ cls:"tek", n:"3D Printer", e:"🖨️", c:5, t:"spell", txt:"Summon a copy of a friendly unit (base version).", tgt:"funit",
+s_printer:{ cls:"tek", n:"3D Printer", c:5, t:"spell", txt:"Summon a copy of a friendly unit (base version).", tgt:"funit",
   fx(g,s,t){ const u=refUnit(g,t); if(u) summon(g,s,u.id); } },
-s_uvejr:{ n:"Server Room Storm", e:"⛈️", c:5, t:"spell", txt:"Deal 2 damage to a random enemy, 4 times.",
+s_uvejr:{ n:"Server Room Storm", c:5, t:"spell", txt:"Deal 2 damage to a random enemy, 4 times.",
   fx(g,s){ const b=sig(g,s); for(let i=0;i<4;i++){ const r=randEnemyRef(g,s); if(!r) break; dmg(g,r,2+b,null); } } },
-s_oversp:{ n:"Power Surge", e:"🌊", c:6, t:"spell", txt:"Deal 4 damage to all enemy units.",
+s_oversp:{ n:"Power Surge", c:6, t:"spell", txt:"Deal 4 damage to all enemy units.",
   fx(g,s){ aoe(g,1-s,4+sig(g,s)); } },
-s_massep:{ n:"Mass Production", e:"🏭", c:6, t:"spell", txt:"Fill your board with 1/1 Microbots.",
+s_massep:{ n:"Mass Production", c:6, t:"spell", txt:"Fill your board with 1/1 Microbots.",
   fx(g,s){ while(g.players[s].board.length<MAXBOARD){ if(!summon(g,s,"t_mikrobot")) break; } } },
-s_emp:{ n:"EMP", e:"☢️", c:7, t:"spell", txt:"Destroy all units.",
+s_emp:{ n:"EMP", c:7, t:"spell", txt:"Destroy all units.",
   fx(g){ for(const p of g.players) for(const u of p.board) u.dmg=999; sweep(g); } },
-s_nedsmelt:{ n:"Total Meltdown", e:"💀", c:8, t:"spell", txt:"Deal 4 damage to all heroes and units.",
+s_nedsmelt:{ n:"Total Meltdown", c:8, t:"spell", txt:"Deal 4 damage to all heroes and units.",
   fx(g,s){ const n=4+sig(g,s);
     g.players[0].hp-=n; fxPush(g,{t:"dmg",s:0,u:null,n});
     g.players[1].hp-=n; fxPush(g,{t:"dmg",s:1,u:null,n});
     aoe(g,0,n); aoe(g,1,n); checkWin(g); } },
 
 // ===== KOMPONENTER (18) =====
-u_modstand:{ n:"Resistor", e:"🎚️", c:1, t:"unit", tr:"Component", a:0, h:3, kw:["jord"], txt:"Grounded." },
-u_led:{ n:"LED", e:"💡", c:1, t:"unit", tr:"Component", a:1, h:1, txt:"Breakdown: Give a random friendly unit +1/+0.",
+u_modstand:{ n:"Resistor", c:1, t:"unit", tr:"Component", a:0, h:3, kw:["jord"], txt:"Grounded." },
+u_led:{ n:"LED", c:1, t:"unit", tr:"Component", a:1, h:1, txt:"Breakdown: Give a random friendly unit +1/+0.",
   dr(g,s){ const u=pick(g.players[s].board); if(u) u.a+=1; } },
-u_kontakt:{ n:"Switch", e:"🔘", c:1, t:"unit", tr:"Component", a:1, h:2, txt:"Install — Chain: Draw a card.",
+u_kontakt:{ n:"Switch", c:1, t:"unit", tr:"Component", a:1, h:2, txt:"Install — Chain: Draw a card.",
   bc(g,s,u,t,combo){ if(combo) draw(g,s,1); } },
-u_sikring:{ n:"Fuse", e:"🧯", c:1, t:"unit", tr:"Component", a:0, h:2, kw:["jord"], txt:"Grounded. Breakdown: Repair your hero for 2.",
+u_sikring:{ n:"Fuse", c:1, t:"unit", tr:"Component", a:0, h:2, kw:["jord"], txt:"Grounded. Breakdown: Repair your hero for 2.",
   dr(g,s){ healHero(g,s,2); } },
-u_piezo:{ n:"Piezo Buzzer", e:"🔔", c:1, t:"unit", tr:"Component", a:1, h:1, txt:"Breakdown: Deal 1 damage to a random enemy unit.",
+u_piezo:{ n:"Piezo Buzzer", c:1, t:"unit", tr:"Component", a:1, h:1, txt:"Breakdown: Deal 1 damage to a random enemy unit.",
   dr(g,s){ const u=pick(g.players[1-s].board); if(u) dmg(g,{s:1-s,u:u.uid},1,null); } },
-u_transistor:{ n:"Transistor", e:"🔺", c:2, t:"unit", tr:"Component", a:2, h:2, sig:1, txt:"Signal Strength +1 (your Spells deal +1 damage)." },
-u_diode:{ n:"Diode", e:"➡️", c:2, t:"unit", tr:"Component", a:3, h:2, kw:["noHero"], txt:"Can’t attack heroes." },
-u_kondens:{ n:"Capacitor", e:"🥫", c:2, t:"unit", tr:"Component", a:1, h:3, txt:"Breakdown: Store 1 energy in the capacitor bank.",
+u_transistor:{ n:"Transistor", c:2, t:"unit", tr:"Component", a:2, h:2, sig:1, txt:"Signal Strength +1 (your Spells deal +1 damage)." },
+u_diode:{ n:"Diode", c:2, t:"unit", tr:"Component", a:3, h:2, kw:["noHero"], txt:"Can’t attack heroes." },
+u_kondens:{ n:"Capacitor", c:2, t:"unit", tr:"Component", a:1, h:3, txt:"Breakdown: Store 1 energy in the capacitor bank.",
   dr(g,s){ addStored(g,s,1); } },
-u_koleleg:{ n:"Heat Sink", e:"🧊", c:2, t:"unit", tr:"Component", a:0, h:5, kw:["jord"], txt:"Grounded." },
-u_spole:{ n:"Coil", e:"🌪️", c:2, t:"unit", tr:"Component", a:2, h:3, txt:"“Hums a bit, but it holds.”" },
-u_potmeter:{ n:"Potentiometer", e:"🎛️", c:2, t:"unit", tr:"Component", a:1, h:1, txt:"Install: Give another friendly unit +1/+1.",
+u_koleleg:{ n:"Heat Sink", c:2, t:"unit", tr:"Component", a:0, h:5, kw:["jord"], txt:"Grounded." },
+u_spole:{ n:"Coil", c:2, t:"unit", tr:"Component", a:2, h:3, txt:"“Hums a bit, but it holds.”" },
+u_potmeter:{ n:"Potentiometer", c:2, t:"unit", tr:"Component", a:1, h:1, txt:"Install: Give another friendly unit +1/+1.",
   bcTgt:"funitO", bc(g,s,u,t){ if(t) buff(g,t,1,1); } },
-u_krystal:{ n:"Crystal Oscillator", e:"💎", c:3, t:"unit", tr:"Component", a:2, h:2, txt:"At the start of your turn: +1 Attack.",
+u_krystal:{ n:"Crystal Oscillator", c:3, t:"unit", tr:"Component", a:2, h:2, txt:"At the start of your turn: +1 Attack.",
   start(g,s,u){ u.a+=1; } },
-u_printplade:{ n:"Circuit Board", e:"🟩", c:3, t:"unit", tr:"Component", a:0, h:4, txt:"Your other Components have +1/+1.",
+u_printplade:{ n:"Circuit Board", c:3, t:"unit", tr:"Component", a:0, h:4, txt:"Your other Components have +1/+1.",
   aura:{ others:true, tribe:"Component", a:1, h:1 } },
-u_transform:{ n:"Transformer", e:"🔀", c:3, t:"unit", tr:"Component", a:2, h:4, txt:"Install: Give another friendly unit +2/+0.",
+u_transform:{ n:"Transformer", c:3, t:"unit", tr:"Component", a:2, h:4, txt:"Install: Give another friendly unit +2/+0.",
   bcTgt:"funitO", bc(g,s,u,t){ if(t) buff(g,t,2,0); } },
-u_relae:{ cls:"tek", n:"Relay", e:"🎏", c:3, t:"unit", tr:"Component", a:2, h:3, txt:"Install: Another friendly unit can attack immediately.",
+u_relae:{ cls:"tek", n:"Relay", c:3, t:"unit", tr:"Component", a:2, h:3, txt:"Install: Another friendly unit can attack immediately.",
   bcTgt:"funitO", bc(g,s,u,t){ const x=refUnit(g,t); if(x){ x.jp=false; x.atkLeft=Math.max(x.atkLeft,1); } } },
-u_solpanel:{ n:"Solar Panel", e:"☀️", c:4, t:"unit", tr:"Component", a:1, h:5, txt:"At the start of your turn: Gain 1 energy this turn.",
+u_solpanel:{ n:"Solar Panel", c:4, t:"unit", tr:"Component", a:1, h:5, txt:"At the start of your turn: Gain 1 energy this turn.",
   start(g,s){ g.players[s].cur+=1; } },
-u_psu:{ n:"Power Supply", e:"🔌", c:4, t:"unit", tr:"Component", a:2, h:5, kw:["jord"], txt:"Grounded. Breakdown: Store 1 energy.",
+u_psu:{ n:"Power Supply", c:4, t:"unit", tr:"Component", a:2, h:5, kw:["jord"], txt:"Grounded. Breakdown: Store 1 energy.",
   dr(g,s){ addStored(g,s,1); } },
-u_superkond:{ n:"Supercapacitor", e:"🛢️", c:5, t:"unit", tr:"Component", a:3, h:5, txt:"Install: Store 2 energy in the capacitor bank.",
+u_superkond:{ n:"Supercapacitor", c:5, t:"unit", tr:"Component", a:3, h:5, txt:"Install: Store 2 energy in the capacitor bank.",
   bc(g,s){ addStored(g,s,2); } },
 
 // ===== ROBOTTER (16) =====
-u_skruebot:{ n:"Screwbot", e:"🪛", c:1, t:"unit", tr:"Robot", a:1, h:1, txt:"Install: Give another friendly Robot +1/+1.",
+u_skruebot:{ n:"Screwbot", c:1, t:"unit", tr:"Robot", a:1, h:1, txt:"Install: Give another friendly Robot +1/+1.",
   bcTgt:"funitO", bcF:(g,s,r,u)=>CARDS[u.id].tr==="Robot", bc(g,s,u,t){ if(t) buff(g,t,1,1); } },
-u_loddebot:{ cls:"tek", n:"Solderbot", e:"🦾", c:2, t:"unit", tr:"Robot", a:2, h:1, txt:"Install: Deal 1 damage.",
+u_loddebot:{ cls:"tek", n:"Solderbot", c:2, t:"unit", tr:"Robot", a:2, h:1, txt:"Install: Deal 1 damage.",
   bcTgt:"any", bc(g,s,u,t){ if(t) dmg(g,t,1,null); } },
-u_skraldebot:{ n:"Garbagebot", e:"🗑️", c:2, t:"unit", tr:"Robot", a:2, h:3, txt:"Breakdown: Add a random Component to your hand.",
+u_skraldebot:{ n:"Garbagebot", c:2, t:"unit", tr:"Robot", a:2, h:3, txt:"Breakdown: Add a random Component to your hand.",
   dr(g,s){ const id=pick(POOL_KOMP); if(id) addHand(g,s,id); } },
-u_vagtbot:{ n:"Guardbot", e:"👮", c:3, t:"unit", tr:"Robot", a:2, h:4, kw:["jord"], txt:"Grounded." },
-u_byggebot:{ n:"Builderbot", e:"👷", c:3, t:"unit", tr:"Robot", a:2, h:2, txt:"Install: Summon a 1/1 Microbot.",
+u_vagtbot:{ n:"Guardbot", c:3, t:"unit", tr:"Robot", a:2, h:4, kw:["jord"], txt:"Grounded." },
+u_byggebot:{ n:"Builderbot", c:3, t:"unit", tr:"Robot", a:2, h:2, txt:"Install: Summon a 1/1 Microbot.",
   bc(g,s){ summon(g,s,"t_mikrobot"); } },
-u_speederbot:{ n:"Speedbot", e:"🛵", c:3, t:"unit", tr:"Robot", a:3, h:2, kw:["turbo"], txt:"Turbo." },
-u_sumobot:{ n:"Sumobot", e:"🥋", c:4, t:"unit", tr:"Robot", a:3, h:5, kw:["jord"], txt:"Grounded." },
-u_svejsebot:{ n:"Weldbot", e:"🔧", c:4, t:"unit", tr:"Robot", a:3, h:4, txt:"Install: Deal 2 damage. Chain: Deal 4 instead.",
+u_speederbot:{ n:"Speedbot", c:3, t:"unit", tr:"Robot", a:3, h:2, kw:["turbo"], txt:"Turbo." },
+u_sumobot:{ n:"Sumobot", c:4, t:"unit", tr:"Robot", a:3, h:5, kw:["jord"], txt:"Grounded." },
+u_svejsebot:{ n:"Weldbot", c:4, t:"unit", tr:"Robot", a:3, h:4, txt:"Install: Deal 2 damage. Chain: Deal 4 instead.",
   bcTgt:"any", bc(g,s,u,t,combo){ if(t) dmg(g,t,combo?4:2,null); } },
-u_sergent:{ n:"Robo-Sergeant", e:"🎖️", c:4, t:"unit", tr:"Robot", a:3, h:3, txt:"Your other Robots have +1 Attack.",
+u_sergent:{ n:"Robo-Sergeant", c:4, t:"unit", tr:"Robot", a:3, h:3, txt:"Your other Robots have +1 Attack.",
   aura:{ others:true, tribe:"Robot", a:1 } },
-u_repbot:{ cls:"tek", n:"Repairbot", e:"🚑", c:4, t:"unit", tr:"Robot", a:2, h:5, txt:"At the end of your turn: Repair a random damaged friendly unit for 2.",
+u_repbot:{ cls:"tek", n:"Repairbot", c:4, t:"unit", tr:"Robot", a:2, h:5, txt:"At the end of your turn: Repair a random damaged friendly unit for 2.",
   end(g,s){ const c=g.players[s].board.filter(x=>x.dmg>0); const u=pick(c); if(u) u.dmg=Math.max(0,u.dmg-2); } },
-u_boksebot:{ n:"Boxerbot", e:"🥊", c:5, t:"unit", tr:"Robot", a:3, h:5, kw:["dob"], txt:"Dual Core." },
-u_fabrik:{ n:"Robot Factory", e:"🏗️", c:5, t:"unit", tr:"Robot", a:0, h:6, txt:"At the end of your turn: Summon a 1/1 Microbot.",
+u_boksebot:{ n:"Boxerbot", c:5, t:"unit", tr:"Robot", a:3, h:5, kw:["dob"], txt:"Dual Core." },
+u_fabrik:{ n:"Robot Factory", c:5, t:"unit", tr:"Robot", a:0, h:6, txt:"At the end of your turn: Summon a 1/1 Microbot.",
   end(g,s){ summon(g,s,"t_mikrobot"); } },
-u_kranbot:{ n:"Cranebot", e:"🏗", c:5, t:"unit", tr:"Robot", a:4, h:5, kw:["jord"], txt:"Grounded." },
-u_nedriver:{ n:"Demolition Bot", e:"🧨", c:6, t:"unit", tr:"Robot", a:5, h:5, txt:"Install: Deal 2 damage to all other units.",
+u_kranbot:{ n:"Cranebot", c:5, t:"unit", tr:"Robot", a:4, h:5, kw:["jord"], txt:"Grounded." },
+u_nedriver:{ n:"Demolition Bot", c:6, t:"unit", tr:"Robot", a:5, h:5, txt:"Install: Deal 2 damage to all other units.",
   bc(g,s,u){ for(const p of [0,1]) for(const x of g.players[p].board.map(v=>v.uid)){ if(x!==u.uid) dmg(g,{s:p,u:x},2,null); } } },
-u_panserbot:{ n:"Armorbot", e:"🛡️", c:6, t:"unit", tr:"Robot", a:4, h:6, kw:["jord","iso"], txt:"Grounded. Insulated." },
-u_kolos:{ n:"Mech Colossus", e:"🦿", c:7, t:"unit", tr:"Robot", a:7, h:7, txt:"Overheat (1).",
+u_panserbot:{ n:"Armorbot", c:6, t:"unit", tr:"Robot", a:4, h:6, kw:["jord","iso"], txt:"Grounded. Insulated." },
+u_kolos:{ n:"Mech Colossus", c:7, t:"unit", tr:"Robot", a:7, h:7, txt:"Overheat (1).",
   bc(g,s){ g.players[s].ovlNext+=1; } },
 
 // ===== DRONER (12) =====
-u_nano:{ n:"Nanodrone", e:"🐝", c:1, t:"unit", tr:"Drone", a:1, h:1, kw:["turbo"], txt:"Turbo." },
-u_spejder:{ n:"Scout Drone", e:"🔭", c:1, t:"unit", tr:"Drone", a:1, h:2, kw:["skjul"], txt:"Cloaked." },
-u_kampdrone:{ n:"Combat Drone", e:"🛸", c:2, t:"unit", tr:"Drone", a:2, h:1, kw:["turbo"], txt:"Turbo." },
-u_svarm:{ n:"Swarm Drone", e:"🐜", c:2, t:"unit", tr:"Drone", a:1, h:1, txt:"Install: Summon a 1/1 Nanodrone with Turbo.",
+u_nano:{ n:"Nanodrone", c:1, t:"unit", tr:"Drone", a:1, h:1, kw:["turbo"], txt:"Turbo." },
+u_spejder:{ n:"Scout Drone", c:1, t:"unit", tr:"Drone", a:1, h:2, kw:["skjul"], txt:"Cloaked." },
+u_kampdrone:{ n:"Combat Drone", c:2, t:"unit", tr:"Drone", a:2, h:1, kw:["turbo"], txt:"Turbo." },
+u_svarm:{ n:"Swarm Drone", c:2, t:"unit", tr:"Drone", a:1, h:1, txt:"Install: Summon a 1/1 Nanodrone with Turbo.",
   bc(g,s){ summon(g,s,"u_nano"); } },
-u_kamikaze:{ n:"Kamikaze Drone", e:"💣", c:2, t:"unit", tr:"Drone", a:2, h:1, txt:"Breakdown: Deal 2 damage to a random enemy unit.",
+u_kamikaze:{ n:"Kamikaze Drone", c:2, t:"unit", tr:"Drone", a:2, h:1, txt:"Breakdown: Deal 2 damage to a random enemy unit.",
   dr(g,s){ const u=pick(g.players[1-s].board); if(u) dmg(g,{s:1-s,u:u.uid},2,null); } },
-u_levering:{ n:"Delivery Drone", e:"📬", c:3, t:"unit", tr:"Drone", a:2, h:2, txt:"Install: Draw a card.",
+u_levering:{ n:"Delivery Drone", c:3, t:"unit", tr:"Drone", a:2, h:2, txt:"Install: Draw a card.",
   bc(g,s){ draw(g,s,1); } },
-u_forer:{ n:"Drone Pilot", e:"🕹️", c:3, t:"unit", tr:"Drone", a:2, h:3, txt:"Your other Drones have Turbo.",
+u_forer:{ n:"Drone Pilot", c:3, t:"unit", tr:"Drone", a:2, h:3, txt:"Your other Drones have Turbo.",
   aura:{ others:true, tribe:"Drone", kw:["turbo"] } },
-u_jager:{ n:"Fighter Drone", e:"✈️", c:4, t:"unit", tr:"Drone", a:4, h:3, kw:["turbo"], txt:"Turbo." },
-u_dronebase:{ n:"Drone Base", e:"📡", c:4, t:"unit", tr:"Drone", a:1, h:5, txt:"Your other Drones have +1 Attack.",
+u_jager:{ n:"Fighter Drone", c:4, t:"unit", tr:"Drone", a:4, h:3, kw:["turbo"], txt:"Turbo." },
+u_dronebase:{ n:"Drone Base", c:4, t:"unit", tr:"Drone", a:1, h:5, txt:"Your other Drones have +1 Attack.",
   aura:{ others:true, tribe:"Drone", a:1 } },
-u_fragt:{ n:"Cargo Drone", e:"📦", c:5, t:"unit", tr:"Drone", a:3, h:4, txt:"Install: Summon two 1/1 Nanodrones with Turbo.",
+u_fragt:{ n:"Cargo Drone", c:5, t:"unit", tr:"Drone", a:3, h:4, txt:"Install: Summon two 1/1 Nanodrones with Turbo.",
   bc(g,s){ summon(g,s,"u_nano"); summon(g,s,"u_nano"); } },
-u_stealthdrone:{ n:"Stealth Drone", e:"🌑", c:5, t:"unit", tr:"Drone", a:4, h:4, kw:["skjul"], txt:"Cloaked." },
-u_hyper:{ n:"Hyperdrone", e:"🚁", c:6, t:"unit", tr:"Drone", a:3, h:4, kw:["turbo","dob"], txt:"Turbo. Dual Core." },
+u_stealthdrone:{ n:"Stealth Drone", c:5, t:"unit", tr:"Drone", a:4, h:4, kw:["skjul"], txt:"Cloaked." },
+u_hyper:{ n:"Hyperdrone", c:6, t:"unit", tr:"Drone", a:3, h:4, kw:["turbo","dob"], txt:"Turbo. Dual Core." },
 
 // ===== VIRUS (11) =====
-u_datamide:{ n:"Data Mite", e:"🦠", c:1, t:"unit", tr:"Virus", a:1, h:1, kw:["hoj"], txt:"High Voltage." },
-u_glitch:{ n:"Glitch", e:"👾", c:1, t:"unit", tr:"Virus", a:2, h:1, txt:"“Have you tried turning it off and on again?”" },
-u_adware:{ n:"Adware", e:"🪧", c:2, t:"unit", tr:"Virus", a:3, h:2, txt:"Breakdown: Your opponent draws a card.",
+u_datamide:{ n:"Data Mite", c:1, t:"unit", tr:"Virus", a:1, h:1, kw:["hoj"], txt:"High Voltage." },
+u_glitch:{ n:"Glitch", c:1, t:"unit", tr:"Virus", a:2, h:1, txt:"“Have you tried turning it off and on again?”" },
+u_adware:{ n:"Adware", c:2, t:"unit", tr:"Virus", a:3, h:2, txt:"Breakdown: Your opponent draws a card.",
   dr(g,s){ draw(g,1-s,1); } },
-u_spion:{ n:"Spyware", e:"🕵️", c:2, t:"unit", tr:"Virus", a:1, h:3, txt:"Install: Copy a random card from your opponent’s hand to yours.",
+u_spion:{ n:"Spyware", c:2, t:"unit", tr:"Virus", a:1, h:3, txt:"Install: Copy a random card from your opponent’s hand to yours.",
   bc(g,s){ const h=g.players[1-s].hand; const c=pick(h); if(c) addHand(g,s,c.id); } },
-u_snylter:{ n:"Data Leech", e:"🧛", c:3, t:"unit", tr:"Virus", a:3, h:3, kw:["host"], txt:"Energy Harvest." },
-u_logikbombe:{ n:"Logic Bomb", e:"🧮", c:3, t:"unit", tr:"Virus", a:0, h:4, kw:["jord"], txt:"Grounded. Breakdown: Deal 2 damage to all enemy units.",
+u_snylter:{ n:"Data Leech", c:3, t:"unit", tr:"Virus", a:3, h:3, kw:["host"], txt:"Energy Harvest." },
+u_logikbombe:{ n:"Logic Bomb", c:3, t:"unit", tr:"Virus", a:0, h:4, kw:["jord"], txt:"Grounded. Breakdown: Deal 2 damage to all enemy units.",
   dr(g,s){ aoe(g,1-s,2); } },
-u_trojan:{ n:"Trojan Horse", e:"🐴", c:4, t:"unit", tr:"Virus", a:4, h:4, kw:["skjul"], txt:"Cloaked." },
-u_replikator:{ n:"Replicator", e:"🧬", c:4, t:"unit", tr:"Virus", a:3, h:3, txt:"Breakdown: Summon two 1/1 Bugs.",
+u_trojan:{ n:"Trojan Horse", c:4, t:"unit", tr:"Virus", a:4, h:4, kw:["skjul"], txt:"Cloaked." },
+u_replikator:{ n:"Replicator", c:4, t:"unit", tr:"Virus", a:3, h:3, txt:"Breakdown: Summon two 1/1 Bugs.",
   dr(g,s){ summon(g,s,"t_bug"); summon(g,s,"t_bug"); } },
-u_ormen:{ n:"The Worm", e:"🪱", c:5, t:"unit", tr:"Virus", a:4, h:4, txt:"At the end of your turn: +1/+1.",
+u_ormen:{ n:"The Worm", c:5, t:"unit", tr:"Virus", a:4, h:4, txt:"At the end of your turn: +1/+1.",
   end(g,s,u){ u.a+=1; u.hM+=1; } },
-u_rootkit:{ n:"Rootkit", e:"🗝️", c:5, t:"unit", tr:"Virus", a:4, h:5, txt:"Install: Reset an enemy unit.",
+u_rootkit:{ n:"Rootkit", c:5, t:"unit", tr:"Virus", a:4, h:5, txt:"Install: Reset an enemy unit.",
   bcTgt:"eunit", bc(g,s,u,t){ const x=refUnit(g,t); if(x) silence(g,x); } },
-u_botnet:{ n:"Botnet Brain", e:"🧠", c:6, t:"unit", tr:"Virus", a:4, h:6, txt:"At the end of your turn: Summon a 1/1 Bug.",
+u_botnet:{ n:"Botnet Brain", c:6, t:"unit", tr:"Virus", a:4, h:6, txt:"At the end of your turn: Summon a 1/1 Bug.",
   end(g,s){ summon(g,s,"t_bug"); } },
 
 // ===== LEGENDARISKE (10) =====
-l_praktikant:{ n:"The Intern", e:"🧑‍🎓", c:2, t:"unit", tr:null, r:"L", a:2, h:3, txt:"Install: Deal 2 damage to a COMPLETELY random target (anything can be hit).",
+l_praktikant:{ n:"The Intern", c:2, t:"unit", tr:null, r:"L", a:2, h:3, txt:"Install: Deal 2 damage to a COMPLETELY random target (anything can be hit).",
   bc(g,s,u){ const pool=[]; for(const p of [0,1]){ pool.push({s:p,u:null}); for(const x of g.players[p].board) if(x.uid!==u.uid) pool.push({s:p,u:x.uid}); }
     const t=pick(pool); if(t) dmg(g,t,2,null); } },
-l_roomba:{ n:"ROOMBA PRIME", e:"🧹", c:5, t:"unit", tr:"Robot", r:"L", a:3, h:3, kw:["turbo","hoj"], txt:"Turbo. High Voltage. Vacuums up everything." },
-l_gdpr:{ n:"GDPR Bot", e:"⚖️", c:6, t:"unit", tr:"Robot", r:"L", a:4, h:5, txt:"Install: Both players delete their hands and draw that many cards.",
+l_roomba:{ n:"ROOMBA PRIME", c:5, t:"unit", tr:"Robot", r:"L", a:3, h:3, kw:["turbo","hoj"], txt:"Turbo. High Voltage. Vacuums up everything." },
+l_gdpr:{ n:"GDPR Bot", c:6, t:"unit", tr:"Robot", r:"L", a:4, h:5, txt:"Install: Both players delete their hands and draw that many cards.",
   bc(g){ for(const p of [0,1]){ const n=g.players[p].hand.length; g.players[p].hand=[]; draw(g,p,n); } } },
-l_moderkort:{ n:"THE MOTHERBOARD", e:"🖥️", c:6, t:"unit", tr:"Component", r:"L", a:0, h:8, kw:["jord"], txt:"Grounded. Your other units have +1/+1.",
+l_moderkort:{ n:"THE MOTHERBOARD", c:6, t:"unit", tr:"Component", r:"L", a:0, h:8, kw:["jord"], txt:"Grounded. Your other units have +1/+1.",
   aura:{ others:true, a:1, h:1 } },
-l_tesla:{ n:"TESLA COIL", e:"🗼", c:7, t:"unit", tr:"Component", r:"L", a:4, h:6, txt:"At the end of your turn: Deal 3 damage to a random enemy.",
+l_tesla:{ n:"TESLA COIL", c:7, t:"unit", tr:"Component", r:"L", a:4, h:6, txt:"At the end of your turn: Deal 3 damage to a random enemy.",
   end(g,s){ const r=randEnemyRef(g,s); if(r) dmg(g,r,3,null); } },
-l_virusx:{ n:"VIRUS X", e:"☣️", c:7, t:"unit", tr:"Virus", r:"L", a:5, h:5, kw:["hoj","host"], txt:"High Voltage. Energy Harvest." },
-l_alan:{ n:"A.L.A.N.", e:"🤖", c:8, t:"unit", tr:"Robot", r:"L", a:6, h:6, txt:"Install: Draw 3 cards. (“I’m afraid I can’t do that, Dave.”)",
+l_virusx:{ n:"VIRUS X", c:7, t:"unit", tr:"Virus", r:"L", a:5, h:5, kw:["hoj","host"], txt:"High Voltage. Energy Harvest." },
+l_alan:{ n:"A.L.A.N.", c:8, t:"unit", tr:"Robot", r:"L", a:6, h:6, txt:"Install: Draw 3 cards. (“I’m afraid I can’t do that, Dave.”)",
   bc(g,s){ draw(g,s,3); } },
-l_kvante:{ n:"THE QUANTUM BOX", e:"📦", c:8, t:"unit", tr:"Component", r:"L", a:5, h:7, txt:"At the end of your turn: Add a random Spell to your hand.",
+l_kvante:{ n:"THE QUANTUM BOX", c:8, t:"unit", tr:"Component", r:"L", a:5, h:7, txt:"At the end of your turn: Add a random Spell to your hand.",
   end(g,s){ const id=pick(POOL_PROG); if(id) addHand(g,s,id); } },
-l_titan:{ n:"TITAN-9000", e:"🗿", c:9, t:"unit", tr:"Robot", r:"L", a:8, h:8, kw:["jord"], txt:"Grounded. Install: Destroy the enemy unit with the highest Attack.",
+l_titan:{ n:"TITAN-9000", c:9, t:"unit", tr:"Robot", r:"L", a:8, h:8, kw:["jord"], txt:"Grounded. Install: Destroy the enemy unit with the highest Attack.",
   bc(g,s){ const b=g.players[1-s].board; if(!b.length) return; let m=b[0]; for(const x of b) if(effAtk(g,1-s,x)>effAtk(g,1-s,m)) m=x; m.dmg=999; sweep(g); } },
-l_overtek:{ cls:"tek", n:"THE OVERTECHNICIAN", e:"🧙", c:9, t:"unit", tr:null, r:"L", a:6, h:6, txt:"Install: Give all your other units +2/+2.",
+l_overtek:{ cls:"tek", n:"THE OVERTECHNICIAN", c:9, t:"unit", tr:null, r:"L", a:6, h:6, txt:"Install: Give all your other units +2/+2.",
   bc(g,s,u){ for(const x of g.players[s].board) if(x.uid!==u.uid){ x.a+=2; x.hM+=2; } } },
 
 // ===== RARE (◆) — stærkere end commons, findes sjældnere =====
-r_fluxkond:{ n:"Flux Capacitor", e:"⏳", c:3, t:"unit", tr:"Component", r:"R", a:2, h:3,
+r_fluxkond:{ n:"Flux Capacitor", c:3, t:"unit", tr:"Component", r:"R", a:2, h:3,
   txt:"Install: Store 2 energy in your capacitor bank.",
   bc(g,s,u){ addStored(g,s,2); } },
-r_brandmur:{ n:"Firewall Tower", e:"🧱", c:5, t:"unit", tr:"Component", r:"R", a:2, h:7, kw:["jord","iso"],
+r_brandmur:{ n:"Firewall Tower", c:5, t:"unit", tr:"Component", r:"R", a:2, h:7, kw:["jord","iso"],
   txt:"Grounded. Insulated." },
-r_stoedbolge:{ n:"Surge Wave", e:"🌊", c:4, t:"spell", r:"R",
+r_stoedbolge:{ n:"Surge Wave", c:4, t:"spell", r:"R",
   txt:"Deal 2 damage to ALL enemy units.",
   fx(g,s){ const n=2+sig(g,s); for(const u of [...g.players[1-s].board]) dmg(g,{s:1-s,u:u.uid},n,null); } },
-r_cachelaeser:{ n:"Cache Reader", e:"📖", c:3, t:"spell", r:"R",
+r_cachelaeser:{ n:"Cache Reader", c:3, t:"spell", r:"R",
   txt:"Draw 2 cards.",
   fx(g,s){ draw(g,s,2); } },
-r_magnetfelt:{ n:"Magnet Field", e:"🧲", c:3, t:"spell", r:"R", tgt:"eunit",
+r_magnetfelt:{ n:"Magnet Field", c:3, t:"spell", r:"R", tgt:"eunit",
   txt:"Return an enemy unit to its owner’s hand.",
   fx(g,s,t){ bounce(g,t); } },
-r_turbolader:{ n:"Turbo Charger", e:"🏎️", c:2, t:"spell", r:"R", tgt:"funit",
+r_turbolader:{ n:"Turbo Charger", c:2, t:"spell", r:"R", tgt:"funit",
   txt:"Give a friendly unit +2 Attack and Turbo.",
   fx(g,s,t){ buff(g,t,2,0); const u=refUnit(g,t); if(u){ u.akw.push("turbo"); u.jp=false; } } },
 
 // ===== FLERE LEGENDARIES (★) =====
-l_spejlserver:{ n:"MIRROR SERVER", e:"🪞", c:6, t:"unit", tr:"Robot", r:"L", a:3, h:4,
+l_spejlserver:{ n:"MIRROR SERVER", c:6, t:"unit", tr:"Robot", r:"L", a:3, h:4,
   txt:"Install: Summon a fresh copy of a random enemy unit. If there are none, summon a 1/1 Bug.",
   bc(g,s,u){ if(g.players[s].board.length>=MAXBOARD) return;
     const eb=g.players[1-s].board;
     if(eb.length){ summon(g,s,pick(eb).id); } else { summon(g,s,"t_bug"); } } },
-l_singularitet:{ n:"THE SINGULARITY", e:"🕳️", c:9, t:"unit", tr:null, r:"L", a:6, h:6, kw:["turbo"],
+l_singularitet:{ n:"THE SINGULARITY", c:9, t:"unit", tr:null, r:"L", a:6, h:6, kw:["turbo"],
   txt:"Turbo. Install: Gains +1/+1 for every other unit in play.",
   bc(g,s,u){ let n=0; for(const p of [0,1]) for(const x of g.players[p].board) if(x.uid!==u.uid) n++;
     if(n>0){ u.a+=n; u.hM+=n; } } },
-l_hovedafbryder:{ n:"MASTER BREAKER", e:"🎛️", c:8, t:"spell", r:"L",
+l_hovedafbryder:{ n:"MASTER BREAKER", c:8, t:"spell", r:"L",
   txt:"Destroy ALL units. Both heroes repair 4.",
   fx(g,s){ for(const p of [0,1]) for(const u of [...g.players[p].board]) dmg(g,{s:p,u:u.uid},99,null);
     healHero(g,0,4); healHero(g,1,4); } },
-l_thorexe:{ n:"THOR.EXE", e:"🔨", c:7, t:"unit", tr:"Robot", r:"L", a:4, h:5, kw:["hoj"],
+l_thorexe:{ n:"THOR.EXE", c:7, t:"unit", tr:"Robot", r:"L", a:4, h:5, kw:["hoj"],
   txt:"High Voltage. Install: Deal 1 damage to all enemy units.",
   bc(g,s,u){ for(const x of [...g.players[1-s].board]) dmg(g,{s:1-s,u:x.uid},1,null); } },
 
 // ===== TOKENS (ikke i samlingen) =====
 
 // ---------- The Hacker (klassekort) ----------
-hk_spoof:{ cls:"hack", n:"Spoof", e:"🎭", c:1, t:"spell", txt:"Give a friendly unit Cloaked.",
+hk_spoof:{ cls:"hack", n:"Spoof", c:1, t:"spell", txt:"Give a friendly unit Cloaked.",
   tgt:"funit", fx(g,s,t){ const u=refUnit(g,t); if(u){ u.akw.push("skjul"); u.st=true; } } },
-hk_phish:{ cls:"hack", n:"Phishing", e:"🎣", c:1, t:"spell", txt:"Copy a random card from your opponent’s hand to yours.",
+hk_phish:{ cls:"hack", n:"Phishing", c:1, t:"spell", txt:"Copy a random card from your opponent’s hand to yours.",
   fx(g,s){ const oh=g.players[1-s].hand; if(oh.length) addHand(g,s,pick(oh).id); } },
-hk_bugswarm:{ cls:"hack", n:"Bug Swarm", e:"🐛", c:2, t:"spell", txt:"Summon two 1/1 Bugs. Chain: Three instead.",
+hk_bugswarm:{ cls:"hack", n:"Bug Swarm", c:2, t:"spell", txt:"Summon two 1/1 Bugs. Chain: Three instead.",
   fx(g,s,t,combo){ for(let i=0;i<(combo?3:2);i++) summon(g,s,"t_bug"); } },
-hk_keylog:{ cls:"hack", n:"Keylogger", e:"⌨️", c:2, t:"unit", tr:"Virus", a:1, h:3, kw:["skjul"],
+hk_keylog:{ cls:"hack", n:"Keylogger", c:2, t:"unit", tr:"Virus", a:1, h:3, kw:["skjul"],
   txt:"Cloaked. Breakdown: Draw a card.", dr(g,s){ draw(g,s,1); } },
-hk_ddos:{ cls:"hack", n:"DDoS", e:"🌊", c:3, t:"spell", txt:"Give all enemy units -2 Attack.",
+hk_ddos:{ cls:"hack", n:"DDoS", c:3, t:"spell", txt:"Give all enemy units -2 Attack.",
   fx(g,s){ for(const u of g.players[1-s].board) buff(g,{s:1-s,u:u.uid},-2,0); } },
-hk_crypto:{ cls:"hack", n:"Cryptojacker", e:"⛏️", c:3, t:"unit", tr:"Virus", a:2, h:3, kw:["host"],
+hk_crypto:{ cls:"hack", n:"Cryptojacker", c:3, t:"unit", tr:"Virus", a:2, h:3, kw:["host"],
   txt:"Energy Harvest. Install: Store 1 energy.", bc(g,s){ addStored(g,s,1); } },
-hk_mitm:{ cls:"hack", n:"Man in the Middle", e:"🕵️", c:4, t:"unit", tr:"Virus", a:3, h:4,
+hk_mitm:{ cls:"hack", n:"Man in the Middle", c:4, t:"unit", tr:"Virus", a:3, h:4,
   txt:"Install: Return an enemy unit to its owner’s hand.",
   bcTgt:"eunit", bc(g,s,u,t){ if(t) bounce(g,t); } },
-hk_glitchstorm:{ cls:"hack", n:"Glitch Storm", e:"🌩️", c:4, t:"spell", txt:"Deal 1 damage to all enemy units, twice.",
+hk_glitchstorm:{ cls:"hack", n:"Glitch Storm", c:4, t:"spell", txt:"Deal 1 damage to all enemy units, twice.",
   fx(g,s){ aoe(g,1-s,1); aoe(g,1-s,1); } },
-hk_payload:{ cls:"hack", n:"Payload", e:"📦", c:5, t:"unit", tr:"Virus", a:4, h:4,
+hk_payload:{ cls:"hack", n:"Payload", c:5, t:"unit", tr:"Virus", a:4, h:4,
   txt:"Breakdown: Deal 3 damage to the enemy hero.", dr(g,s){ dmg(g,{s:1-s,u:null},3,null); } },
-hk_zeroday:{ cls:"hack", n:"Zero-Day", e:"💀", c:5, t:"spell", txt:"Destroy a damaged enemy unit.",
+hk_zeroday:{ cls:"hack", n:"Zero-Day", c:5, t:"spell", txt:"Destroy a damaged enemy unit.",
   tgt:"eunit", f:(g,s,r,u)=>u.dmg>0, fx(g,s,t){ const u=refUnit(g,t); if(u){ u.dmg=999; sweep(g); } } },
-hk_root:{ cls:"hack", n:"Root Access", e:"🔓", c:6, t:"spell", txt:"Take control of an enemy unit.",
+hk_root:{ cls:"hack", n:"Root Access", c:6, t:"spell", txt:"Take control of an enemy unit.",
   tgt:"eunit", f:(g,s,r,u)=>g.players[s].board.length<MAXBOARD, fx(g,s,t){ takeControl(g,s,t); } },
-hk_mirror:{ cls:"hack", n:"M1RR0R", e:"🪞", c:7, t:"unit", tr:"Virus", r:"L", a:5, h:5,
+hk_mirror:{ cls:"hack", n:"M1RR0R", c:7, t:"unit", tr:"Virus", r:"L", a:5, h:5,
   txt:"Install: Summon a base copy of an enemy unit.",
   bcTgt:"eunit", bc(g,s,u,t){ const e=refUnit(g,t); if(e) summon(g,s,e.id); } },
 // ---------- The Overclocker (klassekort) ----------
-ov_jolt:{ cls:"over", n:"Jolt", e:"⚡", c:1, t:"spell", txt:"Deal 2 damage. Overheat (1).",
+ov_jolt:{ cls:"over", n:"Jolt", c:1, t:"spell", txt:"Deal 2 damage. Overheat (1).",
   tgt:"any", fx(g,s,t){ dmg(g,t,2+sig(g,s),null); g.players[s].ovlNext+=1; } },
-ov_boost:{ cls:"over", n:"Turbo Boost", e:"🚀", c:2, t:"spell", txt:"Give a friendly unit Turbo and +1/+0.",
+ov_boost:{ cls:"over", n:"Turbo Boost", c:2, t:"spell", txt:"Give a friendly unit Turbo and +1/+0.",
   tgt:"funit", fx(g,s,t){ const u=refUnit(g,t); if(u){ u.akw.push("turbo"); buff(g,t,1,0); } } },
-ov_coolant:{ cls:"over", n:"Coolant Flush", e:"🧊", c:2, t:"spell", txt:"Unlock all your overheated energy (this turn and pending).",
+ov_coolant:{ cls:"over", n:"Coolant Flush", c:2, t:"spell", txt:"Unlock all your overheated energy (this turn and pending).",
   fx(g,s){ const p=g.players[s]; p.cur+=p.ovlShown; p.ovlShown=0; p.ovlNext=0; } },
-ov_reactor:{ cls:"over", n:"Micro Reactor", e:"☢️", c:3, t:"unit", tr:"Component", a:0, h:6,
+ov_reactor:{ cls:"over", n:"Micro Reactor", c:3, t:"unit", tr:"Component", a:0, h:6,
   txt:"At the start of your turn: Store 1 energy.", start(g,s,u){ addStored(g,s,1); } },
-ov_amped:{ cls:"over", n:"Amped Up", e:"📈", c:3, t:"spell", txt:"Give a friendly unit +3/+3. Overheat (1).",
+ov_amped:{ cls:"over", n:"Amped Up", c:3, t:"spell", txt:"Give a friendly unit +3/+3. Overheat (1).",
   tgt:"funit", fx(g,s,t){ buff(g,t,3,3); g.players[s].ovlNext+=1; } },
-ov_press:{ cls:"over", n:"Hydraulic Press", e:"🗜️", c:4, t:"unit", tr:"Robot", a:5, h:2,
+ov_press:{ cls:"over", n:"Hydraulic Press", c:4, t:"unit", tr:"Robot", a:5, h:2,
   txt:"Overheat (1).", bc(g,s){ g.players[s].ovlNext+=1; } },
-ov_flux:{ cls:"over", n:"Flux Capacitor", e:"🔋", c:4, t:"unit", tr:"Component", a:1, h:5,
+ov_flux:{ cls:"over", n:"Flux Capacitor", c:4, t:"unit", tr:"Component", a:1, h:5,
   txt:"Install: Store 2 energy.", bc(g,s){ addStored(g,s,2); } },
-ov_heatwave:{ cls:"over", n:"Heat Wave", e:"🥵", c:5, t:"spell", txt:"Deal 3 damage to all enemy units. Overheat (2).",
+ov_heatwave:{ cls:"over", n:"Heat Wave", c:5, t:"spell", txt:"Deal 3 damage to all enemy units. Overheat (2).",
   fx(g,s){ aoe(g,1-s,3+sig(g,s)); g.players[s].ovlNext+=2; } },
-ov_dynamo:{ cls:"over", n:"Dynamo", e:"🌀", c:5, t:"unit", tr:"Component", a:4, h:5,
+ov_dynamo:{ cls:"over", n:"Dynamo", c:5, t:"unit", tr:"Component", a:4, h:5,
   txt:"At the end of your turn: Deal 1 damage to the enemy hero for each stored energy.",
   end(g,s,u){ const n=g.players[s].stored; if(n>0) dmg(g,{s:1-s,u:null},n,null); } },
-ov_golem:{ cls:"over", n:"Scrap Golem", e:"🗑️", c:6, t:"unit", tr:"Robot", a:7, h:7,
+ov_golem:{ cls:"over", n:"Scrap Golem", c:6, t:"unit", tr:"Robot", a:7, h:7,
   txt:"Overheat (2).", bc(g,s){ g.players[s].ovlNext+=2; } },
-ov_core:{ cls:"over", n:"Fission Core", e:"☢️", c:7, t:"unit", tr:"Component", a:6, h:6, kw:["jord"],
+ov_core:{ cls:"over", n:"Fission Core", c:7, t:"unit", tr:"Component", a:6, h:6, kw:["jord"],
   txt:"Grounded. Breakdown: Deal 3 damage to all other units and both heroes.",
   dr(g,s){
     g.players[0].hp-=3; fxPush(g,{t:"dmg",s:0,u:null,n:3});
     g.players[1].hp-=3; fxPush(g,{t:"dmg",s:1,u:null,n:3});
     aoe(g,0,3); aoe(g,1,3); checkWin(g);
   } },
-ov_giga:{ cls:"over", n:"GIGAWATT", e:"🌩️", c:10, t:"unit", tr:"Robot", r:"L", a:10, h:10, kw:["turbo"],
+ov_giga:{ cls:"over", n:"GIGAWATT", c:10, t:"unit", tr:"Robot", r:"L", a:10, h:10, kw:["turbo"],
   txt:"Turbo. Overheat (3).", bc(g,s){ g.players[s].ovlNext+=3; } },
 // ---------- nye neutrale ----------
-n_jumper:{ n:"Jumper Wires", e:"🔗", c:0, t:"spell", txt:"Give a friendly unit +1/+1.",
+n_jumper:{ n:"Jumper Wires", c:0, t:"spell", txt:"Give a friendly unit +1/+1.",
   tgt:"funit", fx(g,s,t){ buff(g,t,1,1); } },
-n_multimeter:{ n:"Multimeter", e:"🔍", c:1, t:"unit", tr:"Component", a:1, h:2,
+n_multimeter:{ n:"Multimeter", c:1, t:"unit", tr:"Component", a:1, h:2,
   txt:"Install: Draw a card. Overheat (1).", bc(g,s){ draw(g,s,1); g.players[s].ovlNext+=1; } },
-n_fan:{ n:"Cooling Fan", e:"🌀", c:2, t:"unit", tr:"Component", a:1, h:4,
+n_fan:{ n:"Cooling Fan", c:2, t:"unit", tr:"Component", a:1, h:4,
   txt:"Install: Unlock 1 overheated energy.",
   bc(g,s){ const p=g.players[s]; if(p.ovlShown>0){ p.ovlShown--; p.cur++; } else if(p.ovlNext>0) p.ovlNext--; } },
-n_breadboard:{ n:"Breadboard", e:"🧩", c:2, t:"unit", tr:"Component", a:2, h:3,
+n_breadboard:{ n:"Breadboard", c:2, t:"unit", tr:"Component", a:2, h:3,
   txt:"Install: Give your other Components +0/+1.",
   bc(g,s,u){ for(const q of g.players[s].board) if(q.uid!==u.uid&&CARDS[q.id].tr==="Component") buff(g,{s,u:q.uid},0,1); } },
-n_oscillo:{ n:"Oscilloscope", e:"📟", c:3, t:"unit", tr:"Component", a:2, h:4, sig:1,
+n_oscillo:{ n:"Oscilloscope", c:3, t:"unit", tr:"Component", a:2, h:4, sig:1,
   txt:"Signal Strength +1 (your Spells deal +1 damage)." },
-n_surgeprot:{ n:"Surge Protector", e:"🔌", c:3, t:"unit", tr:"Component", a:2, h:5, kw:["jord","iso"],
+n_surgeprot:{ n:"Surge Protector", c:3, t:"unit", tr:"Component", a:2, h:5, kw:["jord","iso"],
   txt:"Grounded. Insulated." },
-n_ball:{ n:"Ball Lightning", e:"🔮", c:4, t:"unit", a:4, h:3, kw:["turbo"],
+n_ball:{ n:"Ball Lightning", c:4, t:"unit", a:4, h:3, kw:["turbo"],
   txt:"Turbo. Overheat (1).", bc(g,s){ g.players[s].ovlNext+=1; } },
-n_scrapyard:{ n:"Scrapyard", e:"🏗️", c:4, t:"unit", a:0, h:8, kw:["jord"],
+n_scrapyard:{ n:"Scrapyard", c:4, t:"unit", a:0, h:8, kw:["jord"],
   txt:"Grounded. Breakdown: Add a random Component to your hand.",
   dr(g,s){ addHand(g,s,pick(POOL_KOMP)); } },
-n_datacenter:{ n:"Data Center", e:"🏢", c:5, t:"unit", a:3, h:7, kw:["jord"],
+n_datacenter:{ n:"Data Center", c:5, t:"unit", a:3, h:7, kw:["jord"],
   txt:"Grounded. Breakdown: Store 2 energy.", dr(g,s){ addStored(g,s,2); } },
-n_mainframe:{ n:"THE MAINFRAME", e:"🖥️", c:8, t:"unit", r:"L", a:6, h:8, kw:["jord"],
+n_mainframe:{ n:"THE MAINFRAME", c:8, t:"unit", r:"L", a:6, h:8, kw:["jord"],
   txt:"Grounded. At the end of your turn: Draw a card.", end(g,s,u){ draw(g,s,1); } },
-t_mikrobot:{ n:"Microbot", e:"🤖", c:1, t:"unit", tr:"Robot", a:1, h:1, tok:true, txt:"" },
-t_bug:{ n:"Bug", e:"🐛", c:1, t:"unit", tr:"Virus", a:1, h:1, tok:true, txt:"" },
-t_server:{ n:"Server", e:"🗃️", c:3, t:"unit", tr:"Component", a:3, h:3, kw:["jord"], tok:true, txt:"Grounded." },
-t_powerbank:{ n:"Powerbank", e:"🔋", c:0, t:"spell", tok:true, txt:"Gain 1 energy this turn.",
+t_mikrobot:{ n:"Microbot", c:1, t:"unit", tr:"Robot", a:1, h:1, tok:true, txt:"" },
+t_bug:{ n:"Bug", c:1, t:"unit", tr:"Virus", a:1, h:1, tok:true, txt:"" },
+t_server:{ n:"Server", c:3, t:"unit", tr:"Component", a:3, h:3, kw:["jord"], tok:true, txt:"Grounded." },
+t_powerbank:{ n:"Powerbank", c:0, t:"spell", tok:true, txt:"Gain 1 energy this turn.",
   fx(g,s){ g.players[s].cur+=1; } },
 };
 
@@ -430,9 +430,9 @@ function refUnit(g,r){ if(!r||r.u==null) return null; return g.players[r.s].boar
 function checkWin(g){
   if(g.status!=="igang") return;
   const d0=g.players[0].hp<=0, d1=g.players[1].hp<=0;
-  if(d0&&d1){ g.status="slut"; g.winner=2; log(g,"⚡ Double meltdown — it’s a draw!"); }
-  else if(d0){ g.status="slut"; g.winner=1; log(g,"🏆 "+g.players[1].name+" wins!"); }
-  else if(d1){ g.status="slut"; g.winner=0; log(g,"🏆 "+g.players[0].name+" wins!"); }
+  if(d0&&d1){ g.status="slut"; g.winner=2; log(g,"§bolt§ Double meltdown — it’s a draw!"); }
+  else if(d0){ g.status="slut"; g.winner=1; log(g,"§trophy§ "+g.players[1].name+" wins!"); }
+  else if(d1){ g.status="slut"; g.winner=0; log(g,"§trophy§ "+g.players[0].name+" wins!"); }
 }
 function fxPush(g,ev){ ev.k=(g.fxk=(g.fxk||0)+1); (g.fx=g.fx||[]).push(ev); if(g.fx.length>40) g.fx.shift(); }
 function dmg(g,ref,n,src){
@@ -445,7 +445,7 @@ function dmg(g,ref,n,src){
   }
   const u=refUnit(g,ref); if(!u) return;
   if(u.sh){ u.sh=false; fxPush(g,{t:"skjold",s:ref.s,u:u.uid});
-    log(g,"◈ "+CARDS[u.id].n+"’s insulation absorbs the damage."); return; }
+    log(g,"§shield§ "+CARDS[u.id].n+"’s insulation absorbs the damage."); return; }
   u.dmg+=n;
   fxPush(g,{t:"dmg",s:ref.s,u:u.uid,n});
   if(src&&src.host) healHero(g,src.hs,n);
@@ -467,7 +467,7 @@ function sweep(g){
     g.players[ds].grave++;
     fxPush(g,{t:"boom",s:ds,u:dead.uid});
     if(g._rec) g._rec.kills.push({id:dead.id,s:ds});
-    log(g,"✕ "+CARDS[dead.id].n+" breaks down.");
+    log(g,"§cross§ "+CARDS[dead.id].n+" breaks down.");
     const def=CARDS[dead.id];
     if(!dead.sil && def.dr) def.dr(g,ds,dead);
   }
@@ -479,17 +479,17 @@ function draw(g,s,n){
     if(g.status!=="igang") return;
     if(!p.deck.length){
       p.fat++; p.hp-=p.fat;
-      log(g,"🕳️ "+p.name+" is out of cards and takes "+p.fat+" fatigue damage.");
+      log(g,"§hole§ "+p.name+" is out of cards and takes "+p.fat+" fatigue damage.");
       checkWin(g); continue;
     }
     const id=p.deck.pop();
-    if(p.hand.length>=MAXHAND){ log(g,"🔥 "+p.name+"’s hand is full — "+CARDS[id].n+" burns up."); }
+    if(p.hand.length>=MAXHAND){ log(g,"§fire§ "+p.name+"’s hand is full — "+CARDS[id].n+" burns up."); }
     else p.hand.push({uid:nuid(g),id});
   }
 }
 function addHand(g,s,id){
   const p=g.players[s];
-  if(p.hand.length>=MAXHAND){ log(g,"🔥 "+p.name+"’s hand is full — "+CARDS[id].n+" burns up."); return; }
+  if(p.hand.length>=MAXHAND){ log(g,"§fire§ "+p.name+"’s hand is full — "+CARDS[id].n+" burns up."); return; }
   p.hand.push({uid:nuid(g),id});
 }
 function tutor(g,s,pred){
@@ -522,7 +522,7 @@ function bounce(g,ref){
   const u=refUnit(g,ref); if(!u) return;
   const b=g.players[ref.s].board; b.splice(b.indexOf(u),1);
   const p=g.players[ref.s];
-  if(p.hand.length>=MAXHAND) log(g,"🔥 "+CARDS[u.id].n+" burns up — the hand was full.");
+  if(p.hand.length>=MAXHAND) log(g,"§fire§ "+CARDS[u.id].n+" burns up — the hand was full.");
   else p.hand.push({uid:nuid(g),id:u.id});
 }
 function takeControl(g,s,ref){
@@ -531,7 +531,7 @@ function takeControl(g,s,ref){
   const b=g.players[ref.s].board; b.splice(b.indexOf(u),1);
   u.jp=true; g.players[s].board.push(u);
   fxPush(g,{t:"flyt",uid:u.uid,fra:ref.s,til:s,id:u.id});
-  log(g,"🥷 "+g.players[s].name+" takes control of "+CARDS[u.id].n+"!");
+  log(g,"§ninja§ "+g.players[s].name+" takes control of "+CARDS[u.id].n+"!");
 }
 function addStored(g,s,n){ const p=g.players[s]; p.stored=Math.min(MAXSTORED,p.stored+n); }
 function aoe(g,side,n){
@@ -607,7 +607,7 @@ function playCard(g,s,handUid,tref){
   fxPush(g,{t:"spil",s,hu:handUid,id,ts:tref?tref.s:null,tu:tref?tref.u:null});
   if(d.t==="spell"&&tref) fxPush(g,{t:"zap",fs:s,fu:null,ts:tref.s,tu:tref.u,art:"spell"});
   else if(d.t==="spell") fxPush(g,{t:"cast",s});
-  log(g,"▶ "+p.name+" plays "+d.n+".");
+  log(g,"§play§ "+p.name+" plays "+d.n+".");
   const rec=recStart(g,s,id);
   if(d.t==="unit"){
     const u=mkUnit(g,id); p.board.push(u);
@@ -650,13 +650,13 @@ function unitAttack(g,s,uid,tref){
   const aA=effAtk(g,s,u);
   const srcA={hoj:hasKw(g,s,u,"hoj"),host:hasKw(g,s,u,"host"),hs:s};
   if(tref.u==null){
-    log(g,"⚔ "+CARDS[u.id].n+" attacks "+g.players[tref.s].name+" ("+aA+").");
+    log(g,"§sword§ "+CARDS[u.id].n+" attacks "+g.players[tref.s].name+" ("+aA+").");
     dmg(g,tref,aA,srcA);
   } else {
     const d=refUnit(g,tref); if(!d) return "The target doesn’t exist.";
     const aD=effAtk(g,tref.s,d);
     const srcD={hoj:hasKw(g,tref.s,d,"hoj"),host:hasKw(g,tref.s,d,"host"),hs:tref.s};
-    log(g,"⚔ "+CARDS[u.id].n+" ("+aA+") trades with "+CARDS[d.id].n+" ("+aD+").");
+    log(g,"§sword§ "+CARDS[u.id].n+" ("+aA+") trades with "+CARDS[d.id].n+" ("+aD+").");
     dmg(g,tref,aA,srcA);
     if(aD>0) dmg(g,{s,u:uid},aD,srcD);
   }
@@ -669,8 +669,8 @@ function unitAttack(g,s,uid,tref){
    deckbygger, validering og UI slår selv op. Kort uden cls er neutrale. */
 const CLASSES={
   tek:{
-    n:"The Technician", ico:"🧑‍🔧", col:"#e8a96a",
-    power:{ n:"Soldering Iron", ico:"🔥", svg:"loddekolbe", c:2, txt:"Enemy: 1 damage · Friendly: repair 2." },
+    n:"The Technician", ico:"tinker", col:"#e8a96a",
+    power:{ n:"Soldering Iron", ico:"solder", svg:"loddekolbe", c:2, txt:"Enemy: 1 damage · Friendly: repair 2." },
     powerTargets(g,s){
       const out=[{s:0,u:null},{s:1,u:null}];
       for(const ps of [0,1]) for(const u of g.players[ps].board){
@@ -683,30 +683,30 @@ const CLASSES={
       if(tref.s===s){
         if(tref.u==null) healHero(g,s,2);
         else { const u=refUnit(g,tref); if(u){ u.dmg=Math.max(0,u.dmg-2); fxPush(g,{t:"heal",s:tref.s,u:tref.u,n:2}); } }
-        log(g,"🔧 "+p.name+" repairs 2 with the soldering iron.");
+        log(g,"§wrench§ "+p.name+" repairs 2 with the soldering iron.");
       } else {
         fxPush(g,{t:"zap",fs:s,fu:null,ts:tref.s,tu:tref.u,art:"power"});
-        log(g,"🔧 "+p.name+" burns the enemy with the soldering iron (1).");
+        log(g,"§wrench§ "+p.name+" burns the enemy with the soldering iron (1).");
         dmg(g,tref,1,null);
       }
     },
   },
   hack:{
-    n:"The Hacker", ico:"🧑‍💻", col:"#c76bd9",
-    power:{ n:"Breach", ico:"🐛", c:2, txt:"Summon a 1/1 Bug." },
+    n:"The Hacker", ico:"hoodie", col:"#c76bd9",
+    power:{ n:"Breach", ico:"bug", c:2, txt:"Summon a 1/1 Bug." },
     powerTargets(g,s){ return g.players[s].board.length<MAXBOARD?[{s,u:null}]:[]; },
     powerFx(g,s,tref){
       summon(g,s,"t_bug");
-      log(g,"🐛 "+g.players[s].name+" breaches the firewall — a Bug crawls out.");
+      log(g,"§bug§ "+g.players[s].name+" breaches the firewall — a Bug crawls out.");
     },
   },
   over:{
-    n:"The Overclocker", ico:"🧑‍🏭", col:"#ff8c5a",
-    power:{ n:"Charge", ico:"🔋", c:2, txt:"Store 2 energy in the capacitor bank." },
+    n:"The Overclocker", ico:"heat", col:"#ff8c5a",
+    power:{ n:"Charge", ico:"battery", c:2, txt:"Store 2 energy in the capacitor bank." },
     powerTargets(g,s){ return g.players[s].stored<MAXSTORED?[{s,u:null}]:[]; },
     powerFx(g,s,tref){
       addStored(g,s,2);
-      log(g,"🔋 "+g.players[s].name+" charges the capacitor bank.");
+      log(g,"§battery§ "+g.players[s].name+" charges the capacitor bank.");
     },
   },
 };
@@ -733,7 +733,7 @@ function startTurn(g){
   p.cur=Math.max(0,p.maxE-p.ovlShown)+p.stored;
   p.stored=0; p.played=0; p.heroUsed=false;
   for(const u of p.board){ u.jp=false; u.atkLeft=hasKw(g,s,u,"dob")?2:1; }
-  log(g,"— Turn "+g.turn+": "+p.name+" ("+p.cur+"⚡"+(p.ovlShown?", "+p.ovlShown+" locked by overheat":"")+") —");
+  log(g,"— Turn "+g.turn+": "+p.name+" ("+p.cur+"§bolt§"+(p.ovlShown?", "+p.ovlShown+" locked by overheat":"")+") —");
   draw(g,s,1);
   for(const uid of p.board.map(u=>u.uid)){
     const u=p.board.find(x=>x.uid===uid); if(!u||u.sil) continue;
@@ -751,7 +751,7 @@ function endTurn(g,s){
   }
   if(g.status!=="igang") return null;
   const gem=Math.min(MAXSTORED,p.stored+p.cur)-p.stored;
-  if(gem>0){ p.stored+=gem; log(g,"🔋 "+p.name+" stores "+gem+" energy in the capacitor bank."); }
+  if(gem>0){ p.stored+=gem; log(g,"§battery§ "+p.name+" stores "+gem+" energy in the capacitor bank."); }
   p.cur=0;
   g.active=1-s;
   startTurn(g);
@@ -770,8 +770,8 @@ function mkState(cfg){
     turn:0, active:starter, n:1, last:null, log:[], fx:[], fxk:0, hist:[], hk:0, rematch:[false,false],
     players:[ mkPlayer(cfg.names[0],cfg.cids[0],cfg.decks[0],cfg.classes&&cfg.classes[0]),
               mkPlayer(cfg.names[1],cfg.cids[1],cfg.decks[1],cfg.classes&&cfg.classes[1]) ] };
-  log(g,"⚡ CARDWARE CRASH — "+g.players[0].name+" vs "+g.players[1].name+".");
-  log(g,"🎲 "+g.players[starter].name+" goes first.");
+  log(g,"§bolt§ CARDWARE CRASH — "+g.players[0].name+" vs "+g.players[1].name+".");
+  log(g,"§dice§ "+g.players[starter].name+" goes first.");
   for(let i=0;i<3;i++){ draw(g,starter,1); }
   for(let i=0;i<4;i++){ draw(g,1-starter,1); }
   addHand(g,1-starter,"t_powerbank");
@@ -886,7 +886,7 @@ const TUT={
     p0.deck=filler.concat(["u_led","u_kampdrone","s_spids"]);
     p1.hand=[]; p1.deck=filler.slice();
     p1.hp=7;
-    g.log=[]; log(g,"🎓 Tutorial started — TUTOR-9000 runs on a low battery (7 HP).");
+    g.log=[]; log(g,"§graduate§ Tutorial started — TUTOR-9000 runs on a low battery (7 HP).");
     return g;
   },
   opp:{
@@ -896,23 +896,23 @@ const TUT={
       const d=g.players[1].board.find(u=>u.id==="u_kampdrone");
       const c=g.players[0].board.find(u=>u.id==="u_spole");
       if(d&&c) unitAttack(g,1,d.uid,{s:0,u:c.uid}); },
-    8(g){ log(g,"🤖 TUTOR-9000 idles. It believes in you."); },
+    8(g){ log(g,"§robot§ TUTOR-9000 idles. It believes in you."); },
   },
   steps:[
-    { t:"Welcome, Technician! ⚡ You only have 1 energy this turn — both cards in your hand cost more, so there\u2019s nothing to play yet. End your turn: your unspent energy is stored in the capacitor bank 🔋 for next turn.",
+    { t:"Welcome, Technician! §bolt§ You only have 1 energy this turn — both cards in your hand cost more, so there\u2019s nothing to play yet. End your turn: your unspent energy is stored in the capacitor bank §battery§ for next turn.",
       hi:["end"], allow:{end:1}, done:g=>g.turn>1 },
-    { t:"TUTOR-9000 plays a Resistor. Note the ⏚ — Grounded units must be attacked first.",
+    { t:"TUTOR-9000 plays a Resistor. Note the §kw_jord§ — Grounded units must be attacked first.",
       hi:[], allow:{}, done:g=>g.turn===3 },
-    { t:"3⚡ this turn: 2 new + 1 from the bank. Play your Coil!",
+    { t:"3§bolt§ this turn: 2 new + 1 from the bank. Play your Coil!",
       hi:["hand:u_spole"], allow:{play:"u_spole"}, done:g=>g.players[0].board.some(u=>u.id==="u_spole") },
     { t:"Units sleep the turn they arrive (unless they have Turbo »). End your turn.",
       hi:["end"], allow:{end:1}, done:g=>g.turn===4 },
     { t:"An LED lights up on the other side…",
       hi:[], allow:{}, done:g=>g.turn===5 },
-    { t:"Attack! Tap your Coil, then the Resistor — the ⏚ Grounded unit blocks everything else.",
+    { t:"Attack! Tap your Coil, then the Resistor — the §kw_jord§ Grounded unit blocks everything else.",
       hi:["unit:u_spole","eunit:u_modstand"], allow:{atk:"u_spole"},
       done:g=>g.players[1].board.some(u=>u.id==="u_modstand"&&u.dmg>0) },
-    { t:"It survived with 1 HP! Your hero power 🔧 Soldering Iron (2⚡) can finish it off.",
+    { t:"It survived with 1 HP! Your hero power §wrench§ Soldering Iron (2§bolt§) can finish it off.",
       hi:["kraft","eunit:u_modstand"], allow:{power:1,tgtUnit:"u_modstand"},
       done:g=>g.players[0].heroUsed&&!g.players[1].board.some(u=>u.id==="u_modstand") },
     { t:"Spells can hit anything targetable. Short Circuit the enemy hero!",
@@ -922,17 +922,17 @@ const TUT={
       hi:["end"], allow:{end:1}, done:g=>g.turn===6 },
     { t:"Turbo » units can attack units immediately — the Combat Drone rams your Coil and breaks down.",
       hi:[], allow:{}, done:g=>g.turn===7 },
-    { t:"Voltage Spike deals 3 damage, but Overheat (1) locks 1⚡ next turn. Fire at the hero!",
+    { t:"Voltage Spike deals 3 damage, but Overheat (1) locks 1§bolt§ next turn. Fire at the hero!",
       hi:["hand:s_spids","h1"], allow:{play:"s_spids",tgtHero:1},
       done:g=>g.players[1].hp<=2 },
     { t:"Deploy your own Combat Drone. Turbo » works on units only — heroes must wait a turn.",
       hi:["hand:u_kampdrone"], allow:{play:"u_kampdrone"},
       done:g=>g.players[0].board.some(u=>u.id==="u_kampdrone") },
-    { t:"End your turn — and note the ⚠ Overheat warning on your energy bar.",
+    { t:"End your turn — and note the §warning§ Overheat warning on your energy bar.",
       hi:["end"], allow:{end:1}, done:g=>g.turn===8 },
     { t:"TUTOR-9000 idles…",
       hi:[], allow:{}, done:g=>g.turn===9 },
-    { t:"See it? 1⚡ is locked by Overheat. Now finish it — attack the hero with your Drone!",
+    { t:"See it? 1§bolt§ is locked by Overheat. Now finish it — attack the hero with your Drone!",
       hi:["unit:u_kampdrone","h1"], allow:{any:1}, done:g=>g.status==="slut" },
   ],
 };
@@ -1087,6 +1087,78 @@ const Audio8 = (() => {
   };
 })();
 
+/* __ICONS_START__ */
+// GENERERET af tools/gen-icons.mjs — rediger ikke i hånden.
+// Ikoner fra game-icons.net, CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/).
+// Ændret: baggrundspladen fjernet, figuren arver currentColor. Se ICONS-CREDITS.md.
+// Krediteringen er et licenskrav — fjern ikke ICON_CREDITS eller kreditsektionen i Rules.
+const ICON_CREDITS = [
+  {n:"Carl Olsen", u:"https://twitter.com/unstoppableCarl"},
+  {n:"Caro Asercion", u:"https://game-icons.net"},
+  {n:"Delapouite", u:"https://delapouite.com"},
+  {n:"Faithtoken", u:"https://fungustoken.deviantart.com"},
+  {n:"Guard13007", u:"https://guard13007.com"},
+  {n:"Lorc", u:"https://lorcblog.blogspot.com"},
+  {n:"Quoting", u:"https://game-icons.net"},
+  {n:"Sbed", u:"https://opengameart.org/content/95-game-icons"},
+  {n:"Skoll", u:"https://game-icons.net"},
+];
+const ICONS = {
+  bolt: '<path d="M29.805 29.777L242.14 209.55H118.712l112.54 86.784H95.995l225.656 174.012-81.537-116.05 66.487.143 179.185 138.175-171.96-244.746h84.568L248.082 29.776H29.805z"/>',
+  heart: '<path d="M480.25 156.355c0 161.24-224.25 324.43-224.25 324.43S31.75 317.595 31.75 156.355c0-91.41 70.63-125.13 107.77-125.13 77.65 0 116.48 65.72 116.48 65.72s38.83-65.73 116.48-65.73c37.14.01 107.77 33.72 107.77 125.14z"/>',
+  sword: '<path d="M19.75 14.438c59.538 112.29 142.51 202.35 232.28 292.718l3.626 3.75.063-.062c21.827 21.93 44.04 43.923 66.405 66.25-18.856 14.813-38.974 28.2-59.938 40.312l28.532 28.53 68.717-68.717c42.337 27.636 76.286 63.646 104.094 105.81l28.064-28.06c-42.47-27.493-79.74-60.206-106.03-103.876l68.936-68.938-28.53-28.53c-11.115 21.853-24.413 42.015-39.47 60.593-43.852-43.8-86.462-85.842-130.125-125.47-.224-.203-.432-.422-.656-.625C183.624 122.75 108.515 63.91 19.75 14.437zm471.875 0c-83.038 46.28-154.122 100.78-221.97 161.156l22.814 21.562 56.81-56.812 13.22 13.187-56.438 56.44 24.594 23.186c61.802-66.92 117.6-136.92 160.97-218.72zm-329.53 125.906l200.56 200.53c-4.36 4.443-8.84 8.793-13.405 13.032L148.875 153.53l13.22-13.186zm-76.69 113.28l-28.5 28.532 68.907 68.906c-26.29 43.673-63.53 76.414-106 103.907l28.063 28.06c27.807-42.164 61.758-78.174 104.094-105.81l68.718 68.717 28.53-28.53c-20.962-12.113-41.08-25.5-59.937-40.313 17.865-17.83 35.61-35.433 53.157-52.97l-24.843-25.655-55.47 55.467c-4.565-4.238-9.014-8.62-13.374-13.062l55.844-55.844-24.53-25.374c-18.28 17.856-36.602 36.06-55.158 54.594-15.068-18.587-28.38-38.758-39.5-60.625z"/>',
+  skull: '<path d="M425.344 22.22c-9.027.085-18.7 5.826-24.344 19.405-11.143 26.803-31.93 59.156-58.563 93.47 10.57 8.694 19.85 18.92 27.5 30.31 35.1-26.57 68.882-46.81 98.125-56.75 44.6-15.16 12.02-69.72-35.343-35.343 26.91-27.842 11.107-51.27-7.376-51.093zm-341.22.03c-18.5.378-37.604 23.962-16.343 49.875C31.523 38.635-.802 85.48 37.095 102.813c28.085 12.844 62.54 35.66 99.062 64.343 8.125-12.5 18.207-23.61 29.78-32.937-26.782-35.743-48.44-69.835-61.78-98.47-4.515-9.69-12.22-13.66-20.03-13.5zm169.5 99.688c-67.104 0-121.31 54.21-121.31 121.312 0 44.676 24.04 83.613 59.905 104.656v56.406h18.718v-47.468c5.203 1.95 10.576 3.552 16.093 4.78v42.688h18.69v-40.03c2.614.167 5.247.25 7.905.25 2.637 0 5.25-.086 7.844-.25v40.03h18.686v-42.687c5.52-1.226 10.89-2.834 16.094-4.78v47.467h18.688V347.97c35.92-21.03 60-60.003 60-104.72 0-67.105-54.208-121.313-121.313-121.313zm-66.874 88.218c19.88 0 36 16.12 36 36s-16.12 36-36 36-36-16.12-36-36 16.12-36 36-36zm133.563 0c19.878 0 36 16.12 36 36s-16.122 36-36 36c-19.88 0-36-16.12-36-36s16.12-36 36-36zm-66.72 52.344l29.938 48.188h-59.874l29.938-48.188zm-107.28 70.563c-40.263 32.472-78.546 58.41-109.22 72.437-37.896 17.334-5.57 64.146 30.688 30.656-30.237 36.854 21.167 69.05 36.376 36.406 15.072-32.352 40.727-71.7 72.438-112.5-11.352-7.506-21.564-16.603-30.28-27zm213.156 1.718c-8.155 9.415-17.542 17.72-27.908 24.69 31.846 39.39 56.82 76.862 69.438 107.217 17.203 41.383 71.774 9.722 31.72-31.718 47.363 34.376 79.94-20.185 35.342-35.345-32.146-10.926-69.758-34.3-108.593-64.844z"/>',
+  battery: '<path d="M230.218 16c-14.245 0-51.563 11.946-51.563 26.718v26.718h-51.093C99.072 69.436 76 93.326 76 122.874V442.56C76 472.11 99.072 496 127.563 496h256.875c28.49-.002 51.562-23.892 51.562-53.44V122.874c0-29.547-23.072-53.437-51.563-53.437h-51.093V42.718c0-14.774-37.317-26.718-51.562-26.718H230.22zM256 122.875V256h102.657L256 442.563V309.438H153.343L256 122.875z"/>',
+  signal: '<path d="M252.78 20.875c-1.302.012-2.6.03-3.905.063-37.928.974-76.148 11.153-111.28 31.437C25.164 117.285-13.41 261.322 51.5 373.75s208.946 151.036 321.375 86.125c77.7-44.86 120.1-127.513 117.47-211.406-3.563 65.847-35.898 128.573-91 169.374-10.828 9.62-22.774 18.315-35.814 25.844-103.68 59.86-235.983 24.4-295.842-79.282-59.86-103.68-24.43-235.984 79.25-295.844 35.64-20.576 74.67-29.88 112.968-29.03 63.304 1.4 124.623 30.57 165.438 82.53l-32.594 23.032c-33.27-42.835-84.01-66.6-136.063-67-.96-.008-1.91-.012-2.875 0-.964.01-1.943.038-2.906.062-28.006.717-56.222 8.215-82.156 23.188-82.99 47.914-111.508 154.322-63.594 237.312 47.914 82.99 154.32 111.51 237.313 63.594 51.37-29.66 81.862-81.724 86.28-136.78-12.53 45.37-42.32 86.745-85.438 114.186-.02.013-.043.018-.062.03l-.344.22c-3.16 2.147-6.42 4.216-9.78 6.156-74.245 42.865-168.918 17.494-211.782-56.75-42.864-74.243-17.493-168.917 56.75-211.78 23.2-13.396 48.39-20.122 73.375-20.782 47.953-1.266 95.138 19.858 125.968 59.156l-39.844 28.156c-20.232-24.32-50.055-37.79-80.594-38.03-1.17-.01-2.33 0-3.5.03-17.035.432-34.176 4.995-49.938 14.094-50.435 29.12-67.806 93.877-38.687 144.313 29.12 50.434 93.908 67.806 144.344 38.686 21.245-12.267 36.623-30.85 45.124-52.03-18.815 21.064-44.364 36.888-73.938 44.155-.04.013-.084.02-.125.033-37.507 10.787-78.796-4.816-99.217-40.188-24.07-41.688-9.845-94.712 31.843-118.78 13.028-7.523 27.143-11.314 41.156-11.69 25.66-.685 50.898 10.098 68.188 30.25l-41 28.97c-5.497-4.796-12.664-7.72-20.53-7.72-17.277 0-31.283 14.007-31.283 31.282 0 17.276 14.004 31.282 31.282 31.282 17.277 0 31.28-14.007 31.28-31.283 0-1.187-.06-2.347-.188-3.5l120.094-57.312 4.03-1.75-.06-.156 62.25-29.72 9.25-4.438-5.282-8.812-19.97-33.375-5.155-8.625-8.25 5.813-8.095 5.718c-45.9-58.864-116.14-91.053-187.844-90.405z"/>',
+  sparkle: '<path d="M237.4 20.73c-6.1 42.1-26.8 64.2-63.9 64 31.6 4.5 63.8 8 63.9 64.07-.6-46.1 24.5-63.07 64.1-64.07-38-1.5-64.9-16.3-64.1-64zm127.8 11.58c-9.1 14.25-20.8 21.29-38.9 10.28 14.9 11.79 18.6 24.76 10.2 38.97 8.9-11.18 17.5-22.73 39-10.27-17.8-10.06-18.8-23.57-10.3-38.98zM59.68 41.69c-2.7 18.8-12 28.6-28.5 28.5 14.1 2 28.4 3.6 28.5 28.52-.3-20.5 10.9-28.12 28.5-28.52-16.9-.7-28.9-7.3-28.5-28.5zM431 66.28c-2.7 18.8-12 28.6-28.5 28.5 14.1 2 28.4 3.6 28.5 28.52-.3-20.5 10.9-28.12 28.5-28.52-16.9-.7-28.9-7.3-28.5-28.5zM120.3 116.4c-15.8 53.7-47.76 48-79.35 43.4C76.6 170 90.3 197.1 84.28 239.2c12.66-46 42.62-52.6 79.42-43.4-37.6-12.1-56.9-35.4-43.4-79.4zm187 5c-8.8 61.6-39.3 94-93.6 93.7 46.2 6.5 93.6 11.7 93.6 93.7-.8-67.3 35.9-92.2 93.8-93.7-55.5-2.2-94.9-23.9-93.8-93.7zm136.8 38.3c-13.1 21.6-29.5 28.8-49.7 20.1 16.3 9.7 33 19.1 20.1 49.6 10.3-25.2 27.9-28.7 49.7-20-20.3-9.7-31.6-23.9-20.1-49.7zM50.7 243.2c9.16 16.7 7.63 30.1-5.61 40 12.46-6.9 24.85-14.3 39.91 5.6-12.57-16.2-8.2-29 5.61-40-13.92 9.7-27.47 11.6-39.91-5.6zm137.2.3c11.4 26.8-.5 41.3-21.7 50.9 22.7-8.5 40.8-4.5 50.9 21.7-12.7-31.8 4.8-41.2 21.7-50.9-21 8.5-37.8.9-50.9-21.7zm228 12.6c-26.6 64.7-68.7 91.7-127.8 76.4 48.6 19.8 98.8 38.5 76.4 127.9 17.5-73.7 64.4-90.7 127.9-76.5-59.9-17.5-96.9-52-76.5-127.8zM99.94 295.5c15.66 57.8.86 98.1-47.32 118.5 43.46-11.8 87.38-25.2 118.68 47.4-26.4-59.3-3.4-95.4 47.3-118.8-50 19.2-93.1 15-118.66-47.1zm169.36 61c-21.8 20.6-43 23.6-63.2 7.3 15.5 16.3 31.6 32.4 7.2 63.3 19.8-25.6 41.2-24.1 63.3-7.3-20.2-17.4-28.6-37.5-7.3-63.3zM443.2 404c-2.7 18.8-12 28.6-28.5 28.5 14.1 2 28.4 3.6 28.5 28.5-.3-20.5 10.9-28.1 28.5-28.5-16.9-.7-28.9-7.3-28.5-28.5zm-169.7 36c-2.7 18.8-12 28.6-28.5 28.5 14.1 2 28.4 3.6 28.5 28.5-.3-20.5 10.9-28.1 28.5-28.5-16.9-.7-28.9-7.3-28.5-28.5z"/>',
+  boom: '<path d="M454.547 16.027C406.8 37.25 381.052 75.064 369.135 123.303c42.096-24.196 72.15-58.61 85.412-107.276zM95.56 19.03c15.534 34.478 41.673 62.266 76.506 84.683 1.576-31.216-1.92-59.57-11.097-84.682H95.56zm223.674 9.507c-27.494 57.123-49.87 115.225-67.9 174.162-13.04-40.243-29.32-79.83-49.25-118.68.247 36.447 3.52 71.91 9.445 106.51-38.943-35.318-79.96-68.894-123.292-100.52 29.922 43.868 62.24 84.967 96.64 123.656-26.502-8.224-56.91-10.145-88.08-5.97 19.645 14.96 42.703 28.156 67.192 36-48.423 2.757-97.046 7.823-145.888 15.45 41.51 7.845 82.85 13.375 124.043 16.842-22.063 8.906-43.915 18.854-65.536 29.946 40.608-.275 79.997-4.3 118.33-11.577-16.74 21.736-31.644 45.162-44.99 70.028 25.735-15.12 49.978-31.88 72.554-50.477-12.504 58.248-21.31 117.203-27.092 176.738 21.65-50.587 41.044-101.993 57.877-154.328 11.282 28.076 24.197 55.62 38.556 82.696-2.48-37.338-7-74.264-13.793-110.73 46.832 43.08 96.5 82.882 148.472 120.017-38.845-51.87-80.238-101.596-124.584-148.84 65.17-2.498 130.007-9.56 194.576-20.314-47.5-6.818-95.158-11.807-142.99-14.775 19.607-8.637 38.96-18.06 58.078-28.198-36.566 2.427-72.737 6.804-108.467 13.363 12.16-16.334 23.427-33.654 33.715-52.05-16.755 8.214-32.493 17.366-47.317 27.36 13.228-57.563 23.26-116.284 29.7-176.308zm175.05 29.625c-48.748 27.205-89.195 69.08-119.934 128.35 46.33-.998 85.935-12.905 119.933-33.666V58.162zM25.36 124.676c-1.285-.01-2.578-.004-3.878.015 24.13 35.622 56.432 55.136 101.748 49.035-24.56-34.196-57.994-48.75-97.87-49.05zm374.08 179.517c-10.527-.03-21.428 1.062-32.66 3.15 34.93 36.464 77.04 54.27 129.158 46.053-26.086-34.646-58.903-49.093-96.5-49.203zM113.774 326.62c-8.008.004-15.842.556-23.472 1.32-25.435 2.57-48.993 9.59-70.666 21.062v70.666c38.192-19.716 72.544-49.83 102.203-92.86-2.708-.13-5.395-.19-8.065-.19zm57.727 49.855c-50.455 23.15-70.933 64.14-72.57 116.345 43.08-26.34 69.47-63.673 72.57-116.345zm157.664 15.744c.832 38.58 10.744 71.555 28.033 99.866h78.843c-22.654-40.592-57.522-74.27-106.877-99.867z"/>',
+  shield: '<path d="M50.807 26.285c-1.105 42.86 2.978 85.91 11.98 128.55l50.606-11.388c-2.658-19.543-4.11-39.265-3.6-59.002l.236-9.103h49.402V26.285H50.807zm306.607 0v49.057h45.904l.23 9.107c.498 19.563-.492 39.338-3.058 59l50.086 11.34c9.048-42.643 13.05-85.63 11.96-128.505H357.415zm-131.65 1.354v45.786h65.056V27.64h-65.056zM178.12 43.335V94.03H128.48c.084 18.322 1.696 36.784 4.56 55.216l1.34 8.633-50.216 11.298c3.15 13.61 6.88 27.174 11.172 40.677l41.1-6.197 50.804 107.07-31.744 28.473c7.095 11.418 14.626 22.74 22.615 33.952l42.496-31.466 5.634 6.912c9.656 11.84 19.914 23.57 30.766 34.93 10.873-11.26 21.116-22.59 30.664-34.335l5.625-6.922 41.82 30.886c8.05-11.315 15.64-22.748 22.788-34.277l-31.383-28.15 50.803-107.072 40.627 6.127c4.308-13.503 8.054-27.07 11.22-40.68l-49.636-11.24 1.347-8.627c2.855-18.264 4.06-36.774 4.023-55.207h-46.183V43.337h-29.22v48.78h-102.43v-48.78h-28.958zm-13.915 79.252h185.41l.22 9.12c1.746 73.04-27.91 137.976-86.116 199.905l-6.798 7.23-6.81-7.216c-58.558-62.066-87.895-126.956-86.128-199.92l.22-9.12zm18.48 18.69c.818 61.19 25.098 115.615 74.213 170.062 48.85-54.348 73.37-108.852 74.23-170.063H182.685zm-57.18 82.93l-54.216 8.173 52.335 110.306 40.752-36.553-38.873-81.926zm262.76 0l-38.874 81.925 40.753 36.553L442.48 232.38l-54.216-8.173zM217.52 367.227l-42.704 31.62c23.914 32.71 51.31 64.504 82.15 95.236 30.733-30.743 57.7-62.44 81.548-95.19l-42.15-31.128c-10.264 12.222-20.992 24.175-32.792 35.978l-6.597 6.598-6.608-6.586c-11.93-11.89-22.64-24.246-32.846-36.53z"/>',
+  legendary: '<path d="M143.627 36.361c-2.18 0-16.495 38.303-18.258 39.584-1.763 1.281-42.615 3.06-43.289 5.133-.673 2.073 31.33 27.523 32.004 29.596.674 2.073-10.26 41.475-8.496 42.756 1.763 1.28 35.86-21.291 38.039-21.291 2.18 0 36.276 22.572 38.039 21.29 1.763-1.28-9.17-40.682-8.496-42.755.673-2.073 32.677-27.523 32.004-29.596-.674-2.073-41.526-3.852-43.29-5.133-1.763-1.28-16.077-39.584-18.257-39.584zm224.746 0c-2.18 0-16.494 38.303-18.258 39.584-1.763 1.281-42.615 3.06-43.289 5.133-.673 2.073 31.33 27.523 32.004 29.596.674 2.073-10.26 41.475-8.496 42.756 1.763 1.28 35.86-21.291 38.039-21.291 2.18 0 36.276 22.572 38.04 21.29 1.762-1.28-9.17-40.682-8.497-42.755.674-2.073 32.677-27.523 32.004-29.596-.674-2.073-41.526-3.852-43.29-5.133-1.762-1.28-16.077-39.584-18.257-39.584zM256 39.883c-7.12 0-53.884 125.123-59.645 129.308-5.76 4.185-139.211 9.996-141.412 16.768-2.2 6.772 102.349 89.912 104.55 96.684 2.2 6.771-33.513 135.486-27.753 139.671C137.5 426.5 248.88 352.76 256 352.76c7.12 0 118.5 73.74 124.26 69.554 5.76-4.185-29.952-132.9-27.752-139.671 2.2-6.772 106.749-89.912 104.549-96.684-2.2-6.772-135.652-12.583-141.412-16.768-5.76-4.185-52.525-129.308-59.645-129.308zM77.973 243.102c-2.18 0-16.495 38.302-18.258 39.584-1.763 1.28-42.616 3.06-43.29 5.132-.673 2.073 31.333 27.523 32.007 29.596.673 2.073-10.26 41.475-8.496 42.756 1.763 1.281 35.857-21.291 38.037-21.291 2.18 0 36.275 22.572 38.039 21.29 1.763-1.28-9.17-40.682-8.496-42.755.673-2.073 32.679-27.523 32.005-29.596-.673-2.073-41.525-3.851-43.289-5.132-1.763-1.282-16.08-39.584-18.26-39.584zm356.054 0c-2.18 0-16.496 38.302-18.26 39.584-1.763 1.28-42.615 3.06-43.288 5.132-.674 2.073 31.332 27.523 32.005 29.596.674 2.073-10.26 41.475-8.496 42.756 1.764 1.281 35.86-21.291 38.04-21.291 2.179 0 36.273 22.572 38.036 21.29 1.764-1.28-9.17-40.682-8.496-42.755.674-2.073 32.68-27.523 32.006-29.596-.673-2.073-41.526-3.851-43.289-5.132-1.763-1.282-16.078-39.584-18.258-39.584zM256 369.932c-2.18 0-16.494 38.302-18.258 39.584-1.763 1.28-42.615 3.06-43.289 5.132-.673 2.073 31.33 27.525 32.004 29.598.674 2.073-10.26 41.475-8.496 42.756 1.763 1.281 35.86-21.293 38.039-21.293 2.18 0 36.276 22.574 38.04 21.293 1.762-1.281-9.17-40.683-8.497-42.756.673-2.073 32.677-27.525 32.004-29.598-.674-2.072-41.526-3.851-43.29-5.132-1.763-1.282-16.077-39.584-18.257-39.584z"/>',
+  rare: '<path d="M258.396 21.375l-17.503 64.1c-1.133 2.452-1.782 5.172-1.782 8.05 0 10.634 8.62 19.256 19.255 19.256 10.634 0 19.256-8.62 19.256-19.255 0-.72-.045-1.426-.122-2.125h.022l-.05-.18c-.23-1.917-.737-3.746-1.488-5.45l-17.586-64.395zm118.21 31.494l-46.21 45.77c-6.03 3.254-10.126 9.626-10.126 16.956 0 10.633 8.622 19.254 19.255 19.254.668 0 1.327-.034 1.977-.1 7.608 5.175 14.85 11.125 21.6 17.875 57.872 57.872 57.87 151.418 0 209.29-6.75 6.747-13.99 12.694-21.594 17.868-.65-.066-1.308-.1-1.975-.1-10.634 0-19.256 8.623-19.256 19.256 0 7.006 3.757 13.12 9.352 16.49l46.694 46.252-18.545-70.55c6.468-4.81 12.67-10.137 18.536-16.003l6.608-6.61-.334-.332c3.252-3.637 6.305-7.388 9.183-11.23l71.057 18.68-51.63-52.126c6.54-15.08 10.757-30.926 12.636-46.996l70.61-19.282-70.56-19.267c-1.82-15.925-5.937-31.633-12.343-46.59l51.234-51.727-70.318 18.483c-4.842-6.536-10.22-12.8-16.144-18.723-5.794-5.794-11.916-11.063-18.298-15.824l18.587-70.717zm-236.307.005l17.112 65.107c.218 1.76.662 3.45 1.322 5.032l.153.582c-6.38 4.76-12.498 10.023-18.29 15.814-5.92 5.92-11.294 12.18-16.136 18.715L54.024 139.61l51.31 51.802c-6.41 14.945-10.535 30.64-12.376 46.553l-70.562 19.27L92.95 276.5c1.856 16.108 6.06 31.994 12.595 47.105l-51.574 52.07 70.952-18.648c4.722 6.312 9.94 12.368 15.676 18.102 5.815 5.814 11.96 11.102 18.367 15.876-1.004 2.215-1.613 4.646-1.707 7.213l-16.678 63.456 48.91-48.447-.037-.08c3.86-3.52 6.297-8.575 6.297-14.21 0-10.634-8.622-19.256-19.256-19.256-.395 0-.786.015-1.176.04-7.573-5.16-14.783-11.088-21.506-17.81-57.872-57.872-57.872-151.417 0-209.29 6.725-6.723 13.938-12.65 21.514-17.81.39.022.782.036 1.178.036 10.634 0 19.254-8.62 19.254-19.254 0-6.22-2.963-11.736-7.54-15.256L140.3 52.875zm127.436 89.87v49.02l33.602 19.292 46.18-25.045-79.782-43.268zm-18.69.312l-79.722 42.957 46.31 24.955 33.413-19.062v-48.85zM159.9 202.164v114.012l46.346-24.975v-64.063L159.9 202.164zm196.985.027l-46.342 25.134v63.7l46.342 25.136V202.19zm-98.367 5.83l-33.584 19.158v64.285l33.584 19.162 33.336-19.145v-64.318l-33.336-19.14zm43.082 99.416l-33.864 19.445v47.056l78.24-42.432-44.376-24.068zm-86.24.084l-44.495 23.976 78.182 42.127v-46.885L215.36 307.52zm43.005 94.234c-10.634 0-19.254 8.622-19.254 19.256 0 2.74.582 5.342 1.615 7.703l17.67 64.713 17.787-65.12c.57-1.39.965-2.86 1.197-4.388l.06-.23h-.026c.122-.878.207-1.767.207-2.678 0-10.634-8.62-19.256-19.255-19.256z"/>',
+  play: '<path d="M106.854 106.002a26.003 26.003 0 0 0-25.64 29.326c16 124 16 117.344 0 241.344a26.003 26.003 0 0 0 35.776 27.332l298-124a26.003 26.003 0 0 0 0-48.008l-298-124a26.003 26.003 0 0 0-10.136-1.994z"/>',
+  cross: '<path d="M256 16C123.45 16 16 123.45 16 256s107.45 240 240 240 240-107.45 240-240S388.55 16 256 16zm0 60c99.41 0 180 80.59 180 180s-80.59 180-180 180S76 355.41 76 256 156.59 76 256 76zm-80.625 60c-.97-.005-2.006.112-3.063.313v-.032c-18.297 3.436-45.264 34.743-33.375 46.626l73.157 73.125-73.156 73.126c-14.63 14.625 29.275 58.534 43.906 43.906L256 299.906l73.156 73.156c14.63 14.628 58.537-29.28 43.906-43.906l-73.156-73.125 73.156-73.124c14.63-14.625-29.275-58.5-43.906-43.875L256 212.157l-73.156-73.125c-2.06-2.046-4.56-3.015-7.47-3.03z"/>',
+  trophy: '<path d="M256.156 21.625c-45.605 0-86.876 2.852-117.22 7.563-15.17 2.355-27.554 5.11-36.874 8.53-4.66 1.71-8.568 3.515-11.968 6.094-3.238 2.457-6.65 6.36-6.97 11.75h-.75c0 10.08.362 20.022 1.064 29.813H57.53c-.12-7.952.003-15.922.376-23.875l-26.812-6.28C22.55 161.892 64.1 265.716 140.564 339.655l15.655-29.594c-4.198-3.477-8.25-7.063-12.157-10.75 5.846-6.112 12.293-11.76 19.28-16.843 13.468 13.172 28.182 23.565 43.813 30.655 22.114 17.744 8.053 29.368-23.5 36.25 58.863 10.6 38.948 62.267-14.125 92.313-2.14.27-4.256.523-6.28.812-12.047 1.718-21.876 3.71-29.406 6.25-3.765 1.27-6.958 2.6-9.906 4.656-2.95 2.055-6.626 5.705-6.626 11.406 0 5.702 3.677 9.32 6.626 11.375 2.948 2.055 6.14 3.387 9.906 4.657 7.53 2.54 17.36 4.532 29.406 6.25 24.094 3.436 56.784 5.53 92.906 5.53 36.123 0 68.812-2.094 92.906-5.53 12.048-1.718 21.877-3.71 29.407-6.25 3.764-1.27 6.957-2.602 9.905-4.656 2.948-2.055 6.625-5.674 6.625-11.375 0-5.702-3.677-9.352-6.625-11.407-2.948-2.055-6.14-3.387-9.906-4.656-7.53-2.54-17.36-4.532-29.408-6.25-2.013-.287-4.12-.544-6.25-.813-53.076-30.045-72.99-81.71-14.125-92.312-31.568-6.886-45.63-18.522-23.468-36.28 15.74-7.15 30.547-17.655 44.092-30.97 6.648 4.773 12.84 10.038 18.47 15.72-4.105 4.172-8.338 8.257-12.72 12.217l16.188 29.594c79.118-71.955 116.195-179.53 110.03-285l-27.342 7.97c.45 7.61.64 15.19.562 22.75h-25.594c.702-9.792 1.063-19.735 1.063-29.814h-.75c-.323-5.39-3.763-9.293-7-11.75-3.402-2.58-7.31-4.383-11.97-6.093-9.32-3.422-21.704-6.177-36.875-8.532-30.342-4.71-71.613-7.563-117.22-7.563zm0 18.688c44.822 0 85.426 2.854 114.344 7.343 14.46 2.245 26.06 4.932 33.313 7.594 1.04.382 1.775.75 2.625 1.125-.85.375-1.58.742-2.625 1.125-7.252 2.662-18.854 5.38-33.313 7.625-28.918 4.49-69.522 7.344-114.344 7.344-44.82 0-85.425-2.855-114.344-7.345-14.46-2.245-26.06-4.963-33.312-7.625-1.05-.386-1.77-.748-2.625-1.125.853-.376 1.577-.74 2.625-1.125 7.252-2.662 18.853-5.35 33.313-7.594 28.918-4.49 69.522-7.343 114.343-7.343zm-197.25 71.874H86.25c8.057 57.878 28.23 108.83 56.188 146.25-6.974 5.74-13.407 11.968-19.188 18.688-38.648-46.456-59.042-104.647-64.344-164.938zm367.188 0h27C447.51 171.82 425.336 228.34 388.03 275c-5.44-6.055-11.406-11.73-17.842-16.97 27.81-37.38 47.873-88.175 55.906-145.842z"/>',
+  dice: '<path d="M255.76 44.764c-6.176 0-12.353 1.384-17.137 4.152L85.87 137.276c-9.57 5.536-9.57 14.29 0 19.826l152.753 88.36c9.57 5.536 24.703 5.536 34.272 0l152.753-88.36c9.57-5.535 9.57-14.29 0-19.825l-152.753-88.36c-4.785-2.77-10.96-4.153-17.135-4.153zm-.824 53.11c9.013.097 17.117 2.162 24.31 6.192 4.92 2.758 8.143 5.903 9.666 9.438 1.473 3.507 1.56 8.13.26 13.865l-1.6 5.706c-1.06 4.083-1.28 7.02-.66 8.81.57 1.764 1.983 3.278 4.242 4.544l3.39 1.898-33.235 18.62-3.693-2.067c-4.118-2.306-6.744-4.912-7.883-7.82-1.188-2.935-.99-7.603.594-14.005l1.524-5.748c.887-3.423.973-6.23.26-8.418-.653-2.224-2.134-3.983-4.444-5.277-3.515-1.97-7.726-2.676-12.63-2.123-4.956.526-10.072 2.268-15.35 5.225-4.972 2.785-9.487 6.272-13.55 10.46-4.112 4.162-7.64 8.924-10.587 14.288L171.9 138.21c5.318-5.34 10.543-10.01 15.676-14.013 5.134-4 10.554-7.6 16.262-10.8 14.976-8.39 28.903-13.38 41.78-14.967 3.208-.404 6.315-.59 9.32-.557zm50.757 56.7l26.815 15.024-33.235 18.62-26.816-15.023 33.236-18.62zM75.67 173.84c-5.753-.155-9.664 4.336-9.664 12.28v157.696c0 11.052 7.57 24.163 17.14 29.69l146.93 84.848c9.57 5.526 17.14 1.156 17.14-9.895V290.76c0-11.052-7.57-24.16-17.14-29.688l-146.93-84.847c-2.69-1.555-5.225-2.327-7.476-2.387zm360.773.002c-2.25.06-4.783.83-7.474 2.385l-146.935 84.847c-9.57 5.527-17.14 18.638-17.14 29.69v157.7c0 11.05 7.57 15.418 17.14 9.89L428.97 373.51c9.57-5.527 17.137-18.636 17.137-29.688v-157.7c0-7.942-3.91-12.432-9.664-12.278zm-321.545 63.752c6.553 1.366 12.538 3.038 17.954 5.013 5.415 1.976 10.643 4.417 15.68 7.325 13.213 7.63 23.286 16.324 30.218 26.082 6.932 9.7 10.398 20.046 10.398 31.04 0 5.64-1.055 10.094-3.168 13.364-2.112 3.212-5.714 5.91-10.804 8.094l-5.2 1.92c-3.682 1.442-6.093 2.928-7.23 4.46-1.137 1.472-1.705 3.502-1.705 6.092v3.885l-29.325-16.933v-4.23c0-4.72.892-8.376 2.68-10.97 1.787-2.652 5.552-5.14 11.292-7.467l5.2-2.006c3.087-1.21 5.334-2.732 6.742-4.567 1.46-1.803 2.192-4.028 2.192-6.676 0-4.027-1.3-7.915-3.9-11.66-2.6-3.804-6.227-7.05-10.885-9.74-4.387-2.532-9.126-4.29-14.217-5.272-5.09-1.04-10.398-1.254-15.922-.645v-27.11zm269.54 8.607c1.522 0 2.932.165 4.232.493 6.932 1.696 10.398 8.04 10.398 19.034 0 5.64-1.056 11.314-3.168 17.023-2.112 5.65-5.714 12.507-10.804 20.568l-5.2 7.924c-3.682 5.695-6.093 9.963-7.23 12.807-1.137 2.785-1.705 5.473-1.705 8.063v3.885l-29.325 16.932v-4.23c0-4.72.894-9.41 2.68-14.067 1.79-4.715 5.552-11.55 11.292-20.504l5.2-8.01c3.087-4.776 5.334-8.894 6.742-12.354 1.46-3.492 2.192-6.562 2.192-9.21 0-4.028-1.3-6.414-3.898-7.158-2.6-.8-6.23.142-10.887 2.83-4.387 2.533-9.124 6.25-14.215 11.145-5.09 4.84-10.398 10.752-15.922 17.74v-27.11c6.553-6.2 12.536-11.44 17.95-15.718 5.417-4.278 10.645-7.87 15.68-10.777 10.738-6.2 19.4-9.302 25.99-9.307zm-252.723 94.515l29.326 16.93v30.736l-29.325-16.93v-30.735zm239.246 8.06v30.735l-29.325 16.93v-30.733l29.326-16.932z"/>',
+  flag: '<path d="M145.3 23.89L89.27 257.7c5.62-4.9 12.93-5.8 19.63-4.4l54-225.21zm37 6.1l-57 231.41c1 .8 1.9 1.8 2.7 2.7 39.2-14 117.2-32 127.1 32.2 15.2 99.1 96.8 135.8 148.9 114.8-27.8-99.6 87.6-116.8 70.7-205.1 0 0-111 26.4-131.6-90.6-23.5-58.14-101.6-103.33-160.8-85.41zM101.4 270.9c-6.91 22.3-10.68 51.2.6 67.9 5.4 30.1 34 51.5 49.4 57.5-12.2 4.6-24.8 2.8-35.4-3.3-5.6 11.4-18.71 17.5-29.76 21 7.21 8.8 15.46 16.7 23.96 22.4 4.3 18.2 7.3 41.8 12.7 56.9h114.7c-31.7-18.6-56.8-42-61.3-69.9 8.6-18.2 10.5-46.2-.5-70.9-14.8-22.7-54.9-22.9-61.1-48.3-2.5-11.2 5.2-40.6-13.3-33.3zm-41.38 13c-7.17 1.5-11.98 8.3-10.24 14.7 8.66 1 17.82 2.2 26.53 3.8.38-4.1 1-8.2 1.73-12-6.18-2.5-12.48-4.8-18.02-6.5zm-16.91 32.2c-7.45 1.7-10.55 12.4-3.69 15.7 13.81.8 28.8 2.6 40.96 4.9-2-5-3.24-10.1-3.9-15.3-10.35-2.2-22.62-4.3-33.37-5.3zm-3.18 33.5c-8.95 5.5.2 16.2 4.7 18 15.57 2 29.64 2.7 41.1-1.8 4.51-2.5 4.29-4.4 2.89-8.3-16.82-3.7-33.26-6.4-48.69-7.9zm57.96 29.7c-12.54 8.9-32.12 8.5-44.89 7.4 1.64 6 7.89 9 10.92 10.2 9.37 3.7 22.37-1.1 33.47-8.4 3.21-2.7 4.51-8.7.5-9.2zm-45.46 32.2l-13.18 54.9 17.5 4.2 13-54.3c-6.59-.5-11.94-2.1-17.32-4.8z"/>',
+  hole: '<path d="M256 151c-62.9 0-119.9 10.8-161.94 28.8-21.03 9.1-38.38 19.9-50.86 32.5C30.71 225 23 239.9 23 256s7.71 31 20.2 43.7c12.48 12.6 29.83 23.4 50.86 32.5C136.1 350.2 193.1 361 256 361c62.9 0 119.9-10.8 161.9-28.8 21.1-9.1 38.4-19.9 50.9-32.5C481.3 287 489 272.1 489 256s-7.7-31-20.2-43.7c-12.5-12.6-29.8-23.4-50.9-32.5-42-18-99-28.8-161.9-28.8zm0 43c82.7 0 165.5 21.2 215 63.6-.5 9.9-5.3 19.6-15 29.4-10.2 10.4-25.6 20.2-45.2 28.6-39 16.7-94 27.4-154.8 27.4-60.8 0-115.8-10.7-154.8-27.4-19.55-8.4-35.01-18.2-45.19-28.6-9.65-9.8-14.48-19.5-14.96-29.4C90.54 215.2 173.3 194 256 194z"/>',
+  fire: '<path d="M245.05 15.514c34.29 48.815-23.535 320.54-90.302 136.72C106.796 325.11 38.956 332.518 38.876 252.55c-71.6 79.31 43.824 220.767 87.376 243.935h52.127c-45.92-40.016-76.784-78-82.176-135.968 47.312 9.423 71.855 20.96 81.263-62.048 60.736 86.59 100.944-49.376 137.184-107.12-1.647 40.32-3.343 93.456 22.848 129.888 8.736 12.143 33.232 16.11 54.736 15.807-9.92 16.08-44.848 69.376-17.008 89.2 27.84 19.824 33.072-.384 25.856 16.176-13.264 20.88-22.992 39.375-59.072 54.063h56.064c59.44-18.72 111.807-91.663 94.607-135.535-22.015 18.657-43.774 30.897-61.294 29.537 49.12-72.08 37.84-145.903 14.752-221.342-20.224 72.383-33.488 82.495-54.576 99.52 29.104-68.657-85.44-214.448-146.51-253.15z"/>',
+  cycle: '<path d="M252.314 19.957c-72.036.363-142.99 33.534-189.18 95.97-69.83 94.39-59.125 223.32 19.85 304.993l-37.238 50.332 151.22-22.613L174.35 297.42l-43.137 58.308c-44.08-54.382-47.723-133.646-4.16-192.53 30.676-41.466 77.863-63.504 125.758-63.753 16.344-.085 32.766 2.382 48.645 7.467l-6.963-46.55c-23.858-4.86-47.908-5.026-71.017-.997-59.232 7.322-113.994 39.918-148.157 91.215 35.65-65.89 103.774-105.918 176.043-107.744 1.673-.042 3.347-.063 5.023-.065 14.8-.01 29.748 1.596 44.597 4.905l48.608-7.268c-31.14-13.906-64.32-20.62-97.274-20.453zm212.93 22.055l-151.217 22.61 22.614 151.22 41.126-55.588c42.204 54.29 45.092 132.048 2.187 190.043-40.22 54.367-108.82 75.32-170.19 57.566l6.522 43.598c28.726 5.533 58.236 4.414 86.203-3.07 37.448-5.957 73.34-22.05 103.16-47.728-49.196 54.65-122.615 77.514-191.744 64.34l-55.8 8.344c99.03 43.7 218.402 14.77 285.51-75.938 69.13-93.445 59.34-220.743-17.483-302.53l39.114-52.866z"/>',
+  warning: '<path d="M254.97 34.75c-30.48-.167-59.02 22.12-79.532 62.156-.075.146-.176.26-.25.406L43.063 326.783l-.22.343C18.5 365.413 13.377 401.515 28.47 428.03c15.08 26.498 48.627 40.126 93.5 37.908H387.063c44.887 2.227 78.445-11.404 93.53-37.907 15.09-26.51 9.956-62.595-14.375-100.874l-.22-.375L335.28 98.064c-.06-.12-.124-.225-.186-.344-20.948-40.263-49.626-62.803-80.125-62.97zm.06 18.844c13.576.13 26.453 6.93 38.126 18.343 11.606 11.347 22.554 27.453 33.406 48.344.063.122.125.224.188.345l115.22 201.563c.033.053.058.102.092.156l.125.22c12.92 20.274 21.395 38.06 25.282 53.967 3.91 16.01 3.063 30.648-3.845 42.408-6.908 11.76-19.222 19.533-34.78 23.906-15.444 4.34-34.508 5.656-57.408 4.5H137.625c-24.845 1.258-44.73-.32-60.405-5.125-15.78-4.84-27.68-13.45-33.72-25.69-6.04-12.237-5.862-26.797-1.5-42.436 4.333-15.535 12.815-32.608 24.875-51.53l.22-.377L183.562 120c.08-.157.17-.28.25-.438C194.51 98.644 205.32 82.6 216.875 71.376c11.642-11.307 24.58-17.913 38.156-17.78zm47.657 62.093l-28.53 224.032h-41.844L204.438 120.5c-1.404 2.556-2.81 5.205-4.22 7.97l-.093.218-.125.218-116.938 202.97-.093.187-.126.187C71.28 350.346 63.598 366.226 60 379.125c-3.598 12.9-3.108 22.322.25 29.125 3.358 6.803 9.925 12.28 22.47 16.125 12.542 3.845 30.67 5.547 54.405 4.313l.25-.032h234.313l.25.03c21.85 1.138 39.308-.28 51.875-3.81 12.566-3.533 19.822-8.827 23.687-15.407 3.865-6.58 4.978-15.545 1.813-28.5-3.166-12.958-10.732-29.374-23.094-48.72l-.126-.188-.125-.218-115.658-202.28-.093-.158-.064-.187c-2.5-4.828-4.99-9.326-7.47-13.532zM231.28 361.875h43.907v43.906H231.28v-43.905z"/>',
+  ninja: '<path d="M255.063 21c-46.697 0-88.406 27.674-117.844 70.656-29.44 42.982-47.25 101.566-47.25 166.094 0 64.527 17.81 123.112 47.25 166.094 29.437 42.982 71.146 70.656 117.843 70.656 46.696 0 88.405-27.674 117.843-70.656 29.44-42.982 47.25-101.567 47.25-166.094 0-64.528-17.81-123.112-47.25-166.094C343.468 48.674 301.76 21 255.062 21zM396.28 200.344c3.365 18.28 5.19 37.527 5.19 57.406 0 18.535-1.594 36.522-4.533 53.688-37.91 12.904-87.436 20.812-141.656 20.812-54.45 0-104.125-8.235-142.186-21.313-2.884-17.014-4.438-34.833-4.438-53.187 0-19.868 1.827-39.103 5.188-57.375 37.903 14.565 87.35 23.25 141.47 23.25 54.136 0 103.183-8.707 140.967-23.28zM177.157 241c-15.137-.162-30.97 3.458-47.375 10.313 14.562 51.423 87.08 42.483 102.157 10.156-17.004-13.822-35.318-20.262-54.78-20.47zm155.75 0c-19.462.208-37.808 6.648-54.812 20.47 15.078 32.326 87.596 41.266 102.156-10.158-16.405-6.854-32.206-10.474-47.344-10.312z"/>',
+  target: '<path d="M27.48 25.695C37 62.802 51.945 100.233 69.07 137.86c17.496-31.598 41.214-52.96 71.563-70.473C102.823 50.575 65.097 36.27 27.48 25.695zm456.24 0c-37.62 10.575-75.347 24.88-113.156 41.692 30.35 17.514 54.067 38.875 71.563 70.472 17.125-37.627 32.07-75.058 41.592-112.165zm-367.1 81.315c-3.574 3.207-6.978 6.57-10.224 10.117L232.12 242.85l10.257-10.243L116.62 107.01zm277.956 0L28.018 473.11l10.54 10.26L404.8 117.126c-3.245-3.548-6.648-6.91-10.224-10.117zm-138.963 26.81c-24.338 0-47.014 7.245-65.998 19.682l13.494 13.477c15.33-9.19 33.285-14.472 52.503-14.472 19.214 0 37.16 5.28 52.483 14.465l13.492-13.477c-18.975-12.433-41.64-19.676-65.975-19.676zm-.004 45.08c-11.807 0-22.994 2.732-32.967 7.588l14.246 14.23c5.86-2.026 12.152-3.138 18.72-3.138 6.56 0 12.848 1.11 18.702 3.13l14.25-14.228c-9.97-4.853-21.15-7.582-32.953-7.582zm102.27 11.58l-13.556 13.55c8.464 14.877 13.297 32.102 13.297 50.488 0 19.172-5.255 37.087-14.403 52.392l13.496 13.48c12.386-18.958 19.598-41.59 19.598-65.872 0-23.51-6.76-45.467-18.43-64.04zm-204.56 0c-11.677 18.573-18.443 40.527-18.443 64.038 0 24.282 7.217 46.912 19.61 65.87l13.493-13.478c-9.154-15.305-14.416-33.22-14.416-52.392 0-18.386 4.838-35.61 13.307-50.487l-13.55-13.55zm171.315 33.24l-14.457 14.458c1.536 5.174 2.373 10.655 2.373 16.343 0 6.543-1.103 12.813-3.113 18.654l14.25 14.23c4.83-9.952 7.543-21.11 7.543-32.883 0-10.962-2.37-21.38-6.595-30.8zm-138.072.003c-4.227 9.417-6.598 19.836-6.598 30.798 0 11.773 2.715 22.93 7.547 32.882l14.25-14.23c-2.01-5.84-3.117-12.11-3.117-18.65 0-5.69.837-11.17 2.375-16.344l-14.458-14.455zm92.523 45.547l-10.274 10.273 203.83 203.826 10.54-10.26-204.096-203.84zm-39.84 39.84l-14.453 14.452c9.423 4.23 19.85 6.604 30.816 6.604 10.962 0 21.38-2.373 30.798-6.6l-14.453-14.453c-5.174 1.538-10.657 2.375-16.346 2.375-5.695 0-11.183-.838-16.364-2.38zM81.87 341.3l-68.024 68.026h51.588l68.11-68.025H81.872zm295.78 0l68.112 68.026h51.59L429.326 341.3H377.65zm-172.546 1.95l-13.55 13.553c18.58 11.68 40.544 18.45 64.06 18.45 23.51 0 45.464-6.768 64.036-18.444l-13.55-13.552c-14.875 8.47-32.102 13.306-50.487 13.306-18.39 0-35.625-4.84-50.51-13.314zm-34.88 34.883l-68.03 68.025.003 51.52 68.026-68.024v-51.52zm170.75 0v51.52L409 497.68l.002-51.52-68.027-68.025z"/>',
+  scroll: '<path d="M103.432 17.844c-1.118.005-2.234.032-3.348.08-2.547.11-5.083.334-7.604.678-20.167 2.747-39.158 13.667-52.324 33.67-24.613 37.4 2.194 98.025 56.625 98.025.536 0 1.058-.012 1.583-.022v.704h60.565c-10.758 31.994-30.298 66.596-52.448 101.43-2.162 3.4-4.254 6.878-6.29 10.406l34.878 35.733-56.263 9.423c-32.728 85.966-27.42 182.074 48.277 182.074v-.002l9.31.066c23.83-.57 46.732-4.298 61.325-12.887 4.174-2.458 7.63-5.237 10.467-8.42h-32.446c-20.33 5.95-40.8-6.94-47.396-25.922-8.956-25.77 7.52-52.36 31.867-60.452 5.803-1.93 11.723-2.834 17.565-2.834v-.406h178.33c-.57-44.403 16.35-90.125 49.184-126 23.955-26.176 42.03-60.624 51.3-94.846l-41.225-24.932 38.272-6.906-43.37-25.807h-.005l.002-.002.002.002 52.127-8.85c-5.232-39.134-28.84-68.113-77.37-68.113C341.14 32.26 222.11 35.29 149.34 28.496c-14.888-6.763-30.547-10.723-45.908-10.652zm.464 18.703c13.137.043 27.407 3.804 41.247 10.63l.033-.07c4.667 4.735 8.542 9.737 11.68 14.985H82.92l10.574 14.78c10.608 14.83 19.803 31.99 21.09 42.024.643 5.017-.11 7.167-1.814 8.836-1.705 1.67-6.228 3.875-15.99 3.875-40.587 0-56.878-44.952-41.012-69.06C66.238 46.64 79.582 39.22 95.002 37.12c2.89-.395 5.863-.583 8.894-.573zM118.5 80.78h46.28c4.275 15.734 3.656 33.07-.544 51.51H131.52c1.9-5.027 2.268-10.574 1.6-15.77-1.527-11.913-7.405-24.065-14.62-35.74zm101.553 317.095c6.44 6.84 11.192 15.31 13.37 24.914 3.797 16.736 3.092 31.208-1.767 43.204-4.526 11.175-12.576 19.79-22.29 26h237.19c14.448 0 24.887-5.678 32.2-14.318 7.312-8.64 11.2-20.514 10.705-32.352-.186-4.473-.978-8.913-2.407-13.18l-69.91-8.205 42.017-20.528c-8.32-3.442-18.64-5.537-31.375-5.537H220.053zm-42.668.506c-1.152-.003-2.306.048-3.457.153-2.633.242-5.256.775-7.824 1.63-15.11 5.02-25.338 21.54-20.11 36.583 3.673 10.57 15.347 17.71 25.654 13.938l1.555-.57h43.354c.946-6.36.754-13.882-1.358-23.192-3.71-16.358-20.543-28.483-37.815-28.54z"/>',
+  cards: '<path d="M272.824 24.318c-14.929.312-25.66 3.246-32.767 8.446L142.898 84.91l-54.105 73.514C77.42 175.98 85.517 210 121.111 188.197l38.9-51.351c49.476-42.711 150.485-23.032 102.587 62.591-23.53 49.582-12.457 73.79 17.76 83.95l13.812-46.381c23.949-53.825 68.502-63.51 66.684-106.904l107.302 7.724-.865-112.045-194.467-1.463zm-54.09 103.338c-17.41-.3-34.486 6.898-46.92 17.375l-39.044 51.33c10.713 8.506 21.413 3.96 32.125-6.363 12.626 6.394 22.365-3.522 30.365-23.297 3.317-13.489 8.21-23.037 23.474-39.045zm-32.617 88.324a13.49 13.49 0 0 0-5.232 1.235L51.72 276.725c-6.784 3.13-9.763 11.202-6.633 17.992l85.27 185.08c3.131 6.783 11.204 9.779 18 6.635l129.15-59.504c6.796-3.137 9.776-11.198 6.646-18L198.871 223.86c-2.344-5.097-7.474-8.043-12.754-7.88z"/>',
+  deck: '<path d="M209.955 488.202l-121.242-46.62c-11.308-4.34-11.643-12.087-.79-17.288L204.8 469.236c15.024 5.777 37.23 4.92 51.774-1.96l161.522-76.6c10.014 4.436 9.864 11.818-.67 16.798L250.43 486.668c-10.983 5.195-29.128 5.902-40.477 1.534zm0-32.37L88.713 409.21C79.09 405.52 77.41 399.36 83.81 394.4l120.99 46.517c15.024 5.776 37.23 4.92 51.774-1.96l165.393-78.433c5.855 4.417 4.38 10.36-4.542 14.58l-166.993 79.193c-10.983 5.196-29.128 5.903-40.477 1.534zm0-28.314L88.713 380.892c-9.624-3.69-11.302-9.85-4.902-14.813l120.99 46.523c15.024 5.77 37.23 4.914 51.774-1.96l165.393-78.438c5.855 4.416 4.38 10.36-4.542 14.58l-166.993 79.2c-10.983 5.194-29.128 5.895-40.477 1.533zm0-28.32L88.713 352.572c-9.624-3.69-11.302-9.85-4.902-14.812l120.99 46.524c15.024 5.776 37.23 4.92 51.774-1.96l165.393-78.44c5.855 4.424 4.38 10.368-4.542 14.586l-166.993 79.194c-10.983 5.196-29.128 5.897-40.477 1.534zm0-28.32L88.713 324.26c-11.35-4.355-11.643-12.15-.66-17.353l87.236-41.376 34.826 18.323c15.365 8.09 37.937 7.06 52.5-2.39l65.74-42.672 88.404 34.007c11.344 4.357 11.65 12.16.665 17.354l-166.993 79.195c-10.983 5.195-29.128 5.902-40.477 1.534zm6.85-99.73L93.44 206.22c-10.767-5.67-11.217-15.647-1.018-22.268l105.11-68.228h25.845l.015 64.962h58.664v-64.962H332.2l-27.487-41.39 118.91 62.584c10.763 5.67 11.212 15.646 1.013 22.268L254.803 269.418c-10.2 6.62-27.23 7.4-37.997 1.73zm21.637-105.523V100.67h-34.845l49.13-79.74 49.12 79.74H267v64.955h-28.558z"/>',
+  gear: '<path d="M179.625 22.313L163.22 58.937c-3.258-.384-6.498-.604-9.72-.624-10.577-.066-20.857 1.808-30.47 5.28L99.78 31.032 55.75 63.188l24.063 33.657c-7.21 10.412-12.3 22.5-14.5 35.75l-42.72 4.687 5.345 54.25 45.468-5c5.082 10.2 12.078 19.372 20.594 26.97l-19.406 43.375 49.375 22.094 19.5-43.564c11.656 1.242 23.08.128 33.75-3l28.124 38.53 31.72-23.186 11.655 20.156C234.014 279.138 220.873 292.3 209.624 307l-49.22-28.344-25.718 46.72 48.125 27.937c-7.068 16.934-11.967 34.975-14.343 53.812H112.5v53.72h56.22c1.66 12.053 4.372 23.753 8.03 35.06h169.312c-23.915-10.758-40.562-34.788-40.562-62.717 0-37.964 30.754-68.75 68.72-68.75 37.963 0 68.75 30.786 68.75 68.75 0 27.93-16.67 51.96-40.595 62.718h91.5V200.375l-11.688-6.406L454.594 242c-16.842-7.204-34.808-12.234-53.594-14.72v-55.53h-53.72v55.47c-18.303 2.377-35.83 7.183-52.31 14.03l-27.126-47.28-36 20.25-9.25-12.97c7.08-9.223 12.43-19.93 15.5-31.72l44.437-4.843-5.342-54.25-42.25 4.157c-4.92-12.618-12.648-23.953-22.563-33.094L229 44.406l-49.375-22.093zm-27.344 84.25c23.3-.24 42.94 17.827 44.376 41.343 1.48 24.275-17.004 45.144-41.28 46.625-24.278 1.483-45.145-16.974-46.626-41.25-1.48-24.274 16.973-45.142 41.25-46.624.76-.046 1.53-.086 2.28-.094z"/>',
+  chat: '<path d="M488 348.78h-70.24l-15.1 87.44-48.78-87.44H169v-50h190v-157h129zm-145-273v207H158.13l-48.79 87.47-15.11-87.47H24v-207zM136.724 215.324c0-10.139-12.257-15.214-19.425-8.046-7.168 7.168-2.093 19.426 8.046 19.426 6.285 0 11.38-5.095 11.38-11.38zm60.945 0c-.068-10.12-12.32-15.122-19.452-7.943-7.131 7.18-2.047 19.399 8.073 19.399 6.314 0 11.422-5.141 11.38-11.456zm60.945 0c0-10.139-12.257-15.214-19.425-8.046-7.169 7.168-2.093 19.426 8.046 19.426 6.284 0 11.38-5.095 11.38-11.38z"/>',
+  send: '<path d="M480 40L32 296l112.148 37.383L448 72 209.404 355.135 320 392 480 40zM208 376l-16 96 49.932-83.863L208 376z"/>',
+  lock: '<path d="M254.28 17.313c-81.048 0-146.624 65.484-146.624 146.406V236h49.594v-69.094c0-53.658 43.47-97.187 97.03-97.187 53.563 0 97.032 44.744 97.032 97.186V236h49.594v-72.28c0-78.856-65.717-146.407-146.625-146.407zM85.157 254.688c-14.61 22.827-22.844 49.148-22.844 76.78 0 88.358 84.97 161.5 191.97 161.5 106.998 0 191.968-73.142 191.968-161.5 0-27.635-8.26-53.95-22.875-76.78H85.155zM254 278.625c22.34 0 40.875 17.94 40.875 40.28 0 16.756-10.6 31.23-25.125 37.376l32.72 98.126h-96.376l32.125-98.125c-14.526-6.145-24.532-20.62-24.532-37.374 0-22.338 17.972-40.28 40.312-40.28z"/>',
+  unlock: '<path d="M402.6 164.6c0-78.92-65.7-146.47-146.6-146.47-81.1 0-146.6 65.49-146.6 146.47v72.3H159v-69.1c0-53.7 43.4-97.26 97-97.26 53.5 0 97 41.66 97 94.06zm-315.7 91C72.2 278.4 64 304.7 64 332.4c0 88.3 85 161.5 192 161.5s192-73.2 192-161.5c0-27.7-8.3-54-22.9-76.8zm168.8 23.9c22.3 0 40.9 18 40.9 40.3 0 16.8-10.6 31.2-25.1 37.3l32.7 98.2h-96.4l32.1-98.2c-14.5-6.1-24.5-20.6-24.5-37.3 0-22.3 18-40.3 40.3-40.3z"/>',
+  save: '<path d="M224 30v256h-64l96 128 96-128h-64V30h-64zM32 434v48h448v-48H32z"/>',
+  book: '<path d="M149.688 85.625c-1.234.005-2.465.033-3.72.063-33.913.806-75.48 10.704-127.25 33.718V362.78c60.77-28.82 106.718-37.067 144.22-33.092 33.502 3.55 59.685 16.66 83.562 31.187v-242.97c-23.217-17.744-50.195-30.04-85.97-32-3.52-.192-7.142-.296-10.843-.28zm211.968 0c-3.7-.016-7.322.088-10.844.28-35.773 1.96-62.75 14.256-85.968 32v242.97c23.876-14.527 50.06-27.637 83.562-31.188 37.502-3.974 83.45 4.272 144.22 33.094V119.407c-51.77-23.014-93.337-32.912-127.25-33.72-1.255-.028-2.486-.056-3.72-.06zm5.72 261.78c-1.038-.002-2.074.017-3.095.033-4.808.075-9.43.37-13.905.843-33.932 3.597-59.603 17.976-85.53 34.44v.28c-6.554-1.99-13.02-2.37-19.408-.97-25.566-16.177-51.003-30.202-84.468-33.75-5.595-.592-11.44-.883-17.564-.842-32.04.213-71.833 9.778-124.687 35.937v42.53c60.77-28.823 106.714-37.067 144.218-33.092 18.545 1.965 34.837 6.845 49.75 13.28-4.682 6.064-9.308 13.268-13.875 21.688h117.156c-5.93-8.22-11.798-15.414-17.626-21.56 14.996-6.503 31.39-11.43 50.062-13.408 37.503-3.974 83.448 4.27 144.22 33.094v-42.53c-53.16-26.31-93.115-35.863-125.25-35.97z"/>',
+  globe: '<path d="M322.02 20.184l-17.13 42.273c7.053 2.776 13.857 6.04 20.372 9.758l8.62-13.274 15.675 10.18-8.637 13.296c.85.628 1.692 1.266 2.53 1.91l-19.745 22.735c4.994 3.747 9.706 7.85 14.1 12.268l19.754-22.746c.187.184.38.366.567.55l11.795-10.618 12.504 13.89-11.79 10.614c4.71 5.887 9.005 12.117 12.846 18.648l14.114-7.19 8.482 16.653-14.092 7.177c3.015 6.877 5.555 14.007 7.578 21.353l15.452-3.283 3.884 18.28-15.445 3.282c1.114 7.374 1.71 14.918 1.77 22.59l15.777.827-.98 18.664-15.74-.825c-.835 7.61-2.214 15.056-4.09 22.303l14.947 4.857-5.777 17.774-14.922-4.85c-2.767 7.09-6.03 13.934-9.75 20.486l13.142 8.537-10.18 15.674-13.13-8.528c-4.493 6.108-9.418 11.877-14.725 17.273l10.46 11.617-13.89 12.506-10.437-11.594c-5.9 4.734-12.14 9.062-18.69 12.924l7.05 13.838-16.65 8.484-7.033-13.803c-6.898 3.034-14.055 5.585-21.427 7.62l3.213 15.123-18.28 3.884-3.21-15.107c-7.405 1.125-14.978 1.735-22.682 1.797l-.808 15.41-18.662-.98.807-15.368c-7.645-.834-15.127-2.208-22.405-4.092l-4.738 14.58-17.773-5.777 4.73-14.55c-7.124-2.78-13.997-6.063-20.575-9.803l-8.328 12.822-15.672-10.18 8.33-12.824c-.93-.685-1.848-1.384-2.762-2.088l19.848-22.853c-4.997-3.743-9.71-7.842-14.108-12.257l-19.848 22.853c-.156-.152-.314-.302-.47-.455l-11.356 10.226-12.504-13.89 11.347-10.216c-4.563-5.7-8.737-11.725-12.49-18.03l-38.9 23.71c9.515 15.894 21.132 30.386 34.472 43.088l-20.575 23.69 14.112 12.255 20.575-23.693c34.76 27.522 78.7 43.96 126.482 43.96 1.365 0 2.726-.023 4.084-.05v19.473c-34.134 15.356-59.115 36.682-79.753 59.906h197.54c-19.674-24.32-44.835-43.993-80.784-59.712V409.41c92.908-19.004 162.8-101.184 162.8-199.68 0-58.094-24.315-110.51-63.323-147.636l20.58-23.698-14.11-12.253-20.584 23.7c-15.464-12.24-32.75-22.278-51.376-29.66zm-75.108 82.664c-59.132 0-106.838 47.692-106.838 106.8 0 59.11 47.706 106.8 106.838 106.8 59.132 0 106.838-47.69 106.838-106.8 0-9.375-1.203-18.462-3.46-27.12-10.244 25.087-23.08 45.15-45.905 66.95-16.887-1.487-29.712-8.08-40.643-19.966 6.048-8.86 13.09-17.22 27.096-22.102-12.564-28.283-18.19-56.568-21.393-84.85 12.464 4.59 20.16 11.93 29.235 24.954 7.712 1.697 16.863-6.856 23.27-13.975-19.274-18.99-45.752-30.692-75.038-30.692zm-32.48 65.03c17.62 12.56 32.407 31.486 38.03 52.517-11.065 9.256-16.907 21.124-19.92 34.406 16.957 8.23 30.048 21.297 41.65 36.22v.007c-34.438-3.405-68.245-9.135-98.696-27.164-12.172-20.824-19.107-41.65-19.92-62.474 16.6-7.525 33.2-4.936 49.8.895 9.222-11.47 9.186-20.922 9.056-34.408z"/>',
+  folder: '<path d="M168.8 32.89l-32.6 32.53 21.3 21.17L190 54.08zm33.9 33.96l-9.9 9.91 123 123.04 9.9-9.9zm159.4 18.06c-3.7 0-7.4.1-10.9.3-31.9 1.78-56.7 11.76-78.3 26.39l65.5 65.6c3.5 7.3 52 96.2 65.5 123.3-9.7-6.4-123.4-65.4-123.4-65.4l-15.3-15.2v140.3c23.9-14.6 50.1-27.7 83.6-31.2 37.5-4 83.5 4.3 144.2 33.1V118.7c-51.7-22.99-93.3-32.89-127.2-33.69-1.3 0-2.5-.11-3.7-.1zm-230.8 1.03C100.4 88.93 63.44 99 19.05 118.7v243.4C79.85 333.3 125.8 325 163.3 329c33 5.2 58.1 15.8 83.6 31.2V201.6c-38.6-38.5-77.1-77.1-115.6-115.66zm48.8 3.55l-9.9 9.89 123 123.02 9.9-9.9zM336 205.1l-27.5 27.5 55.1 27.6zM143.8 346.7c-32 .3-71.85 9.8-124.75 36v42.5c60.8-28.8 106.75-37.1 144.25-33.1 18.6 2 34.9 6.9 49.8 13.3-4.7 6.1-9.3 13.3-13.9 21.7h117.2c-6-8.2-11.8-15.4-17.7-21.6 15-6.5 31.4-11.4 50.1-13.4 37.5-4 83.5 4.3 144.2 33.1v-42.5c-53.1-26.3-93.1-35.9-125.2-36h-3.1c-4.8.1-9.4.4-13.9.9-34 3.6-59.6 18-85.6 34.4-5.7-.8-13-1.8-18.3-.9-27.2-16.2-58.2-30.4-85.5-33.5-5.6-.6-11.5-.9-17.6-.9z"/>',
+  gamepad: '<path d="M380.95 114.46c-62.946-13.147-63.32 32.04-124.868 32.04-53.25 0-55.247-44.675-124.87-32.04C17.207 135.072-.32 385.9 60.16 399.045c33.578 7.295 50.495-31.644 94.89-59.593a51.562 51.562 0 0 0 79.77-25.78 243.665 243.665 0 0 1 21.24-.91c7.466 0 14.44.32 21.126.898a51.573 51.573 0 0 0 79.82 25.717c44.45 27.95 61.367 66.93 94.955 59.626 60.47-13.104 42.496-260.845-71.01-284.543zM147.47 242.703h-26.144V216.12H94.73v-26.143h26.594v-26.593h26.144v26.582h26.582v26.144h-26.582v26.582zm38.223 89.615a34.336 34.336 0 1 1 34.337-34.336 34.336 34.336 0 0 1-34.325 34.346zm140.602 0a34.336 34.336 0 1 1 34.367-34.325 34.336 34.336 0 0 1-34.368 34.335zM349.98 220.36A17.323 17.323 0 1 1 367.3 203.04a17.323 17.323 0 0 1-17.323 17.323zm37.518 37.52a17.323 17.323 0 1 1 17.322-17.324 17.323 17.323 0 0 1-17.365 17.334zm0-75.048a17.323 17.323 0 1 1 17.322-17.323 17.323 17.323 0 0 1-17.365 17.333zm37.518 37.518a17.323 17.323 0 1 1 17.323-17.323 17.323 17.323 0 0 1-17.367 17.334z"/>',
+  graduate: '<path d="M256 89.61L22.486 177.18 256 293.937l111.22-55.61-104.337-31.9A16 16 0 0 1 256 208a16 16 0 0 1-16-16 16 16 0 0 1 16-16l-2.646 8.602 18.537 5.703a16 16 0 0 1 .008.056l27.354 8.365L455 246.645v12.146a16 16 0 0 0-7 13.21 16 16 0 0 0 7.293 13.406C448.01 312.932 448 375.383 448 400c16 10.395 16 10.775 32 0 0-24.614-.008-87.053-7.29-114.584A16 16 0 0 0 480 272a16 16 0 0 0-7-13.227v-25.42L413.676 215.1l75.838-37.92L256 89.61zM119.623 249L106.5 327.74c26.175 3.423 57.486 18.637 86.27 36.627 16.37 10.232 31.703 21.463 44.156 32.36 7.612 6.66 13.977 13.05 19.074 19.337 5.097-6.288 11.462-12.677 19.074-19.337 12.453-10.897 27.785-22.128 44.156-32.36 28.784-17.99 60.095-33.204 86.27-36.627L392.375 249h-6.25L256 314.063 125.873 249h-6.25z"/>',
+  arrow: '<path d="M130.81 21.785v245.95H43.84L256 489.382l212.158-221.644H381.19V21.786H130.81z"/>',
+  hand: '<path d="M309.752 35.514c-3.784.046-7.807.454-12.004 1.082-27.198 61.067-49.85 122.007-65.45 182.775-9.293-4.313-18.634-8.57-27.962-12.845-3.95-53.137 1.876-103.13 5.33-153.757-6.696-5.06-17.54-8.82-28.596-8.98-11.573-.166-22.304 3.33-28.537 9.513-5.44 70.22-5.258 147.354 1.133 217.475 21.926 29.733 45.877 59.903 52.305 103.64l-18.49 2.716c-4.24-28.837-17.583-51.34-33.238-73.51l-7.582-10.55c-5.01-6.862-10.134-13.79-15.185-20.945-21.397-28.51-44.094-51.49-62.155-59.22-9.81-4.196-17.273-4.385-24.632-.442-6.486 3.474-13.52 11.49-20.043 25.387 53.41 51.674 70.576 104.044 82.718 138.664 5.79 16.507 11.08 31.523 21.274 47.025 15.614 23.746 49.446 42.91 84.066 49.51 34.62 6.598 68.69.712 86.87-19.833 14.36-16.227 41.232-41.87 56.195-57.787 24.524-26.085 59.485-54.964 88.597-77.248 14.556-11.142 27.62-20.598 37.197-27.178 4.79-3.29 8.68-5.848 11.612-7.625.197-.12.34-.182.527-.294 1.31-9.873-.448-20.663-4.804-29.375-4.358-8.718-10.787-14.658-17.763-17.015-35.707 21.283-70.62 44.438-103.877 75.438-5.745-7.274-11.933-14.06-18.5-20.424 30.747-58.815 69.992-107.75 114.28-150.41-1.56-9.55-7.76-19.814-16.114-27.32-8.4-7.55-18.526-11.7-25.852-11.623-45.615 46.382-85.864 96.907-117.5 154.463-6.918-4.36-14.023-8.513-21.27-12.51 18.893-64.715 42.99-126.426 73.5-184.392-12.757-15.245-25.477-23.335-42.347-24.324-1.205-.07-2.44-.096-3.7-.08z"/>',
+  robot: '<path d="M81 21.499c-12.81 0-23 10.192-23 23.002 0 12.81 10.19 23 23 23s23.002-10.19 23.002-23S93.81 21.499 81 21.499zm350 0c-12.81 0-23.002 10.192-23.002 23.002 0 12.81 10.192 23 23.002 23 12.81 0 23-10.19 23-23s-10.19-23.002-23-23.002zM110.18 73.212a41.25 41.25 0 0 1-15.11 9.781l28.666 45.867 14.983-9.988zm291.64 0l-28.539 45.66 14.983 9.988 28.666-45.867a41.25 41.25 0 0 1-15.11-9.781zm-242.966 53.87l-36.143 24.095 6.652 19.955c9.215-12.422 23.339-21.987 39.614-28.912 1.172-.5 2.37-.973 3.568-1.448zm194.292 0l-13.69 13.69c1.197.475 2.395.949 3.567 1.448 16.275 6.925 30.399 16.49 39.614 28.912l6.652-19.955zM256 144.5c-29 0-58.021 4.939-79.977 14.281-21.898 9.319-35.908 22.38-39.164 38.364L106.28 426.5h299.442l-30.58-229.355c-3.256-15.984-17.266-29.045-39.164-38.364C314.02 149.44 285 144.501 256 144.501zm-64 58c31.373 0 57 25.627 57 57s-25.627 57-57 57-57-25.627-57-57 25.627-57 57-57zm128 0c31.373 0 57 25.627 57 57s-25.627 57-57 57-57-25.627-57-57 25.627-57 57-57zm-128.549 16.023c-22.754 0-41.547 18.366-41.547 40.977 0 22.611 18.793 40.977 41.547 40.977 22.754 0 41.549-18.366 41.549-40.977 0-22.611-18.795-40.977-41.549-40.977zm128 0c-22.754 0-41.547 18.366-41.547 40.977 0 22.611 18.793 40.977 41.547 40.977 22.754 0 41.549-18.366 41.549-40.977 0-22.611-18.795-40.977-41.549-40.977zm-128 17.998c13.198 0 23.549 10.269 23.549 22.979 0 12.71-10.35 22.978-23.549 22.978-13.198 0-23.549-10.268-23.549-22.978s10.351-22.979 23.55-22.979zm128 0c13.198 0 23.549 10.269 23.549 22.979 0 12.71-10.35 22.978-23.549 22.978-13.198 0-23.549-10.268-23.549-22.978s10.351-22.979 23.55-22.979zM208 330.501h96v18h-96zm-16 32h128v18H192zm-16 32h160v18H176zm-103 50v46h46v-46zm64 0v46h46v-46zm64 0v46h46v-46zm64 0v46h46v-46zm64 0v46h46v-46zm64 0v46h46v-46z"/>',
+  tinker: '<path d="M409.28 19.313c-20.507.34-40.836 8.245-56.53 23.937-20.558 20.558-27.823 49.56-22.188 76.156l1.032 4.938-3.594 3.594-43.406 43.406c3.86 2.906 7.167 6.498 9.72 10.625 7.166 11.59 6.305 28.69-6.22 41.218l-11.97 11.968 30.438 30.47 79.563-79.563 3.563-3.594 4.968 1.06c26.44 5.525 55.136-1.98 75.75-22.593 23.596-23.595 29.518-57.696 18.688-87.093l-49.22 49.25c-13.71 13.708-36.3 15.01-50.093 1.22-13.79-13.793-13.07-36.618.814-50.5l49.22-49.25c-8.545-3.15-17.475-4.93-26.44-5.22-1.367-.045-2.726-.054-4.093-.032zM72.157 21.53c-13.533.162-25.857 6.134-34.937 15.69-18.163 19.108-23.575 51.08 4.56 79.218l86.126 86.124c30.25 2.733 53.004 26.662 53.906 57.532L182 266c.883 5.654 4.31 10.126 8.844 12.47 5.734 2.963 12.387 3.145 19.625-4.095l64.405-64.406c7.718-7.72 6.896-12.716 3.53-18.157-3.364-5.442-11.272-10.063-18.81-10.063h-.19l-.186-.03c-30.125-1.298-53.427-23.487-56.5-53l-86.595-86.595C100.84 26.84 85.69 21.37 72.155 21.53zm191.188 227.314l-14.03 14.03 136.5 136.532 3.31 3.313-.655 4.655-4.595 31.813 77.188 49.375L489 460.625l-49.375-77.22-31.78 4.595-4.658.688-3.312-3.313-136.53-136.53zm-27.72 26.812l-11.936 11.938c-12.238 12.24-29.134 13.86-41.438 7.5-4.515-2.334-8.513-5.66-11.656-9.72l-41.78 41.782-3.595 3.594-4.97-1.063c-26.596-5.632-55.6 1.632-76.156 22.188-23.598 23.596-29.52 57.697-18.688 87.094l49.25-49.25c13.883-13.877 36.71-14.605 50.5-.814 13.792 13.792 12.494 36.384-1.22 50.094l-49.25 49.25c29.398 10.83 63.498 4.906 87.095-18.688 20.613-20.615 28.114-49.342 22.595-75.78l-1.03-4.938 3.56-3.563 79.19-79.186-30.47-30.438z"/>',
+  hoodie: '<path d="M256 25c-6.6 0-16.1 3.77-26.1 10.69-9.9 6.92-20.3 16.69-29.6 27.09-8.4 9.52-15.9 19.56-21.5 28.35 5-2.29 10-4.34 15.1-6.17l.9-.41c20.2-8.78 40.6-13.25 61.1-13.25 20.5-.02 41 4.37 61.3 13.26l.8.35c5.1 1.84 10.2 3.91 15.2 6.22-5.6-8.79-13.1-18.83-21.5-28.35-9.3-10.4-19.7-20.17-29.6-27.09C272.1 28.77 262.6 25 256 25zm0 67.23c-16.3 0-32.5 2.37-48.2 7.1 1 16.67 5.3 36.37 13 51.87 8.8 17.6 20.5 28.6 35.2 28.6 14.7 0 26.4-11 35.2-28.6 7.7-15.5 12-35.2 13-51.87-15.7-4.73-31.9-7.1-48.2-7.1zm-66 13.67c-7.1 3.1-14.1 6.7-20.8 10.9 1.3 19.1 10.4 34.5 24.8 45.7 5.7 4.5 12.3 8.2 19.5 11-3.3-4.4-6.2-9.3-8.7-14.3-8.4-16.6-13.2-35.7-14.8-53.3zm132 0c-1.6 17.6-6.4 36.7-14.8 53.3-2.5 5.1-5.5 10-8.8 14.5 7.4-2.9 14.1-6.6 19.9-11.2 14.2-11.2 23.2-26.6 24.5-45.7-6.7-4.2-13.7-7.8-20.8-10.9zm-131.4 76.2c-23.4 3.6-46.8 9.2-70.3 16.7L93.42 427l31.18 10.4 26.5-198.6 17.9 1.8L155.6 442c23.6 5.7 62.1 9 100.4 9 38.3 0 76.8-3.3 100.4-9L343 240.6l17.9-1.8 26.5 198.6 31.1-10.3-26.8-228.3c-23.4-7.4-46.7-13.1-70-16.7-4.1 2.6-8.4 4.8-12.9 6.8-3.3 11.9-2.9 26 0 39.1 3.7 16.7 11.7 31.8 17.6 37.6l-12.8 12.8c-10.1-10.2-18.1-27.1-22.4-46.4-2.6-11.7-3.8-24.4-2.2-36.7-10.4 2.3-21.5 3.2-33 2.5-11.5.7-22.6-.3-33-2.6 1.6 12.3.4 25-2.2 36.8-4.3 19.3-12.3 36.2-22.4 46.4l-12.8-12.8c5.9-5.8 13.9-20.9 17.6-37.6 2.9-13.2 3.3-27.3 0-39.3-4.4-1.9-8.6-4.1-12.6-6.6zm10.2 154.4h110.4l17.6 77.5-17.6 4-14.4-63.5h-81.6L200.8 418l-17.6-4 17.6-77.5zM91.28 445.2l-2.23 18.9c.05-.3.69 1.7 3.98 4.3 3.4 2.6 8.67 5.3 13.77 7.1 5.1 1.6 10.1 2.2 12.4 2l2.9-22-30.82-10.3zm329.42 0l-30.8 10.3 2.9 22c2.3.2 7.3-.4 12.4-2 5.1-1.8 10.4-4.5 13.8-7.1 3.3-2.6 3.9-4.6 3.9-4.3l-2.2-18.9zm-266.3 15l-1.3 19.2v.1c.5.5 2.1 1.7 4.5 2.9 4.8 2.4 13 4.8 23.1 6.8 20.1 3.8 47.7 5.8 75.3 5.8 27.6 0 55.2-2 75.3-5.8 10.1-2 18.3-4.4 23.1-6.8 2.4-1.2 4-2.4 4.5-2.9v-.1l-1.3-19.2c-26.5 6.1-63.9 8.8-101.6 8.8-37.7 0-75.1-2.7-101.6-8.8z"/>',
+  heat: '<path d="M328.094 16.28c-418.547 189.59 58.108 230.146-86.313 473.533C566.646 247.035 59.723 256.837 328.095 16.28zm10.844 32.44C154.714 186.1 475.226 253.64 369.717 409.06 561.48 253.028 248.215 203.768 338.94 48.72zM141 102.25c-174.244 135.025 104.332 215.754 61.063 367C307.03 285.77 42.887 268.31 141 102.25z"/>',
+  solder: '<path d="M372.5 33.27c-24.9.2-51.8 13.41-70.6 46.03l-.2.4 14.4 8.3.2-.4c16.2-27.8 39.1-38.9 60.2-37.6 30.6 1.9 56.5 29.9 47.6 66.4-2 8.4-5.9 17.3-11.8 26.4-33 50.5-73 84.1-103.3 116.7-32.3 34.8-53.8 68.7-47.4 117.9C268.1 428 317 458 371.4 461c39.3 3 81-8 110.1-33v-23c-25.3 30-68.7 43-108.9 40-46.1-3-89-27-94.5-69.7-5.6-43.8 14.4-73.5 43.1-104.4 30.8-33.2 71.5-67.6 105-119 7.1-10.9 11.7-21.5 14.1-31.6 11.7-47.8-22.5-84.4-62.8-86.9-1.6-.1-3.3-.14-5-.13zM84.26 41.44C-6.511 138.9 158.5 160.1 75.56 268.1c-62.2 80.9-10.68 102.6-.96 195.1 0 0 .32-1.7.86-4.4 4.77-23.9 1.58-48.8-9.12-70.8-26.01-53.4-5.18-74.8 56.26-143.4 71.9-80.4-58.81-126.2-38.34-203.16zM287.3 90.3s-17.6 29.9-38.9 62.9c-13.8 21.4-30.8 42.9-41.4 61.4-4.9 8.5-8.7 16-11.3 21.8l-10-5.8-9.3 16 57.8 33.4 9.2-16-10-5.8c3.7-5.2 8.3-12.3 13.2-20.7 10.7-18.4 20.9-43.9 32.5-66.6 17.9-35 35-65.1 35-65.1l-26.8-15.5zM180.5 264.5l-5.4 9.4 36.1 20.8 5.4-9.4-36.1-20.8zm-4.6 24.7-55 95.2 21.7 12.5 54.9-95.2-21.6-12.5zm-60.4 107.3-3.7 12.2 14.8 8.6 8.8-9.3-19.9-11.5zm-7.8 23.4-15.53 26.9-3.11 17.9L103 453l15.5-26.8-10.8-6.3z"/>',
+  bug: '<path d="M216 21.23s-5.1 9.96-9.7 22.52c-4.5 12.57-9.4 27.36-7.2 40.96 2.2 13.16 11 25.19 19 35.29.1.2.2.3.4.4 0-.1.1-.2.2-.3 3.6-5 7.4-9.8 11.4-14.1-6.5-8.69-12.4-18.93-13.2-24.18-1-6.21 2.2-20.41 6.4-31.89 4.2-11.49 8.7-20.63 8.7-20.63zm80.1.17l-16 8.08s4.5 9.14 8.7 20.63c4.2 11.48 7.4 25.68 6.4 31.89-.8 5.14-6.6 15.18-13 23.8 4.1 4.4 7.9 9.3 11.6 14.4l.1-.1c8-10 16.9-22.04 19.1-35.21 2.2-13.6-2.7-28.39-7.2-40.96-4.6-12.56-9.7-22.52-9.7-22.52zM82.38 106.6l-4.8 17.4s15.14 4.2 32.52 10.2c16.7 5.7 35.5 13.8 43 19.3 15.7 30.7 32.4 48 62 77.7-.1-1.4-.1-2.7-.1-3.9 0-6.3.1-13.3 1.3-20.6-22.6-22.9-35.3-37.5-48.2-63.4l-.9-1.8-1.5-1.2c-11.8-9.5-31.7-16.9-49.7-23.1-18.01-6.3-33.62-10.6-33.62-10.6zm347.22 0s-15.6 4.3-33.6 10.6c-18 6.2-37.9 13.6-49.7 23.1l-1.5 1.2-.9 1.8c-12.9 26-25.5 40.5-48.2 63.5 1.2 7.3 1.3 14.2 1.3 20.5 0 1.2 0 2.6-.1 4 29.6-29.7 46.3-47.1 62-77.8 7.5-5.5 26.3-13.6 43-19.3 17.4-6 32.5-10.2 32.5-10.2zm-173.7 1.8c.1.1-3.7 1.4-8.1 5.3-4.6 4.1-9.8 10.2-14.5 16.8-4.7 6.6-9 13.8-11.9 20-3 6.1-4.4 11.8-4.4 12.8s.7 3.1 3.1 5.9c2.3 2.7 6.1 5.7 10.5 8.4 8.8 5.3 20.4 8.7 25.4 8.7s16.6-3.4 25.4-8.7c4.4-2.7 8.2-5.7 10.5-8.4 2.4-2.8 3.1-4.9 3.1-5.9 0-1.1-1.3-6.7-4.2-12.8-2.8-6.2-7-13.2-11.6-19.8-4.6-6.5-9.7-12.6-14.3-16.7-4.5-4-8.4-5.5-9-5.6zm-19.6 91.9c-3.4 8.4-3.3 16.8-3.3 27 0 6.5 1.9 22.5 5.7 37.8 1.6 6.4 3.7 12.7 5.9 18.3 3.7-.7 7.5-1.1 11.4-1.1 3.9 0 7.7.4 11.4 1.1 2.2-5.6 4.3-11.9 5.9-18.3 3.8-15.3 5.7-31.3 5.7-37.8 0-10.2.1-18.6-3.3-27-6.7 2.5-13.4 4-19.7 4-6.3 0-13-1.5-19.7-4zm-99.3 18l-1.7 6.8c-15.7 62.6-47.8 126-77.68 155.8l12.72 12.8c32.86-32.9 63.56-94.1 80.36-157 21.8 1.7 44.7 11 68.2 22.3-1.6-7.9-2.7-15.3-3.3-21.6-23.1-10.7-46.8-19.1-71.6-19.1zm231 0c-24.7 0-48.5 8.5-71.6 19.1-.6 6.3-1.7 13.7-3.3 21.7 23.5-11.4 46.4-20.7 68.2-22.4 16.8 62.9 47.5 124.1 80.3 157l12.8-12.8c-29.9-29.8-62-93.2-77.7-155.8l-1.7-6.8zm-148 45.6c-22.1 20.8-43.9 41.3-64 51.3l-5 2.5v5.6c0 61.9-3.4 83.1-14.8 122.4l-45.21 30.1 10.01 15 50.7-33.8.9-3.2c12-40.9 16-65.3 16.3-125.2 19.5-10.9 38.3-27.7 56.4-44.8-1.5-4.7-2.8-9.5-4-14.3-.5-1.9-.9-3.7-1.3-5.6zm72 0c-.4 1.8-.8 3.7-1.3 5.6-1.2 4.8-2.5 9.6-4 14.3 18.1 17.1 36.9 33.9 56.4 44.8.2 59.9 4.3 84.3 16.3 125.2l.9 3.2 50.7 33.8 10-15-45.2-30.1c-11.4-39.3-14.8-60.5-14.8-122.4v-5.6l-5-2.4c-20.1-10-41.8-30.6-64-51.4zm-36 36.4c-13 0-27.4 6.9-38.2 15.9-5.4 4.5-9.9 9.5-12.8 13.8-2.9 4.4-4 8.3-4 9.3 0 40.9 27.2 98.5 55 130.4 27.8-31.9 55-89.5 55-130.4 0-1-1.1-4.9-4-9.3-2.9-4.3-7.4-9.3-12.8-13.8-10.8-9-25.2-15.9-38.2-15.9z"/>',
+  wrench: '<path d="M331.188 16.72c-40.712-.002-81.41 15.408-112.438 46.436-43.866 43.864-56.798 107-38.813 162.25L17.03 388.312v25.75l170.22-170.218c2.75 5.84 5.847 11.555 9.344 17.094L17.03 440.5v51.78H64l181.875-181.874c5.516 3.515 11.212 6.668 17.03 9.438L90.44 492.28h27.03l164.75-164.75c55.182 17.85 118.21 4.884 162-38.905 41.415-41.414 54.998-99.91 41.282-152.813L380.22 241.125l-90.033-23.938-23.968-90.03L371.53 21.843c-13.213-3.41-26.772-5.125-40.342-5.125z"/>',
+};
+/* __ICONS_END__ */
+
+// game-icons-path → data-URI, så CSS-pseudoelementer også kan bruge ikonerne
+function icoUrl(n,farve){
+  const p=ICONS[n]; if(!p) return "";
+  const svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="'+farve+'">'+p+'</svg>';
+  return 'url("data:image/svg+xml,'+encodeURIComponent(svg)+'")';
+}
+
 const CSS = `
 :root{
   --bg0:#0c1811; --bg1:#12241a; --bg2:#173021; --line:#274a35;
@@ -1180,7 +1252,7 @@ input:focus,select:focus{border-color:var(--cu)}
     0 1px 2px rgba(0,0,0,.5),0 6px 12px rgba(0,0,0,.45)}
 .enh .art{width:40px;height:40px}
 .enh.klar{border-color:var(--fos)!important;border-width:2px;box-shadow:0 0 15px rgba(95,224,160,.55)}
-.enh.klar::after{content:"⚔";position:absolute;top:-9px;right:-6px;font-size:14px;background:var(--fos);color:#0c1811;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 8px rgba(95,224,160,.8);z-index:4}
+.enh.klar::after{content:"";position:absolute;top:-9px;right:-6px;background:var(--fos);border-radius:50%;width:20px;height:20px;box-shadow:0 0 8px rgba(95,224,160,.8);z-index:4;background-image:${icoUrl("sword","%230c1811")};background-size:13px 13px;background-position:center;background-repeat:no-repeat}
 .enh.leg{border-color:var(--guld)}
 .enh.sover{opacity:.72}
 .enh.sover .art{opacity:.5}
@@ -1199,7 +1271,7 @@ input:focus,select:focus{border-color:var(--cu)}
 .tgt{border-color:var(--rod) !important;border-width:3px !important;
   box-shadow:0 0 0 3px rgba(255,109,90,.5),0 0 22px rgba(255,109,90,.75) !important;
   animation:puls .8s infinite;z-index:6}
-.tgt::after{content:"🎯";position:absolute;top:-13px;left:50%;transform:translateX(-50%);
+.tgt::after{content:"";width:19px;height:19px;background:${icoUrl("target","%23ff6d5a")} center/contain no-repeat;position:absolute;top:-13px;left:50%;transform:translateX(-50%);
   font-size:18px;filter:drop-shadow(0 0 5px rgba(255,109,90,.9));z-index:7;
   animation:tgtbob .8s ease-in-out infinite}
 @keyframes tgtbob{50%{transform:translateX(-50%) translateY(-3px)}}
@@ -1407,6 +1479,11 @@ button:active{transform:scale(.97)}
 .fxflyv{position:fixed;font-size:42px;transform:translate(-50%,-50%);z-index:61;
   text-shadow:0 0 16px rgba(95,224,160,.9);animation:flyv calc(.55s * var(--tempo,1)) cubic-bezier(.3,.1,.55,1) forwards}
 @keyframes flyv{55%{opacity:1}100%{transform:translate(calc(-50% + var(--tx)),calc(-50% + var(--ty))) scale(.35);opacity:0}}
+.ico{display:inline-flex;align-items:center;justify-content:center;vertical-align:-0.14em;line-height:0}
+.ico svg{display:block}
+.lnk{color:var(--cu2);text-decoration:underline;text-underline-offset:2px}
+.lnk:hover{color:var(--guld)}
+.dart{width:1.35em;height:1.35em;vertical-align:-0.42em;display:inline-block}
 .art{display:block;pointer-events:none}
 .art.dimart{opacity:.45}
 /* glans-sweep + legendarisk shimmer */
@@ -1783,12 +1860,37 @@ const KWSVG = {
     svg:'<path d="M4 20 v-4 M9 20 v-8 M14 20 v-12 M19 20 v-16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>'},
 };
 // SVG-ikoner til hero powers hvor emoji ikke findes/passer
+
+// <Ico n="bolt"/> — inline SVG i tekststørrelse, arver farven fra teksten.
+function Ico({n,size,cls,style}){
+  const p=ICONS[n];
+  if(!p) return null;
+  const s=size||"1em";
+  return <span className={"ico"+(cls?" "+cls:"")} style={style} aria-hidden="true"
+    dangerouslySetInnerHTML={{__html:'<svg viewBox="0 0 512 512" width="'+s+'" height="'+s+'" fill="currentColor">'+p+'</svg>'}}/>;
+}
+// Log-linjer gemmes som ren tekst med ikon-tokens: "§bolt§ Foo wins!".
+// Det holder spiltilstanden serialiserbar (online-spil) og fri for emoji.
+// §kw_jord§ osv. slår op i de håndtegnede keyword-badges i stedet.
+const LOGTOK=/§(kw_)?([a-z]+)§/g;
+function LogTekst({t}){
+  if(!t) return null;
+  const ud=[]; let sidst=0, m, i=0;
+  LOGTOK.lastIndex=0;
+  while((m=LOGTOK.exec(t))){
+    if(m.index>sidst) ud.push(t.slice(sidst,m.index));
+    ud.push(m[1] ? <KwBadge key={i++} k={m[2]}/> : <Ico key={i++} n={m[2]}/>);
+    sidst=m.index+m[0].length;
+  }
+  if(sidst<t.length) ud.push(t.slice(sidst));
+  return <>{ud}</>;
+}
 const POWERSVG = {
   loddekolbe: '<svg viewBox="0 0 24 24" width="1em" height="1em" style="vertical-align:-0.12em"><path d="M20 4 L14 10" stroke="#c9814a" stroke-width="2.4" stroke-linecap="round"/><path d="M13 11 L9 15" stroke="#9aa7a0" stroke-width="3.2" stroke-linecap="round"/><path d="M9 15 L5 19 L4 20" stroke="#8b6cff" stroke-width="2" stroke-linecap="round" fill="none"/><path d="M6 18 c-1 1 -2 1 -2 2 c1 0 1 -1 2 -2" fill="#ffb347"/><circle cx="6.5" cy="17.5" r="1.6" fill="#ff8c3a"/></svg>',
 };
 function PowerIcon({p}){
   if(p&&p.svg&&POWERSVG[p.svg]) return <span className="pwsvg" dangerouslySetInnerHTML={{__html:POWERSVG[p.svg]}}/>;
-  return <span>{p?p.ico:""}</span>;
+  return p&&p.ico ? <Ico n={p.ico}/> : null;
 }
 // splitter en korttekst op og gør kendte mekanik-termer til hover-bare chips
 function GlossText({txt}){
@@ -1853,11 +1955,11 @@ function CardTip({id,live}){
     <div className="ctipwrap">
       <div className="ctip">
         <div className="ctip-h">
-          <span className="ctip-c">{d.c}⚡</span>
+          <span className="ctip-c">{d.c}<Ico n="bolt"/></span>
           <span className="ctip-n">{d.n}</span>
         </div>
-        <div className="ctip-t">{d.t==="unit"?"Unit":"Spell"}{d.tr?" · "+d.tr:""}{d.cls&&CLASSES[d.cls]?" · "+CLASSES[d.cls].n:""}{d.r==="L"?" · ★ Legendary":""}{d.r==="R"?" · ◆ Rare":""}</div>
-        {d.t==="unit" && <div className="ctip-s">⚔ {atk} &nbsp; ❤ {hp}</div>}
+        <div className="ctip-t">{d.t==="unit"?"Unit":"Spell"}{d.tr?" · "+d.tr:""}{d.cls&&CLASSES[d.cls]?" · "+CLASSES[d.cls].n:""}{d.r==="L"?<> · <Ico n="legendary"/> Legendary</>:null}{d.r==="R"?<> · <Ico n="rare"/> Rare</>:null}</div>
+        {d.t==="unit" && <div className="ctip-s"><Ico n="sword"/> {atk} &nbsp; <Ico n="heart"/> {hp}</div>}
         {names.length>0 && <div className="ctip-k">{names.join(" · ")}</div>}
         {d.txt && <div className="ctip-x">{d.txt}</div>}
       </div>
@@ -1909,7 +2011,7 @@ function HistCard({rec,aaben,onEnter,onLeave,onClick}){
       <span className="hpris">{d.c}</span>
       <CardArt id={rec.id}/>
       {hit>0 && <span className="hhit">−{hit}</span>}
-      {rec.kills.length>0 && <span className="hdoed">☠{rec.kills.length>1?rec.kills.length:""}</span>}
+      {rec.kills.length>0 && <span className="hdoed"><Ico n="skull"/>{rec.kills.length>1?rec.kills.length:""}</span>}
     </div>
   );
 }
@@ -1919,23 +2021,23 @@ function HistTip({rec,pos,navne}){
   const chips=[];
   const sMod=histSkade(rec,opS), sSelv=histSkade(rec,rec.s);
   const hMod=histHeal(rec,opS), hSelv=histHeal(rec,rec.s);
-  if(sMod>0) chips.push(<span key="sm" className="chip skade">−{sMod} ❤ {navne[opS]}</span>);
-  if(sSelv>0) chips.push(<span key="ss" className="chip skade">−{sSelv} ❤ {navne[rec.s]}</span>);
-  if(hMod>0) chips.push(<span key="hm" className="chip heal">+{hMod} ❤ {navne[opS]}</span>);
-  if(hSelv>0) chips.push(<span key="hs" className="chip heal">+{hSelv} ❤ {navne[rec.s]}</span>);
+  if(sMod>0) chips.push(<span key="sm" className="chip skade">−{sMod} <Ico n="heart"/> {navne[opS]}</span>);
+  if(sSelv>0) chips.push(<span key="ss" className="chip skade">−{sSelv} <Ico n="heart"/> {navne[rec.s]}</span>);
+  if(hMod>0) chips.push(<span key="hm" className="chip heal">+{hMod} <Ico n="heart"/> {navne[opS]}</span>);
+  if(hSelv>0) chips.push(<span key="hs" className="chip heal">+{hSelv} <Ico n="heart"/> {navne[rec.s]}</span>);
   for(const k of rec.kills) chips.push(
     <span key={"k"+chips.length} className={"chip doed"+(k.s===rec.s?" selv":"")}>
-      ☠ {CARDS[k.id]?CARDS[k.id].n:"?"}{k.s===rec.s?" (own)":""}</span>);
-  for(const u of rec.sum) chips.push(<span key={"s"+chips.length} className="chip">✦ {CARDS[u.id]?CARDS[u.id].n:"?"}</span>);
+      <Ico n="skull"/> {CARDS[k.id]?CARDS[k.id].n:"?"}{k.s===rec.s?" (own)":""}</span>);
+  for(const u of rec.sum) chips.push(<span key={"s"+chips.length} className="chip"><Ico n="sparkle"/> {CARDS[u.id]?CARDS[u.id].n:"?"}</span>);
   // dødsfald står allerede som chips — undgå dobbeltinfo i log-linjerne
-  const linjer=rec.lines.filter(l=>!l.startsWith("✕ "));
+  const linjer=rec.lines.filter(l=>!l.startsWith("§cross§ "));
   const tomt = chips.length===0 && linjer.length===0;
   return (
     <div className="histtip" style={{...themeVars(d),top:pos.top,left:pos.left}}>
-      <div className="hth"><b>{d.n}</b><span>{d.c}⚡</span></div>
+      <div className="hth"><b>{d.n}</b><span>{d.c}<Ico n="bolt"/></span></div>
       <div className="htmeta">{navne[rec.s]} · round {rec.r} · {d.t==="unit"?"unit":"spell"}</div>
       {chips.length>0 && <div className="htchips">{chips}</div>}
-      {linjer.length>0 && <div className="htlinjer">{linjer.map((l,i)=><div key={i}>{l}</div>)}</div>}
+      {linjer.length>0 && <div className="htlinjer">{linjer.map((l,i)=><div key={i}><LogTekst t={l}/></div>)}</div>}
       {tomt && <div className="htintet">No visible effect — it just hit the board.</div>}
     </div>
   );
@@ -1983,7 +2085,7 @@ function StorKort({id,unitInfo,g}){
         <CardArt id={id} pattern={true} className="storart"/>
         <div>
           <h3>{d.n}</h3>
-          <div className="meta">{d.c}⚡ · {d.cls&&CLASSES[d.cls]?CLASSES[d.cls].n+" · ":""}{d.t==="unit"?"Unit":"Spell"}{d.tr?" · "+d.tr:""}{d.r==="L"?" · ★ Legendary":""}</div>
+          <div className="meta">{d.c}<Ico n="bolt"/> · {d.cls&&CLASSES[d.cls]?CLASSES[d.cls].n+" · ":""}{d.t==="unit"?"Unit":"Spell"}{d.tr?" · "+d.tr:""}{d.r==="L"?<> · <Ico n="legendary"/> Legendary</>:null}</div>
         </div>
       </div>
       <div className="txt">{live&&live.sil?<i>Reset — all text removed.</i>:(d.txt?<GlossText txt={d.txt}/>:"—")}</div>
@@ -1995,8 +2097,8 @@ function StorKort({id,unitInfo,g}){
       )}
       {d.t==="unit" && (
         <div className="statraek">
-          <span style={{color:"var(--amber)"}}>⚔ {live?live.a:d.a}</span>
-          <span style={{color:live&&live.h<live.m?"var(--rod)":"var(--fos)"}}>♥ {live?live.h+"/"+live.m:d.h}</span>
+          <span style={{color:"var(--amber)"}}><Ico n="sword"/> {live?live.a:d.a}</span>
+          <span style={{color:live&&live.h<live.m?"var(--rod)":"var(--fos)"}}><Ico n="heart"/> {live?live.h+"/"+live.m:d.h}</span>
         </div>
       )}
     </div>
@@ -2078,7 +2180,7 @@ function Pips({p}){
   }
   for(let i=Math.max(0,p.cur-brugbar);i>0;i--) el.push(<span key={"x"+i} className="pip fuld" style={{borderColor:"var(--fos)"}}/>);
   for(let i=0;i<p.stored;i++) el.push(<span key={"g"+i} className="pip gemt"/>);
-  return <span className="pips">{el}<span style={{marginLeft:5,color:"var(--amber)"}}>{p.cur}⚡</span></span>;
+  return <span className="pips">{el}<span style={{marginLeft:5,color:"var(--amber)"}}>{p.cur}<Ico n="bolt"/></span></span>;
 }
 function UnitTile({g,s,u,mine,onClick,hilite,ready,shake,tuthi,onPointerDown,dragtgt}){
   const d=CARDS[u.id];
@@ -2104,11 +2206,11 @@ function HeltPlade({g,s,me,onClick,hilite,shake,tuthi,dragtgt}){
   return (
     <button className={"helt"+(hilite?" tgt":"")+(shake?" ryst":"")+(tuthi?" tuthi":"")+(dragtgt?" dragtgt":"")} onClick={onClick} data-fx={"h"+s}
       style={{"--kf":K.col||"var(--fos)"}}>
-      <span className="heltikon">{K.ico}</span>
+      <span className="heltikon"><Ico n={K.ico} size="20px"/></span>
       <span className="heltinfo">
         <span className="nm">{p.name}</span>
         <span className="heltklasse">{K.n}</span>
-        <span className={"hp"+(p.hp<=10?" lav":"")}>❤ {p.hp}</span>
+        <span className={"hp"+(p.hp<=10?" lav":"")}><Ico n="heart"/> {p.hp}</span>
       </span>
     </button>
   );
@@ -2433,11 +2535,11 @@ function ClassPick({value,onChange}){
             <button key={c} className={"kknap"+(aktiv?" aktiv":"")}
               style={aktiv?{borderColor:k.col,color:k.col}:null}
               onClick={()=>onChange(c)}>
-              <span style={{fontSize:22}}>{k.ico}</span><br/>{k.n.replace("The ","")}
+              <Ico n={k.ico} size="24px"/><br/>{k.n.replace("The ","")}
             </button>);
         })}
       </div>
-      <div className="kinfo"><PowerIcon p={K.power}/> <b>{K.power.n}</b> ({K.power.c}⚡): {K.power.txt}</div>
+      <div className="kinfo"><PowerIcon p={K.power}/> <b>{K.power.n}</b> ({K.power.c}<Ico n="bolt"/>): {K.power.txt}</div>
     </div>
   );
 }
@@ -2552,9 +2654,9 @@ function ChatBox({kode,seat,navn,opNavn}){
     <div className={"chatbox"+(aaben?" open":"")}>
       {aaben && (
         <div className="chatpanel">
-          <div className="chathead"><span>💬 Chat</span><button className="chatx" onClick={aabn}>✕</button></div>
+          <div className="chathead"><span><Ico n="chat"/> Chat</span><button className="chatx" onClick={aabn}><Ico n="cross"/></button></div>
           <div className="chatlist" ref={listRef}>
-            {beskeder.length===0 && <div className="chattom">Say hi to {opNavn} 👋</div>}
+            {beskeder.length===0 && <div className="chattom">Say hi to {opNavn} </div>}
             {beskeder.map((m,i)=>(
               <div key={i} className={"chatmsg"+(m.s===seat?" mig":"")}>
                 <span className="chatn">{m.s===seat?"You":(m.n||opNavn)}</span>
@@ -2566,12 +2668,12 @@ function ChatBox({kode,seat,navn,opNavn}){
             <input value={tekst} maxLength={200} placeholder="Type a message…"
               onChange={e=>setTekst(e.target.value)}
               onKeyDown={e=>{ if(e.key==="Enter"){ e.preventDefault(); send(); } }}/>
-            <button className="chatsend" onClick={send}>➤</button>
+            <button className="chatsend" onClick={send}><Ico n="send"/></button>
           </div>
         </div>
       )}
       <button className="chatknap" onClick={aabn} title="Chat">
-        💬{uleste>0 && <span className="chatbadge">{uleste>9?"9+":uleste}</span>}
+        <Ico n="chat"/>{uleste>0 && <span className="chatbadge">{uleste>9?"9+":uleste}</span>}
       </button>
     </div>
   );
@@ -2748,8 +2850,8 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
       if(ts.length){
         if(!tOK("atk",u.id)){nope();return;}
         const label = ts.some(r=>r.u==null)
-          ? "⚔ "+CARDS[u.id].n+" attacking — tap a red target"
-          : "⚔ "+CARDS[u.id].n+" — Turbo can hit units only its first turn (hero next turn)";
+          ? "§sword§ "+CARDS[u.id].n+" attacking — tap a red target"
+          : "§sword§ "+CARDS[u.id].n+" — Turbo can hit units only its first turn (hero next turn)";
         setT({atk:true,list:ts,label,run:r=>act(x=>unitAttack(x,seat,u.uid,r))}); return; }
     }
     setSel({kind:"info",id:u.id,unit:{s:rs,uid:u.uid}});
@@ -2766,7 +2868,7 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
     const {need,list}=targetsForCard(g,seat,c.id,null);
     if(need&&list.length>1){
       setSel(null);
-      setT({list,label:"▶ "+CARDS[c.id].n+" — choose a target",run:r=>act(x=>playCard(x,seat,c.uid,r))});
+      setT({list,label:"§play§ "+CARDS[c.id].n+" — choose a target",run:r=>act(x=>playCard(x,seat,c.uid,r))});
     } else if(need&&list.length===1){
       setSel(null); act(x=>playCard(x,seat,c.uid,list[0]));
     } else { setSel(null); act(x=>playCard(x,seat,c.uid,null)); }
@@ -2980,7 +3082,7 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
     <div className={"spilflade"+(tmode?" targeting":"")+(tmode&&tmode.atk?" atkmode":"")} style={{"--tempo":tempoVar}}>
       <BoardDecor/>
       {mode==="online" && kode && <ChatBox kode={kode} seat={seat} navn={me.name} opNavn={op.name}/>}
-      {tmode && <button className={"banner"+(tmode.atk?" atk":"")} onClick={()=>setT(null)}>{tmode.label}<span className="bx">· tap here to cancel</span></button>}
+      {tmode && <button className={"banner"+(tmode.atk?" atk":"")} onClick={()=>setT(null)}><LogTekst t={tmode.label}/><span className="bx">· tap here to cancel</span></button>}
       {turban>0 && myTurn && !slut && <div key={turban} className="turban">YOUR TURN</div>}
 
       {/* modstander */}
@@ -2991,7 +3093,7 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
         <Pips p={op}/>
         <span style={{marginLeft:"auto",display:"flex",alignItems:"center"}}>
           {Array.from({length:Math.min(op.hand.length,9)}).map((_,i)=><span key={i} className="ryg"/>)}
-          <span style={{marginLeft:8,color:"var(--dim)"}}>🂠{op.deck.length}</span>
+          <span style={{marginLeft:8,color:"var(--dim)"}}><Ico n="deck"/>{op.deck.length}</span>
         </span>
       </div>
       <div className="spilmidt">
@@ -3007,7 +3109,7 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
 
           <div className="midt">
             <span>Round {Math.max(1,Math.ceil(g.turn/2))}</span>
-            <span style={{color:myTurn?"var(--fos)":"var(--dim)"}}>{slut?"Game over":(myTurn?"⚡ Your turn":"Waiting for "+op.name+"…")}</span>
+            <span style={{color:myTurn?"var(--fos)":"var(--dim)"}}><LogTekst t={slut?"Game over":(myTurn?"§bolt§ Your turn":"Waiting for "+op.name+"…")}/></span>
             <button className={"slutknap"+(hiB("end")?" tuthi":"")+(nedtael!=null?" haster":"")} disabled={!myTurn||slut}
               onClick={()=>{ if(!tOK("end")){nope();return;} Audio8.sfx.endturn(); act(x=>endTurn(x,seat)); }}>
               END TURN
@@ -3016,7 +3118,7 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
           </div>
 
           {kanAngribe>0 && mode!=="tutorial" &&
-            <div className="atkhint">⚔ Tap a unit with a sword badge, then tap what you want to attack</div>}
+            <div className="atkhint"><Ico n="sword"/> Tap a unit with a sword badge, then tap what you want to attack</div>}
           <div className={"braet"+(drag&&drag.over?" dropzone":"")} ref={braetRef}>
             {me.board.length===0&&<span style={{color:"var(--dim)",fontFamily:"var(--mono)",fontSize:11}}>— empty board —</span>}
             {me.board.map(u=>
@@ -3032,9 +3134,9 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
       <div className="bar min">
         <HeltPlade g={g} s={seat} me={true} hilite={isTgt({s:seat,u:null})} shake={shake.has("h"+seat)} dragtgt={isDragTgt({s:seat,u:null})} onClick={()=>klikHelt(seat)}/>
         <Pips p={me}/>
-        <button className={"kraft"+(hiB("kraft")?" tuthi":"")} disabled={!kanKraft} onClick={kraft} title={K.power.n+" ("+K.power.c+"⚡)"}><PowerIcon p={K.power}/></button>
-        <span style={{marginLeft:"auto",color:"var(--dim)"}}>🂠{me.deck.length}</span>
-        <button style={{color:"var(--dim)",fontSize:16,padding:"0 4px"}} onClick={()=>setBekraeft(true)}>🏳</button>
+        <button className={"kraft"+(hiB("kraft")?" tuthi":"")} disabled={!kanKraft} onClick={kraft} title={K.power.n+" ("+K.power.c+" energy)"}><PowerIcon p={K.power}/></button>
+        <span style={{marginLeft:"auto",color:"var(--dim)"}}><Ico n="deck"/>{me.deck.length}</span>
+        <button style={{color:"var(--dim)",fontSize:16,padding:"0 4px"}} onClick={()=>setBekraeft(true)}><Ico n="flag"/></button>
       </div>
       <div className="haand">
         {me.hand.length===0&&<span style={{color:"var(--dim)",fontFamily:"var(--mono)",fontSize:11,alignSelf:"center"}}>hand is empty</span>}
@@ -3055,12 +3157,12 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
 
       {step&&(
         <div className={"coach"+(wob?" wob":"")}>
-          <span className="cava">🤖</span>
-          <div className="ctxt">{step.t}<div className="cnum">{tut+1} / {TUT.steps.length}</div></div>
-          <button className="cx" onClick={onLeave} title="Skip tutorial">✕</button>
+          <span className="cava"><Ico n="robot" size="24px"/></span>
+          <div className="ctxt"><LogTekst t={step.t}/><div className="cnum">{tut+1} / {TUT.steps.length}</div></div>
+          <button className="cx" onClick={onLeave} title="Skip tutorial"><Ico n="cross"/></button>
         </div>)}
       {drag && drag.kind==="play" && <div className={"dragkort"+((drag.over||drag.tgt)?" over":"")} style={{left:drag.x,top:drag.y}}><MiniCard id={drag.id}/></div>}
-      {drag && drag.kind==="atk" && <div className={"dragatk"+(drag.tgt?" hit":"")} style={{left:drag.x,top:drag.y}}>⚔</div>}
+      {drag && drag.kind==="atk" && <div className={"dragatk"+(drag.tgt?" hit":"")} style={{left:drag.x,top:drag.y}}><Ico n="sword"/></div>}
       {reveal && (
         <div className="revealwrap" key={reveal.k} style={{"--rms":reveal.ms+"ms"}}>
           <div className="revealkort">
@@ -3100,15 +3202,15 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
         })}
       </div>
       <button className={"histknap"+(visHist?" aktiv":"")} onClick={()=>setVisHist(v=>!v)}
-        title="Played cards">🃏</button>
-      <button className="logknap" onClick={()=>setVisLog(v=>!v)}>{visLog?"✕":"📜"}</button>
+        title="Played cards"><Ico n="cards"/></button>
+      <button className="logknap" onClick={()=>setVisLog(v=>!v)}><Ico n={visLog?"cross":"scroll"}/></button>
       {visLog && (
         <div className="logpanel">
           <div className="lhoved">
-            <span>📜 Combat log</span>
-            <button className="lluk" onClick={()=>setVisLog(false)}>✕</button>
+            <span><Ico n="scroll"/> Combat log</span>
+            <button className="lluk" onClick={()=>setVisLog(false)}><Ico n="cross"/></button>
           </div>
-          <div className="lkrop">{g.log.slice().reverse().map((l,i)=><div key={i}>{l}</div>)}</div>
+          <div className="lkrop">{g.log.slice().reverse().map((l,i)=><div key={i}><LogTekst t={l}/></div>)}</div>
         </div>
       )}
 
@@ -3128,7 +3230,7 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
             <StorKort id={sel.id} unitInfo={sel.unit} g={g}/>
             {sel.kind==="hand" && (
               <button className="knap cu" disabled={!myTurn||!canPlay(g,seat,sel.id)} onClick={spilFraArk}>
-                ⚡ Play ({CARDS[sel.id].c} energy)
+                <Ico n="bolt"/> Play ({CARDS[sel.id].c} energy)
               </button>)}
             <button className="knap" onClick={()=>setSel(null)}>Close</button>
           </div>
@@ -3139,7 +3241,7 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
         <div className="slor" onClick={()=>setBekraeft(false)}>
           <div className="ark" onClick={e=>e.stopPropagation()}>
             <p className="rt">Do you want to concede?</p>
-            <button className="knap cu" onClick={()=>{setBekraeft(false);onConcede();}}>🏳 Yes, concede</button>
+            <button className="knap cu" onClick={()=>{setBekraeft(false);onConcede();}}><Ico n="flag"/> Yes, concede</button>
             <button className="knap" onClick={()=>setBekraeft(false)}>No, keep playing</button>
           </div>
         </div>
@@ -3151,17 +3253,17 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
           <div className="ark" style={{textAlign:"center"}}>
             <div className={"logo"+(g.winner===seat?" vlogo":"")+(slut&&g.winner!==seat&&g.winner!==2?" neonwrap":"")} style={{fontSize:g.winner===seat?46:34}}>
               {g.winner===2?"DRAW":(g.winner===seat?"VICTORY":<BrokenNeon text="BREAKDOWN"/>)}
-              {g.winner===seat && <span className="vbadge">⚡</span>}
+              {g.winner===seat && <span className="vbadge"><Ico n="bolt"/></span>}
             </div>
             <p className="rt" style={{color:"var(--dim)"}}>
-              {g.winner===2?mode==="tutorial"?"Tutorial complete — you know the basics! Try the bot next. ⚡":"Both circuits burned out.":(g.winner===seat?(mode==="tutorial"?"Tutorial complete — you know the basics! Try the bot next. ⚡":"Your opponent’s circuit burned out."):"Your circuit burned out.")}
+              {g.winner===2?mode==="tutorial"?"Tutorial complete — you know the basics! Try the bot next.":"Both circuits burned out.":(g.winner===seat?(mode==="tutorial"?"Tutorial complete — you know the basics! Try the bot next.":"Your opponent’s circuit burned out."):"Your circuit burned out.")}
             </p>
             {mode==="online" ? (
               <button className="knap cu" disabled={g.rematch[seat]} onClick={onRematch}>
-                {g.rematch[seat]?"Waiting for opponent…":(g.rematch[1-seat]?"🔁 Rematch (opponent is ready!)":"🔁 Rematch")}
+                {g.rematch[seat]?"Waiting for opponent…":<><Ico n="cycle"/> {g.rematch[1-seat]?"Rematch (opponent is ready!)":"Rematch"}</>}
               </button>
             ) : (
-              mode==="tutorial"?null:<button className="knap cu" onClick={onRematch}>🔁 Rematch</button>
+              mode==="tutorial"?null:<button className="knap cu" onClick={onRematch}><Ico n="cycle"/> Rematch</button>
             )}
             <button className="knap" onClick={onLeave}>Back to menu</button>
             {mode==="online" && <button className="knap" onClick={onDelete}>Delete game & leave</button>}
@@ -3202,7 +3304,7 @@ function SettingsScreen({onBack}){
   ];
   return (
     <div className="ark setwrap">
-      <div className="logo" style={{fontSize:26,marginBottom:14}}>⚙️ SETTINGS</div>
+      <div className="logo" style={{fontSize:26,marginBottom:14}}><Ico n="gear"/> SETTINGS</div>
 
       <div className="setsec">
         <div className="seth">Game speed</div>
@@ -3293,7 +3395,7 @@ function DeckBuilder({decks,gemDecks,onBack,flash,unlocked}){
     return true;
   });
   const add=id=>{
-    if(unlocked && !unlocked.has(id)) return flash("🔒 "+CARDS[id].n+" is locked — win games to unlock it!");
+    if(unlocked && !unlocked.has(id)) return flash("§lock§ "+CARDS[id].n+" is locked — win games to unlock it!");
     const max=CARDS[id].r==="L"?1:2;
     if((cnt[id]||0)>=max) return flash("Max "+max+"× "+CARDS[id].n+".");
     if(cards.length>=DECKSIZE) return flash("The deck is full ("+DECKSIZE+").");
@@ -3304,7 +3406,7 @@ function DeckBuilder({decks,gemDecks,onBack,flash,unlocked}){
     const err=validateDeck(cards,dbCls); if(err) return flash(err);
     const n=navn.trim()||"My deck";
     const nx=decks.filter(d=>d.name!==n).concat([{name:n,cls:dbCls,cards:cards.slice()}]);
-    gemDecks(nx); flash("💾 “"+n+"” saved.");
+    gemDecks(nx); flash("§save§ “"+n+"” saved.");
   };
   const unik=Object.keys(cnt).sort((a,b)=>CARDS[a].c-CARDS[b].c||CARDS[a].n.localeCompare(CARDS[b].n,"en"));
   const kurve=[0,1,2,3,4,5,6,7].map(c=>cards.filter(id=>c===7?CARDS[id].c>=7:CARDS[id].c===c).length);
@@ -3329,7 +3431,7 @@ function DeckBuilder({decks,gemDecks,onBack,flash,unlocked}){
         <input placeholder="Search cards…" value={q} onChange={e=>setQ(e.target.value)}/>
         <div className="filterraek">
           {[0,1,2,3,4,5,6,7].map(c=>
-            <button key={c} className={"fknap"+(fC===c?" aktiv":"")} onClick={()=>setFC(fC===c?null:c)}>{c===7?"7+":c}⚡</button>)}
+            <button key={c} className={"fknap"+(fC===c?" aktiv":"")} onClick={()=>setFC(fC===c?null:c)}>{c===7?"7+":c}<Ico n="bolt"/></button>)}
           <button className={"fknap"+(fT==="unit"?" aktiv":"")} onClick={()=>setFT(fT==="unit"?null:"unit")}>Units</button>
           <button className={"fknap"+(fT==="spell"?" aktiv":"")} onClick={()=>setFT(fT==="spell"?null:"spell")}>Spells</button>
         </div>
@@ -3338,7 +3440,7 @@ function DeckBuilder({decks,gemDecks,onBack,flash,unlocked}){
             const laast=unlocked&&!unlocked.has(id);
             return <div key={id} className={"bibkort"+(laast?" laast":"")}>
               <MiniCard id={id} count={cnt[id]||null} onClick={()=>setSel(id)}/>
-              {laast&&<span className="laas">🔒</span>}
+              {laast&&<span className="laas"><Ico n="lock"/></span>}
             </div>;})}
         </div>
       </>}
@@ -3353,7 +3455,7 @@ function DeckBuilder({decks,gemDecks,onBack,flash,unlocked}){
         {unik.map(id=>
           <div key={id} className="dlinje">
             <span className="c">{CARDS[id].c}</span>
-            <span>{CARDS[id].e} {CARDS[id].n}{CARDS[id].r==="L"?" ★":""} {cnt[id]>1?"×"+cnt[id]:""}</span>
+            <span><CardArt id={id} className="dart"/> {CARDS[id].n}{CARDS[id].r==="L"?<Ico n="legendary"/>:null} {cnt[id]>1?"×"+cnt[id]:""}</span>
             <button className="x" onClick={()=>rem(id)}>−</button>
           </div>)}
         <div className="raek" style={{marginTop:14}}>
@@ -3366,19 +3468,19 @@ function DeckBuilder({decks,gemDecks,onBack,flash,unlocked}){
               if((t[id]||0)>=max) continue; t[id]=(t[id]||0)+1; c.push(id);
             }
             setCards(c);
-          }}>🎲 Auto-fill</button>
+          }}><Ico n="dice"/> Auto-fill</button>
           <button className="knap" style={{marginTop:0}} onClick={()=>setCards([])}>Clear</button>
         </div>
         <div className="etiket">Save deck</div>
         <div className="raek">
           <input value={navn} onChange={e=>setNavn(e.target.value)} placeholder="Deck name"/>
-          <button className="knap cu" style={{marginTop:0,width:"auto",flex:"none"}} onClick={gem}>💾 Save</button>
+          <button className="knap cu" style={{marginTop:0,width:"auto",flex:"none"}} onClick={gem}><Ico n="save"/> Save</button>
         </div>
         {decks.length>0 && <>
           <div className="etiket">Saved decks</div>
           {decks.map((d,i)=>
             <div key={i} className="dlinje">
-              <span>{(CLASSES[d.cls||"tek"]||CLASSES.tek).ico} {d.name}</span>
+              <span><Ico n={(CLASSES[d.cls||"tek"]||CLASSES.tek).ico}/> {d.name}</span>
               <button className="x" style={{color:"var(--fos)"}} onClick={()=>{setCards(d.cards.slice());setNavn(d.name);setDbCls(d.cls||"tek");flash("Loaded “"+d.name+"”.");}}>Load</button>
               <button className="x" onClick={()=>gemDecks(decks.filter((_,j)=>j!==i))}>Delete</button>
             </div>)}
@@ -3407,29 +3509,40 @@ function Regler({onBack}){
       <div className="logo" style={{fontSize:26}}>RULES</div>
       <h2 className="ov">The goal</h2>
       <p className="rt">Both technicians start with 30 health. Burn out your opponent’s circuit (bring them to 0) before they do the same to you.</p>
-      <h2 className="ov">Energy ⚡</h2>
-      <p className="rt">You start with 1 energy and gain +1 per turn (max 10). Cards cost energy to play. The Soldering Iron (🔧, your hero power) costs 2⚡ and deals 1 damage to an enemy or repairs 2 on something friendly — once per turn.</p>
-      <p className="rt"><b>The capacitor bank 🔋:</b> Unspent energy at the end of your turn is stored (up to 3) and added to your energy next turn. Some cards fill the bank directly.</p>
+      <h2 className="ov">Energy <Ico n="bolt"/></h2>
+      <p className="rt">You start with 1 energy and gain +1 per turn (max 10). Cards cost energy to play. The Soldering Iron (your hero power) costs 2 energy and deals 1 damage to an enemy or repairs 2 on something friendly — once per turn.</p>
+      <p className="rt"><b>The capacitor bank <Ico n="battery"/>:</b> Unspent energy at the end of your turn is stored (up to 3) and added to your energy next turn. Some cards fill the bank directly.</p>
       <p className="rt"><b>Overheat:</b> Powerful cards lock part of your energy on the following turn. Cheap effect now, the bill arrives later.</p>
       <h2 className="ov">Combat</h2>
       <p className="rt">Units can’t attack the turn they are played (unless they have Turbo). When a unit attacks another, they damage each other simultaneously. Max 6 units on the board and 9 cards in hand. If your deck runs out, you take escalating fatigue damage.</p>
       <h2 className="ov">Classes</h2>
       <p className="rt">Each player picks a class. Class cards (marked with a colored dot) can only go in that class’s decks; all other cards are neutral.</p>
       {CLS_LIST.map(c=>{const k=CLASSES[c];return (
-        <p className="rt" key={c}><b style={{color:k.col}}>{k.ico} {k.n}</b> — <PowerIcon p={k.power}/> {k.power.n} ({k.power.c}⚡): {k.power.txt}</p>);})}
+        <p className="rt" key={c}><b style={{color:k.col}}><Ico n={k.ico}/> {k.n}</b> — <PowerIcon p={k.power}/> {k.power.n} ({k.power.c}<Ico n="bolt"/>): {k.power.txt}</p>);})}
       <h2 className="ov">Keywords</h2>
       <table className="kwtab"><tbody>
-        {Object.values(KWINFO).map(k=><tr key={k.n}><td>{k.ico} {k.n}</td><td>{k.d}</td></tr>)}
-        <tr><td>📶 Signal Strength +X</td><td>Your Spells deal X extra damage.</td></tr>
+        {Object.entries(KWINFO).map(([id,k])=><tr key={k.n}><td><KwBadge k={id}/> {k.n}</td><td>{k.d}</td></tr>)}
+        <tr><td><Ico n="signal"/> Signal Strength +X</td><td>Your Spells deal X extra damage.</td></tr>
         <tr><td>Install</td><td>Effect that triggers when the card is played from your hand.</td></tr>
         <tr><td>Breakdown</td><td>Effect that triggers when the unit is destroyed.</td></tr>
         <tr><td>Chain</td><td>Bonus if you have already played another card this turn.</td></tr>
         <tr><td>Reset</td><td>Removes all card text and all buffs from a unit.</td></tr>
       </tbody></table>
       <h2 className="ov">Deck</h2>
-      <p className="rt">Exactly {DECKSIZE} cards. Max 2 of each card, max 1 of each legendary (★). The second player starts with an extra card and a Powerbank (0⚡: gain 1 energy).</p>
+      <p className="rt">Exactly {DECKSIZE} cards. Max 2 of each card, max 1 of each legendary. The second player starts with an extra card and a Powerbank (0 energy: gain 1 energy).</p>
       <h2 className="ov">Online</h2>
       <p className="rt">Create a game and share the 4-character code with your opponent — you both need <b>the same artifact link</b> open. The game syncs automatically with a couple of seconds’ delay. Note: game data is kept in the artifact’s shared storage and can in principle be seen by other users of the artifact.</p>
+      <h2 className="ov">Credits</h2>
+      <p className="rt">Interface icons from <b>game-icons.net</b>, used under the{" "}
+        <a href="https://creativecommons.org/licenses/by/3.0/" target="_blank" rel="noreferrer" className="lnk">Creative Commons Attribution 3.0 licence</a>{" "}
+        and modified (background removed, recoloured).</p>
+      <p className="rt">Icons made by:{" "}
+        {ICON_CREDITS.map((a,i)=>(
+          <span key={a.n}>{i>0?", ":""}
+            <a href={a.u} target="_blank" rel="noreferrer" className="lnk">{a.n}</a>
+          </span>))}.
+      </p>
+      <p className="rt" style={{color:"var(--dim)",fontSize:12}}>Card artwork, keyword badges and the soldering-iron hero power are original work.</p>
     </div>
   );
 }
@@ -3441,7 +3554,7 @@ function UnlockPop({id,onClose}){
     <div className="slor sejr" onClick={onClose}>
       <VictoryFX/>
       <div className="ark" style={{textAlign:"center"}} onClick={e=>e.stopPropagation()}>
-        <div className="unlocktitel">{d.r==="L"?"★ LEGENDARY UNLOCKED":"◆ NEW CARD UNLOCKED"}</div>
+        <div className="unlocktitel">{d.r==="L"?<><Ico n="legendary"/> LEGENDARY UNLOCKED</>:<><Ico n="rare"/> NEW CARD UNLOCKED</>}</div>
         <div className="unlockkort"><StorKort id={id}/></div>
         <p className="rt" style={{color:"var(--dim)",marginTop:8}}>Added to your collection — build it into a deck!</p>
         <button className="knap cu" onClick={onClose}>Nice!</button>
@@ -3659,7 +3772,7 @@ export default function App(){
   };
   const opgiv=()=>{
     act(x=>{ if(x.status!=="igang") return "The game is already over.";
-      x.status="slut"; x.winner=1-seatNu; log(x,"🏳 "+x.players[seatNu].name+" pulls the plug."); return null; });
+      x.status="slut"; x.winner=1-seatNu; log(x,"§flag§ "+x.players[seatNu].name+" pulls the plug."); return null; });
   };
   const revanche=()=>{
     if(mode==="online"){ act(x=>{ x.rematch[seat]=true; return null; }); return; }
@@ -3672,7 +3785,7 @@ export default function App(){
   const startSolo=()=>{
     const d1=findDeck(deckValg,cls), d2=findDeck(deckValg2,cls2,true);
     let err=validateDeck(d1,cls)||validateDeck(d2,cls2); if(err) return flash(err);
-    const ng=mkState({mode:"solo",names:[(navn||"Technician").trim()||"Technician","🤖 The Bot"],
+    const ng=mkState({mode:"solo",names:[(navn||"Technician").trim()||"Technician","The Bot"],
       cids:[cid.current||"p1","bot"],decks:[d1,d2],classes:[cls,cls2]});
     kode.current=null; setMode("solo"); setSeat(0); setHandoff(false); setG(ng); setSkaerm("spil");
   };
@@ -3704,8 +3817,8 @@ export default function App(){
 
   const deckMuligheder=(v,setV,k)=>(
     <select value={v} onChange={e=>setV(e.target.value)}>
-      <option value="auto">🎲 Auto deck (random)</option>
-      {decks.filter(d=>(d.cls||"tek")===k).map(d=><option key={d.name} value={d.name}>🗂 {d.name}</option>)}
+      <option value="auto">Auto deck (random)</option>
+      {decks.filter(d=>(d.cls||"tek")===k).map(d=><option key={d.name} value={d.name}>{d.name}</option>)}
     </select>
   );
 
@@ -3731,29 +3844,29 @@ export default function App(){
         <div style={{height:8}}/>
         {deckMuligheder(deckValg2,setDeckValg2,cls2)}
         <div className="etiket">Solo</div>
-        <button className="knap cu" onClick={startSolo}>🤖 Play vs the bot<small>Built-in opponent — great for learning the cards</small></button>
-        <button className="knap" onClick={startTutorial}>🎓 Interactive tutorial<small>Learn the game in five guided turns</small></button>
+        <button className="knap cu" onClick={startSolo}><Ico n="robot"/> Play vs the bot<small>Built-in opponent — great for learning the cards</small></button>
+        <button className="knap" onClick={startTutorial}><Ico n="graduate"/> Interactive tutorial<small>Learn the game in five guided turns</small></button>
         {onlineOK ? <>
           <div className="etiket">Online</div>
-          <button className="knap" onClick={opretOnline}>🌐 Create online game<small>Get a code to share with your opponent</small></button>
+          <button className="knap" onClick={opretOnline}><Ico n="globe"/> Create online game<small>Get a code to share with your opponent</small></button>
           <div className="raek" style={{marginTop:10}}>
             <input placeholder="CODE" value={joinKode} maxLength={4}
               style={{textTransform:"uppercase",fontFamily:"var(--mono)",letterSpacing:3,width:110,flex:"none"}}
               onChange={e=>setJoinKode(e.target.value)}/>
-            <button className="knap" style={{marginTop:0}} onClick={deltagOnline}>➜ Join / resume</button>
+            <button className="knap" style={{marginTop:0}} onClick={deltagOnline}><Ico n="arrow"/> Join / resume</button>
           </div>
         </> : <>
           <div className="etiket">Online</div>
           <p className="rt" style={{color:"var(--dim)"}}>Online play requires the Claude artifact edition with shared storage — solo and local play work here.</p>
         </>}
         <div className="etiket">Local</div>
-        <button className="knap" onClick={startLokal}>🎮 Local 2-player game<small>Take turns on the same device</small></button>
+        <button className="knap" onClick={startLokal}><Ico n="gamepad"/> Local 2-player game<small>Take turns on the same device</small></button>
         <div className="etiket">Other</div>
-        <button className="knap" onClick={()=>setSkaerm("deck")}>🃏 Card library & deck builder</button>
-        <button className="knap" onClick={()=>setSkaerm("regler")}>📖 Rules</button>
-        <button className="knap" onClick={()=>setSkaerm("settings")}>⚙️ Settings</button>
+        <button className="knap" onClick={()=>setSkaerm("deck")}><Ico n="cards"/> Card library & deck builder</button>
+        <button className="knap" onClick={()=>setSkaerm("regler")}><Ico n="book"/> Rules</button>
+        <button className="knap" onClick={()=>setSkaerm("settings")}><Ico n="gear"/> Settings</button>
         {profil && (()=>{ const u=unlockedSetAf(profil);
-          return <div className="samling">🃏 Collection: <b>{u.size}</b>/{COLL.length} cards · 🏆 {profil.wins||0} wins
+          return <div className="samling"><Ico n="cards"/> Collection: <b>{u.size}</b>/{COLL.length} cards · <Ico n="trophy"/> {profil.wins||0} wins
             {u.size<COLL.length && <span className="samlinghint"> — win games to unlock more!</span>}</div>; })()}
       </div>
     );
@@ -3789,7 +3902,7 @@ export default function App(){
               <div className="ark" style={{textAlign:"center"}}>
                 <div className="logo" style={{fontSize:26}}>{g.players[g.active].name.toUpperCase()}</div>
                 <p className="rt" style={{color:"var(--dim)"}}>Hand over the device — no peeking!</p>
-                <button className="knap cu" onClick={()=>setHandoff(false)}>⚡ Start my turn</button>
+                <button className="knap cu" onClick={()=>setHandoff(false)}><Ico n="bolt"/> Start my turn</button>
               </div>
             </div>
           )}
@@ -3805,7 +3918,7 @@ export default function App(){
       <style>{CSS}</style>
       {indhold}
       {unlockPop&&<UnlockPop id={unlockPop} onClose={()=>setUnlockPop(null)}/>}
-      {toast&&<div className="toast">{toast}</div>}
+      {toast&&<div className="toast"><LogTekst t={toast}/></div>}
     </div>
   );
 }
