@@ -11,7 +11,7 @@ global.CSS = dom.window.CSS || { supports: () => false };
 global.HTMLElement = dom.window.HTMLElement;
 global.requestAnimationFrame = (cb) => setTimeout(cb, 0);
 dom.window.storage = { get: async () => null, set: async () => ({}), delete: async () => ({}), list: async () => ({ keys: [] }) };
-dom.window.matchMedia = () => ({ matches: false, addListener() {}, removeListener() {}, addEventListener() {}, removeEventListener() {} });
+dom.window.window.matchMedia = (q)=>({matches:/hover: hover/.test(q),addListener(){},removeListener(){},addEventListener(){},removeEventListener(){}});
 dom.window.AudioContext = class {
   constructor() { this.state = "running"; this.currentTime = 0; this.destination = {}; }
   createGain() { return { gain: { value: 0, setValueAtTime() {}, linearRampToValueAtTime() {}, exponentialRampToValueAtTime() {} }, connect() {} }; }
@@ -133,10 +133,23 @@ async function mount(name, props) {
       if (!pe.querySelector(".hi-n")) { failed++; console.log("✗ hover-panel viser ikke kortinfo"); }
       await act(async () => { pr.unmount(); });
     }
-    // matchMedia er stubbet til matches:false => touch-vej: klik åbner detaljearket
+    // hover-mode i stubben => klik = tilføj direkte
     const kort = el.querySelector(".bibkort .mkort");
     await act(async () => { kort.dispatchEvent(new window.MouseEvent("click", { bubbles: true })); });
     if (!el.querySelector(".ark") && !el.querySelector(".idmark")) { failed++; console.log("✗ klik på et kort gjorde ingenting"); }
+    // hover er DOM-baseret: data-id + delegeret native listener + ét globalt popup-element
+    const bk = el.querySelector(".bibkort");
+    if (!bk || !bk.dataset.id) { failed++; console.log("✗ .bibkort mangler data-id (delegeret hover)"); }
+    document.body.appendChild(el); // native listener kræver at panen er i dokumentet
+    bk.dispatchEvent(new window.MouseEvent("mouseover", { bubbles: true }));
+    const pop = document.getElementById("hovpopdom");
+    if (!pop || pop.style.visibility !== "visible" || !pop.querySelector(".hi-n")) { failed++; console.log("✗ DOM-hover-popup vises ikke ved mouseover"); }
+    const nodeA = pop && pop.firstChild;
+    el.querySelector(".fane").dispatchEvent(new window.MouseEvent("mouseover", { bubbles: true }));
+    if (pop && pop.style.visibility !== "hidden") { failed++; console.log("✗ popup skjules ikke uden for kort"); }
+    bk.dispatchEvent(new window.MouseEvent("mouseover", { bubbles: true }));
+    if (pop && pop.firstChild !== nodeA) { failed++; console.log("✗ panel-node caches ikke (genparses pr. hover)"); }
+    el.remove();
     await act(async () => { root.unmount(); });
     console.log("mount OK: DeckBuilder (" + bib + " kort i gitter, 2 faner monteret)");
   } catch (e) { failed++; console.log("✗ MOUNT-CRASH (DeckBuilder): " + e.message); }

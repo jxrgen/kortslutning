@@ -1339,7 +1339,12 @@ input:focus,select:focus{border-color:var(--cu)}
 .ulinie{color:var(--dim);font-family:var(--mono);font-size:12px;margin:6px 0 18px}
 .etiket{font-family:var(--mono);font-size:11px;letter-spacing:1.5px;color:var(--cu);text-transform:uppercase;margin:20px 0 6px}
 .raek{display:flex;gap:8px;align-items:center}
-.tilbage{color:var(--dim);font-family:var(--mono);font-size:13px;padding:6px 0;margin-bottom:6px}
+.tilbage{display:inline-flex;align-items:center;gap:7px;color:#cfe0d5;font-family:var(--mono);
+  font-size:15px;padding:11px 20px;margin:2px 0 12px;min-height:44px;
+  background:var(--bg1);border:1px solid var(--line);border-radius:11px;cursor:pointer;
+  transition:border-color .12s,color .12s}
+.tilbage:hover{border-color:var(--fos);color:var(--fos)}
+.tilbage:active{transform:scale(.97)}
 /* ---- kort ---- */
 .haand .mkort:not(.spil){opacity:.62;filter:saturate(.7)}
 .mkort{position:relative;width:66px;height:92px;border-radius:9px;flex:none;
@@ -1556,6 +1561,9 @@ input:focus,select:focus{border-color:var(--cu)}
 .gitter{display:grid;grid-template-columns:repeat(auto-fill,minmax(70px,1fr));gap:10px;justify-items:center;padding-bottom:14px}
 /* ---- kortbibliotek ---- */
 .pane.bred{max-width:1080px}
+.pane.skjult{display:none}
+/* browseren springer layout/paint over for grupper uden for viewporten */
+.kostgruppe{content-visibility:auto;contain-intrinsic-size:auto 420px}
 .hint{font-family:var(--mono);font-size:11px;color:var(--dim);margin:6px 0 10px}
 .kostgruppe{margin-bottom:6px}
 .kosthd{display:flex;align-items:center;gap:6px;margin:14px 0 8px;color:var(--amber);
@@ -1586,6 +1594,7 @@ input:focus,select:focus{border-color:var(--cu)}
 .hi-kwtxt{display:flex;flex-direction:column;gap:1px}
 .hi-kwtxt b{font-size:11.5px;color:var(--fos)}
 .hi-kwtxt span{font-size:10.5px;color:#c3d6c9;line-height:1.35}
+.hovinfo .glosster{color:var(--fos);text-decoration:underline dotted;text-underline-offset:2px}
 /* ---- Meltdown Run ---- */
 .knap.rogueknap{background:linear-gradient(135deg,#3a1410,#1a0d0a);border-color:var(--rod);color:#ffd7cf}
 .knap.rogueknap:hover{border-color:var(--guld);box-shadow:0 0 16px rgba(255,109,90,.4)}
@@ -3641,15 +3650,13 @@ function SettingsScreen({onBack}){
 }
 // Ét kort i gitteret. memo + primitive props => et klik på ét kort rendrer kun
 // dét kort om, ikke alle 144. Uden det blev hvert klik til ~150 SVG-genskrivninger.
-const BibKort = memo(function BibKort({id,count,laast,onAdd,onRem,onInfo,kanHover}){
-  const ind=e=>{ if(kanHover) onInfo(id,e.currentTarget); };
-  const ud=()=>{ if(kanHover) onInfo(null,null); };
+// Ét kort i gitteret. Hover håndteres af ÉN delegeret native listener på panen
+// (se DeckBuilder) via data-id — ingen React-arbejde pr. musebevægelse.
+const BibKort = memo(function BibKort({id,count,laast,onClick,onRem}){
   return (
-    <div className={"bibkort"+(laast?" laast":"")+(count?" ideck":"")}
-      onMouseEnter={ind} onMouseLeave={ud}
+    <div className={"bibkort"+(laast?" laast":"")+(count?" ideck":"")} data-id={id}
       onContextMenu={e=>{ e.preventDefault(); if(count) onRem(id); }}>
-      <MiniCard id={id} count={count||null}
-        onClick={()=>{ if(kanHover) onAdd(id); else onInfo(id,null); }}/>
+      <MiniCard id={id} count={count||null} onClick={()=>onClick(id)}/>
       {laast && <span className="laas"><Ico n="lock"/></span>}
       {count>0 && <span className="idmark">{count}</span>}
     </div>
@@ -3661,29 +3668,95 @@ const BibKort = memo(function BibKort({id,count,laast,onAdd,onRem,onInfo,kanHove
 // Let info-panel til hover i biblioteket. Viser ALT: navn, pris, type, stats,
 // nøgleord og korttekst — men uden den tunge kredsløbs-SVG som StorKort tegner.
 // Det var netop den store SVG, browseren måtte genparse ved hver eneste hover.
-const CardInfoPanel = memo(function CardInfoPanel({id}){
+/* ---------- hover-info uden React ----------
+   Hover i biblioteket går IKKE gennem React: panelet for hvert kort bygges som
+   ren HTML én gang og caches som en DOM-node. At vise det er et Map-opslag,
+   replaceChildren og én transform — mikrosekunder, uanset om React kører i
+   dev-mode (artifact-miljøet) eller ej. Det var React-runden pr. musebevægelse,
+   der gjorde hover ubrugelig. */
+function escHtml(t){ return String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+let _glossRe=null;
+function glossHtml(txt){
+  if(!txt) return "";
+  if(!_glossRe){
+    const terms=Object.keys(GLOSSARY).sort((a,b)=>b.length-a.length);
+    _glossRe=new RegExp("("+terms.map(t=>t.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")).join("|")+")","g");
+  }
+  return escHtml(txt).replace(_glossRe,'<span class="glosster">$1</span>');
+}
+const _cardInfoHtml=new Map();
+function cardInfoHtml(id){
+  let h=_cardInfoHtml.get(id);
+  if(h!==undefined) return h;
   const d=CARDS[id];
+  const tv=themeVars(d);
+  const style=Object.entries(tv).map(([k,v])=>k+":"+v).join(";");
   const kwl=[];
   if(d.t==="unit"){ if(d.kw) for(const k of d.kw){ if(KWSVG[k]) kwl.push(k); } if(d.sig) kwl.push("sig"); }
-  return (
-    <div className="hovinfo tema" style={themeVars(d)}>
-      <div className="hi-h"><span className="hi-c">{d.c}<Ico n="bolt"/></span><span className="hi-n">{d.n}</span></div>
-      <div className="hi-t">{d.t==="unit"?"Unit":"Spell"}{d.tr?" · "+d.tr:""}{d.cls&&CLASSES[d.cls]?" · "+CLASSES[d.cls].n:""}{d.r==="L"?<> · <Ico n="legendary"/> Legendary</>:d.r==="R"?<> · <Ico n="rare"/> Rare</>:null}</div>
-      {d.t==="unit" && <div className="hi-s"><Ico n="sword"/> {d.a}&nbsp;&nbsp;<Ico n="heart"/> {d.h}</div>}
-      {d.txt && <div className="hi-x"><GlossText txt={d.txt}/></div>}
-      {kwl.length>0 && <div className="hi-kw">
-        {kwl.map(k=>{ const navn=k==="sig"?"Signal Strength":KWINFO[k].n;
-          return <div key={k} className="hi-kwrow"><KwBadge k={k}/><div className="hi-kwtxt"><b>{navn}</b><span>{GLOSSARY[navn]||""}</span></div></div>; })}
-      </div>}
-    </div>
-  );
+  const rar=d.r==="L"?" · "+icoHtml("legendary","1em")+" Legendary":d.r==="R"?" · "+icoHtml("rare","1em")+" Rare":"";
+  h='<div class="hovinfo tema" style="'+style+'">'
+   +'<div class="hi-h"><span class="hi-c">'+d.c+icoHtml("bolt","1em")+'</span><span class="hi-n">'+escHtml(d.n)+'</span></div>'
+   +'<div class="hi-t">'+(d.t==="unit"?"Unit":"Spell")+(d.tr?" · "+escHtml(d.tr):"")+(d.cls&&CLASSES[d.cls]?" · "+escHtml(CLASSES[d.cls].n):"")+rar+'</div>'
+   +(d.t==="unit"?'<div class="hi-s">'+icoHtml("sword","1em")+' '+d.a+'&nbsp;&nbsp;'+icoHtml("heart","1em")+' '+d.h+'</div>':"")
+   +(d.txt?'<div class="hi-x">'+glossHtml(d.txt)+'</div>':"");
+  if(kwl.length){
+    h+='<div class="hi-kw">';
+    for(const k of kwl){
+      const info=KWSVG[k], navn=k==="sig"?"Signal Strength":KWINFO[k].n;
+      h+='<div class="hi-kwrow"><span class="kwb" style="color:'+info.c+';border-color:'+info.c+'">'
+        +'<svg viewBox="0 0 24 24" width="26" height="26">'+info.svg+'</svg></span>'
+        +'<div class="hi-kwtxt"><b>'+escHtml(navn)+'</b><span>'+escHtml(GLOSSARY[navn]||"")+'</span></div></div>';
+    }
+    h+='</div>';
+  }
+  h+='</div>';
+  _cardInfoHtml.set(id,h);
+  return h;
+}
+// React-indpakning (bruges af RunView og tests) — samme cachede HTML
+const _cardInfoProps=new Map();
+const CardInfoPanel = memo(function CardInfoPanel({id}){
+  let props=_cardInfoProps.get(id);
+  if(props===undefined){ props={__html:cardInfoHtml(id)}; _cardInfoProps.set(id,props); }
+  return <div dangerouslySetInnerHTML={props}/>;
 });
+// det ene, permanente popup-element + node-cache
+const _hovNodes=new Map();
+let _hovEl=null;
+function hovPopupEl(){
+  if(typeof document==="undefined") return null;
+  if(_hovEl && document.body.contains(_hovEl)) return _hovEl;
+  _hovEl=document.getElementById("hovpopdom");
+  if(!_hovEl){
+    _hovEl=document.createElement("div");
+    _hovEl.id="hovpopdom"; _hovEl.className="hovpop";
+    _hovEl.style.cssText="top:0;left:0;visibility:hidden;will-change:transform";
+    document.body.appendChild(_hovEl);
+  }
+  return _hovEl;
+}
+let _hovVistId=null;
+function showHov(id,rect){
+  const el=hovPopupEl(); if(!el) return;
+  if(_hovVistId!==id){
+    let node=_hovNodes.get(id);
+    if(!node){ const t=document.createElement("template"); t.innerHTML=cardInfoHtml(id); node=t.content.firstChild; _hovNodes.set(id,node); }
+    el.replaceChildren(node);
+    _hovVistId=id;
+  }
+  const vw=window.innerWidth, vh=window.innerHeight, W=232, H=300;
+  const left = rect.right+12+W<vw ? rect.right+12 : Math.max(8,rect.left-12-W);
+  const top = Math.max(8,Math.min(rect.top-30,vh-H-8));
+  el.style.transform="translate3d("+left+"px,"+top+"px,0)";
+  el.style.visibility="visible";
+}
+function hideHov(){ if(_hovEl){ _hovEl.style.visibility="hidden"; } _hovVistId=null; }
 function HoverKort({id,pos}){
   if(!id||!pos) return null;
   return <div className="hovpop" style={{top:pos.top,left:pos.left}}><CardInfoPanel id={id}/></div>;
 }
 
-function DeckBuilder({decks,gemDecks,onBack,flash,unlocked}){
+function DeckBuilder({decks,gemDecks,onBack,flash,unlocked,hidden}){
   const [cards,setCards]=useState([]);
   const [navn,setNavn]=useState("My deck");
   const [dbCls,setDbCls]=useState("tek");
@@ -3692,9 +3765,29 @@ function DeckBuilder({decks,gemDecks,onBack,flash,unlocked}){
   const [fT,setFT]=useState(null);
   const [q,setQ]=useState("");
   const [sel,setSel]=useState(null);     // detaljeark (touch)
-  const [hov,setHov]=useState(null);     // {id,pos} svævepanel (mus)
+  const paneRef=useRef(null);
   const kanHover=useMemo(()=>typeof window!=="undefined"
     && window.matchMedia && window.matchMedia("(hover: hover)").matches,[]);
+  // Delegeret hover: én native mouseover-listener på hele panen. Uden om React.
+  useEffect(()=>{
+    const pane=paneRef.current; if(!pane) return;
+    let sidste=null;
+    const over=e=>{
+      const k=e.target.closest ? e.target.closest(".bibkort") : null;
+      if(!k || !pane.contains(k)){ if(sidste){ hideHov(); sidste=null; } return; }
+      const id=k.dataset.id;
+      if(!id){ hideHov(); sidste=null; return; }
+      if(id===sidste && e.type==="mouseover") return;
+      sidste=id;
+      showHov(id,k.getBoundingClientRect());
+    };
+    const ud=()=>{ hideHov(); sidste=null; };
+    pane.addEventListener("mouseover",over);
+    pane.addEventListener("mouseleave",ud);
+    pane.addEventListener("scroll",ud,{passive:true});
+    return ()=>{ pane.removeEventListener("mouseover",over); pane.removeEventListener("mouseleave",ud); pane.removeEventListener("scroll",ud); hideHov(); };
+  },[]);
+  useEffect(()=>{ if(hidden) hideHov(); },[hidden]);
 
   const cnt=useMemo(()=>{ const m={}; for(const id of cards) m[id]=(m[id]||0)+1; return m; },[cards]);
 
@@ -3727,17 +3820,12 @@ function DeckBuilder({decks,gemDecks,onBack,flash,unlocked}){
     setCards(c=>[...c,id]);
   };
   R.current.rem=id=>setCards(c=>{ const i=c.indexOf(id); if(i<0) return c; const n=c.slice(); n.splice(i,1); return n; });
-  R.current.info=(id,el)=>{
-    if(!kanHover){ setSel(id); return; }
-    if(!id||!el) return setHov(null);
-    const b=el.getBoundingClientRect();
-    const vw=window.innerWidth, vh=window.innerHeight, W=232, H=300;
-    const left = b.right+12+W<vw ? b.right+12 : Math.max(8,b.left-12-W);
-    setHov({id,pos:{left,top:Math.max(8,Math.min(b.top-30,vh-H-8))}});
-  };
   const onAdd =useCallback(id=>R.current.add(id),[]);
   const onRem =useCallback(id=>R.current.rem(id),[]);
-  const onInfo=useCallback((id,el)=>R.current.info(id,el),[]);
+  const aabnArk=useCallback(id=>setSel(id),[]);
+  // klik: med mus = tilføj/fjern direkte, på touch = åbn detaljearket
+  const bibKlik =kanHover?onAdd:aabnArk;
+  const deckKlik=kanHover?onRem:aabnArk;
 
   const add=id=>R.current.add(id), rem=id=>R.current.rem(id);
   const gem=()=>{
@@ -3773,22 +3861,22 @@ function DeckBuilder({decks,gemDecks,onBack,flash,unlocked}){
           <div className="gitter">
             {ids.map(id=>
               <BibKort key={id} id={id} count={cnt[id]||0} laast={!!(unlocked&&!unlocked.has(id))}
-                onAdd={onAdd} onRem={onRem} onInfo={onInfo} kanHover={kanHover}/>)}
+                onClick={bibKlik} onRem={onRem}/>)}
           </div>
         </div>)}
     </>
-  ),[grupper,cnt,unlocked,onAdd,onRem,onInfo,kanHover]);
+  ),[grupper,cnt,unlocked,bibKlik,onRem]);
 
   const deckGitter=useMemo(()=>(
     <div className="gitter">
       {unik.map(id=>
         <BibKort key={id} id={id} count={cnt[id]} laast={false}
-          onAdd={onRem} onRem={onRem} onInfo={onInfo} kanHover={kanHover}/>)}
+          onClick={deckKlik} onRem={onRem}/>)}
     </div>
-  ),[unik,cnt,onRem,onInfo,kanHover]);
+  ),[unik,cnt,deckKlik,onRem]);
 
   return (
-    <div className="pane bred" onScroll={()=>hov&&setHov(null)}>
+    <div className={"pane bred"+(hidden?" skjult":"")} ref={paneRef}>
       <button className="tilbage" onClick={onBack}>← Back</button>
       <div className="logo" style={{fontSize:26}}>CARD LIBRARY</div>
       <div className="ulinie">{COLL.length} cards{unlocked?" · "+unlocked.size+" unlocked":""} · deck: {cards.length}/{DECKSIZE}</div>
@@ -3799,8 +3887,8 @@ function DeckBuilder({decks,gemDecks,onBack,flash,unlocked}){
         if(rest.length!==cards.length){ setCards(rest); flash("Removed cards from another class."); }
       }}/>
       <div className="faner">
-        <button className={"fane"+(tab==="bib"?" aktiv":"")} onClick={()=>{setTab("bib");setHov(null);}}>Library</button>
-        <button className={"fane"+(tab==="deck"?" aktiv":"")} onClick={()=>{setTab("deck");setHov(null);}}>
+        <button className={"fane"+(tab==="bib"?" aktiv":"")} onClick={()=>{setTab("bib");hideHov();}}>Library</button>
+        <button className={"fane"+(tab==="deck"?" aktiv":"")} onClick={()=>{setTab("deck");hideHov();}}>
           My Deck ({cards.length}/{DECKSIZE})</button>
       </div>
 
@@ -3851,8 +3939,6 @@ function DeckBuilder({decks,gemDecks,onBack,flash,unlocked}){
             </div>)}
         </>}
       </div>
-
-      {hov && <HoverKort id={hov.id} pos={hov.pos}/>}
 
       {sel && (
         <div className="slor" onClick={()=>setSel(null)}>
@@ -4106,6 +4192,7 @@ export default function App(){
   const [cls2,setCls2]=useState("tek");
   const [tut,setTut]=useState(0);
   const [run,setRun]=useState(null);       // aktiv roguelike-run (null = ingen)
+  const [harSetDeck,setHarSetDeck]=useState(false); // bibliotek mountes først ved behov, unmountes aldrig
   const [runFase,setRunFase]=useState(null); // "kort" | "kamp" | "belon" | "opgrad" | "slut"
   const cid=useRef(null);
   const kode=useRef(null);
@@ -4448,7 +4535,7 @@ export default function App(){
         <div className="etiket">Local</div>
         <button className="knap" onClick={startLokal}><Ico n="gamepad"/> Local 2-player game<small>Take turns on the same device</small></button>
         <div className="etiket">Other</div>
-        <button className="knap" onClick={()=>setSkaerm("deck")}><Ico n="cards"/> Card library & deck builder</button>
+        <button className="knap" onClick={()=>{setHarSetDeck(true);setSkaerm("deck");}}><Ico n="cards"/> Card library & deck builder</button>
         <button className="knap" onClick={()=>setSkaerm("regler")}><Ico n="book"/> Rules</button>
         <button className="knap" onClick={()=>setSkaerm("settings")}><Ico n="gear"/> Settings</button>
         {profil && (()=>{ const u=unlockedSetAf(profil);
@@ -4458,7 +4545,8 @@ export default function App(){
     );
   }
   else if(skaerm==="deck"){
-    indhold=<DeckBuilder decks={decks} gemDecks={gemDecks} onBack={()=>setSkaerm("menu")} flash={flash} unlocked={profil?unlockedSetAf(profil):null}/>;
+    if(!harSetDeck) setHarSetDeck(true);   // direkte navigation (fx efter reload)
+    indhold=null;   // biblioteket renderes permanent nedenfor (hold-monteret)
   }
   else if(skaerm==="run"){
     if(!run){ indhold=<RunClassPick onPick={runStart} onBack={()=>setSkaerm("menu")}/>; }
@@ -4511,6 +4599,11 @@ export default function App(){
     <div className="app">
       <style>{CSS}</style>
       {indhold}
+      {/* Biblioteket unmountes ALDRIG efter første besøg — ~5000 DOM-noder at rive
+          ned gjorde Back-knappen træg. Nu er Back en ren display-toggle, og som
+          bonus overlever din deck-kladde et smut tilbage til menuen. */}
+      {harSetDeck && <DeckBuilder decks={decks} gemDecks={gemDecks} onBack={()=>setSkaerm("menu")}
+        flash={flash} unlocked={profil?unlockedSetAf(profil):null} hidden={skaerm!=="deck"}/>}
       {unlockPop&&<UnlockPop id={unlockPop} onClose={()=>setUnlockPop(null)}/>}
       {toast&&<div className="toast"><LogTekst t={toast}/></div>}
     </div>
