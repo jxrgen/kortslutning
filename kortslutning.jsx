@@ -1683,6 +1683,16 @@ p.rt{font-size:14px;line-height:1.55;color:var(--txt);margin:6px 0}
 .kinfo{font-size:12.5px;color:var(--dim);margin-top:7px;font-family:var(--mono)}
 .mkort.tema{background:var(--paper),var(--sheen),linear-gradient(180deg,var(--ct),var(--cb));
   background-blend-mode:overlay,normal,normal;border-color:color-mix(in srgb,var(--ce) 55%,transparent)}
+/* ---- flade biblioteks-kort: billige at tegne (ingen blend-mode, ingen kunst-filter,
+   ingen shimmer). Kunsten er en <img> som browseren cacher som bitmap, så hover-
+   panelet kan glide hen over 120 kort uden dyr re-rasterisering. ---- */
+.mkort.flad,.mkort.flad.tema{background:linear-gradient(180deg,var(--ct),var(--cb));
+  background-blend-mode:normal;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 2px 5px rgba(0,0,0,.42);
+  animation:none;content-visibility:auto;contain:layout paint style}
+.mkort.flad::before{display:none!important}
+.mkort.flad .art{filter:none}
+.mkort.flad.leg,.mkort.flad.rare{animation:none}
 .mkort.tema::after{background:var(--ce)}
 .enh.tema{background:var(--paper),var(--sheen),linear-gradient(180deg,var(--ct),var(--cb));
   background-blend-mode:overlay,normal,normal;border-color:color-mix(in srgb,var(--ce) 55%,transparent)}
@@ -2242,16 +2252,16 @@ function CardTip({id,live}){
     </div>
   );
 }
-const MiniCard = memo(function MiniCard({id,onClick,glow,count,style,dfx,xcls,tip,onPointerDown}){
+const MiniCard = memo(function MiniCard({id,onClick,glow,count,style,dfx,xcls,tip,onPointerDown,imgArt}){
   const d=CARDS[id];
-  const kwl=[]; if(d.kw) for(const k of d.kw){ if(KWSVG[k]) kwl.push(k); } if(d.sig) kwl.push("sig");
+  const kwl=[]; if(!imgArt){ if(d.kw) for(const k of d.kw){ if(KWSVG[k]) kwl.push(k); } if(d.sig) kwl.push("sig"); }
   return (
-    <button className={"mkort tema"+(d.r==="L"?" leg":d.r==="R"?" rare":"")+(glow?" spil":"")+(xcls?" "+xcls:"")+(tip?" hastip":"")} onClick={onClick} onPointerDown={onPointerDown} style={{...themeVars(d),...style}} data-fx={dfx}>
+    <button className={"mkort tema"+(imgArt?" flad":"")+(d.r==="L"?" leg":d.r==="R"?" rare":"")+(glow?" spil":"")+(xcls?" "+xcls:"")+(tip?" hastip":"")} onClick={onClick} onPointerDown={onPointerDown} style={{...themeVars(d),...style}} data-fx={dfx}>
       <span className="pris">{d.c}</span>
       {count!=null && <span className="antal">{count}×</span>}
       {d.cls&&CLASSES[d.cls]&&<span className="clsdot" style={{background:CLASSES[d.cls].col}}/>}
       {kwl.length>0 && <span className="mkwrow">{kwl.map(k=><KwBadge key={k} k={k}/>)}</span>}
-      <CardArt id={id}/>
+      {imgArt ? <CardArtImg id={id}/> : <CardArt id={id}/>}
       <span className="nv">{d.n}</span>
       {d.t==="unit" && <><span className="stat a">{d.a}</span><span className="stat h">{d.h}</span></>}
       {tip && <CardTip id={id}/>}
@@ -2793,6 +2803,24 @@ function artProps(id,pattern){
 const CardArt = memo(function CardArt({id,pattern,className}){
   return <svg className={"art"+(className?" "+className:"")} viewBox="172 148 406 414"
     dangerouslySetInnerHTML={artProps(id,pattern)}/>;
+});
+// Samme kunst som <img> med url-kodet data-URI. Browseren rasteriserer det ÉN gang
+// og cacher bitmap'en; når noget (hover-panelet) glider hen over gitteret sker der
+// ingen dyr re-rasterisering af 120 levende SVG'er. Benchmarks (Cloud Four) viser
+// at dette er den hurtigste teknik for mange ens billeder.
+const _artUri=new Map();
+function artDataUri(id,pattern){
+  const k=id+"|"+(pattern?1:0);
+  let v=_artUri.get(k);
+  if(v===undefined){
+    const inner=artProps(id,pattern).__html;
+    v='data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="172 148 406 414">'+inner+'</svg>');
+    _artUri.set(k,v);
+  }
+  return v;
+}
+const CardArtImg = memo(function CardArtImg({id,pattern,className}){
+  return <img className={"art"+(className?" "+className:"")} src={artDataUri(id,pattern)} alt="" draggable={false}/>;
 });
 
 function ClassPick({value,onChange}){
@@ -3656,7 +3684,7 @@ const BibKort = memo(function BibKort({id,count,laast,onClick,onRem}){
   return (
     <div className={"bibkort"+(laast?" laast":"")+(count?" ideck":"")} data-id={id}
       onContextMenu={e=>{ e.preventDefault(); if(count) onRem(id); }}>
-      <MiniCard id={id} count={count||null} onClick={()=>onClick(id)}/>
+      <MiniCard id={id} count={count||null} imgArt onClick={()=>onClick(id)}/>
       {laast && <span className="laas"><Ico n="lock"/></span>}
       {count>0 && <span className="idmark">{count}</span>}
     </div>

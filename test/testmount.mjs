@@ -140,6 +140,11 @@ async function mount(name, props) {
     // hover er DOM-baseret: data-id + delegeret native listener + ét globalt popup-element
     const bk = el.querySelector(".bibkort");
     if (!bk || !bk.dataset.id) { failed++; console.log("✗ .bibkort mangler data-id (delegeret hover)"); }
+    // biblioteks-kort skal være LETTE at tegne: <img>-kunst (ikke inline-SVG) og
+    // flad baggrund (ingen background-blend-mode), ellers hakker hover i browseren
+    if (el.querySelectorAll(".bibkort img.art").length < 50) { failed++; console.log("✗ biblioteks-kunst er ikke <img> (dyr inline-SVG re-rasterisering)"); }
+    if (el.querySelectorAll(".bibkort svg.art").length > 0) { failed++; console.log("✗ biblioteket har stadig inline-SVG-kunst"); }
+    if (el.querySelectorAll(".bibkort .mkort.flad").length < 50) { failed++; console.log("✗ biblioteks-kort mangler .flad (blend-mode/filter ikke slået fra)"); }
     document.body.appendChild(el); // native listener kræver at panen er i dokumentet
     bk.dispatchEvent(new window.MouseEvent("mouseover", { bubbles: true }));
     const pop = document.getElementById("hovpopdom");
