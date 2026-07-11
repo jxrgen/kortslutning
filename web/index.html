@@ -37,28 +37,29 @@ html,body{margin:0;height:100%;background:var(--bg0)}
   82%{opacity:1}
   100%{transform:translate3d(var(--tx,0px),var(--ty,-10vh),440px) rotateZ(calc(var(--rz,0deg)*1.7));opacity:0}
 }
-.heroind{position:relative;z-index:2;max-width:640px}
+.heroind{position:relative;z-index:2;max-width:760px}
 .heroind::before{content:"";position:absolute;inset:-60px -80px;z-index:-1;
   background:radial-gradient(closest-side,rgba(12,24,17,.88),rgba(12,24,17,.45) 62%,transparent);border-radius:50%}
-.biglogo{font-family:var(--mono);font-weight:700;letter-spacing:.04em;margin:0;line-height:.94;
-  position:relative;display:flex;flex-direction:column;align-items:center;gap:2px}
-.biglogo .ln1,.biglogo .ln2{display:block;font-size:clamp(40px,11vw,92px);color:var(--fos);
-  text-shadow:0 0 22px rgba(95,224,160,.55),0 0 42px rgba(95,224,160,.25)}
-.biglogo .ln1 b{color:var(--amber);text-shadow:0 0 22px rgba(240,178,62,.6),0 0 42px rgba(240,178,62,.3)}
-.biglogo .ln2{color:#ff5a4d;text-shadow:0 0 22px rgba(255,90,77,.6),0 0 46px rgba(255,90,77,.35);
-  letter-spacing:.14em;font-size:clamp(46px,13vw,104px)}
-.biglogo{animation:logoflick 5s steps(1) infinite}
-@keyframes logoflick{0%,100%{opacity:1}2%{opacity:.6}2.5%{opacity:1}52%{opacity:1}52.4%{opacity:.4}52.9%{opacity:1}53.3%{opacity:.7}53.7%{opacity:1}}
-/* glitch: to farvede kopier der forskyder sig */
-.biglogo.glitch::before,.biglogo.glitch::after{content:attr(data-txt);position:absolute;inset:0;
-  display:flex;align-items:center;justify-content:center;font-size:clamp(40px,11vw,92px);
-  letter-spacing:.04em;opacity:.55;pointer-events:none;mix-blend-mode:screen}
-.biglogo.glitch::before{color:#26e0ff;animation:glx1 3.6s infinite steps(1)}
-.biglogo.glitch::after{color:#ff3bd0;animation:glx2 4.3s infinite steps(1)}
-@keyframes glx1{0%,100%{transform:translate(0,0);opacity:0}48%{opacity:0}49%{transform:translate(-3px,2px);opacity:.5}50%{transform:translate(3px,-1px)}51%{transform:translate(0,0);opacity:0}}
-@keyframes glx2{0%,100%{transform:translate(0,0);opacity:0}70%{opacity:0}71%{transform:translate(3px,-2px);opacity:.5}72%{transform:translate(-2px,2px)}73%{transform:translate(0,0);opacity:0}}
+/* ---- PCB-titel ---- */
+.titlewrap{position:relative;display:inline-block;width:min(680px,94vw);margin:0 auto}
+.pcbtitle{display:block;width:100%;height:auto;overflow:visible}
+/* de tre lysbuer løber langs bogstavernes kant med forskudt fart og farve.
+   samme dash-total (1464) på alle tre => sømløst loop med kun ét keyframe */
+.pcbtitle .arc{stroke-dasharray:64 1400}
+.pcbtitle .arcA{animation:arcrun 2.6s linear infinite}
+.pcbtitle .arcB{stroke-dasharray:40 1424;animation:arcrun 3.7s linear infinite reverse;opacity:.8}
+.pcbtitle .arcC{stroke-dasharray:22 1442;animation:arcrun 5.1s linear infinite;opacity:.7}
+@keyframes arcrun{to{stroke-dashoffset:-1464}}
+/* et svagt elektrisk pulsslag over hele titlen */
+.pcbtitle .arcs{animation:arcpuls 3.4s ease-in-out infinite}
+@keyframes arcpuls{0%,100%{opacity:.9}46%{opacity:.55}50%{opacity:1}54%{opacity:.7}}
+/* lysbuer der af og til slår hen OVER titlen (JS-genereret) */
+.titlebolts{position:absolute;inset:-6% -4%;width:108%;height:112%;pointer-events:none;overflow:visible;z-index:3}
+.tbolt{fill:none;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 5px currentColor);
+  opacity:0;animation:tboltflash .34s ease-out forwards}
+@keyframes tboltflash{0%{opacity:0}12%{opacity:1}30%{opacity:.85}100%{opacity:0}}
 /* scanlines over hele hero */
-.scanlines{position:absolute;inset:0;pointer-events:none;z-index:3;mix-blend-mode:overlay;opacity:.5;
+.scanlines{position:absolute;inset:0;pointer-events:none;z-index:4;mix-blend-mode:overlay;opacity:.5;
   background:repeating-linear-gradient(0deg,rgba(0,0,0,.32) 0 1px,transparent 1px 3px);
   animation:scanroll 8s linear infinite}
 @keyframes scanroll{to{background-position:0 12px}}
@@ -71,16 +72,57 @@ html,body{margin:0;height:100%;background:var(--bg0)}
 .spark{position:absolute;width:3px;height:3px;border-radius:50%;background:var(--fos);
   box-shadow:0 0 8px 2px var(--fos);animation:sparkfly linear forwards}
 @keyframes sparkfly{0%{transform:translate(0,0) scale(1);opacity:1}100%{transform:translate(var(--sdx),var(--sdy)) scale(0);opacity:0}}
+/* elektrisk ramme der af og til blafrer op (JS-styret) */
+.eframe{position:absolute;inset:6.5vh 6vw;z-index:2;pointer-events:none;overflow:visible;opacity:0}
+.eframe.flash{animation:eframeflash .55s ease-out}
+@keyframes eframeflash{0%{opacity:0}10%{opacity:1}30%{opacity:.8}100%{opacity:0}}
+.eframe rect{fill:none;stroke-width:2;filter:drop-shadow(0 0 6px currentColor)}
+/* elektrisk vortex helt bagved, hvorfra kortene kommer */
+.vortex{position:absolute;left:50%;top:42%;width:340px;height:340px;margin:-170px 0 0 -170px;
+  transform:translateZ(-520px);pointer-events:none;opacity:.5}
+.vortex svg{width:100%;height:100%;overflow:visible}
+.vortex .vr{transform-origin:170px 170px}
+.vortex .vr1{animation:vspin 14s linear infinite}
+.vortex .vr2{animation:vspin 9s linear infinite reverse}
+.vortex .vr3{animation:vspin 22s linear infinite}
+.vortex .vcore{animation:vpulse 3.6s ease-in-out infinite}
+@keyframes vspin{to{transform:rotate(360deg)}}
+@keyframes vpulse{0%,100%{opacity:.4}50%{opacity:.8}}
 .pun{font-family:var(--mono);color:var(--dim);font-size:12.5px;margin:14px 0 0}
 .tag{font-size:clamp(16px,3.4vw,21px);color:#eaf6ee;margin:18px 0 6px;font-weight:600}
 .sub{font-family:var(--mono);color:var(--dim);font-size:13px;margin-bottom:26px}
-.playbtn{display:inline-block;font-family:var(--mono);font-weight:700;font-size:clamp(18px,4vw,24px);
-  letter-spacing:.08em;color:#0c1811;background:linear-gradient(180deg,var(--fos),#3fbf82);
-  border:none;border-radius:16px;padding:16px 44px;cursor:pointer;
-  box-shadow:0 8px 30px rgba(95,224,160,.35),inset 0 1px 0 rgba(255,255,255,.35);
-  animation:knappuls 2.2s ease-in-out infinite;transition:transform .12s}
-.playbtn:active{transform:scale(.96)}
-@keyframes knappuls{50%{box-shadow:0 8px 42px rgba(95,224,160,.6),inset 0 1px 0 rgba(255,255,255,.35)}}
+/* ---- PCB play-knap ---- */
+.playbtn{position:relative;display:inline-block;font-family:var(--mono);font-weight:700;
+  font-size:clamp(18px,4vw,24px);letter-spacing:.12em;color:#eafff4;cursor:pointer;
+  padding:17px 46px;border:1.5px solid #2f7d54;border-radius:14px;overflow:hidden;isolation:isolate;
+  background:
+    radial-gradient(circle at 14px 14px,#1a6b44 2px,transparent 2.6px),
+    radial-gradient(circle at 14px 14px,#1a6b44 2px,transparent 2.6px),
+    repeating-linear-gradient(90deg,transparent 0 15px,rgba(201,138,74,.16) 15px 16px),
+    repeating-linear-gradient(0deg,transparent 0 15px,rgba(201,138,74,.16) 15px 16px),
+    linear-gradient(180deg,#0e4a2e,#0a3623);
+  background-size:100% 100%,100% 100%,100% 100%,100% 100%,100% 100%;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.12),inset 0 -3px 8px rgba(0,0,0,.5),0 8px 26px rgba(0,0,0,.45);
+  transition:transform .12s,box-shadow .18s,border-color .18s,color .18s}
+/* kobber-loddeøer i hjørnerne */
+.playbtn::after{content:"";position:absolute;inset:0;border-radius:14px;pointer-events:none;z-index:-1;
+  background:
+    radial-gradient(circle at 16px 50%,transparent 3px,#0a3623 3px 4px,transparent 4px),
+    radial-gradient(circle at calc(100% - 16px) 50%,transparent 3px,#0a3623 3px 4px,transparent 4px);
+  box-shadow:inset 16px 0 0 -13px #d9a066,inset -16px 0 0 -13px #d9a066}
+/* elektrisk overlay der tændes ved hover — farlig, gul/rød crackle */
+.playbtn::before{content:"";position:absolute;inset:-2px;border-radius:16px;pointer-events:none;z-index:1;
+  padding:2px;opacity:0;transition:opacity .16s;
+  background:conic-gradient(from 0deg,transparent 0 60%,#ffe066 72%,#ff5a4d 80%,#fff 86%,transparent 92% 100%);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude}
+.playbtn:hover{color:#fff;border-color:#ffcf4d;transform:translateY(-1px);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 0 0 1px rgba(255,208,77,.5),0 10px 30px rgba(255,90,77,.35),0 0 40px rgba(255,208,77,.25);
+  animation:btnjitter .18s steps(2) infinite}
+.playbtn:hover::before{opacity:1;animation:btnarc .5s linear infinite}
+@keyframes btnarc{to{transform:rotate(360deg)}}
+@keyframes btnjitter{0%{transform:translateY(-1px) translateX(0)}50%{transform:translateY(-1px) translateX(.6px)}100%{transform:translateY(-1px) translateX(-.5px)}}
+.playbtn:active{transform:scale(.97)}
 .scrollhint{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);color:var(--dim);
   font-size:18px;animation:hop 1.8s ease-in-out infinite;z-index:2}
 @keyframes hop{50%{transform:translateX(-50%) translateY(7px)}}
@@ -112,9 +154,9 @@ h2{font-family:var(--mono);color:var(--cu);letter-spacing:.14em;font-size:15px;t
 footer{padding:30px 20px 46px;text-align:center;color:var(--dim);font-size:12.5px;font-family:var(--mono)}
 @media (prefers-reduced-motion:reduce){
   .flyv{animation:none;opacity:.85;transform:translate3d(var(--sx,0px),var(--sy,0px),0) rotateZ(var(--rz,0deg)) scale(.9)}
-  .biglogo,.playbtn,.scrollhint{animation:none}
-  .biglogo.glitch::before,.biglogo.glitch::after{display:none}
-  .scanlines,.sparklayer{display:none}
+  .pcbtitle .arc,.pcbtitle .arcs,.playbtn,.scrollhint,.vortex .vr,.vortex .vcore{animation:none}
+  .scanlines,.sparklayer,.titlebolts,.eframe{display:none}
+  .playbtn:hover{animation:none}
   #landing{transition:none}
 }
 @media (max-width:520px){ .flyv{width:82px;margin-left:-41px} .fan img{width:118px;margin:0 -28px} }
@@ -124,12 +166,45 @@ footer{padding:30px 20px 46px;text-align:center;color:var(--dim);font-size:12.5p
 <div id="root"></div>
 <div id="landing">
   <div class="hero">
-    <div class="flyfelt"><!--SPLASH--></div>
+    <div class="flyfelt">
+      <div class="vortex" aria-hidden="true">
+        <svg viewBox="0 0 340 340">
+          <defs>
+            <radialGradient id="vcore" cx="50%" cy="50%" r="50%">
+              <stop offset="0" stop-color="#bfffe4" stop-opacity=".9"/>
+              <stop offset="35%" stop-color="#3fbf82" stop-opacity=".4"/>
+              <stop offset="100%" stop-color="#0a3623" stop-opacity="0"/>
+            </radialGradient>
+            <filter id="vblur"><feGaussianBlur stdDeviation="1.1"/></filter>
+          </defs>
+          <circle class="vcore" cx="170" cy="170" r="120" fill="url(#vcore)"/>
+          <g filter="url(#vblur)" fill="none" stroke-linecap="round">
+            <g class="vr vr1" stroke="#5fe0a0" stroke-width="1.4" opacity=".55">
+              <path d="M170 60 A110 110 0 0 1 280 170"/><path d="M170 280 A110 110 0 0 1 60 170"/>
+              <circle cx="170" cy="170" r="150" stroke-dasharray="3 16"/>
+            </g>
+            <g class="vr vr2" stroke="#8fe0ff" stroke-width="1.2" opacity=".5">
+              <path d="M170 95 A75 75 0 0 1 245 170"/><path d="M170 245 A75 75 0 0 1 95 170"/>
+              <circle cx="170" cy="170" r="98" stroke-dasharray="2 13"/>
+            </g>
+            <g class="vr vr3" stroke="#ffe08a" stroke-width="1" opacity=".4">
+              <circle cx="170" cy="170" r="60" stroke-dasharray="1 10"/>
+              <path d="M170 130 A40 40 0 0 1 210 170"/><path d="M170 210 A40 40 0 0 1 130 170"/>
+            </g>
+          </g>
+        </svg>
+      </div>
+      <!--SPLASH-->
+    </div>
+    <svg class="eframe" id="eframe" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+      <rect x="1" y="1" width="98" height="98" rx="2" stroke="currentColor" vector-effect="non-scaling-stroke"/>
+    </svg>
     <div class="sparklayer" id="sparklayer"></div>
     <div class="heroind">
-      <h1 class="biglogo glitch" data-txt="CARDWARE CRASH">
-        <span class="ln1">CARD<b>WARE</b></span><span class="ln2">CRASH</span>
-      </h1>
+      <div class="titlewrap">
+        <!--TITLE-->
+        <svg class="titlebolts" id="titlebolts" viewBox="0 0 100 60" preserveAspectRatio="none" aria-hidden="true"></svg>
+      </div>
       <p class="pun">// where your deck meets the redline</p>
       <p class="tag">Build your deck. Manage the heat. Crash your rival's system.</p>
       <p class="sub">Free in your browser · 134 cards · 3 classes · no install</p>
@@ -192,13 +267,16 @@ footer{padding:30px 20px 46px;text-align:center;color:var(--dim);font-size:12.5p
     try{ history.replaceState(null,'','?play'); }catch(e){}
   };
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var layer = document.getElementById('sparklayer');
-  var cols = ['#5fe0a0','#f0b23e','#26e0ff','#ff5a4d'];
+  var idle = function(){ return document.hidden || l.classList.contains('bye'); };
+
+  /* ---- gnister ---- */
+  var layer=document.getElementById('sparklayer');
+  var cols=['#eafcff','#5fe0a0','#ffe066','#8fe0ff','#ff5a4d'];
   function burst(x,y,n){
     if(!layer) return;
     for(var i=0;i<n;i++){
       var s=document.createElement('i'); s.className='spark';
-      var a=Math.random()*Math.PI*2, d=20+Math.random()*70;
+      var a=Math.random()*Math.PI*2, d=20+Math.random()*72;
       var c=cols[(Math.random()*cols.length)|0];
       s.style.left=x+'px'; s.style.top=y+'px';
       s.style.background=c; s.style.boxShadow='0 0 8px 2px '+c;
@@ -209,16 +287,70 @@ footer{padding:30px 20px 46px;text-align:center;color:var(--dim);font-size:12.5p
       setTimeout((function(el){return function(){el.remove();};})(s),1000);
     }
   }
-  if(!reduce && layer){
-    setInterval(function(){
-      if(document.hidden || l.classList.contains('bye')) return;
+
+  /* ---- lysbue der slår hen over titlen ---- */
+  var boltSvg=document.getElementById('titlebolts');
+  function jag(x0,y0,x1,y1,seg,amp){
+    var p='M'+x0.toFixed(1)+' '+y0.toFixed(1);
+    for(var i=1;i<=seg;i++){
+      var t=i/seg;
+      var x=x0+(x1-x0)*t, y=y0+(y1-y0)*t + (i<seg?(Math.random()-0.5)*amp:0);
+      p+=' L'+x.toFixed(1)+' '+y.toFixed(1);
+      if(Math.random()<0.35){ // lille forgrening
+        var bx=x+(Math.random()-0.5)*amp*1.4, by=y+(Math.random()-0.5)*amp*1.4;
+        p+=' M'+bx.toFixed(1)+' '+by.toFixed(1)+' L'+x.toFixed(1)+' '+y.toFixed(1);
+      }
+    }
+    return p;
+  }
+  function titleBolt(){
+    if(!boltSvg||idle()) return;
+    var white=Math.random()<0.6;
+    var col=white?'#ffffff':'#ffe066';
+    var horiz=Math.random()<0.7;
+    var path=document.createElementNS('http://www.w3.org/2000/svg','path');
+    var d = horiz
+      ? jag(2+Math.random()*10, 10+Math.random()*40, 88+Math.random()*10, 10+Math.random()*40, 9, 7)
+      : jag(15+Math.random()*70, 2, 15+Math.random()*70, 58, 7, 9);
+    path.setAttribute('d',d);
+    path.setAttribute('class','tbolt');
+    path.setAttribute('stroke',col);
+    path.setAttribute('stroke-width', (0.8+Math.random()*0.7).toFixed(2));
+    path.setAttribute('vector-effect','non-scaling-stroke');
+    path.style.color=col;
+    boltSvg.appendChild(path);
+    setTimeout(function(){ path.remove(); }, 360);
+    // ledsagende gnistregn hvor buen rammer
+    if(layer){ var r=layer.getBoundingClientRect(), b=boltSvg.getBoundingClientRect();
+      burst((b.left-r.left)+b.width*(0.2+Math.random()*0.6), (b.top-r.top)+b.height*Math.random(), 5); }
+  }
+
+  /* ---- elektrisk ramme der blafrer op ---- */
+  var eframe=document.getElementById('eframe');
+  function frameFlash(){
+    if(!eframe||idle()) return;
+    eframe.style.color = Math.random()<0.5 ? '#ffffff' : '#ffe066';
+    eframe.classList.remove('flash'); void eframe.offsetWidth; eframe.classList.add('flash');
+  }
+
+  if(!reduce){
+    // omgivende gnister, tættest oppe ved titlen
+    setInterval(function(){ if(idle()) return;
       var r=layer.getBoundingClientRect();
-      burst(Math.random()*r.width, r.height*(0.15+Math.random()*0.5), 3+((Math.random()*4)|0));
+      burst(Math.random()*r.width, r.height*(0.12+Math.random()*0.45), 3+((Math.random()*4)|0));
     },520);
-    var logo=document.querySelector('.biglogo');
-    if(logo) logo.addEventListener('pointerenter',function(e){
-      var r=layer.getBoundingClientRect();
-      burst(e.clientX-r.left, e.clientY-r.top, 14);
+    // bolts over titlen med uregelmæssige mellemrum
+    (function loopBolt(){ setTimeout(function(){ if(Math.random()<0.8) titleBolt(); loopBolt(); }, 1400+Math.random()*2400); })();
+    // rammen blinker af og til
+    (function loopFrame(){ setTimeout(function(){ if(Math.random()<0.7) frameFlash(); loopFrame(); }, 3000+Math.random()*4500); })();
+    // hover på titel + knapper giver gnistregn
+    var tw=document.querySelector('.titlewrap');
+    if(tw) tw.addEventListener('pointerenter',function(e){ var r=layer.getBoundingClientRect(); burst(e.clientX-r.left,e.clientY-r.top,16); titleBolt(); });
+    Array.prototype.forEach.call(document.querySelectorAll('.playbtn'),function(btn){
+      btn.addEventListener('pointerenter',function(e){ var r=layer.getBoundingClientRect(); burst(e.clientX-r.left,e.clientY-r.top,14); });
+      var t=null;
+      btn.addEventListener('pointermove',function(e){ if(t) return; var r=layer.getBoundingClientRect(); burst(e.clientX-r.left,e.clientY-r.top,3);
+        t=setTimeout(function(){t=null;},110); });
     });
   }
 })();
