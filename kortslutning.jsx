@@ -1570,8 +1570,22 @@ input:focus,select:focus{border-color:var(--cu)}
   border-radius:10px;background:var(--fos);color:#0a140e;font-family:var(--mono);font-size:11px;font-weight:700;
   display:flex;align-items:center;justify-content:center;box-shadow:0 2px 5px rgba(0,0,0,.6);pointer-events:none}
 .fknap.ryd{border-color:var(--cu);color:var(--cu2)}
-.hovpop{position:fixed;z-index:80;width:252px;pointer-events:none;animation:ind .1s ease-out}
-.hovpop .storkort{box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 14px 40px rgba(0,0,0,.7)}
+.hovpop{position:fixed;z-index:80;pointer-events:none;animation:ind .09s ease-out}
+.hovinfo{width:232px;border-radius:12px;padding:11px 13px;text-align:left;
+  background:linear-gradient(180deg,#14251b,#0b160f);border:1.5px solid var(--ce,#5fe0a0);
+  box-shadow:0 14px 36px rgba(0,0,0,.7);font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+.hi-h{display:flex;align-items:baseline;gap:7px;margin-bottom:3px}
+.hi-c{font-family:var(--mono);font-weight:700;color:var(--amber);font-size:13px}
+.hi-n{font-weight:700;color:#eaf6ee;font-size:15px;line-height:1.15}
+.hi-t{font-family:var(--mono);font-size:10px;color:var(--dim);margin-bottom:6px}
+.hi-s{font-family:var(--mono);font-size:14px;color:#eaf6ee;margin-bottom:6px;display:flex;align-items:center}
+.hi-x{font-size:12.5px;color:#cfe6d6;line-height:1.45;margin-bottom:2px}
+.hi-kw{display:flex;flex-direction:column;gap:6px;margin-top:8px;border-top:1px solid var(--line);padding-top:8px}
+.hi-kwrow{display:flex;align-items:flex-start;gap:8px}
+.hi-kwrow .kwb{flex:none;margin-top:1px}
+.hi-kwtxt{display:flex;flex-direction:column;gap:1px}
+.hi-kwtxt b{font-size:11.5px;color:var(--fos)}
+.hi-kwtxt span{font-size:10.5px;color:#c3d6c9;line-height:1.35}
 /* ---- Meltdown Run ---- */
 .knap.rogueknap{background:linear-gradient(135deg,#3a1410,#1a0d0a);border-color:var(--rod);color:#ffd7cf}
 .knap.rogueknap:hover{border-color:var(--guld);box-shadow:0 0 16px rgba(255,109,90,.4)}
@@ -2309,7 +2323,7 @@ function HistRail({g,seat,navne}){
     </>
   );
 }
-function StorKort({id,unitInfo,g}){
+const StorKort = memo(function StorKort({id,unitInfo,g}){
   const d=CARDS[id];
   let live=null, kwl=[];
   if(unitInfo&&g){ const u=refUnit(g,{s:unitInfo.s,u:unitInfo.uid});
@@ -2343,7 +2357,7 @@ function StorKort({id,unitInfo,g}){
       )}
     </div>
   );
-}
+});
 function BrokenNeon({text}){
   // hvert bogstav får sit eget uregelmæssige flimre; ét er næsten dødt
   const letters=useMemo(()=>{
@@ -3644,9 +3658,29 @@ const BibKort = memo(function BibKort({id,count,laast,onAdd,onRem,onInfo,kanHove
 
 // Svævende infopanel. Ligger position:fixed uden for gitteret, så det aldrig
 // klippes af scroll-containeren.
+// Let info-panel til hover i biblioteket. Viser ALT: navn, pris, type, stats,
+// nøgleord og korttekst — men uden den tunge kredsløbs-SVG som StorKort tegner.
+// Det var netop den store SVG, browseren måtte genparse ved hver eneste hover.
+const CardInfoPanel = memo(function CardInfoPanel({id}){
+  const d=CARDS[id];
+  const kwl=[];
+  if(d.t==="unit"){ if(d.kw) for(const k of d.kw){ if(KWSVG[k]) kwl.push(k); } if(d.sig) kwl.push("sig"); }
+  return (
+    <div className="hovinfo tema" style={themeVars(d)}>
+      <div className="hi-h"><span className="hi-c">{d.c}<Ico n="bolt"/></span><span className="hi-n">{d.n}</span></div>
+      <div className="hi-t">{d.t==="unit"?"Unit":"Spell"}{d.tr?" · "+d.tr:""}{d.cls&&CLASSES[d.cls]?" · "+CLASSES[d.cls].n:""}{d.r==="L"?<> · <Ico n="legendary"/> Legendary</>:d.r==="R"?<> · <Ico n="rare"/> Rare</>:null}</div>
+      {d.t==="unit" && <div className="hi-s"><Ico n="sword"/> {d.a}&nbsp;&nbsp;<Ico n="heart"/> {d.h}</div>}
+      {d.txt && <div className="hi-x"><GlossText txt={d.txt}/></div>}
+      {kwl.length>0 && <div className="hi-kw">
+        {kwl.map(k=>{ const navn=k==="sig"?"Signal Strength":KWINFO[k].n;
+          return <div key={k} className="hi-kwrow"><KwBadge k={k}/><div className="hi-kwtxt"><b>{navn}</b><span>{GLOSSARY[navn]||""}</span></div></div>; })}
+      </div>}
+    </div>
+  );
+});
 function HoverKort({id,pos}){
   if(!id||!pos) return null;
-  return <div className="hovpop" style={{top:pos.top,left:pos.left}}><StorKort id={id}/></div>;
+  return <div className="hovpop" style={{top:pos.top,left:pos.left}}><CardInfoPanel id={id}/></div>;
 }
 
 function DeckBuilder({decks,gemDecks,onBack,flash,unlocked}){
@@ -3697,9 +3731,9 @@ function DeckBuilder({decks,gemDecks,onBack,flash,unlocked}){
     if(!kanHover){ setSel(id); return; }
     if(!id||!el) return setHov(null);
     const b=el.getBoundingClientRect();
-    const vw=window.innerWidth, vh=window.innerHeight, W=252, H=330;
+    const vw=window.innerWidth, vh=window.innerHeight, W=232, H=300;
     const left = b.right+12+W<vw ? b.right+12 : Math.max(8,b.left-12-W);
-    setHov({id,pos:{left,top:Math.max(8,Math.min(b.top-40,vh-H-8))}});
+    setHov({id,pos:{left,top:Math.max(8,Math.min(b.top-30,vh-H-8))}});
   };
   const onAdd =useCallback(id=>R.current.add(id),[]);
   const onRem =useCallback(id=>R.current.rem(id),[]);
@@ -3726,6 +3760,32 @@ function DeckBuilder({decks,gemDecks,onBack,flash,unlocked}){
   const kurve=[0,1,2,3,4,5,6,7].map(c=>cards.filter(id=>c===7?CARDS[id].c>=7:CARDS[id].c===c).length);
   const kMax=Math.max(1,...kurve);
   const fejl=cards.length===DECKSIZE?validateDeck(cards,dbCls):null;
+
+  // Gitrene bygges kun om når deres data faktisk ændrer sig (filter/antal), IKKE
+  // når hover-panelet skifter kort. Ved hover får React samme element-reference
+  // og springer hele gitter-undertræet over — det er nøglen til at hover er gratis.
+  const bibGitter=useMemo(()=>(
+    <>
+      {grupper.length===0 && <p className="rt" style={{color:"var(--dim)"}}>No cards match those filters.</p>}
+      {grupper.map(([c,ids])=>
+        <div key={c} className="kostgruppe">
+          <div className="kosthd"><span className="kostpip">{c}</span><Ico n="bolt"/><i>{ids.length}</i></div>
+          <div className="gitter">
+            {ids.map(id=>
+              <BibKort key={id} id={id} count={cnt[id]||0} laast={!!(unlocked&&!unlocked.has(id))}
+                onAdd={onAdd} onRem={onRem} onInfo={onInfo} kanHover={kanHover}/>)}
+          </div>
+        </div>)}
+    </>
+  ),[grupper,cnt,unlocked,onAdd,onRem,onInfo,kanHover]);
+
+  const deckGitter=useMemo(()=>(
+    <div className="gitter">
+      {unik.map(id=>
+        <BibKort key={id} id={id} count={cnt[id]} laast={false}
+          onAdd={onRem} onRem={onRem} onInfo={onInfo} kanHover={kanHover}/>)}
+    </div>
+  ),[unik,cnt,onRem,onInfo,kanHover]);
 
   return (
     <div className="pane bred" onScroll={()=>hov&&setHov(null)}>
@@ -3756,16 +3816,7 @@ function DeckBuilder({decks,gemDecks,onBack,flash,unlocked}){
           {(fC!=null||fT||q) && <button className="fknap ryd" onClick={()=>{setFC(null);setFT(null);setQ("");}}>Clear filters</button>}
         </div>
         <p className="hint">{kanHover?"Hover for details · click to add · right-click to remove":"Tap a card for details"}</p>
-        {grupper.length===0 && <p className="rt" style={{color:"var(--dim)"}}>No cards match those filters.</p>}
-        {grupper.map(([c,ids])=>
-          <div key={c} className="kostgruppe">
-            <div className="kosthd"><span className="kostpip">{c}</span><Ico n="bolt"/><i>{ids.length}</i></div>
-            <div className="gitter">
-              {ids.map(id=>
-                <BibKort key={id} id={id} count={cnt[id]||0} laast={!!(unlocked&&!unlocked.has(id))}
-                  onAdd={onAdd} onRem={onRem} onInfo={onInfo} kanHover={kanHover}/>)}
-            </div>
-          </div>)}
+        {bibGitter}
       </div>
 
       <div className="fanepane" style={{display:tab==="deck"?"block":"none"}}>
@@ -3778,11 +3829,7 @@ function DeckBuilder({decks,gemDecks,onBack,flash,unlocked}){
           ? <p className="rt" style={{color:"var(--dim)"}}>The deck is empty. Add cards from the library, or tap Auto-fill.</p>
           : <>
             <p className="hint">{kanHover?"Hover for details · click to remove one":"Tap a card for details"}</p>
-            <div className="gitter">
-              {unik.map(id=>
-                <BibKort key={id} id={id} count={cnt[id]} laast={false}
-                  onAdd={onRem} onRem={onRem} onInfo={onInfo} kanHover={kanHover}/>)}
-            </div>
+            {deckGitter}
           </>}
         {fejl && <p className="rt" style={{color:"var(--rod)"}}>{fejl}</p>}
         <div className="raek" style={{marginTop:14}}>
@@ -4011,9 +4058,9 @@ function dedupSorted(list){
   return Object.keys(m).sort((a,b)=>CARDS[a].c-CARDS[b].c||CARDS[a].n.localeCompare(CARDS[b].n,"en")).map(id=>[id,m[id]]);
 }
 function hpos(el){
-  const b=el.getBoundingClientRect(), vw=window.innerWidth, W=252;
+  const b=el.getBoundingClientRect(), vw=window.innerWidth, W=232;
   const left=b.right+12+W<vw?b.right+12:Math.max(8,b.left-12-W);
-  return {left,top:Math.max(8,Math.min(b.top-40,window.innerHeight-338))};
+  return {left,top:Math.max(8,Math.min(b.top-30,window.innerHeight-308))};
 }
 
 function RunClassPick({onPick,onBack}){

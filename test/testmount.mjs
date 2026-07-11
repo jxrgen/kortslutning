@@ -22,7 +22,7 @@ dom.window.AudioContext = class {
   resume() {}
 };
 
-writeFileSync("./_m.jsx", readFileSync("kortslutning.jsx", "utf8") + "\nexport { GameView, DeckBuilder, COLL, RunView, RunClassPick, runNyt, runTilfoej };\n");
+writeFileSync("./_m.jsx", readFileSync("kortslutning.jsx", "utf8") + "\nexport { GameView, DeckBuilder, COLL, RunView, RunClassPick, runNyt, runTilfoej, CardInfoPanel, CARDS };\n");
 execSync("npx esbuild _m.jsx --loader:.jsx=jsx --jsx=automatic --format=esm --bundle --external:react --external:react/jsx-runtime --outfile=./_m.mjs");
 const M = await import(process.cwd() + "/_m.mjs");
 const React = (await import("react")).default;
@@ -121,6 +121,18 @@ async function mount(name, props) {
     if (!el.querySelector(".kosthd")) { failed++; console.log("✗ kortene er ikke grupperet efter energipris"); }
     const faner = [...el.querySelectorAll(".fane")].map(b => b.textContent);
     if (!faner.some(t => t.startsWith("My Deck"))) { failed++; console.log("✗ fanen hedder ikke 'My Deck': " + faner.join(" | ")); }
+    // hover-panelet skal være det lette CardInfoPanel (få SVG'er), ikke det tunge StorKort
+    // som browseren måtte genparse ved hver hover. Vi renderer panelet direkte og tæller.
+    {
+      const pe = document.createElement("div");
+      const pr = createRoot(pe);
+      await act(async () => { pr.render(React.createElement(M.CardInfoPanel, { id: M.COLL.find(x => M.CARDS[x].t === "unit") })); });
+      const svg = pe.querySelectorAll("svg path, svg rect, svg line").length;
+      if (pe.querySelector(".storart")) { failed++; console.log("✗ hover-panel bruger stadig tungt StorKort-art"); }
+      if (svg > 12) { failed++; console.log("✗ hover-panel har " + svg + " SVG-elementer — for tungt til hover"); }
+      if (!pe.querySelector(".hi-n")) { failed++; console.log("✗ hover-panel viser ikke kortinfo"); }
+      await act(async () => { pr.unmount(); });
+    }
     // matchMedia er stubbet til matches:false => touch-vej: klik åbner detaljearket
     const kort = el.querySelector(".bibkort .mkort");
     await act(async () => { kort.dispatchEvent(new window.MouseEvent("click", { bubbles: true })); });
