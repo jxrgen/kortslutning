@@ -517,6 +517,7 @@ function silence(g,u){
   u.sil=true; u.a=d.a; u.hM=d.h; u.akw=[]; u.sh=false; u.st=false;
   if(u.dmg>=u.hM) u.dmg=u.hM-1;
   if(u.dmg<0) u.dmg=0;
+  log(g,"§warning§ "+d.n+" is reset — all keywords and text removed.");
 }
 function bounce(g,ref){
   const u=refUnit(g,ref); if(!u) return;
@@ -1411,7 +1412,10 @@ input:focus,select:focus{border-color:var(--cu)}
   filter:drop-shadow(0 1px 3px rgba(0,0,0,.6))}
 .kwb svg{display:block}
 .enh .stat{bottom:1px;font-size:13px}
-.enh.sil{filter:grayscale(.8)}
+.enh.sil{filter:grayscale(.65) brightness(.85);border-color:#ff5a4d!important;border-style:dashed!important}
+.enh.sil::before{content:"RESET";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-12deg);
+  z-index:5;font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:1px;
+  color:#ff5a4d;background:rgba(0,0,0,.7);padding:2px 6px;border-radius:4px;pointer-events:none}
 .enh .skjold{position:absolute;inset:-5px;border-radius:14px;border:2.5px solid #4db4ff;pointer-events:none;z-index:2;
   box-shadow:0 0 12px rgba(77,180,255,.7),inset 0 0 10px rgba(77,180,255,.35);
   animation:shieldvib .13s steps(2) infinite, skjoldpuls 1.8s ease-in-out infinite}
