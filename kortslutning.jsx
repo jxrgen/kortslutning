@@ -1398,12 +1398,23 @@ input:focus,select:focus{border-color:var(--cu)}
   box-shadow:inset 0 1px 0 rgba(255,255,255,.12),inset 0 -3px 6px rgba(0,0,0,.5),
     0 1px 2px rgba(0,0,0,.5),0 6px 12px rgba(0,0,0,.45)}
 .enh .art{width:40px;height:40px}
-.enh.klar{border-color:var(--fos)!important;border-width:2px;box-shadow:0 0 15px rgba(95,224,160,.55)}
-.enh.klar::after{content:"";position:absolute;top:-9px;right:-6px;background:var(--fos);border-radius:50%;width:20px;height:20px;box-shadow:0 0 8px rgba(95,224,160,.8);z-index:4;background-image:${icoUrl("sword","%230c1811")};background-size:13px 13px;background-position:center;background-repeat:no-repeat}
+.enh.klar{border-color:var(--fos)!important;border-width:2.5px;
+  box-shadow:0 0 18px rgba(95,224,160,.7),inset 0 0 8px rgba(95,224,160,.2);
+  animation:klarpuls 1.4s ease-in-out infinite}
+.enh.klar::after{content:"⚔";position:absolute;top:-12px;right:-10px;
+  background:var(--fos);border-radius:50%;width:24px;height:24px;line-height:24px;text-align:center;
+  font-size:13px;color:#0c1811;font-weight:700;
+  box-shadow:0 0 10px rgba(95,224,160,.9),0 0 3px #fff;z-index:4;
+  animation:klarbadge 1.4s ease-in-out infinite}
+/* pulserende grøn glød + badge-bounce gør det UMULIGT at overse */
+@keyframes klarpuls{0%,100%{box-shadow:0 0 18px rgba(95,224,160,.7),inset 0 0 8px rgba(95,224,160,.2)}
+  50%{box-shadow:0 0 28px rgba(95,224,160,1),inset 0 0 14px rgba(95,224,160,.35)}}
+@keyframes klarbadge{0%,100%{transform:scale(1)}50%{transform:scale(1.2)}}
 .enh.leg{border-color:var(--guld)}
-.enh.sover{opacity:.72}
-.enh.sover .art{opacity:.5}
-.enh.sover::before{content:"z";position:absolute;top:-6px;right:2px;font-size:13px;color:var(--dim);font-style:italic;z-index:3}
+.enh.sover{opacity:.65;border-color:var(--line)!important}
+.enh.sover .art{opacity:.45;filter:saturate(.5)}
+.enh.sover::before{content:"zzz";position:absolute;top:-8px;right:0;font-size:11px;letter-spacing:1px;
+  color:var(--dim);font-style:italic;z-index:3;font-family:var(--mono)}
 .enh .zz{position:absolute;top:1px;right:4px;font-size:11px;color:var(--dim)}
 .enh .ikoner{position:absolute;top:-15px;left:50%;transform:translateX(-50%);display:flex;gap:3px;
   white-space:nowrap;z-index:5}
@@ -1757,8 +1768,7 @@ p.rt{font-size:14px;line-height:1.55;color:var(--txt);margin:6px 0}
 button:active{transform:scale(.97)}
 .mkort.spil{animation:spilpuls 1.6s ease-in-out infinite}
 @keyframes spilpuls{0%,100%{box-shadow:0 0 16px rgba(95,224,160,.55),0 6px 12px rgba(0,0,0,.5)}50%{box-shadow:0 0 26px rgba(95,224,160,.9),0 6px 12px rgba(0,0,0,.5)}}
-.enh.klar{animation:klarpuls 2s ease-in-out infinite}
-@keyframes klarpuls{0%,100%{box-shadow:0 0 15px rgba(95,224,160,.5)}50%{box-shadow:0 0 24px rgba(95,224,160,.85)}}
+/* klarpuls er defineret ovenfor ved .enh.klar */
 .enh{animation:enhind calc(.38s * var(--tempo,1)) cubic-bezier(.2,1.5,.4,1)}
 @keyframes enhind{from{transform:scale(.3);opacity:0;filter:brightness(2.2)}}
 .ryst{animation:ryst calc(.32s * var(--tempo,1)) ease-in-out !important}
@@ -1950,7 +1960,7 @@ button:active{transform:scale(.97)}
   background:linear-gradient(115deg,transparent 44%,rgba(120,190,255,.18) 50%,transparent 56%);
   background-size:280% 280%;animation:legsheen 7s ease-in-out infinite;mix-blend-mode:screen}
 @media (prefers-reduced-motion:reduce){.mkort.leg::before,.enh.leg::before,.mkort.rare::before,.enh.rare::before{animation:none;display:none}.mkort.leg,.enh.leg{animation:none}
-  .enh .skjold,.kwv-hoj,.kwv-dob,.kwv-host,.enh.kw-skjul{animation:none}.kwv-turbo i{display:none}}
+  .enh .skjold,.kwv-hoj,.kwv-dob,.kwv-host,.enh.kw-skjul,.enh.klar,.enh.klar::after{animation:none}.kwv-turbo i{display:none}}
 /* ---- bane-dekoration ---- */
 .boarddecor{position:absolute;inset:0;pointer-events:none;z-index:0;overflow:hidden}
 .spilflade{position:relative}
@@ -3147,6 +3157,38 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
       setReveal({id:spilEv.id,k:spilEv.k,ms});
       setTimeout(()=>setReveal(r=>(r&&r.k===spilEv.k)?null:r),ms);
     }
+    // Effekter (dmg, heal, boom, etc.) skal aldrig køre UNDER reveal — det
+    // skaber kaos bag det viste kort. I stedet: spring alle ikke-spil events
+    // over mens reveal er aktiv; de fanges i næste useEffect-kørsel når
+    // reveal sættes til null.
+    const ikkeSpil=nye.filter(e=>e.t!=="spil");
+    if(hold>0 && ikkeSpil.length>0){
+      // rollback fxDone så de processeres igen efter reveal lukkes
+      fxDone.current=Math.min(fxDone.current, ikkeSpil[0].k-1);
+      // afspil KUN spil-eventet (flyv-animationen mod midten) nu; resten venter
+      const onlySpil=nye.filter(e=>e.t==="spil");
+      if(onlySpil.length){
+        const add2=[];
+        for(const e of onlySpil){
+          const kk=e.k;
+          const fra=posOf(e.s,e.hu)||posOf(e.s,null); if(!fra) continue;
+          const cx=(typeof window!=="undefined"?window.innerWidth/2:400);
+          const cy=(typeof window!=="undefined"?window.innerHeight/2:400);
+          const kurve=typeof CSS!=="undefined"&&CSS.supports&&CSS.supports("offset-path",'path("M0 0 L1 1")');
+          add2.push({key:"f"+kk,type:"flyv",x:fra.x,y:fra.y,tx:cx-fra.x,ty:cy-fra.y,id:e.id,d:0,
+            op:kurve?('path("M '+fra.x.toFixed(0)+' '+fra.y.toFixed(0)+' Q '+((fra.x+cx)/2).toFixed(0)+' '
+              +(Math.min(fra.y,cy)-180).toFixed(0)+' '+cx.toFixed(0)+' '+cy.toFixed(0)+'")')  :null});
+        }
+        if(add2.length){
+          setSparks(x=>[...x,...add2]);
+          const keys=add2.map(a=>a.key);
+          setTimeout(()=>setSparks(x=>x.filter(f=>!keys.includes(f.key))),slowMs(1400));
+        }
+      }
+      return; // stop her — resten processeres når reveal lukkes
+    }
+    // Ingen reveal aktiv (eller ingen sideeffekter) → kør normalt uden hold-delay
+    hold=0;
     // lyde skal følge den forsinkede effekt, ikke fyre med det samme
     const lyd=(fn,extra=0)=>{ const ms=(hold+extra)*1000; if(ms<=0) fn(); else setTimeout(fn,ms); };
     const add=[], sh=[];
@@ -4547,13 +4589,16 @@ export default function App(){
   useEffect(()=>{
     if((mode!=="solo"&&mode!=="rogue")||!g||g.status!=="igang") return;
     if(g.active!==1){ botSteps.current=0; return; }
-    const t=setTimeout(()=>{
+    // vent til reveal-visningen er væk (spilleren har set sit kort)
+    const tick=()=>{
+      if(typeof document!=="undefined" && document.querySelector(".revealwrap")){ return setTimeout(tick,200); }
       doAct(x=>{
         if(x.status!=="igang"||x.active!==1) return null;
         if(botSteps.current++>40 || !botAction(x,1)) return endTurn(x,1);
         return null;
       });
-    }, slowMs(botSteps.current===0?950:800));
+    };
+    const t=setTimeout(tick, slowMs(botSteps.current===0?950:800));
     return ()=>clearTimeout(t);
   },[g,mode]);
 
