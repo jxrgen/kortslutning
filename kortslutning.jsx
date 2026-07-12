@@ -3125,6 +3125,7 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
   const [reveal,setReveal]=useState(null); // kort vist stort midtfor før effekt
   const [shake,setShake]=useState(new Set());
   const fxDone=useRef(g.fxk||0);
+  const fxQ=useRef([]);
   const lastK=useRef(g.last?g.last.k:0);
   const [turban,setTurban]=useState(0);
   const prevTurn=useRef(g.turn);
@@ -3142,57 +3143,37 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
     if((g.fxk||0)<fxDone.current) fxDone.current=0;
     const nye=fx.filter(e=>e.k>fxDone.current);
     if(fx.length) fxDone.current=fx[fx.length-1].k;
-    if(!nye.length) return;
+    if(!nye.length && !fxQ.current.length) return;
+    // ---- KØ-BASERET FX-SYSTEM ----
+    // Nye FX lægges i køen. Køen afspilles KUN når der ingen reveal er.
+    // Reveal vises med det samme (spil-eventet flyver mod midten), men alt
+    // andet (dmg, boom, zap) venter til reveal er væk. Resultatet: der sker
+    // altid kun én ting ad gangen.
+    if(nye.length) fxQ.current.push(...nye);
     const redMo=(typeof window!=="undefined"&&window.matchMedia
       &&window.matchMedia("(prefers-reduced-motion: reduce)").matches)||!SETTINGS.fxMotion;
-    const T=tempo(); // langsomhed-faktor
-    const gap=0.22*T; // afstand mellem sekventielle fx (før: 0.06)
-    // Er der spillet et kort i denne batch? Så vis det stort midtfor først,
-    // og udskyd de øvrige effekter så man når at læse hvad der blev spillet.
-    const spilEv=nye.find(e=>e.t==="spil");
-    let hold=0;
-    if(spilEv && !redMo && SETTINGS.cardRevealMs>0){
+    // vis reveal for spilEv med det samme (men udskyd resten)
+    const spilEv=fxQ.current.find(e=>e.t==="spil");
+    if(spilEv && !reveal && !redMo && SETTINGS.cardRevealMs>0){
       const ms=SETTINGS.cardRevealMs;
-      hold=ms/1000;
       setReveal({id:spilEv.id,k:spilEv.k,ms});
       setTimeout(()=>setReveal(r=>(r&&r.k===spilEv.k)?null:r),ms);
+      // fjern spilEv fra køen (den er vist nu)
+      fxQ.current=fxQ.current.filter(e=>e!==spilEv);
+      return; // vent til reveal lukkes
     }
-    // Effekter (dmg, heal, boom, etc.) skal aldrig køre UNDER reveal — det
-    // skaber kaos bag det viste kort. I stedet: spring alle ikke-spil events
-    // over mens reveal er aktiv; de fanges i næste useEffect-kørsel når
-    // reveal sættes til null.
-    const ikkeSpil=nye.filter(e=>e.t!=="spil");
-    if(hold>0 && ikkeSpil.length>0){
-      // rollback fxDone så de processeres igen efter reveal lukkes
-      fxDone.current=Math.min(fxDone.current, ikkeSpil[0].k-1);
-      // afspil KUN spil-eventet (flyv-animationen mod midten) nu; resten venter
-      const onlySpil=nye.filter(e=>e.t==="spil");
-      if(onlySpil.length){
-        const add2=[];
-        for(const e of onlySpil){
-          const kk=e.k;
-          const fra=posOf(e.s,e.hu)||posOf(e.s,null); if(!fra) continue;
-          const cx=(typeof window!=="undefined"?window.innerWidth/2:400);
-          const cy=(typeof window!=="undefined"?window.innerHeight/2:400);
-          const kurve=typeof CSS!=="undefined"&&CSS.supports&&CSS.supports("offset-path",'path("M0 0 L1 1")');
-          add2.push({key:"f"+kk,type:"flyv",x:fra.x,y:fra.y,tx:cx-fra.x,ty:cy-fra.y,id:e.id,d:0,
-            op:kurve?('path("M '+fra.x.toFixed(0)+' '+fra.y.toFixed(0)+' Q '+((fra.x+cx)/2).toFixed(0)+' '
-              +(Math.min(fra.y,cy)-180).toFixed(0)+' '+cx.toFixed(0)+' '+cy.toFixed(0)+'")')  :null});
-        }
-        if(add2.length){
-          setSparks(x=>[...x,...add2]);
-          const keys=add2.map(a=>a.key);
-          setTimeout(()=>setSparks(x=>x.filter(f=>!keys.includes(f.key))),slowMs(1400));
-        }
-      }
-      return; // stop her — resten processeres når reveal lukkes
-    }
-    // Ingen reveal aktiv (eller ingen sideeffekter) → kør normalt uden hold-delay
-    hold=0;
+    // reveal aktiv? vent
+    if(reveal) return;
+    // reveal lukket (eller ingen reveal) → afspil køen
+    const batch=[...fxQ.current]; fxQ.current=[];
+    if(!batch.length) return;
+    const T=tempo();
+    const gap=0.22*T;
+    let hold=0;
     // lyde skal følge den forsinkede effekt, ikke fyre med det samme
     const lyd=(fn,extra=0)=>{ const ms=(hold+extra)*1000; if(ms<=0) fn(); else setTimeout(fn,ms); };
     const add=[], sh=[];
-    for(const e of nye){
+    for(const e of batch){
       // "spil"-eventet selv skal ikke forsinkes (det ER showcasen); resten venter
       const d=(e.t==="spil"?0:hold)+add.length*gap, kk=e.k;
       if(e.t==="dmg"){ const P=posOf(e.s,e.u!==undefined?e.u:null); if(!P) continue;
@@ -3260,7 +3241,7 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
       setTimeout(()=>setSparks(x=>x.filter(f=>!keys.includes(f.key))),slowMs(1400)+hold*1000);
     }
     if(sh.length){ setTimeout(()=>{ setShake(new Set(sh)); setTimeout(()=>setShake(new Set()),slowMs(380)); }, hold*1000); }
-  },[g]);
+  },[g,reveal]);
 
   useEffect(()=>{ const L=g.last;
     if(L&&L.k!==lastK.current){ lastK.current=L.k;
