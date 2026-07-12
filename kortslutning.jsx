@@ -1412,8 +1412,44 @@ input:focus,select:focus{border-color:var(--cu)}
 .kwb svg{display:block}
 .enh .stat{bottom:1px;font-size:13px}
 .enh.sil{filter:grayscale(.8)}
-.enh .skjold{position:absolute;inset:-4px;border-radius:12px;border:2.5px solid #4db4ff;opacity:.9;pointer-events:none;box-shadow:0 0 10px rgba(77,180,255,.6),inset 0 0 8px rgba(77,180,255,.3);animation:skjoldpuls 2s ease-in-out infinite}
-@keyframes skjoldpuls{50%{box-shadow:0 0 16px rgba(77,180,255,.9),inset 0 0 12px rgba(77,180,255,.45)}}
+.enh .skjold{position:absolute;inset:-5px;border-radius:14px;border:2.5px solid #4db4ff;pointer-events:none;z-index:2;
+  box-shadow:0 0 12px rgba(77,180,255,.7),inset 0 0 10px rgba(77,180,255,.35);
+  animation:shieldvib .13s steps(2) infinite, skjoldpuls 1.8s ease-in-out infinite}
+@keyframes skjoldpuls{50%{box-shadow:0 0 18px rgba(77,180,255,.95),inset 0 0 13px rgba(77,180,255,.5)}}
+@keyframes shieldvib{0%{transform:translate(0,0)}20%{transform:translate(.7px,-.6px)}40%{transform:translate(-.6px,.6px)}60%{transform:translate(.5px,.5px)}80%{transform:translate(-.5px,-.4px)}100%{transform:translate(.3px,-.3px)}}
+/* ---- keyword-rammer/auraer på enheder (transform/opacity => billige for ~12 enheder) ---- */
+.kwv{position:absolute;pointer-events:none;border-radius:12px;z-index:2}
+/* Grounded: tung forankret lilla ramme — "skal angribes først" */
+.kwv-jord{inset:-2px;border:3px solid #8b6cff;
+  box-shadow:0 0 9px rgba(139,108,255,.6),inset 0 0 7px rgba(139,108,255,.5)}
+.kwv-jord::before{content:"";position:absolute;inset:2px;border:1px solid rgba(184,166,255,.55);border-radius:9px}
+/* High Voltage: rød knitrende elektrisk aura — "dræber alt den rammer" */
+.kwv-hoj{inset:-3px;border:2px solid #ff5a4d;border-radius:13px;
+  box-shadow:0 0 11px rgba(255,90,77,.75),inset 0 0 8px rgba(255,90,77,.4);
+  animation:hvflicker .16s steps(2,end) infinite}
+@keyframes hvflicker{0%{opacity:1}45%{opacity:.55;transform:translate(.4px,-.3px)}70%{opacity:.9;transform:translate(-.3px,.3px)}100%{opacity:1;transform:translate(0,0)}}
+/* Turbo: grøn fartstribe der fejer forbi — "kan angribe med det samme" */
+.kwv-turbo{inset:-3px;border:2px solid #5fe0a0;border-radius:13px;overflow:hidden;
+  box-shadow:0 0 9px rgba(95,224,160,.6)}
+.kwv-turbo i{position:absolute;inset:0;
+  background:linear-gradient(115deg,transparent 42%,rgba(180,255,220,.55) 50%,transparent 58%);
+  transform:translateX(-120%);animation:turbosweep 1.05s linear infinite}
+@keyframes turbosweep{to{transform:translateX(120%)}}
+/* Dual Core: dobbelt orange ramme — "to angreb" */
+.kwv-dob{inset:-2px;border:2px solid #ffb347;box-shadow:0 0 7px rgba(255,179,71,.5);
+  animation:dobpuls 1.4s ease-in-out infinite}
+.kwv-dob::before{content:"";position:absolute;inset:2px;border:2px solid rgba(255,179,71,.6);border-radius:9px}
+@keyframes dobpuls{50%{box-shadow:0 0 12px rgba(255,179,71,.8)}}
+/* Energy Harvest: blød lyserød puls — "healer din helt" */
+.kwv-host{inset:-3px;border:2px solid #ff8ec4;border-radius:13px;
+  box-shadow:0 0 10px rgba(255,142,196,.55),inset 0 0 8px rgba(255,142,196,.3);
+  animation:hostpuls 1.6s ease-in-out infinite}
+@keyframes hostpuls{50%{box-shadow:0 0 17px rgba(255,142,196,.9),inset 0 0 13px rgba(255,142,196,.5)}}
+/* Cloaked: stiplet grå kant + kortet flimrer gennemsigtigt — "kan ikke rammes endnu" */
+.kwv-skjul{inset:-2px;border:2px dashed rgba(159,180,168,.75)}
+.enh.kw-skjul{animation:cloak 2.4s ease-in-out infinite}
+.enh.kw-skjul .art{opacity:.7}
+@keyframes cloak{0%,100%{opacity:.78}50%{opacity:.48}}
 .tgt{border-color:var(--rod) !important;border-width:3px !important;
   box-shadow:0 0 0 3px rgba(255,109,90,.5),0 0 22px rgba(255,109,90,.75) !important;
   animation:puls .8s infinite;z-index:6}
@@ -1898,7 +1934,8 @@ button:active{transform:scale(.97)}
 .mkort.rare::before,.enh.rare::before{content:"";position:absolute;inset:-1px;border-radius:inherit;pointer-events:none;z-index:2;
   background:linear-gradient(115deg,transparent 44%,rgba(120,190,255,.18) 50%,transparent 56%);
   background-size:280% 280%;animation:legsheen 7s ease-in-out infinite;mix-blend-mode:screen}
-@media (prefers-reduced-motion:reduce){.mkort.leg::before,.enh.leg::before,.mkort.rare::before,.enh.rare::before{animation:none;display:none}.mkort.leg,.enh.leg{animation:none}}
+@media (prefers-reduced-motion:reduce){.mkort.leg::before,.enh.leg::before,.mkort.rare::before,.enh.rare::before{animation:none;display:none}.mkort.leg,.enh.leg{animation:none}
+  .enh .skjold,.kwv-hoj,.kwv-dob,.kwv-host,.enh.kw-skjul{animation:none}.kwv-turbo i{display:none}}
 /* ---- bane-dekoration ---- */
 .boarddecor{position:absolute;inset:0;pointer-events:none;z-index:0;overflow:hidden}
 .spilflade{position:relative}
@@ -2461,9 +2498,17 @@ function UnitTile({g,s,u,mine,onClick,hilite,ready,shake,tuthi,onPointerDown,dra
   const kwl=kwList(g,s,u);
   const sover=mine&&u.jp&&!hasKw(g,s,u,"turbo");
   return (
-    <button className={"enh tema hastip"+(d.r==="L"?" leg":d.r==="R"?" rare":"")+(hilite?" tgt":"")+(ready?" klar":"")+(u.sil?" sil":"")+(sover?" sover":"")+(shake?" ryst":"")+(tuthi?" tuthi":"")+(dragtgt?" dragtgt":"")}
+    <button className={"enh tema hastip"+(d.r==="L"?" leg":d.r==="R"?" rare":"")+(hilite?" tgt":"")+(ready?" klar":"")+(u.sil?" sil":"")+(sover?" sover":"")+(shake?" ryst":"")+(tuthi?" tuthi":"")+(dragtgt?" dragtgt":"")+(!u.sil&&kwl.includes("skjul")?" kw-skjul":"")}
       onClick={onClick} onPointerDown={onPointerDown} data-fx={u.uid} style={themeVars(d)}>
       {kwl.length>0 && <span className="ikoner">{kwl.map(k=><KwBadge key={k} k={k}/>)}</span>}
+      {/* tydelige keyword-rammer/auraer (ud over det lille badge). Kun på brættet,
+          hvor der højst er ~12 enheder — ikke i biblioteket (skal være fladt/hurtigt). */}
+      {kwl.includes("jord") && <span className="kwv kwv-jord"/>}
+      {kwl.includes("host") && <span className="kwv kwv-host"/>}
+      {kwl.includes("turbo") && <span className="kwv kwv-turbo"><i/></span>}
+      {kwl.includes("dob") && <span className="kwv kwv-dob"/>}
+      {kwl.includes("hoj") && <span className="kwv kwv-hoj"/>}
+      {kwl.includes("skjul") && <span className="kwv kwv-skjul"/>}
       {u.sh && <span className="skjold"/>}
       <CardArt id={u.id} className={u.st?"dimart":undefined}/>
       {sover && <span className="zz">z</span>}

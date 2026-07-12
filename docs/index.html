@@ -73,10 +73,10 @@ html,body{margin:0;height:100%;background:var(--bg0)}
   box-shadow:0 0 8px 2px var(--fos);animation:sparkfly linear forwards}
 @keyframes sparkfly{0%{transform:translate(0,0) scale(1);opacity:1}100%{transform:translate(var(--sdx),var(--sdy)) scale(0);opacity:0}}
 /* elektrisk ramme der af og til blafrer op (JS-styret) */
-.eframe{position:absolute;inset:6.5vh 6vw;z-index:2;pointer-events:none;overflow:visible;opacity:0}
-.eframe.flash{animation:eframeflash .55s ease-out}
-@keyframes eframeflash{0%{opacity:0}10%{opacity:1}30%{opacity:.8}100%{opacity:0}}
-.eframe rect{fill:none;stroke-width:2;filter:drop-shadow(0 0 6px currentColor)}
+.eframe{position:absolute;inset:clamp(30px,17vh,180px) clamp(26px,15vw,240px);z-index:2;pointer-events:none;overflow:visible;opacity:0}
+.eframe.flash{animation:eframeflash .5s ease-out}
+@keyframes eframeflash{0%{opacity:0}8%{opacity:1}26%{opacity:.85}55%{opacity:.5}100%{opacity:0}}
+.eframe path{fill:none;stroke-width:2.6;filter:drop-shadow(0 0 5px currentColor) drop-shadow(0 0 12px currentColor)}
 /* elektrisk vortex helt bagved, hvorfra kortene kommer */
 .vortex{position:absolute;left:50%;top:42%;width:340px;height:340px;margin:-170px 0 0 -170px;
   transform:translateZ(-520px);pointer-events:none;opacity:.5}
@@ -208,7 +208,7 @@ footer{padding:30px 20px 46px;text-align:center;color:var(--dim);font-size:12.5p
       <img class="flyv" src="cards/n_mainframe.svg" alt="" loading="lazy" style="--tx:79vw;--ty:-16vh;--rz:-5deg;--du:6.4s;--dl:4.95s;--sx:30vw;--sy:-2vh">
     </div>
     <svg class="eframe" id="eframe" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-      <rect x="1" y="1" width="98" height="98" rx="2" stroke="currentColor" vector-effect="non-scaling-stroke"/>
+      <path id="eframepath" d="M2 2 H98 V98 H2 Z" stroke="currentColor" vector-effect="non-scaling-stroke"/>
     </svg>
     <div class="sparklayer" id="sparklayer"></div>
     <div class="heroind">
@@ -377,8 +377,30 @@ footer{padding:30px 20px 46px;text-align:center;color:var(--dim);font-size:12.5p
 
   /* ---- elektrisk ramme der blafrer op ---- */
   var eframe=document.getElementById('eframe');
+  var eframePath=document.getElementById('eframepath');
+  // takket, uregelmæssig elektrisk rektangel — regenereres ved hvert blink, så
+  // det aldrig ser ens ud. Koordinater i 0..100-rummet (preserveAspectRatio none).
+  function jaggedRect(){
+    var lo=2, hi=98, seg=13, amp=2.2;
+    function edge(fx,fy,tx,ty){
+      var s="";
+      for(var i=1;i<=seg;i++){
+        var t=i/seg;
+        var x=fx+(tx-fx)*t, y=fy+(ty-fy)*t;
+        if(i<seg){ // forskyd vinkelret på kanten
+          var nx=(ty-fy), ny=-(tx-fx), len=Math.hypot(nx,ny)||1;
+          var off=(Math.random()-0.5)*2*amp;
+          x+=nx/len*off; y+=ny/len*off;
+        }
+        s+="L"+x.toFixed(1)+" "+y.toFixed(1)+" ";
+      }
+      return s;
+    }
+    return "M"+lo+" "+lo+" "+edge(lo,lo,hi,lo)+edge(hi,lo,hi,hi)+edge(hi,hi,lo,hi)+edge(lo,hi,lo,lo)+"Z";
+  }
   function frameFlash(){
     if(!eframe||idle()) return;
+    if(eframePath) eframePath.setAttribute('d',jaggedRect());
     eframe.style.color = Math.random()<0.5 ? '#ffffff' : '#ffe066';
     eframe.classList.remove('flash'); void eframe.offsetWidth; eframe.classList.add('flash');
   }
@@ -392,7 +414,7 @@ footer{padding:30px 20px 46px;text-align:center;color:var(--dim);font-size:12.5p
     // bolts over titlen med uregelmæssige mellemrum
     (function loopBolt(){ setTimeout(function(){ if(Math.random()<0.8) titleBolt(); loopBolt(); }, 1400+Math.random()*2400); })();
     // rammen blinker af og til
-    (function loopFrame(){ setTimeout(function(){ if(Math.random()<0.7) frameFlash(); loopFrame(); }, 3000+Math.random()*4500); })();
+    (function loopFrame(){ setTimeout(function(){ if(Math.random()<0.85) frameFlash(); loopFrame(); }, 1300+Math.random()*1700); })();
     // hover på titel + knapper giver gnistregn
     var tw=document.querySelector('.titlewrap');
     if(tw) tw.addEventListener('pointerenter',function(e){ var r=layer.getBoundingClientRect(); burst(e.clientX-r.left,e.clientY-r.top,16); titleBolt(); });
