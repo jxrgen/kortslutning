@@ -2082,7 +2082,13 @@ button:active{transform:scale(.97)}
 .ctip-c{font-family:var(--mono);font-weight:700;color:var(--amber);font-size:13px}
 .ctip-n{font-weight:700;color:#eaf6ee;font-size:14px;line-height:1.15}
 .ctip-t{font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:.03em;margin-bottom:5px}
-.ctip-s{font-family:var(--mono);font-size:13px;color:#eaf6ee;margin-bottom:5px}
+.ctip-s{font-family:var(--mono);font-size:13px;color:#eaf6ee;margin-bottom:5px;display:flex;align-items:center;gap:3px}
+.ctip-s .buffed{color:var(--fos);font-weight:700}
+.ctip-s .nerfed{color:var(--rod)}
+.ctip-base{font-size:10px;color:var(--dim);margin-left:6px}
+.base-stats{font-family:var(--mono);font-size:11px;color:var(--dim);margin-left:auto}
+.statraek .buffed{color:var(--fos)!important;font-weight:700}
+.statraek .nerfed{color:var(--rod)!important}
 .ctip-k{font-family:var(--mono);font-size:11px;color:var(--fos);margin-bottom:5px;line-height:1.3}
 .ctip-x{font-size:12px;color:#cfe6d6;line-height:1.4}
 @media (hover:none){ .ctipwrap{display:none} }
@@ -2286,6 +2292,8 @@ function CardTip({id,live}){
     : (()=>{ const o=[]; if(d.kw) for(const k of d.kw){ if(KWSVG[k]) o.push(k); } if(d.sig) o.push("sig"); return o; })();
   const names = codes.map(k=> k==="sig" ? ("Signal Strength"+(d.sig?" +"+d.sig:"")) : (KWINFO[k]?KWINFO[k].n:k));
   const atk=live?live.atk:d.a, hp=live?live.hp:d.h;
+  const mx=live&&live.max?live.max:d.h;
+  const buffed=live && d.t==="unit" && (atk!==d.a || mx!==d.h);
   return (
     <div className="ctipwrap">
       <div className="ctip">
@@ -2294,7 +2302,11 @@ function CardTip({id,live}){
           <span className="ctip-n">{d.n}</span>
         </div>
         <div className="ctip-t">{d.t==="unit"?"Unit":"Spell"}{d.tr?" · "+d.tr:""}{d.cls&&CLASSES[d.cls]?" · "+CLASSES[d.cls].n:""}{d.r==="L"?<> · <Ico n="legendary"/> Legendary</>:null}{d.r==="R"?<> · <Ico n="rare"/> Rare</>:null}</div>
-        {d.t==="unit" && <div className="ctip-s"><Ico n="sword"/> {atk} &nbsp; <Ico n="heart"/> {hp}</div>}
+        {d.t==="unit" && <div className="ctip-s">
+          <Ico n="sword"/> <span className={atk>d.a?"buffed":atk<d.a?"nerfed":""}>{atk}</span>
+          &nbsp;&nbsp;<Ico n="heart"/> <span className={hp<mx?"nerfed":mx>d.h?"buffed":""}>{hp}{mx!==hp?"/"+mx:""}</span>
+          {buffed && <span className="ctip-base">(base {d.a}/{d.h})</span>}
+        </div>}
         {names.length>0 && <div className="ctip-k">{names.join(" · ")}</div>}
         {d.txt && <div className="ctip-x">{d.txt}</div>}
       </div>
@@ -2432,8 +2444,9 @@ const StorKort = memo(function StorKort({id,unitInfo,g}){
       )}
       {d.t==="unit" && (
         <div className="statraek">
-          <span style={{color:"var(--amber)"}}><Ico n="sword"/> {live?live.a:d.a}</span>
-          <span style={{color:live&&live.h<live.m?"var(--rod)":"var(--fos)"}}><Ico n="heart"/> {live?live.h+"/"+live.m:d.h}</span>
+          <span className={live&&live.a>d.a?"buffed":live&&live.a<d.a?"nerfed":""} style={{color:"var(--amber)"}}><Ico n="sword"/> {live?live.a:d.a}</span>
+          <span className={live&&live.h<live.m?"nerfed":""} style={{color:live&&live.h<live.m?"var(--rod)":"var(--fos)"}}><Ico n="heart"/> {live?live.h+"/"+live.m:d.h}</span>
+          {live && (live.a!==d.a || live.m!==d.h) && <span className="base-stats">(base {d.a}/{d.h})</span>}
         </div>
       )}
     </div>
@@ -2539,7 +2552,7 @@ function UnitTile({g,s,u,mine,onClick,hilite,ready,shake,tuthi,onPointerDown,dra
       {sover && <span className="zz">z</span>}
       <span className="stat a">{effAtk(g,s,u)}</span>
       <span className={"stat h"+(hp<mx?" skadet":"")}>{hp}</span>
-      <CardTip id={u.id} live={{atk:effAtk(g,s,u),hp,codes:kwl}}/>
+      <CardTip id={u.id} live={{atk:effAtk(g,s,u),hp,max:mx,codes:kwl}}/>
     </button>
   );
 }
