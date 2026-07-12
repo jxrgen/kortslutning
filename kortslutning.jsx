@@ -1331,7 +1331,7 @@ const CSS = `
   /* papirtekstur: lag 1 = fint korn, lag 2 = vandrette fibre (anisotropisk turbulence) */
   --paper:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='180'%20height='180'%3E%3Cfilter%20id='g'%3E%3CfeTurbulence%20type='fractalNoise'%20baseFrequency='0.9'%20numOctaves='3'%20stitchTiles='stitch'/%3E%3CfeColorMatrix%20values='0%200%200%200%200.9%200%200%200%200%200.96%200%200%200%200%200.88%200%200%200%200.12%200'/%3E%3C/filter%3E%3Cfilter%20id='f'%3E%3CfeTurbulence%20type='turbulence'%20baseFrequency='0.014%200.09'%20numOctaves='2'%20seed='7'%20stitchTiles='stitch'/%3E%3CfeColorMatrix%20values='0%200%200%200%200.05%200%200%200%200%200.09%200%200%200%200%200.06%200%200%200%200.11%200'/%3E%3C/filter%3E%3Crect%20width='180'%20height='180'%20filter='url(%23g)'/%3E%3Crect%20width='180'%20height='180'%20filter='url(%23f)'/%3E%3C/svg%3E");
   /* diskret top-belysning der giver kortfladen en let hvælvet fornemmelse */
-  --sheen:linear-gradient(170deg,rgba(255,255,255,.07),rgba(255,255,255,.02) 34%,rgba(0,0,0,.16) 82%);
+  --sheen:linear-gradient(168deg,rgba(255,255,255,.11) 0%,rgba(255,255,255,.04) 22%,rgba(255,255,255,0) 42%,rgba(0,0,0,.08) 68%,rgba(0,0,0,.2) 100%);
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body,#root{height:100%}
@@ -1373,18 +1373,28 @@ input:focus,select:focus{border-color:var(--cu)}
   background-blend-mode:overlay,normal,normal;border:1px solid var(--line);
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
   padding-bottom:7px;overflow:hidden;transition:transform .12s,border-color .12s,box-shadow .12s;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.13),inset 0 -3px 6px rgba(0,0,0,.5),
-    0 1px 2px rgba(0,0,0,.55),0 7px 14px rgba(0,0,0,.42)}
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.16),
+    inset 0 -1px 0 rgba(0,0,0,.7),
+    inset 0 -4px 8px rgba(0,0,0,.45),
+    0 1px 1px rgba(0,0,0,.6),
+    0 2px 3px rgba(0,0,0,.4),
+    0 6px 14px rgba(0,0,0,.45),
+    0 12px 28px rgba(0,0,0,.3)}
 .mkort::after{content:"";position:absolute;left:8px;right:8px;bottom:0;height:6px;border-radius:2px 2px 0 0;
   background:repeating-linear-gradient(90deg,var(--guld) 0 4px,#3a2f12 4px 7px);opacity:.85}
 .mkort.leg{border-color:var(--guld)}
 .mkort.spil{border-color:var(--fos);border-width:2px;box-shadow:0 0 16px rgba(95,224,160,.6),0 6px 12px rgba(0,0,0,.5);transform:translateY(-9px) scale(1.04)}
 .mkort.spil::before{content:"";position:absolute;top:-8px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-bottom:8px solid var(--fos);filter:drop-shadow(0 0 4px var(--fos));z-index:3}
-.mkort .art{width:40px;height:40px}
+.mkort .art{width:40px;height:40px;border-radius:4px;
+  box-shadow:inset 0 1px 3px rgba(0,0,0,.5),inset 0 -1px 2px rgba(255,255,255,.06);
+  background:rgba(0,0,0,.2);position:relative}
 .mkort .nv{font-size:8.5px;line-height:1.05;text-align:center;color:var(--txt);padding:0 3px;max-height:19px;overflow:hidden}
 .pris{position:absolute;top:-1px;left:-1px;background:var(--amber);color:#1c1405;font-family:var(--mono);
-  font-weight:700;font-size:12px;min-width:20px;height:20px;border-radius:0 0 8px 0;display:flex;align-items:center;justify-content:center}
-.stat{position:absolute;bottom:2px;font-family:var(--mono);font-weight:700;font-size:12px}
+  font-weight:700;font-size:12px;min-width:20px;height:20px;border-radius:0 0 8px 0;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 1px 3px rgba(0,0,0,.5);text-shadow:0 1px 0 rgba(255,255,255,.3)}
+.stat{position:absolute;bottom:2px;font-family:var(--mono);font-weight:700;font-size:12px;
+  text-shadow:0 1px 3px rgba(0,0,0,.8)}
 .stat.a{left:5px;color:var(--amber)} .stat.h{right:5px;color:var(--fos)}
 .stat.h.skadet{color:var(--rod)}
 .antal{position:absolute;top:-1px;right:-1px;background:var(--cu);color:#180e05;font-family:var(--mono);
@@ -1415,9 +1425,16 @@ input:focus,select:focus{border-color:var(--cu)}
 .enh{position:relative;width:58px;height:66px;border-radius:10px;
   background:var(--paper),var(--sheen),linear-gradient(180deg,var(--bg2),var(--bg1));background-blend-mode:overlay,normal,normal;
   border:1.5px solid var(--line);display:flex;align-items:center;justify-content:center;transition:border-color .12s,box-shadow .12s;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.12),inset 0 -3px 6px rgba(0,0,0,.5),
-    0 1px 2px rgba(0,0,0,.5),0 6px 12px rgba(0,0,0,.45)}
-.enh .art{width:40px;height:40px}
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.14),
+    inset 0 -1px 0 rgba(0,0,0,.65),
+    inset 0 -4px 7px rgba(0,0,0,.4),
+    0 1px 1px rgba(0,0,0,.55),
+    0 2px 3px rgba(0,0,0,.35),
+    0 5px 12px rgba(0,0,0,.42),
+    0 10px 24px rgba(0,0,0,.28)}
+.enh .art{width:40px;height:40px;border-radius:4px;
+  box-shadow:inset 0 1px 3px rgba(0,0,0,.45),inset 0 -1px 2px rgba(255,255,255,.05)}
 .enh.klar{border-color:var(--fos)!important;border-width:2.5px;
   box-shadow:0 0 18px rgba(95,224,160,.7),inset 0 0 8px rgba(95,224,160,.2);
   animation:klarpuls 1.4s ease-in-out infinite}
@@ -1531,12 +1548,21 @@ input:focus,select:focus{border-color:var(--cu)}
 .storkort{border:1px solid var(--line);border-radius:14px;padding:14px;
   background:var(--paper),var(--sheen),linear-gradient(180deg,var(--bg2),var(--bg1));background-blend-mode:overlay,normal,normal;
   position:relative;overflow:hidden;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.1),inset 0 -4px 8px rgba(0,0,0,.42),0 10px 26px rgba(0,0,0,.5)}
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.14),
+    inset 0 -1px 0 rgba(0,0,0,.6),
+    inset 0 -5px 10px rgba(0,0,0,.35),
+    0 1px 2px rgba(0,0,0,.5),
+    0 4px 8px rgba(0,0,0,.35),
+    0 12px 30px rgba(0,0,0,.45),
+    0 22px 50px rgba(0,0,0,.25)}
 .storkort.leg{border-color:var(--guld)}
 .storkort::after{content:"";position:absolute;left:14px;right:14px;bottom:0;height:8px;border-radius:3px 3px 0 0;
   background:repeating-linear-gradient(90deg,var(--guld) 0 6px,#3a2f12 6px 10px);opacity:.85}
 .storkort .top{display:flex;gap:10px;align-items:center}
-.storkort .art.storart{width:82px;height:82px;flex:none}
+.storkort .art.storart{width:82px;height:82px;flex:none;border-radius:8px;
+  box-shadow:inset 0 2px 6px rgba(0,0,0,.55),inset 0 -2px 3px rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.07)}
 .storkort h3{font-family:var(--disp);letter-spacing:1px;font-size:20px;color:var(--cu2)}
 .storkort .meta{font-family:var(--mono);font-size:11px;color:var(--dim);margin-top:2px}
 .storkort .txt{margin:12px 0 14px;font-size:14px;line-height:1.45;color:var(--txt)}
@@ -1764,7 +1790,15 @@ p.rt{font-size:14px;line-height:1.55;color:var(--txt);margin:6px 0}
   background:var(--bg1);font-family:var(--mono);font-size:11.5px;color:var(--dim);line-height:1.5}
 .kinfo{font-size:12.5px;color:var(--dim);margin-top:7px;font-family:var(--mono)}
 .mkort.tema{background:var(--paper),var(--sheen),linear-gradient(180deg,var(--ct),var(--cb));
-  background-blend-mode:overlay,normal,normal;border-color:color-mix(in srgb,var(--ce) 55%,transparent)}
+  background-blend-mode:overlay,normal,normal;border-color:color-mix(in srgb,var(--ce) 45%,transparent);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb,var(--ce) 18%,transparent),
+    inset 0 -1px 0 rgba(0,0,0,.7),
+    inset 0 -4px 8px rgba(0,0,0,.45),
+    0 1px 1px rgba(0,0,0,.6),
+    0 2px 3px rgba(0,0,0,.4),
+    0 6px 14px rgba(0,0,0,.45),
+    0 12px 28px rgba(0,0,0,.3)}
 /* ---- flade biblioteks-kort: billige at tegne (ingen blend-mode, ingen kunst-filter,
    ingen shimmer). Kunsten er en <img> som browseren cacher som bitmap, så hover-
    panelet kan glide hen over 120 kort uden dyr re-rasterisering. ---- */
@@ -1777,7 +1811,15 @@ p.rt{font-size:14px;line-height:1.55;color:var(--txt);margin:6px 0}
 .mkort.flad.leg,.mkort.flad.rare{animation:none}
 .mkort.tema::after{background:var(--ce)}
 .enh.tema{background:var(--paper),var(--sheen),linear-gradient(180deg,var(--ct),var(--cb));
-  background-blend-mode:overlay,normal,normal;border-color:color-mix(in srgb,var(--ce) 55%,transparent)}
+  background-blend-mode:overlay,normal,normal;border-color:color-mix(in srgb,var(--ce) 45%,transparent);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb,var(--ce) 16%,transparent),
+    inset 0 -1px 0 rgba(0,0,0,.65),
+    inset 0 -4px 7px rgba(0,0,0,.4),
+    0 1px 1px rgba(0,0,0,.55),
+    0 2px 3px rgba(0,0,0,.35),
+    0 5px 12px rgba(0,0,0,.42),
+    0 10px 24px rgba(0,0,0,.28)}
 .storkort.tema{background:var(--paper),var(--sheen),linear-gradient(180deg,var(--ct),var(--cb));
   background-blend-mode:overlay,normal,normal;border-color:color-mix(in srgb,var(--ce) 60%,transparent)}
 .storkort.tema .top{background:color-mix(in srgb,var(--ct) 60%,#0c1811);border-color:color-mix(in srgb,var(--ce) 40%,transparent)}
@@ -2161,7 +2203,13 @@ button:active{transform:scale(.97)}
     transform:rotate(calc(var(--o,0)*3.5deg)) translateY(calc(var(--a,0)*7px))}
   .haand .mkort.spil{transform:rotate(calc(var(--o,0)*3.5deg)) translateY(calc(var(--a,0)*7px - 8px))}
   .haand .mkort:hover{transform:rotate(0deg) translateY(-34px) scale(1.16);z-index:6;
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 4px 8px rgba(0,0,0,.5),0 24px 38px rgba(0,0,0,.62)}
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.18),
+      inset 0 -1px 0 rgba(0,0,0,.6),
+      0 2px 4px rgba(0,0,0,.5),
+      0 8px 16px rgba(0,0,0,.5),
+      0 20px 40px rgba(0,0,0,.55),
+      0 30px 60px rgba(0,0,0,.3)}
   .hotkey{width:25px;height:25px;font-size:13px;margin-top:-11px}
   .kraft{width:58px;height:58px;font-size:26px}
   .logpanel{bottom:204px}.logknap{bottom:204px}
