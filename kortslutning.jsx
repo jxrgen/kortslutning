@@ -3139,57 +3139,43 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
   };
 
   useEffect(()=>{
+    // ---- Indsamling: nye events → kø ----
     const fx=g.fx||[];
     if((g.fxk||0)<fxDone.current) fxDone.current=0;
     const nye=fx.filter(e=>e.k>fxDone.current);
     if(fx.length) fxDone.current=fx[fx.length-1].k;
-    // nye events → kø (afspilles sekventielt nedenunder)
     if(nye.length) fxQ.current.push(...nye);
-  },[g]);
 
-  // Afspil FX-køen — men KUN når reveal IKKE er aktiv.
-  // Reveal blokerer alt, så der kun sker én ting ad gangen.
-  useEffect(()=>{
-    if(reveal) return;  // vent til reveal er lukket
+    // ---- Afspilning ----
+    // Reveal aktiv? → vent. FX'erne ligger sikkert i køen til reveal lukkes.
+    if(reveal) return;
     const q=fxQ.current;
     if(!q.length) return;
-    const batch=[...q]; fxQ.current=[];
+
     const redMo=(typeof window!=="undefined"&&window.matchMedia
       &&window.matchMedia("(prefers-reduced-motion: reduce)").matches)||!SETTINGS.fxMotion;
-    const T=tempo();
-    const gap=0.22*T;
-    // Finder næste spilEv i batchen → vis som reveal, og udskyd resten
-    const spilIdx=batch.findIndex(e=>e.t==="spil");
+
+    // Finder næste spilEv → vis som STORT reveal-kort, gem resten i køen
+    const spilIdx=q.findIndex(e=>e.t==="spil");
     if(spilIdx>=0 && !redMo && SETTINGS.cardRevealMs>0){
-      const spilEv=batch[spilIdx];
+      const spilEv=q[spilIdx];
       const ms=SETTINGS.cardRevealMs;
+      // Fjern spilEv fra køen (resten forbliver til næste kørsel)
+      q.splice(spilIdx,1);
       setReveal({id:spilEv.id,k:spilEv.k,ms});
       setTimeout(()=>setReveal(r=>(r&&r.k===spilEv.k)?null:r),ms);
-      // læg resterende events (alt undtagen dette spil-event) TILBAGE i køen
-      // så de afspilles når reveal lukkes
-      const rest=batch.filter((_,i)=>i!==spilIdx);
-      if(rest.length) fxQ.current.push(...rest);
-      return;
+      return; // effekterne afspilles når reveal lukkes (useEffect fyrer pga. reveal-ændring)
     }
-    // Ingen reveal → afspil hele batchen nu
-    const lyd=(fn,extra=0)=>{ const ms=extra*1000; if(ms<=0) fn(); else setTimeout(fn,ms); };
+
+    // Ingen reveal, ingen spilEv → afspil hele køen sekventielt
+    const batch=[...q]; q.length=0;
+    const T=tempo();
+    const gap=0.22*T;
+    const lyd=(fn,extra)=>{ if(extra<=0) fn(); else setTimeout(fn,extra*1000); };
     const add=[], sh=[];
     for(const e of batch){
       const d=add.length*gap, kk=e.k;
-      if(e.t==="spil"){
-        // kort-flyv (ingen reveal — fx spillerens eget kort med reveal slået fra, eller
-        // når reveal allerede har kørt og dette er en gentagelse)
-        const fra=posOf(e.s,e.hu)||posOf(e.s,null); if(!fra) continue;
-        const til=e.ts!=null?posOf(e.ts,e.tu):null;
-        const cx=(typeof window!=="undefined"?window.innerWidth/2:400);
-        const cy=(typeof window!=="undefined"?window.innerHeight/2:400);
-        const mx=til?til.x:cx, my=til?til.y:cy;
-        const kurve=typeof CSS!=="undefined"&&CSS.supports&&CSS.supports("offset-path",'path("M0 0 L1 1")');
-        add.push({key:"f"+kk,type:"flyv",x:fra.x,y:fra.y,tx:mx-fra.x,ty:my-fra.y,id:e.id,d,
-          op:kurve?('path("M '+fra.x.toFixed(0)+' '+fra.y.toFixed(0)+' Q '+((fra.x+mx)/2).toFixed(0)+' '
-            +(Math.min(fra.y,my)-180).toFixed(0)+' '+mx.toFixed(0)+' '+my.toFixed(0)+'")'):null});
-      }
-      else if(e.t==="dmg"){ const P=posOf(e.s,e.u!==undefined?e.u:null); if(!P) continue;
+      if(e.t==="dmg"){ const P=posOf(e.s,e.u!==undefined?e.u:null); if(!P) continue;
         add.push({key:"t"+kk,type:"tal",x:P.x,y:P.y,txt:"\u2212"+e.n,c:"var(--rod)",d});
         add.push({key:"b"+kk,type:"burst",x:P.x,y:P.y,n:7,c:"var(--amber)",d});
         sh.push(e.u!=null?e.u:"h"+e.s); lyd(Audio8.sfx.hit,d); }
@@ -3235,6 +3221,18 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
               {transform:"translateY(0) scale(1) rotate(0)",filter:"brightness(1)",offset:1}
             ],{duration:slowMs(600),easing:"cubic-bezier(.3,.9,.4,1)",delay:d*1000}); } }
       }
+      // spil-events uden reveal: vis flyv-animation
+      else if(e.t==="spil"){
+        const fra=posOf(e.s,e.hu)||posOf(e.s,null); if(!fra) continue;
+        const til=e.ts!=null?posOf(e.ts,e.tu):null;
+        const cx=(typeof window!=="undefined"?window.innerWidth/2:400);
+        const cy=(typeof window!=="undefined"?window.innerHeight/2:400);
+        const mx=til?til.x:cx, my=til?til.y:cy;
+        const kurve=typeof CSS!=="undefined"&&CSS.supports&&CSS.supports("offset-path",'path("M0 0 L1 1")');
+        add.push({key:"f"+kk,type:"flyv",x:fra.x,y:fra.y,tx:mx-fra.x,ty:my-fra.y,id:e.id,d,
+          op:kurve?('path("M '+fra.x.toFixed(0)+' '+fra.y.toFixed(0)+' Q '+((fra.x+mx)/2).toFixed(0)+' '
+            +(Math.min(fra.y,my)-180).toFixed(0)+' '+mx.toFixed(0)+' '+my.toFixed(0)+'")')  :null});
+      }
     }
     if(add.length){
       setSparks(x=>[...x,...add]);
@@ -3242,7 +3240,7 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
       setTimeout(()=>setSparks(x=>x.filter(f=>!keys.includes(f.key))),slowMs(1400));
     }
     if(sh.length){ setTimeout(()=>{ setShake(new Set(sh)); setTimeout(()=>setShake(new Set()),slowMs(380)); },0); }
-  },[reveal]);
+  },[g,reveal]);
 
   useEffect(()=>{ const L=g.last;
     if(L&&L.k!==lastK.current){ lastK.current=L.k;
