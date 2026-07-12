@@ -27,6 +27,12 @@ npm run build:web     # bundle docs/ (GitHub Pages) and desktop/app/
 
 Architecture: pure-JS engine between `__ENGINE_START__`/`__ENGINE_END__` markers (headless-testable), React UI below, PCB-themed CSS injected via a style tag. Multiplayer sync is last-write-wins over the artifact's shared storage with sequence numbers. Adding a new class = one entry in the `CLASSES` table + cards with a `cls` field.
 
+## Agent notes
+
+Working on this repo with an AI agent? Read [`AGENTS.md`](AGENTS.md) first — it
+captures the hard-won lessons (especially the Card Library paint-performance
+root cause) and the clone/test/build/push workflow.
+
 ## Icons
 
 Interface icons come from [game-icons.net](https://game-icons.net) and are used under
