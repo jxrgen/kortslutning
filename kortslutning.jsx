@@ -3178,8 +3178,20 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
     const key=u2!=null?u2:("h"+s2);
     const el=document.querySelector('[data-fx="'+key+'"]');
     if(el){ const r=el.getBoundingClientRect(); return {x:r.left+r.width/2,y:r.top+r.height/2}; }
+    // element er væk fra DOM (dræbt enhed) → brug sidste kendte position fra posRef
     const r=pos&&pos.current&&pos.current[key];
-    return r?{x:r.left+r.width/2,y:r.top+r.height/2}:null;
+    if(r) return {x:r.left+r.width/2,y:r.top+r.height/2};
+    // hverken i DOM eller cache (fx en netop tilkaldt enhed hvis DOM ikke er
+    // renderet endnu) → fald tilbage til den relevante spillers bræt-midte, så
+    // effekten aldrig havner i det tomme rum til højre
+    if(u2!=null && s2!=null){
+      const heltEl=document.querySelector('[data-fx="h'+s2+'"]');
+      const braet=document.querySelector(s2===seat?".braet:not(.op)":".braet.op")
+                || document.querySelector(".braet");
+      const ref=braet||heltEl;
+      if(ref){ const b=ref.getBoundingClientRect(); return {x:b.left+b.width/2,y:b.top+b.height/2}; }
+    }
+    return null;
   };
 
   useEffect(()=>{
@@ -4414,9 +4426,11 @@ export default function App(){
   const posRef=useRef({});
   const applyG=g2=>{
     try{
-      const m={};
-      document.querySelectorAll("[data-fx]").forEach(el=>{ m[el.dataset.fx]=el.getBoundingClientRect(); });
-      posRef.current=m;
+      // OPDATÉR positioner (erstat ikke hele mappet) — så en netop-dræbt enheds
+      // sidste kendte position bevares indtil dens skade/boom-FX er afspillet.
+      // Ellers ville en efterfølgende render (fx bottens tur under en reveal)
+      // slette positionen, og FX ville havne et forkert sted.
+      document.querySelectorAll("[data-fx]").forEach(el=>{ posRef.current[el.dataset.fx]=el.getBoundingClientRect(); });
     }catch(e){}
     setG(g2);
   };

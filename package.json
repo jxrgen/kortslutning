@@ -7,7 +7,7 @@
   "scripts": {
     "test": "node test/test.mjs",
     "test:ui": "node test/testui.mjs",
-    "agents": "node tools/agents/agent-rules.mjs && node tools/agents/agent-effects.mjs && node tools/agents/agent-coverage.mjs && node tools/agents/agent-fuzz.mjs && node tools/agents/agent-bots.mjs && node tools/agents/agent-run.mjs && node tools/agents/agent-keywords.mjs",
+    "agents": "node tools/agents/agent-rules.mjs && node tools/agents/agent-effects.mjs && node tools/agents/agent-coverage.mjs && node tools/agents/agent-fuzz.mjs && node tools/agents/agent-bots.mjs && node tools/agents/agent-run.mjs && node tools/agents/agent-keywords.mjs && node tools/agents/agent-fx.mjs",
     "soak": "node tools/agents/soak.mjs",
     "build:assets": "node tools/gen-assets.mjs",
     "build:web": "node tools/build-web.mjs",
