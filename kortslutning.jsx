@@ -3244,7 +3244,9 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
 
   useEffect(()=>{ const L=g.last;
     if(L&&L.k!==lastK.current){ lastK.current=L.k;
-      if(L.s!==seat && SETTINGS.showEnemyBanner){ setPt(L); const t=setTimeout(()=>setPt(null),slowMs(2600)); return ()=>clearTimeout(t); } }
+      // reveal viser allerede kortet stort — ptoast er overflødig og skaber dobbelt-kort
+      if(L.s!==seat && SETTINGS.showEnemyBanner && SETTINGS.cardRevealMs<=0){
+        setPt(L); const t=setTimeout(()=>setPt(null),slowMs(2600)); return ()=>clearTimeout(t); } }
   },[g.last&&g.last.k]);
   useEffect(()=>{ if(g.turn!==prevTurn.current){ prevTurn.current=g.turn;
       if(myTurn&&g.status==="igang") setTurban(x=>x+1); } },[g.turn,myTurn]);
