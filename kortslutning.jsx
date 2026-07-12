@@ -413,15 +413,31 @@ function log(g,m){
    hvordan begge heltes HP ændrede sig. g._rec peger på den post der optages lige
    nu (kun sat inde i playCard) — log/sweep/summon skriver til den. */
 const MAXHIST = 24;
-function recStart(g,s,id){
-  const rec={ k:(g.hk=(g.hk||0)+1), s, id, r:Math.max(1,Math.ceil(g.turn/2)),
-    _hp:[g.players[0].hp,g.players[1].hp], kills:[], sum:[], lines:[] };
+function recStart(g,s,id,tgt){
+  const rec={ k:(g.hk=(g.hk||0)+1), s, id, tgt:tgt||null, r:Math.max(1,Math.ceil(g.turn/2)),
+    _hp:[g.players[0].hp,g.players[1].hp],
+    _units:[g.players[0].board.map(u=>({uid:u.uid,id:u.id,hp:effHp(g,0,u)})),
+            g.players[1].board.map(u=>({uid:u.uid,id:u.id,hp:effHp(g,1,u)}))],
+    kills:[], sum:[], hits:[], lines:[] };
   g._rec=rec; return rec;
 }
 function recEnd(g,rec){
   g._rec=null;
   rec.dhp=[g.players[0].hp-rec._hp[0], g.players[1].hp-rec._hp[1]];
-  delete rec._hp;
+  // beregn hits: hvad tog skade (enheder + helte)
+  for(const side of [0,1]){
+    const hpDiff=g.players[side].hp-rec._hp[side];
+    if(hpDiff<0) rec.hits.push({s:side,id:null,n:-hpDiff}); // hero tog skade
+    for(const pre of rec._units[side]){
+      const u=g.players[side].board.find(x=>x.uid===pre.uid);
+      if(!u){ // enheden er død (allerede i kills)
+        continue;
+      }
+      const hpNow=effHp(g,side,u);
+      if(hpNow<pre.hp) rec.hits.push({s:side,id:pre.id,uid:pre.uid,n:pre.hp-hpNow});
+    }
+  }
+  delete rec._hp; delete rec._units;
   if(!g.hist) g.hist=[];
   g.hist.push(rec);
   if(g.hist.length>MAXHIST) g.hist.shift();
@@ -609,7 +625,8 @@ function playCard(g,s,handUid,tref){
   if(d.t==="spell"&&tref) fxPush(g,{t:"zap",fs:s,fu:null,ts:tref.s,tu:tref.u,art:"spell"});
   else if(d.t==="spell") fxPush(g,{t:"cast",s});
   log(g,"§play§ "+p.name+" plays "+d.n+".");
-  const rec=recStart(g,s,id);
+  const tgtInfo=tref&&tref.u!=null?{s:tref.s,id:refUnit(g,tref)?refUnit(g,tref).id:null}:tref?{s:tref.s,id:null}:null;
+  const rec=recStart(g,s,id,tgtInfo);
   if(d.t==="unit"){
     const u=mkUnit(g,id); p.board.push(u);
     if(d.bcTgt){
@@ -646,6 +663,8 @@ function unitAttack(g,s,uid,tref){
   if(!u) return "That unit doesn’t exist.";
   const list=attackTargets(g,s,uid);
   if(!list.some(r=>r.s===tref.s&&r.u===tref.u)) return "Invalid target.";
+  const tgtInfo=tref.u!=null?{s:tref.s,id:refUnit(g,tref)?refUnit(g,tref).id:null}:{s:tref.s,id:null};
+  const rec=recStart(g,s,u.id,tgtInfo);
   u.atkLeft--; u.st=false;
   fxPush(g,{t:"zap",fs:s,fu:uid,ts:tref.s,tu:tref.u,art:"melee"});
   const aA=effAtk(g,s,u);
@@ -654,7 +673,7 @@ function unitAttack(g,s,uid,tref){
     log(g,"§sword§ "+CARDS[u.id].n+" attacks "+g.players[tref.s].name+" ("+aA+").");
     dmg(g,tref,aA,srcA);
   } else {
-    const d=refUnit(g,tref); if(!d) return "The target doesn’t exist.";
+    const d=refUnit(g,tref); if(!d){ recEnd(g,rec); return "The target doesn’t exist."; }
     const aD=effAtk(g,tref.s,d);
     const srcD={hoj:hasKw(g,tref.s,d,"hoj"),host:hasKw(g,tref.s,d,"host"),hs:tref.s};
     log(g,"§sword§ "+CARDS[u.id].n+" ("+aA+") trades with "+CARDS[d.id].n+" ("+aD+").");
@@ -662,6 +681,7 @@ function unitAttack(g,s,uid,tref){
     if(aD>0) dmg(g,{s,u:uid},aD,srcD);
   }
   sweep(g); checkWin(g);
+  recEnd(g,rec);
   return null;
 }
 /* ---------- klasser ----------
@@ -1592,6 +1612,7 @@ input:focus,select:focus{border-color:var(--cu)}
 .histtip .chip.heal{border-color:var(--fos);color:var(--fos)}
 .histtip .chip.doed{border-color:var(--rod);background:rgba(120,20,20,.35);color:#ffd2cb}
 .histtip .chip.doed.selv{border-color:var(--dim);background:rgba(0,0,0,.3);color:#9fb3a6}
+.histtip .chip.maal{border-color:var(--amber);color:var(--amber)}
 .histtip .htlinjer{font-family:var(--mono);font-size:10px;line-height:1.45;color:#a8bdb0;
   border-top:1px solid var(--line);padding-top:5px}
 .histtip .htintet{font-family:var(--mono);font-size:10px;color:var(--dim)}
@@ -2366,18 +2387,28 @@ function HistTip({rec,pos,navne}){
   const d=CARDS[rec.id]; if(!d) return null;
   const opS=1-rec.s;
   const chips=[];
-  const sMod=histSkade(rec,opS), sSelv=histSkade(rec,rec.s);
-  const hMod=histHeal(rec,opS), hSelv=histHeal(rec,rec.s);
-  if(sMod>0) chips.push(<span key="sm" className="chip skade">−{sMod} <Ico n="heart"/> {navne[opS]}</span>);
-  if(sSelv>0) chips.push(<span key="ss" className="chip skade">−{sSelv} <Ico n="heart"/> {navne[rec.s]}</span>);
-  if(hMod>0) chips.push(<span key="hm" className="chip heal">+{hMod} <Ico n="heart"/> {navne[opS]}</span>);
+  // mål for spell/angreb
+  if(rec.tgt){
+    const tgtN=rec.tgt.id?CARDS[rec.tgt.id].n:navne[rec.tgt.s];
+    chips.push(<span key="tgt" className="chip maal"><Ico n="sword"/> → {tgtN}</span>);
+  }
+  // hits: hvem tog skade
+  for(const h of (rec.hits||[])){
+    const n=h.id?CARDS[h.id].n:navne[h.s];
+    chips.push(<span key={"h"+chips.length} className="chip skade">−{h.n} {n}</span>);
+  }
+  // hero HP-ændring (heal)
+  const hSelv=histHeal(rec,rec.s), hMod=histHeal(rec,opS);
   if(hSelv>0) chips.push(<span key="hs" className="chip heal">+{hSelv} <Ico n="heart"/> {navne[rec.s]}</span>);
+  if(hMod>0) chips.push(<span key="hm" className="chip heal">+{hMod} <Ico n="heart"/> {navne[opS]}</span>);
+  // dræbt
   for(const k of rec.kills) chips.push(
     <span key={"k"+chips.length} className={"chip doed"+(k.s===rec.s?" selv":"")}>
       <Ico n="skull"/> {CARDS[k.id]?CARDS[k.id].n:"?"}{k.s===rec.s?" (own)":""}</span>);
+  // tilkaldt
   for(const u of rec.sum) chips.push(<span key={"s"+chips.length} className="chip"><Ico n="sparkle"/> {CARDS[u.id]?CARDS[u.id].n:"?"}</span>);
-  // dødsfald står allerede som chips — undgå dobbeltinfo i log-linjerne
-  const linjer=rec.lines.filter(l=>!l.startsWith("§cross§ "));
+  // log-linjer (ekskl. dem der allerede vises som chips)
+  const linjer=rec.lines.filter(l=>!l.startsWith("§cross§ ") && !l.startsWith("§sword§ "));
   const tomt = chips.length===0 && linjer.length===0;
   return (
     <div className="histtip" style={{...themeVars(d),top:pos.top,left:pos.left}}>
@@ -2385,7 +2416,7 @@ function HistTip({rec,pos,navne}){
       <div className="htmeta">{navne[rec.s]} · round {rec.r} · {d.t==="unit"?"unit":"spell"}</div>
       {chips.length>0 && <div className="htchips">{chips}</div>}
       {linjer.length>0 && <div className="htlinjer">{linjer.map((l,i)=><div key={i}><LogTekst t={l}/></div>)}</div>}
-      {tomt && <div className="htintet">No visible effect — it just hit the board.</div>}
+      {tomt && <div className="htintet">No visible effect.</div>}
     </div>
   );
 }
