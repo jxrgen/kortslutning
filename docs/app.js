@@ -70,9 +70,7 @@ input:focus,select:focus{border-color:var(--cu)}
 .mkort.leg{border-color:var(--guld)}
 .mkort.spil{border-color:var(--fos);border-width:2px;box-shadow:0 0 16px rgba(95,224,160,.6),0 6px 12px rgba(0,0,0,.5);transform:translateY(-9px) scale(1.04)}
 .mkort.spil::before{content:"";position:absolute;top:-8px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-bottom:8px solid var(--fos);filter:drop-shadow(0 0 4px var(--fos));z-index:3}
-.mkort .art{width:40px;height:40px;border-radius:4px;
-  box-shadow:inset 0 1px 3px rgba(0,0,0,.5),inset 0 -1px 2px rgba(255,255,255,.06);
-  background:rgba(0,0,0,.2);position:relative}
+.mkort .art{width:40px;height:40px}
 .mkort .nv{font-size:8.5px;line-height:1.05;text-align:center;color:var(--txt);padding:0 3px;max-height:19px;overflow:hidden}
 .pris{position:absolute;top:-1px;left:-1px;background:var(--amber);color:#1c1405;font-family:var(--mono);
   font-weight:700;font-size:12px;min-width:20px;height:20px;border-radius:0 0 8px 0;display:flex;align-items:center;justify-content:center;
@@ -117,8 +115,7 @@ input:focus,select:focus{border-color:var(--cu)}
     0 2px 3px rgba(0,0,0,.35),
     0 5px 12px rgba(0,0,0,.42),
     0 10px 24px rgba(0,0,0,.28)}
-.enh .art{width:40px;height:40px;border-radius:4px;
-  box-shadow:inset 0 1px 3px rgba(0,0,0,.45),inset 0 -1px 2px rgba(255,255,255,.05)}
+.enh .art{width:40px;height:40px}
 .enh.klar{border-color:var(--fos)!important;border-width:2.5px;
   box-shadow:0 0 18px rgba(95,224,160,.7),inset 0 0 8px rgba(95,224,160,.2);
   animation:klarpuls 1.4s ease-in-out infinite}
@@ -207,7 +204,8 @@ input:focus,select:focus{border-color:var(--cu)}
 .haand{display:flex;gap:7px;padding:9px 10px calc(10px + env(safe-area-inset-bottom));overflow-x:auto;
   background:rgba(9,16,11,.75);border-top:1px solid var(--line);min-height:128px}
 /* ---- h\xE5ndplads: kort + tastetal nedenunder ---- */
-.hslot{position:relative;flex:none;display:flex;flex-direction:column;align-items:center}
+.hslot{position:relative;flex:none;display:flex;flex-direction:column;align-items:center;
+  padding-bottom:12px;margin-bottom:-12px}
 .hotkey{margin-top:-9px;z-index:4;width:20px;height:20px;border-radius:50%;flex:none;
   display:flex;align-items:center;justify-content:center;
   font-family:var(--mono);font-size:11px;font-weight:700;line-height:1;
@@ -244,9 +242,7 @@ input:focus,select:focus{border-color:var(--cu)}
 .storkort::after{content:"";position:absolute;left:14px;right:14px;bottom:0;height:8px;border-radius:3px 3px 0 0;
   background:repeating-linear-gradient(90deg,var(--guld) 0 6px,#3a2f12 6px 10px);opacity:.85}
 .storkort .top{display:flex;gap:10px;align-items:center}
-.storkort .art.storart{width:82px;height:82px;flex:none;border-radius:8px;
-  box-shadow:inset 0 2px 6px rgba(0,0,0,.55),inset 0 -2px 3px rgba(255,255,255,.06);
-  border:1px solid rgba(255,255,255,.07)}
+.storkort .art.storart{width:82px;height:82px;flex:none}
 .storkort h3{font-family:var(--disp);letter-spacing:1px;font-size:20px;color:var(--cu2)}
 .storkort .meta{font-family:var(--mono);font-size:11px;color:var(--dim);margin-top:2px}
 .storkort .txt{margin:12px 0 14px;font-size:14px;line-height:1.45;color:var(--txt)}
@@ -886,7 +882,7 @@ button:active{transform:scale(.97)}
   .haand .mkort{transform-origin:50% 135%;
     transform:rotate(calc(var(--o,0)*3.5deg)) translateY(calc(var(--a,0)*7px))}
   .haand .mkort.spil{transform:rotate(calc(var(--o,0)*3.5deg)) translateY(calc(var(--a,0)*7px - 8px))}
-  .haand .mkort:hover{transform:rotate(0deg) translateY(-34px) scale(1.16);z-index:6;
+  .haand .hslot:hover .mkort{transform:rotate(0deg) translateY(-34px) scale(1.16);z-index:6;
     box-shadow:
       inset 0 1px 0 rgba(255,255,255,.18),
       inset 0 -1px 0 rgba(0,0,0,.6),
