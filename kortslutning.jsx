@@ -3143,48 +3143,61 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
     if((g.fxk||0)<fxDone.current) fxDone.current=0;
     const nye=fx.filter(e=>e.k>fxDone.current);
     if(fx.length) fxDone.current=fx[fx.length-1].k;
-    if(!nye.length && !fxQ.current.length) return;
-    // ---- KØ-BASERET FX-SYSTEM ----
-    // Nye FX lægges i køen. Køen afspilles KUN når der ingen reveal er.
-    // Reveal vises med det samme (spil-eventet flyver mod midten), men alt
-    // andet (dmg, boom, zap) venter til reveal er væk. Resultatet: der sker
-    // altid kun én ting ad gangen.
+    // nye events → kø (afspilles sekventielt nedenunder)
     if(nye.length) fxQ.current.push(...nye);
+  },[g]);
+
+  // Afspil FX-køen — men KUN når reveal IKKE er aktiv.
+  // Reveal blokerer alt, så der kun sker én ting ad gangen.
+  useEffect(()=>{
+    if(reveal) return;  // vent til reveal er lukket
+    const q=fxQ.current;
+    if(!q.length) return;
+    const batch=[...q]; fxQ.current=[];
     const redMo=(typeof window!=="undefined"&&window.matchMedia
       &&window.matchMedia("(prefers-reduced-motion: reduce)").matches)||!SETTINGS.fxMotion;
-    // vis reveal for spilEv med det samme (men udskyd resten)
-    const spilEv=fxQ.current.find(e=>e.t==="spil");
-    if(spilEv && !reveal && !redMo && SETTINGS.cardRevealMs>0){
+    const T=tempo();
+    const gap=0.22*T;
+    // Finder næste spilEv i batchen → vis som reveal, og udskyd resten
+    const spilIdx=batch.findIndex(e=>e.t==="spil");
+    if(spilIdx>=0 && !redMo && SETTINGS.cardRevealMs>0){
+      const spilEv=batch[spilIdx];
       const ms=SETTINGS.cardRevealMs;
       setReveal({id:spilEv.id,k:spilEv.k,ms});
       setTimeout(()=>setReveal(r=>(r&&r.k===spilEv.k)?null:r),ms);
-      // fjern spilEv fra køen (den er vist nu)
-      fxQ.current=fxQ.current.filter(e=>e!==spilEv);
-      return; // vent til reveal lukkes
+      // læg resterende events (alt undtagen dette spil-event) TILBAGE i køen
+      // så de afspilles når reveal lukkes
+      const rest=batch.filter((_,i)=>i!==spilIdx);
+      if(rest.length) fxQ.current.push(...rest);
+      return;
     }
-    // reveal aktiv? vent
-    if(reveal) return;
-    // reveal lukket (eller ingen reveal) → afspil køen
-    const batch=[...fxQ.current]; fxQ.current=[];
-    if(!batch.length) return;
-    const T=tempo();
-    const gap=0.22*T;
-    let hold=0;
-    // lyde skal følge den forsinkede effekt, ikke fyre med det samme
-    const lyd=(fn,extra=0)=>{ const ms=(hold+extra)*1000; if(ms<=0) fn(); else setTimeout(fn,ms); };
+    // Ingen reveal → afspil hele batchen nu
+    const lyd=(fn,extra=0)=>{ const ms=extra*1000; if(ms<=0) fn(); else setTimeout(fn,ms); };
     const add=[], sh=[];
     for(const e of batch){
-      // "spil"-eventet selv skal ikke forsinkes (det ER showcasen); resten venter
-      const d=(e.t==="spil"?0:hold)+add.length*gap, kk=e.k;
-      if(e.t==="dmg"){ const P=posOf(e.s,e.u!==undefined?e.u:null); if(!P) continue;
-        add.push({key:"t"+kk,type:"tal",x:P.x,y:P.y,txt:"−"+e.n,c:"var(--rod)",d});
+      const d=add.length*gap, kk=e.k;
+      if(e.t==="spil"){
+        // kort-flyv (ingen reveal — fx spillerens eget kort med reveal slået fra, eller
+        // når reveal allerede har kørt og dette er en gentagelse)
+        const fra=posOf(e.s,e.hu)||posOf(e.s,null); if(!fra) continue;
+        const til=e.ts!=null?posOf(e.ts,e.tu):null;
+        const cx=(typeof window!=="undefined"?window.innerWidth/2:400);
+        const cy=(typeof window!=="undefined"?window.innerHeight/2:400);
+        const mx=til?til.x:cx, my=til?til.y:cy;
+        const kurve=typeof CSS!=="undefined"&&CSS.supports&&CSS.supports("offset-path",'path("M0 0 L1 1")');
+        add.push({key:"f"+kk,type:"flyv",x:fra.x,y:fra.y,tx:mx-fra.x,ty:my-fra.y,id:e.id,d,
+          op:kurve?('path("M '+fra.x.toFixed(0)+' '+fra.y.toFixed(0)+' Q '+((fra.x+mx)/2).toFixed(0)+' '
+            +(Math.min(fra.y,my)-180).toFixed(0)+' '+mx.toFixed(0)+' '+my.toFixed(0)+'")'):null});
+      }
+      else if(e.t==="dmg"){ const P=posOf(e.s,e.u!==undefined?e.u:null); if(!P) continue;
+        add.push({key:"t"+kk,type:"tal",x:P.x,y:P.y,txt:"\u2212"+e.n,c:"var(--rod)",d});
         add.push({key:"b"+kk,type:"burst",x:P.x,y:P.y,n:7,c:"var(--amber)",d});
-        sh.push(e.u!=null?e.u:"h"+e.s); lyd(Audio8.sfx.hit); }
+        sh.push(e.u!=null?e.u:"h"+e.s); lyd(Audio8.sfx.hit,d); }
       else if(e.t==="heal"){ const P=posOf(e.s,e.u); if(!P) continue;
         add.push({key:"t"+kk,type:"tal",x:P.x,y:P.y,txt:"+"+e.n,c:"var(--fos)",d});
-        add.push({key:"r"+kk,type:"ring",x:P.x,y:P.y,c:"var(--fos)",d}); lyd(Audio8.sfx.heal); }
+        add.push({key:"r"+kk,type:"ring",x:P.x,y:P.y,c:"var(--fos)",d}); lyd(Audio8.sfx.heal,d); }
       else if(e.t==="boom"){ const P=posOf(e.s,e.u); if(!P) continue;
-        add.push({key:"b"+kk,type:"burst",x:P.x,y:P.y,n:14,c:"var(--cu2)",stor:true,d}); lyd(Audio8.sfx.death);
+        add.push({key:"b"+kk,type:"burst",x:P.x,y:P.y,n:14,c:"var(--cu2)",stor:true,d}); lyd(Audio8.sfx.death,d);
         if(!redMo){ const fl=document.querySelector(".spilflade");
           if(fl&&fl.animate) fl.animate(
             [{transform:"translate(0,0)"},{transform:"translate(-5px,2px)"},{transform:"translate(4px,-2px)"},{transform:"translate(-2px,1px)"},{transform:"translate(0,0)"}],
@@ -3192,12 +3205,12 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
       else if(e.t==="skjold"){ const P=posOf(e.s,e.u); if(!P) continue;
         add.push({key:"r"+kk,type:"ring",x:P.x,y:P.y,c:"var(--guld)",d}); }
       else if(e.t==="pop"){ const P=posOf(e.s,e.u); if(!P) continue;
-        add.push({key:"b"+kk,type:"burst",x:P.x,y:P.y,n:6,c:"var(--fos)",d}); lyd(Audio8.sfx.unit); }
+        add.push({key:"b"+kk,type:"burst",x:P.x,y:P.y,n:6,c:"var(--fos)",d}); lyd(Audio8.sfx.unit,d); }
       else if(e.t==="cast"){ const P=posOf(e.s,null); if(!P) continue;
-        add.push({key:"r"+kk,type:"ring",x:P.x,y:P.y,c:"var(--amber)",d}); lyd(Audio8.sfx.spell); }
+        add.push({key:"r"+kk,type:"ring",x:P.x,y:P.y,c:"var(--amber)",d}); lyd(Audio8.sfx.spell,d); }
       else if(e.t==="zap"&&e.art==="melee"){
         const P1=posOf(e.fs,e.fu), P2=posOf(e.ts,e.tu); if(!P1||!P2) continue;
-        lyd(Audio8.sfx.attack);
+        lyd(Audio8.sfx.attack,d);
         if(!redMo){ const el=document.querySelector('[data-fx="'+e.fu+'"]');
           if(el&&el.animate){ const lx=(P2.x-P1.x)*0.85, ly=(P2.y-P1.y)*0.85;
             el.animate([{transform:"translate(0,0)",offset:0},
@@ -3208,15 +3221,13 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
               {duration:slowMs(480),easing:"cubic-bezier(.34,.65,.3,1)",delay:d*1000}); } }
         add.push({key:"b"+kk,type:"burst",x:P2.x,y:P2.y,n:8,c:"var(--amber)",d:d+0.13*T}); }
       else if(e.t==="zap"){ const P1=posOf(e.fs,e.fu), P2=posOf(e.ts,e.tu); if(!P1||!P2) continue;
-        add.push({key:"z"+kk,type:"zap",p1:P1,p2:P2,art:e.art,d}); lyd(Audio8.sfx.zap); }
+        add.push({key:"z"+kk,type:"zap",p1:P1,p2:P2,art:e.art,d}); lyd(Audio8.sfx.zap,d); }
       else if(e.t==="flyt"){
-        // mind control: kortet er allerede flyttet i state; animer det fra
-        // modstanderens side ned til din side med et glimt
         const P=posOf(e.til,e.uid); if(!P) continue;
         const fraY=posOf(e.fra,null);
         const startY=fraY?fraY.y:P.y-220;
         add.push({key:"mcr"+kk,type:"ring",x:P.x,y:P.y,c:"#c07bff",d:d+0.3*T});
-        lyd(Audio8.sfx.zap);
+        lyd(Audio8.sfx.zap,d);
         if(!redMo){ const el=document.querySelector('[data-fx="'+e.uid+'"]');
           if(el&&el.animate){
             el.animate([
@@ -3224,24 +3235,14 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
               {transform:"translateY(0) scale(1) rotate(0)",filter:"brightness(1)",offset:1}
             ],{duration:slowMs(600),easing:"cubic-bezier(.3,.9,.4,1)",delay:d*1000}); } }
       }
-      else if(e.t==="spil"){ const fra=posOf(e.s,e.hu)||posOf(e.s,null); if(!fra) continue;
-        const til=e.ts!=null?posOf(e.ts,e.tu):null;
-        const cx=(typeof window!=="undefined"?window.innerWidth/2:400);
-        const cy=(typeof window!=="undefined"?window.innerHeight/2:400);
-        // med showcase flyver kortet ind midtfor; uden flyver det direkte mod målet
-        const mx=hold>0?cx:(til?til.x:cx), my=hold>0?cy:(til?til.y:cy);
-        const kurve=typeof CSS!=="undefined"&&CSS.supports&&CSS.supports("offset-path",'path("M0 0 L1 1")');
-        add.push({key:"f"+kk,type:"flyv",x:fra.x,y:fra.y,tx:mx-fra.x,ty:my-fra.y,id:e.id,d,
-          op:kurve?('path("M '+fra.x.toFixed(0)+' '+fra.y.toFixed(0)+' Q '+((fra.x+mx)/2).toFixed(0)+' '
-            +(Math.min(fra.y,my)-180).toFixed(0)+' '+mx.toFixed(0)+' '+my.toFixed(0)+'")'):null}); }
     }
     if(add.length){
       setSparks(x=>[...x,...add]);
       const keys=add.map(a=>a.key);
-      setTimeout(()=>setSparks(x=>x.filter(f=>!keys.includes(f.key))),slowMs(1400)+hold*1000);
+      setTimeout(()=>setSparks(x=>x.filter(f=>!keys.includes(f.key))),slowMs(1400));
     }
-    if(sh.length){ setTimeout(()=>{ setShake(new Set(sh)); setTimeout(()=>setShake(new Set()),slowMs(380)); }, hold*1000); }
-  },[g,reveal]);
+    if(sh.length){ setTimeout(()=>{ setShake(new Set(sh)); setTimeout(()=>setShake(new Set()),slowMs(380)); },0); }
+  },[reveal]);
 
   useEffect(()=>{ const L=g.last;
     if(L&&L.k!==lastK.current){ lastK.current=L.k;
