@@ -1676,6 +1676,16 @@ input:focus,select:focus{border-color:var(--cu)}
 .rvhead .ico{color:var(--guld)} .rvhead.tabt{margin:24px 0}
 .rvhead h2{font-family:var(--disp);letter-spacing:1px;font-size:28px;margin:0}
 .rvhead.sejr h2{color:var(--guld)}
+/* ---- run victory ---- */
+.runvict{position:relative;text-align:center;padding:28px 16px 18px;border-radius:16px;overflow:hidden;
+  border:2px solid var(--guld);background:linear-gradient(180deg,rgba(26,40,16,.9),rgba(12,24,17,.95))}
+.runvict-bg{position:absolute;inset:0;
+  background:radial-gradient(circle at 50% 30%,rgba(255,209,102,.18),transparent 60%);
+  animation:runvglow 2.2s ease-in-out infinite}
+@keyframes runvglow{50%{opacity:.6}}
+.runstats{display:flex;gap:14px;justify-content:center;margin:14px 0 4px;font-family:var(--mono);font-size:14px}
+.runstats>span{display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border-radius:9px;
+  background:var(--bg1);border:1px solid var(--line)}
 .rrewards{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin:14px 0;justify-items:center}
 .rcard{background:none;border:2px solid transparent;border-radius:16px;padding:0;cursor:pointer;
   transition:transform .12s,border-color .12s;border-radius:16px}
@@ -1771,8 +1781,9 @@ button:active{transform:scale(.97)}
 .fxzap.spell{filter:drop-shadow(0 0 7px rgba(95,224,160,.9))}
 @keyframes zapfl{0%{opacity:1}45%{opacity:.3}60%{opacity:1}100%{opacity:0}}
 .fxflyv{position:fixed;font-size:42px;transform:translate(-50%,-50%);z-index:61;
-  text-shadow:0 0 16px rgba(95,224,160,.9);animation:flyv calc(.55s * var(--tempo,1)) cubic-bezier(.3,.1,.55,1) forwards}
-@keyframes flyv{55%{opacity:1}100%{transform:translate(calc(-50% + var(--tx)),calc(-50% + var(--ty))) scale(.35);opacity:0}}
+  text-shadow:0 0 16px rgba(95,224,160,.9);animation:flyv calc(.72s * var(--tempo,1)) cubic-bezier(.3,.1,.55,1) forwards}
+@keyframes flyv{0%{opacity:1;transform:translate(-50%,-50%) scale(1.1)}10%{opacity:1}
+  65%{opacity:1}100%{transform:translate(calc(-50% + var(--tx)),calc(-50% + var(--ty))) scale(.35);opacity:0}}
 .ico{display:inline-flex;align-items:center;justify-content:center;vertical-align:-0.14em;line-height:0}
 .ico svg{display:block}
 .lnk{color:var(--cu2);text-decoration:underline;text-underline-offset:2px}
@@ -1792,14 +1803,14 @@ button:active{transform:scale(.97)}
 @media (hover:hover){ .mkort:hover::before{animation:skin .75s ease-out 1} }
 .pip.gemt{animation:gemtpuls 1.9s ease-in-out infinite}
 @keyframes gemtpuls{50%{box-shadow:0 0 8px rgba(95,224,160,.8)}}
-.fxflyv{width:64px;height:78px;border-radius:10px;background:linear-gradient(180deg,var(--bg2),var(--bg1));
+.fxflyv{width:76px;height:90px;border-radius:10px;background:linear-gradient(180deg,var(--bg2),var(--bg1));
   border:1.5px solid var(--fos);box-shadow:0 0 18px rgba(95,224,160,.55);
   display:flex;align-items:center;justify-content:center;font-size:0}
-.fxflyv .art{width:44px;height:44px}
+.fxflyv .art{width:56px;height:56px}
 .fxflyv.kurve{left:0;top:0;transform:none;offset-rotate:0deg;offset-anchor:50% 50%;
-  animation:flyvk calc(.62s * var(--tempo,1)) cubic-bezier(.32,.08,.55,1) forwards}
-@keyframes flyvk{0%{offset-distance:0%;opacity:0}10%{opacity:1}
-  100%{offset-distance:100%;opacity:0;transform:scale(.42)}}
+  animation:flyvk calc(.82s * var(--tempo,1)) cubic-bezier(.32,.08,.55,1) forwards}
+@keyframes flyvk{0%{offset-distance:0%;opacity:0;transform:scale(1.15)}10%{opacity:1}
+  70%{opacity:1}100%{offset-distance:100%;opacity:0;transform:scale(.4)}}
 .mkort.hastip:hover{overflow:visible;z-index:70}
 .haand:hover{overflow:visible}
 .enh.hastip:hover{overflow:visible;z-index:70}
@@ -1905,11 +1916,11 @@ button:active{transform:scale(.97)}
 .chatsend:hover{transform:scale(1.06);filter:brightness(1.1)}
 @media (max-width:560px){ .chatbox{bottom:78px} }
 /* håndkort toner ind når de trækkes (rører ikke transform, så viften bevares) */
-.haand .mkort{animation:handind calc(.4s * var(--tempo,1)) ease-out backwards}
-@keyframes handind{from{opacity:0;filter:brightness(2.2) blur(2px)}60%{opacity:1}}
+.haand .mkort{animation:handind calc(.55s * var(--tempo,1)) cubic-bezier(.25,1,.4,1) var(--hdi,0s) backwards}
+@keyframes handind{from{opacity:0;transform:translateY(-60px) scale(.7) rotate(-8deg);filter:brightness(2) blur(3px)}40%{opacity:1;filter:brightness(1.3) blur(0)}to{transform:translateY(0) scale(1) rotate(0deg)}}
 /* ---- spillet kort vises midtfor før effekten ---- */
 .revealwrap{position:fixed;inset:0;z-index:62;display:flex;align-items:center;justify-content:center;
-  pointer-events:none;animation:revwrap var(--rms,900ms) ease-out forwards}
+  pointer-events:auto;cursor:pointer;animation:revwrap var(--rms,900ms) ease-out forwards}
 @keyframes revwrap{0%{background:rgba(5,10,7,0)}18%{background:rgba(5,10,7,.45)}78%{background:rgba(5,10,7,.45)}100%{background:rgba(5,10,7,0)}}
 .revealkort{display:flex;flex-direction:column;align-items:center;gap:12px;
   animation:revkort var(--rms,900ms) cubic-bezier(.2,1.2,.4,1) forwards}
@@ -2729,21 +2740,31 @@ function reactor(ac){
 
 // ---------- ROBOTTER: variationer over robothoved ----------
 function robotBase(ac,bg2,opts={}){
-  const { antenna=1, eyes="rect", mouth=1 } = opts;
+  const { antenna=1, eyes="rect", mouth=1, visor=false, legs=false } = opts;
   let s="";
-  if(antenna) s+=L(375,252,375,208,ac,10)+DOT(375,196,13,ac);
+  // antenne(r)
+  if(antenna>=2){ s+=L(340,252,340,196,ac,8)+DOT(340,188,10,ac)+L(410,252,410,196,ac,8)+DOT(410,188,10,ac); }
+  else if(antenna) s+=L(375,252,375,208,ac,10)+DOT(375,196,13,ac);
+  // hoved
   s+=`<rect x="262" y="252" width="226" height="188" rx="28" fill="${bg2}" stroke="${ac}" stroke-width="10"/>`;
+  // arme
   s+=`<rect x="236" y="310" width="26" height="64" rx="8" fill="${ac}" opacity="0.7"/><rect x="488" y="310" width="26" height="64" rx="8" fill="${ac}" opacity="0.7"/>`;
-  if(eyes==="round") s+=C(326,332,20,ac,0,ac)+C(424,332,20,ac,0,ac);
-  else if(eyes==="angry") s+=`<path d="M 300 315 L 352 335 L 300 355 Z" fill="${ac}"/><path d="M 450 315 L 398 335 L 450 355 Z" fill="${ac}"/>`;
-  else s+=`<rect x="300" y="308" width="52" height="30" rx="8" fill="${ac}"/><rect x="398" y="308" width="52" height="30" rx="8" fill="${ac}"/>`;
+  // visor (hel lysende barre i stedet for øjne)
+  if(visor){ s+=`<rect x="290" y="312" width="170" height="26" rx="13" fill="${ac}" opacity="0.85"/>`; }
+  else {
+    if(eyes==="round") s+=C(326,332,20,ac,0,ac)+C(424,332,20,ac,0,ac);
+    else if(eyes==="angry") s+=`<path d="M 300 315 L 352 335 L 300 355 Z" fill="${ac}"/><path d="M 450 315 L 398 335 L 450 355 Z" fill="${ac}"/>`;
+    else s+=`<rect x="300" y="308" width="52" height="30" rx="8" fill="${ac}"/><rect x="398" y="308" width="52" height="30" rx="8" fill="${ac}"/>`;
+  }
   if(mouth) s+=`<rect x="318" y="384" width="114" height="12" rx="6" fill="${ac}" opacity="0.6"/>`;
+  // ben
+  if(legs) s+=`<rect x="316" y="440" width="18" height="46" rx="6" fill="${ac}" opacity="0.6"/><rect x="416" y="440" width="18" height="46" rx="6" fill="${ac}" opacity="0.6"/>`;
   return s;
 }
 
 // ---------- DRONER: variationer over quadcopter ----------
 function droneBase(ac,bg2,opts={}){
-  const { rotors=4, body="rect" } = opts;
+  const { rotors=4, body="rect", tail=false, cam=false } = opts;
   const arm=(x2,y2)=>L(375,345,x2,y2,ac,12);
   const rot=(x,y)=>C(x,y,52,ac,8)+DOT(x,y,10,ac);
   let s="";
@@ -2752,17 +2773,36 @@ function droneBase(ac,bg2,opts={}){
   for(let i=0;i<rotors;i++){ s+=rot(pos[i][0],pos[i][1]); }
   if(body==="round") s+=C(375,345,40,ac,10,bg2)+DOT(375,345,13,ac);
   else s+=`<rect x="327" y="311" width="96" height="68" rx="16" fill="${bg2}" stroke="${ac}" stroke-width="10"/>`+DOT(375,345,13,ac);
+  // hale (bagudrettet streg)
+  if(tail) s+=L(375,380,375,468,ac,8)+`<path d="M 360 458 L 375 480 L 390 458" fill="none" stroke="${ac}" stroke-width="6" stroke-linecap="round"/>`;
+  // kamera-linse under kroppen
+  if(cam) s+=C(375,385,16,ac,6,bg2)+DOT(375,385,6,ac);
   return s;
 }
 
 // ---------- VIRUS: variationer over blob med spikes ----------
 function virusBase(ac,bg2,opts={}){
-  const { spikes=8, r=96 } = opts;
+  const { spikes=8, r=96, tentacles=0, eyeR=14, pupils=1 } = opts;
   let sp="";
   for(let i=0;i<spikes;i++){ const a=Math.PI*2/spikes*i+Math.PI/spikes;
     const x1=CX+Math.cos(a)*r, y1=CY+Math.sin(a)*r, x2=CX+Math.cos(a)*(r+56), y2=CY+Math.sin(a)*(r+56);
     sp+=L(x1,y1,x2,y2,ac,13)+DOT(x2,y2,15,ac); }
-  return sp+C(375,345,r,ac,10,bg2)+DOT(345,322,14,ac)+DOT(404,352,19,ac)+DOT(358,386,10,ac);
+  // tentakler (bølgede udløbere)
+  for(let i=0;i<tentacles;i++){
+    const a=Math.PI*2/tentacles*i;
+    const mx=CX+Math.cos(a)*(r+30), my=CY+Math.sin(a)*(r+30);
+    const tx=CX+Math.cos(a)*(r+80), ty=CY+Math.sin(a)*(r+80);
+    const cx1=mx+Math.cos(a+0.6)*30, cy1=my+Math.sin(a+0.6)*30;
+    sp+=`<path d="M ${mx.toFixed(0)} ${my.toFixed(0)} Q ${cx1.toFixed(0)} ${cy1.toFixed(0)} ${tx.toFixed(0)} ${ty.toFixed(0)}" fill="none" stroke="${ac}" stroke-width="7" stroke-linecap="round" opacity="0.7"/>`;
+    sp+=DOT(tx,ty,8,ac);
+  }
+  // krop
+  sp+=C(375,345,r,ac,10,bg2);
+  // varierede "øjne" / indre detaljer
+  if(pupils>=3) sp+=DOT(345,322,eyeR,ac)+DOT(404,330,eyeR*0.7,ac)+DOT(370,372,eyeR*0.55,ac);
+  else if(pupils>=2) sp+=DOT(345,332,eyeR,ac)+DOT(404,342,eyeR*0.8,ac);
+  else sp+=DOT(375,340,eyeR,ac);
+  return sp;
 }
 
 // ---------- SPELL: hexagon med kort-specifikt indre ----------
@@ -2806,19 +2846,31 @@ function iconFor(id, d, ac, bg, bg2, rnd){
   }
   // 2) spell — hexagon med (evt. specifik) glyf
   if(d.t==="spell") return spellHex(ac,bg,spellGlyph(id,ac,bg));
-  // 3) robot-varianter
+  // 3) robot-varianter — seed bestemmer kropsform, øjne, ekstra detaljer
   if(d.tr==="Robot"){
     const big=(d.a||0)+(d.h||0)>=12;
-    return robotBase(ac,bg2,{eyes:big?"angry":"rect",antenna:1});
+    const eyes=rnd()<0.25?"round":rnd()<0.5?"angry":"rect";
+    const mouth=rnd()<0.3?0:1;
+    const antenna=rnd()<0.3?0:rnd()<0.6?1:2;
+    const visor=rnd()<0.3;
+    const legs=rnd()<0.4;
+    return robotBase(ac,bg2,{eyes:big?"angry":eyes,antenna,mouth,visor,legs});
   }
-  // 4) drone-varianter
+  // 4) drone-varianter — varierer rotorer, krop, detaljer
   if(d.tr==="Drone"){
-    return droneBase(ac,bg2,{rotors:4,body:(d.a||0)>=4?"round":"rect"});
+    const rotors=rnd()<0.25?2:rnd()<0.5?3:4;
+    const body=(d.a||0)>=4||rnd()<0.4?"round":"rect";
+    const tail=rnd()<0.4;
+    const cam=rnd()<0.4;
+    return droneBase(ac,bg2,{rotors,body,tail,cam});
   }
-  // 5) virus-varianter
+  // 5) virus-varianter — spike-antal, øje-stil, tentakler
   if(d.tr==="Virus"){
-    const spikes = (d.a||0)>=4?10:8;
-    return virusBase(ac,bg2,{spikes});
+    const spikes = 5+((rnd()*8)|0);
+    const tentacles = rnd()<0.35 ? ((rnd()*4)|0)+2 : 0;
+    const eyeR = 10+((rnd()*16)|0);
+    const pupils = 1+((rnd()*3)|0);
+    return virusBase(ac,bg2,{spikes,r:76+((rnd()*48)|0),tentacles,eyeR,pupils});
   }
   // 6) øvrige komponenter → chip
   if(d.tr==="Component") return chip(ac,bg2);
@@ -3084,7 +3136,7 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
     const redMo=(typeof window!=="undefined"&&window.matchMedia
       &&window.matchMedia("(prefers-reduced-motion: reduce)").matches)||!SETTINGS.fxMotion;
     const T=tempo(); // langsomhed-faktor
-    const gap=0.14*T; // afstand mellem sekventielle fx (før: 0.06)
+    const gap=0.22*T; // afstand mellem sekventielle fx (før: 0.06)
     // Er der spillet et kort i denne batch? Så vis det stort midtfor først,
     // og udskyd de øvrige effekter så man når at læse hvad der blev spillet.
     const spilEv=nye.find(e=>e.t==="spil");
@@ -3124,11 +3176,13 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
         const P1=posOf(e.fs,e.fu), P2=posOf(e.ts,e.tu); if(!P1||!P2) continue;
         lyd(Audio8.sfx.attack);
         if(!redMo){ const el=document.querySelector('[data-fx="'+e.fu+'"]');
-          if(el&&el.animate){ const lx=(P2.x-P1.x)*0.7, ly=(P2.y-P1.y)*0.7;
-            el.animate([{transform:"translate(0,0)"},
-              {transform:"translate("+lx+"px,"+ly+"px) scale(1.07)",offset:0.42},
-              {transform:"translate(0,0)"}],
-              {duration:slowMs(330),easing:"cubic-bezier(.34,.65,.3,1)",delay:d*1000}); } }
+          if(el&&el.animate){ const lx=(P2.x-P1.x)*0.85, ly=(P2.y-P1.y)*0.85;
+            el.animate([{transform:"translate(0,0)",offset:0},
+              {transform:"translate("+(lx*0.15)+"px,"+(ly*0.15)+"px)",offset:0.12},
+              {transform:"translate("+lx+"px,"+ly+"px) scale(1.12)",offset:0.45},
+              {transform:"translate("+lx+"px,"+ly+"px) scale(1.06)",offset:0.55},
+              {transform:"translate(0,0)",offset:1}],
+              {duration:slowMs(480),easing:"cubic-bezier(.34,.65,.3,1)",delay:d*1000}); } }
         add.push({key:"b"+kk,type:"burst",x:P2.x,y:P2.y,n:8,c:"var(--amber)",d:d+0.13*T}); }
       else if(e.t==="zap"){ const P1=posOf(e.fs,e.fu), P2=posOf(e.ts,e.tu); if(!P1||!P2) continue;
         add.push({key:"z"+kk,type:"zap",p1:P1,p2:P2,art:e.art,d}); lyd(Audio8.sfx.zap); }
@@ -3156,7 +3210,7 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
         const kurve=typeof CSS!=="undefined"&&CSS.supports&&CSS.supports("offset-path",'path("M0 0 L1 1")');
         add.push({key:"f"+kk,type:"flyv",x:fra.x,y:fra.y,tx:mx-fra.x,ty:my-fra.y,id:e.id,d,
           op:kurve?('path("M '+fra.x.toFixed(0)+' '+fra.y.toFixed(0)+' Q '+((fra.x+mx)/2).toFixed(0)+' '
-            +(Math.min(fra.y,my)-110).toFixed(0)+' '+mx.toFixed(0)+' '+my.toFixed(0)+'")'):null}); }
+            +(Math.min(fra.y,my)-180).toFixed(0)+' '+mx.toFixed(0)+' '+my.toFixed(0)+'")'):null}); }
     }
     if(add.length){
       setSparks(x=>[...x,...add]);
@@ -3497,7 +3551,7 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
           return (
             <div key={c.uid} className={"hslot"+(kan?" kan":"")+(valgt?" valgt":"")}>
               <MiniCard id={c.id} dfx={c.uid} tip={true} xcls={hiB("hand:"+c.id)?"tuthi":""} glow={kan}
-                style={{"--o":o,"--a":Math.abs(o),opacity:drag&&drag.uid===c.uid?0.3:undefined}}
+                style={{"--o":o,"--a":Math.abs(o),"--tempo":tempo(),"--hdi":(i*0.06)+"s",opacity:drag&&drag.uid===c.uid?0.3:undefined}}
                 onPointerDown={(e)=>startDrag(c,e)}
                 onClick={()=>{ if(justDragged.current){justDragged.current=false;return;} if(tmode){setT(null);return;} setSel({kind:"hand",id:c.id,uid:c.uid}); }}/>
               {tast && <span className="hotkey" aria-hidden="true">{tast===" "?"␣":tast}</span>}
@@ -3513,7 +3567,8 @@ function GameView({g,seat,myTurn,act,mode,onLeave,onConcede,onRematch,onDelete,p
       {drag && drag.kind==="play" && <div className={"dragkort"+((drag.over||drag.tgt)?" over":"")} style={{left:drag.x,top:drag.y}}><MiniCard id={drag.id}/></div>}
       {drag && drag.kind==="atk" && <div className={"dragatk"+(drag.tgt?" hit":"")} style={{left:drag.x,top:drag.y}}><Ico n="sword"/></div>}
       {reveal && (
-        <div className="revealwrap" key={reveal.k} style={{"--rms":reveal.ms+"ms"}}>
+        <div className="revealwrap" key={reveal.k} style={{"--rms":reveal.ms+"ms"}}
+          onClick={()=>setReveal(null)}>
           <div className="revealkort">
             <MiniCard id={reveal.id}/>
             <div className="revealnavn">{CARDS[reveal.id]?CARDS[reveal.id].n:""}</div>
@@ -4199,8 +4254,17 @@ function RunView({run,fase,navn,onStartBattle,onPickCard,onPickUpgrade,onLeave,o
       </>}
 
       {fase==="sejr" && <>
-        <div className="rvhead sejr"><Ico n="trophy" size="40px"/><h2>RUN COMPLETE</h2></div>
-        <p className="rt" style={{textAlign:"center"}}>You survived all {RUN_LEN} nodes and shut down the Meltdown. Nicely done.</p>
+        <div className="runvict">
+          <div className="runvict-bg"/>
+          <div className="rvhead sejr"><Ico n="trophy" size="40px"/><h2>RUN COMPLETE</h2></div>
+          <p className="rt" style={{textAlign:"center",maxWidth:420}}>
+            You survived all {RUN_LEN} nodes and shut down the Meltdown with {run.hp}/{run.max} HP remaining.</p>
+          <div className="runstats">
+            <span><Ico n="heart"/> {run.hp}/{run.max} HP</span>
+            <span><Ico n="deck"/> {run.deck.length} cards</span>
+            {run.upg.length>0 && <span><Ico n="gear"/> {run.upg.length} upgrades</span>}
+          </div>
+        </div>
         <button className="knap cu big" onClick={onNewRun}><Ico n="cycle"/> New run</button>
         <button className="knap" onClick={onLeave}>Back to menu</button>
       </>}
