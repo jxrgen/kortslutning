@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="da">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>VOLT — browser music studio</title>
+<meta name="description" content="A complete browser music studio: sequencer, drums, synth, sampler, mixer and FX. Make music anywhere.">
+<meta property="og:title" content="VOLT — browser music studio">
+<meta property="og:description" content="Sequencer, drum machine, synth, sampler and mixer — all in the browser.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/studio.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23070a0e'/%3E%3Cpath d='M18 40 L32 12 L46 40 Z' fill='none' stroke='%232ee6d6' stroke-width='4'/%3E%3Ccircle cx='32' cy='44' r='5' fill='%23ffb347'/%3E%3C/svg%3E">
+</head>
+<body>
+<div id="boot" class="boot">
+  <div class="boot-inner">
+    <div class="boot-brand">VOLT</div>
+    <p class="boot-tag">browser music studio</p>
+    <button id="boot-go" class="boot-cta" type="button">Power on</button>
+    <p class="boot-hint">Web Audio requires a click to start. Your projects stay on this device.</p>
+  </div>
+  <canvas id="boot-viz" class="boot-viz" aria-hidden="true"></canvas>
+</div>
+
+<div id="app" class="app" hidden>
+  <header class="topbar">
+    <div class="brand" aria-label="VOLT">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <span class="brand-name">VOLT</span>
+    </div>
+
+    <div class="transport" role="group" aria-label="Transport">
+      <button id="btn-stop" class="t-btn" title="Stop" type="button">■</button>
+      <button id="btn-play" class="t-btn play" title="Play / Pause" type="button">▶</button>
+      <button id="btn-rec" class="t-btn rec" title="Arm record" type="button">●</button>
+      <div class="t-sep"></div>
+      <label class="t-field">BPM
+        <input id="bpm" type="number" min="40" max="240" value="120" step="1">
+      </label>
+      <label class="t-field">Swing
+        <input id="swing" type="range" min="0" max="75" value="0">
+      </label>
+      <button id="btn-metro" class="t-btn ghost" title="Metronome" type="button">♩</button>
+      <div class="t-sep"></div>
+      <div class="pattern-bank" id="pattern-bank" aria-label="Patterns"></div>
+    </div>
+
+    <div class="top-actions">
+      <span id="clock" class="clock">001:01:00</span>
+      <button id="btn-save" class="ghost-btn" type="button">Save</button>
+      <button id="btn-load" class="ghost-btn" type="button">Load</button>
+      <button id="btn-export" class="ghost-btn" type="button">Export</button>
+      <input id="file-import" type="file" accept="application/json,.volt,.json" hidden>
+    </div>
+  </header>
+
+  <aside class="rail" aria-label="Modules">
+    <button class="rail-btn active" data-panel="drums" type="button"><span>🥁</span>Drums</button>
+    <button class="rail-btn" data-panel="synth" type="button"><span>🎹</span>Synth</button>
+    <button class="rail-btn" data-panel="seq" type="button"><span>▦</span>Sequencer</button>
+    <button class="rail-btn" data-panel="sampler" type="button"><span>◎</span>Sampler</button>
+    <button class="rail-btn" data-panel="mixer" type="button"><span>〰</span>Mixer</button>
+    <button class="rail-btn" data-panel="fx" type="button"><span>✧</span>Master FX</button>
+    <button class="rail-btn" data-panel="arrange" type="button"><span>▭</span>Arrange</button>
+  </aside>
+
+  <main class="workspace">
+    <section id="panel-drums" class="panel active"></section>
+    <section id="panel-synth" class="panel"></section>
+    <section id="panel-seq" class="panel"></section>
+    <section id="panel-sampler" class="panel"></section>
+    <section id="panel-mixer" class="panel"></section>
+    <section id="panel-fx" class="panel"></section>
+    <section id="panel-arrange" class="panel"></section>
+  </main>
+
+  <aside class="inspector" aria-label="Monitor">
+    <div class="insp-head">Monitor</div>
+    <canvas id="scope" width="280" height="90" class="scope"></canvas>
+    <canvas id="spectrum" width="280" height="70" class="spectrum"></canvas>
+    <div class="insp-meters">
+      <div class="meter"><i id="meter-l"></i></div>
+      <div class="meter"><i id="meter-r"></i></div>
+    </div>
+    <div class="insp-notes" id="activity-log">Ready.</div>
+  </aside>
+
+  <footer class="bottom">
+    <div class="keys" id="keyboard" aria-label="Piano keyboard"></div>
+    <div class="bottom-tools">
+      <label class="oct">Oct
+        <button id="oct-down" type="button">−</button>
+        <span id="oct-label">3</span>
+        <button id="oct-up" type="button">+</button>
+      </label>
+      <span class="hint-keys">A–K keys · Z/X octave · Space play</span>
+    </div>
+  </footer>
+</div>
+
+<div id="toast" class="toast" hidden></div>
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

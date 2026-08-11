@@ -110,3 +110,13 @@ for (const dir of ["docs", "desktop/app"]) {
   if (existsSync("web/og.png")) copyFileSync("web/og.png", `${dir}/og.png`);
 }
 console.log("Web-build OK → docs/ + desktop/app/ (landing + " + SPLASH.length + " splash-kort)");
+
+// Copy VOLT music studio into docs/pulse for GitHub Pages
+try {
+  if (existsSync("pulse/index.html")) {
+    execSync("rm -rf docs/pulse && cp -r pulse docs/pulse", { stdio: "inherit" });
+    console.log("VOLT studio → docs/pulse/");
+  }
+} catch (e) {
+  console.warn("pulse copy skipped:", e.message);
+}

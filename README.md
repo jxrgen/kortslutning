@@ -11,9 +11,10 @@ A 2-player deckbuilder card game (Hearthstone-style) with an electronics theme. 
 - Keywords: Grounded (taunt), Turbo (rush), Insulated (shield), High Voltage (poisonous), Dual Core (2 attacks), Energy Harvest (lifesteal), Cloaked (stealth) — plus Signal Strength, Install, Breakdown and Chain.
 - Deck: exactly 25 cards, max 2 of each, 1 of each legendary.
 
-## Play
+## Also in this repo
 
-`kortslutning.jsx` is a complete Claude artifact. There is also a static web build in `docs/` (solo vs. built-in bot + local hotseat) and an Electron desktop app in `desktop/` — build both with `node tools/build-web.mjs`. Online multiplayer requires the Claude artifact edition (shared storage).
+**[VOLT](pulse/)** — a complete browser music studio (drums, synth, sequencer, sampler, mixer, FX).  
+Live path after deploy: `/pulse/` on GitHub Pages.
 
 ## Development
 
