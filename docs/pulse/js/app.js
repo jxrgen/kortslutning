@@ -71,15 +71,36 @@ function bootViz() {
 }
 
 async function powerOn() {
-  await engine.start();
-  applyProjectAudio();
-  $("#boot").hidden = true;
-  $("#app").hidden = false;
-  buildAll();
-  bindGlobal();
-  startMonitor();
-  toast("VOLT online");
-  log("Session ready — hit play or tap pads.");
+  const btn = $("#boot-go");
+  try {
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = "Booting…";
+    }
+    await engine.start();
+    applyProjectAudio();
+    const boot = $("#boot");
+    boot.hidden = true;
+    boot.classList.add("off");
+    $("#app").hidden = false;
+    buildAll();
+    bindGlobal();
+    startMonitor();
+    toast("VOLT online");
+    log("Session ready — hit play or tap pads.");
+  } catch (err) {
+    console.error(err);
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = "Power on";
+    }
+    const hint = $(".boot-hint");
+    if (hint) {
+      hint.textContent = "Could not start audio: " + (err && err.message ? err.message : String(err));
+      hint.style.color = "var(--coral)";
+    }
+    toast("Boot failed — see message under the button");
+  }
 }
 
 /* ---------- project -> audio ---------- */
@@ -994,5 +1015,17 @@ function startMonitor() {
 }
 
 /* ---------- init ---------- */
-bootViz();
-$("#boot-go").onclick = () => powerOn();
+try {
+  bootViz();
+} catch (e) {
+  console.warn("boot viz", e);
+}
+const bootBtn = $("#boot-go");
+if (bootBtn) {
+  bootBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    powerOn();
+  });
+} else {
+  console.error("VOLT: #boot-go missing");
+}
