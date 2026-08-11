@@ -343,7 +343,7 @@ function buildDrums() {
       <div class="drum-kits" id="kit-list"></div>
     </div>
     <div class="card">
-      <div class="drum-grid" id="drum-grid"></div>
+      <div class="drum-scroll pan"><div class="drum-grid" id="drum-grid"></div></div>
       <div class="row" style="margin-top:12px">
         <button class="ghost-btn" id="drum-clear" type="button">Clear pattern</button>
         <button class="ghost-btn" id="drum-random" type="button">Randomize hats</button>
@@ -417,46 +417,48 @@ function buildSynth() {
   const p = synth.params;
   root.innerHTML = `
     <div class="ph"><div><h1>Synth</h1><p>Polyphonic subtractive · dual osc · filter envelope · LFO</p></div></div>
-    <div class="synth-presets" id="presets"></div>
-    <div class="synth-layout">
-      <div class="card osc-card">
-        <h3>Oscillators</h3>
-        <div class="row"><span class="chip">OSC 1</span><div class="wave-btns" id="w1"></div></div>
-        <div class="row" style="margin-top:8px"><span class="chip">OSC 2</span><div class="wave-btns" id="w2"></div></div>
-        <div class="knob-row" style="margin-top:14px">
-          ${knobHTML("detune", "Detune", p.osc2Detune, -50, 50, 1)}
-          ${knobHTML("mix", "OSC2 Mix", p.osc2Mix, 0, 1, 0.01)}
-          ${knobHTML("oct", "OSC2 Oct", p.osc2Oct, -2, 2, 1)}
-          ${knobHTML("noise", "Noise", p.noise, 0, 1, 0.01)}
-          ${knobHTML("uni", "Unison", p.unison, 1, 5, 1)}
-          ${knobHTML("lvl", "Level", p.level, 0, 1, 0.01)}
+    <div class="synth-scroll pan">
+      <div class="synth-presets" id="presets"></div>
+      <div class="synth-layout">
+        <div class="card osc-card">
+          <h3>Oscillators</h3>
+          <div class="row"><span class="chip">OSC 1</span><div class="wave-btns" id="w1"></div></div>
+          <div class="row" style="margin-top:8px"><span class="chip">OSC 2</span><div class="wave-btns" id="w2"></div></div>
+          <div class="knob-row" style="margin-top:14px">
+            ${knobHTML("detune", "Detune", p.osc2Detune, -50, 50, 1)}
+            ${knobHTML("mix", "OSC2 Mix", p.osc2Mix, 0, 1, 0.01)}
+            ${knobHTML("oct", "OSC2 Oct", p.osc2Oct, -2, 2, 1)}
+            ${knobHTML("noise", "Noise", p.noise, 0, 1, 0.01)}
+            ${knobHTML("uni", "Unison", p.unison, 1, 5, 1)}
+            ${knobHTML("lvl", "Level", p.level, 0, 1, 0.01)}
+          </div>
         </div>
-      </div>
-      <div class="card filt-card">
-        <h3>Filter & LFO</h3>
-        <div class="knob-row">
-          ${knobHTML("cut", "Cutoff", p.cutoff, 80, 12000, 1)}
-          ${knobHTML("res", "Res", p.res, 0.1, 18, 0.1)}
-          ${knobHTML("fenv", "F.Env", p.filtEnv, 0, 6000, 10)}
-          ${knobHTML("lfoR", "LFO Rate", p.lfoRate, 0.1, 20, 0.1)}
-          ${knobHTML("lfoP", "LFO Pitch", p.lfoPitch, 0, 100, 1)}
-          ${knobHTML("lfoC", "LFO Cut", p.lfoCut, 0, 2000, 10)}
+        <div class="card filt-card">
+          <h3>Filter & LFO</h3>
+          <div class="knob-row">
+            ${knobHTML("cut", "Cutoff", p.cutoff, 80, 12000, 1)}
+            ${knobHTML("res", "Res", p.res, 0.1, 18, 0.1)}
+            ${knobHTML("fenv", "F.Env", p.filtEnv, 0, 6000, 10)}
+            ${knobHTML("lfoR", "LFO Rate", p.lfoRate, 0.1, 20, 0.1)}
+            ${knobHTML("lfoP", "LFO Pitch", p.lfoPitch, 0, 100, 1)}
+            ${knobHTML("lfoC", "LFO Cut", p.lfoCut, 0, 2000, 10)}
+          </div>
         </div>
-      </div>
-      <div class="card env-card">
-        <h3>Amp Envelope</h3>
-        <div class="knob-row">
-          ${knobHTML("aa", "A", p.ampA, 0.001, 2, 0.001)}
-          ${knobHTML("ad", "D", p.ampD, 0.01, 2, 0.01)}
-          ${knobHTML("as", "S", p.ampS, 0, 1, 0.01)}
-          ${knobHTML("ar", "R", p.ampR, 0.01, 3, 0.01)}
-        </div>
-        <h3 style="margin-top:16px">Filter Envelope</h3>
-        <div class="knob-row">
-          ${knobHTML("fa", "A", p.filtA, 0.001, 2, 0.001)}
-          ${knobHTML("fd", "D", p.filtD, 0.01, 2, 0.01)}
-          ${knobHTML("fs", "S", p.filtS, 0, 1, 0.01)}
-          ${knobHTML("fr", "R", p.filtR, 0.01, 3, 0.01)}
+        <div class="card env-card">
+          <h3>Amp Envelope</h3>
+          <div class="knob-row">
+            ${knobHTML("aa", "A", p.ampA, 0.001, 2, 0.001)}
+            ${knobHTML("ad", "D", p.ampD, 0.01, 2, 0.01)}
+            ${knobHTML("as", "S", p.ampS, 0, 1, 0.01)}
+            ${knobHTML("ar", "R", p.ampR, 0.01, 3, 0.01)}
+          </div>
+          <h3 style="margin-top:16px">Filter Envelope</h3>
+          <div class="knob-row">
+            ${knobHTML("fa", "A", p.filtA, 0.001, 2, 0.001)}
+            ${knobHTML("fd", "D", p.filtD, 0.01, 2, 0.01)}
+            ${knobHTML("fs", "S", p.filtS, 0, 1, 0.01)}
+            ${knobHTML("fr", "R", p.filtR, 0.01, 3, 0.01)}
+          </div>
         </div>
       </div>
     </div>`;
