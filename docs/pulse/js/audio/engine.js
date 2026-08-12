@@ -94,10 +94,15 @@ export class Engine {
     for (const name of ["drums", "synth", "sampler", "metro"]) {
       const g = this.ctx.createGain();
       g.gain.value = name === "metro" ? 0.35 : 0.9;
-      const pan = this.ctx.createStereoPanner();
-      pan.pan.value = 0;
-      g.connect(pan);
-      pan.connect(this.fx.pre);
+      let pan = null;
+      if (this.ctx.createStereoPanner) {
+        pan = this.ctx.createStereoPanner();
+        pan.pan.value = 0;
+        g.connect(pan);
+        pan.connect(this.fx.pre);
+      } else {
+        g.connect(this.fx.pre);
+      }
       this.buses[name] = { gain: g, pan, mute: false, solo: false, level: 0.9 };
     }
 
@@ -117,7 +122,7 @@ export class Engine {
 
   setBusPan(name, v) {
     const b = this.buses[name];
-    if (b) b.pan.pan.value = v;
+    if (b?.pan) b.pan.pan.value = v;
   }
 
   setMute(name, on) {
