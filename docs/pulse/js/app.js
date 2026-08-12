@@ -10,6 +10,7 @@ import {
   importJSON,
   seedDemo,
 } from "./store.js";
+import { installTwoFingerPan } from "./pan.js";
 
 const engine = new Engine();
 const drums = new DrumMachine(engine);
@@ -85,9 +86,10 @@ async function powerOn() {
     $("#app").hidden = false;
     buildAll();
     bindGlobal();
+    installTwoFingerPan(document.getElementById("app") || document);
     startMonitor();
     toast("VOLT online");
-    log("Session ready — hit play or tap pads.");
+    log("Session ready — hit play or tap pads · two-finger drag to pan");
   } catch (err) {
     console.error(err);
     if (btn) {
@@ -547,7 +549,7 @@ function buildSeq() {
     <div class="ph"><div><h1>Melodic Sequencer</h1><p>32-step piano grid · plays through the synth</p></div>
       <button class="ghost-btn" id="melo-clear" type="button">Clear</button>
     </div>
-    <div class="card"><div class="note-grid" id="note-grid"></div></div>`;
+    <div class="card"><div class="note-grid pan" id="note-grid"></div></div>`;
   const grid = $("#note-grid", root);
   for (let r = 0; r < 24; r++) {
     const row = document.createElement("div");
@@ -690,7 +692,7 @@ function buildMixer() {
   const chans = ["drums", "synth", "sampler"];
   root.innerHTML = `
     <div class="ph"><div><h1>Mixer</h1><p>Level · pan · mute · solo</p></div></div>
-    <div class="mixer" id="mixer"></div>`;
+    <div class="mixer pan" id="mixer"></div>`;
   const box = $("#mixer", root);
   chans.forEach((name) => {
     const m = project.mixer[name];
@@ -777,7 +779,7 @@ function buildArrange() {
       <label class="chip"><input id="arr-on" type="checkbox" ${project.arrangeOn ? "checked" : ""}> Follow arrange while playing</label>
     </div>
     <div class="card">
-      <div class="arr-row" id="arr-row"><div class="arr-cell" style="border:none;background:transparent;color:var(--dim)">Slot</div></div>
+      <div class="arr-scroll pan"><div class="arr-row" id="arr-row"><div class="arr-cell" style="border:none;background:transparent;color:var(--dim)">Slot</div></div></div>
     </div>`;
   const row = $("#arr-row", root);
   for (let i = 0; i < 8; i++) {
