@@ -2,7 +2,7 @@
 <html lang="da">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
 <title>VOLT — browser music studio</title>
 <meta name="description" content="A complete browser music studio: sequencer, drums, synth, sampler, mixer and FX. Make music anywhere.">
 <meta property="og:title" content="VOLT — browser music studio">
@@ -25,13 +25,13 @@
 </div>
 
 <div id="app" class="app" hidden>
-  <header class="topbar">
+  <header class="topbar pan">
     <div class="brand" aria-label="VOLT">
       <span class="brand-mark" aria-hidden="true"></span>
       <span class="brand-name">VOLT</span>
     </div>
 
-    <div class="transport" role="group" aria-label="Transport">
+    <div class="transport pan" role="group" aria-label="Transport">
       <button id="btn-stop" class="t-btn" title="Stop" type="button">■</button>
       <button id="btn-play" class="t-btn play" title="Play / Pause" type="button">▶</button>
       <button id="btn-rec" class="t-btn rec" title="Arm record" type="button">●</button>
@@ -66,7 +66,7 @@
     <button class="rail-btn" data-panel="arrange" type="button"><span>▭</span>Arrange</button>
   </aside>
 
-  <main class="workspace">
+  <main class="workspace pan">
     <section id="panel-drums" class="panel active"></section>
     <section id="panel-synth" class="panel"></section>
     <section id="panel-seq" class="panel"></section>
